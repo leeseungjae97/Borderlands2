@@ -4,8 +4,6 @@ class CSolarSystem :
     public CRenderComponent
 {
 private:
-    bool        m_bRevolution;
-    bool        m_bRotating;
     bool        m_bEmissive;
 
     Ptr<CTexture> m_PlanetTexture;

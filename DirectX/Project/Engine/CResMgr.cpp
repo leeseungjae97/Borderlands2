@@ -636,6 +636,28 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	AddRes(pShader->GetKey(), pShader);
 
+	// =================
+	// DebugSphereShape Shader
+	// Topology : LineStrip
+	// RS_TYPE  : CULL_NONE
+	// DS_TYPE  : NO_TEST_NO_WRITE
+	// BS_TYPE  : Default
+	// g_vec4_0 : OutColor
+	// ==================
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"DebugSphereShapeShader");
+	pShader->CreateVertexShader(L"shader\\debugshape.fx", "VS_DebugShape");
+	pShader->CreatePixelShader(L"shader\\debugshape.fx", "PS_DebugSphereShape");
+
+	pShader->SetTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pShader->SetRSType(RS_TYPE::CULL_BACK);
+	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+	pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
+
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_MASK);
+
+	AddRes(pShader->GetKey(), pShader);
+
 	// ============================
 	// TileMap Shader
 	// 
@@ -920,6 +942,26 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	AddRes(pShader->GetKey(), pShader);
 
+	// ============================
+    // SpotLightShader
+    // RS_TYPE : CULL_BACK
+    // DS_TYPE : NO_TEST_NO_WRITE
+    // BS_TYPE : ONE_ONE
+    // Domain : LIGHT
+    // ============================
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"SpotLightShader");
+
+	pShader->CreateVertexShader(L"shader\\light.fx", "VS_SpotLightShader");
+	pShader->CreatePixelShader(L"shader\\light.fx", "PS_SpotLightShader");
+
+	pShader->SetRSType(RS_TYPE::CULL_FRONT);
+	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_LIGHT);
+	pShader->SetBSType(BS_TYPE::ONE_ONE);
+
+	AddRes(pShader->GetKey(), pShader);
+
 	// =====================================
     // MergeShader
     // MRT              : SwapChain
@@ -953,6 +995,30 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	pShader->CreateVertexShader(L"shader\\decal.fx", "VS_DeferredDecal");
 	pShader->CreatePixelShader(L"shader\\decal.fx", "PS_DeferredDecal");
+
+	pShader->SetRSType(RS_TYPE::CULL_FRONT);
+	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+	pShader->SetBSType(BS_TYPE::DEFERRED_DECAL_BLEND);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_DEFERRED_DECAL);
+
+	// Parameter
+	pShader->AddTexParam(TEX_1, "Output Texture");
+
+	AddRes(pShader->GetKey(), pShader);
+
+
+	// ============================
+	// Deferred Area Decal Shader
+	// RS_TYPE : CULL_FRONT
+	// DS_TYPE : NoTest_NoWirte
+	// BS_TYPE : DEFEREED_DECAL_BLEND
+	// Domain  : Decal
+	// ============================
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"DeferredAreaDecalShader");
+
+	pShader->CreateVertexShader(L"shader\\area_decal.fx", "VS_DeferredAreaDecal");
+	pShader->CreatePixelShader(L"shader\\area_decal.fx", "PS_DeferredAreaDecal");
 
 	pShader->SetRSType(RS_TYPE::CULL_FRONT);
 	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
@@ -1026,6 +1092,11 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DebugShapeShader"));
 	AddRes(L"DebugShapeMtrl", pMtrl);
 
+	// DebugSphereShapeShader Material
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DebugSphereShapeShader"));
+	AddRes(L"DebugSphereShapeMtrl", pMtrl);
+
 	// TileMap Material
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"TileMapShader"));
@@ -1098,6 +1169,10 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DeferredDecalShader"));
 	AddRes(L"DeferredDecalMtrl", pMtrl);
+
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DeferredAreaDecalShader"));
+	AddRes(L"DeferredAreaDecalMtrl", pMtrl);
 }
 
 Ptr<CTexture> CResMgr::CreateTexture(const wstring& _strKey, UINT _Width, UINT _Height

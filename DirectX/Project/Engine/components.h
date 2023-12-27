@@ -14,6 +14,7 @@
 #include "CParticleSystem.h"
 #include "CDecal.h"
 #include "CSolarSystem.h"
+#include "CPlanetMove.h"
 
 //#include "CCollider3D.h"
 //#include "CAnimator3D.h"

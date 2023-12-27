@@ -33,8 +33,6 @@ private:
     vector<CGameObject*>    m_vecUI;
     vector<CGameObject*>    m_vecPost;
 
-
-
 public:
     void SetProjType(PROJ_TYPE _Type) { m_ProjType = _Type; }
     PROJ_TYPE GetProjType() { return m_ProjType; }

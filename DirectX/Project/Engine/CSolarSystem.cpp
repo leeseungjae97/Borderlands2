@@ -6,8 +6,6 @@
 CSolarSystem::CSolarSystem()
 	: CRenderComponent(COMPONENT_TYPE::SOLOAR_SYSTEM)
 	, m_PlanetTexture(nullptr)
-	, m_bRevolution(false)
-    , m_bRotating(false)
     , m_bEmissive(false)
 {
 

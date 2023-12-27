@@ -170,8 +170,9 @@
       <Filter>Source\Component\RenderComponent\Decal</Filter>
     </ClInclude>
     <ClInclude Include="CSolarSystem.h">
-      <Filter>Source\Component\SolarSystem</Filter>
+      <Filter>Source\Component\RenderComponent\SolarSystem</Filter>
     </ClInclude>
+    <ClInclude Include="CPlanetMove.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -325,8 +326,9 @@
       <Filter>Source\Component\RenderComponent\Decal</Filter>
     </ClCompile>
     <ClCompile Include="CSolarSystem.cpp">
-      <Filter>Source\Component\SolarSystem</Filter>
+      <Filter>Source\Component\RenderComponent\SolarSystem</Filter>
     </ClCompile>
+    <ClCompile Include="CPlanetMove.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -485,8 +487,11 @@
     <Filter Include="Source\Device\MRT">
       <UniqueIdentifier>{14024dff-86f9-4d03-a98b-e625ac49e880}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Component\SolarSystem">
+    <Filter Include="Source\Component\RenderComponent\SolarSystem">
       <UniqueIdentifier>{5954eaeb-a92a-4e4c-8928-2c0723179a59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Component\PlanetMove">
+      <UniqueIdentifier>{54abcd0b-66ba-4166-9d19-20e0fe627076}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -545,6 +550,9 @@
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="planet3d_deferred.fx">
+      <Filter>Source\ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="area_decal.fx">
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
   </ItemGroup>

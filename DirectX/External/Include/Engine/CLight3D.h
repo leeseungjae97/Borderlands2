@@ -17,6 +17,7 @@ private:
     Ptr<CMaterial>  m_Mtrl;
 
     UINT            m_LightIdx;
+    bool            m_bShowRange;
 
 public:
     void SetLightColor(Vec3 _Color) { m_LightInfo.Color.vDiffuse = _Color; }

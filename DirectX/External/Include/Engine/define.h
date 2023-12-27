@@ -34,6 +34,7 @@ enum class COMPONENT_TYPE
 	LIGHT2D,		// 2Â÷¿ø ±¤¿ø
 	LIGHT3D,		// 3Â÷¿ø ±¤¿ø
 	SOLOAR_SYSTEM,
+	PLANET_MOVE,
 	CAMERA,			// Camera
 
 	// render

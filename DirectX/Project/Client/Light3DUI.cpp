@@ -46,5 +46,11 @@ int Light3DUI::render_update()
 	ImGui::SameLine();
 	ImGui::DragFloat("##Light Radius", &fRadius);
 
+	GetTarget()->Light3D()->SetLightColor(vLightColor);
+	GetTarget()->Light3D()->SetLightAmbient(vAmbient);
+	GetTarget()->Light3D()->SetLightType((LIGHT_TYPE)iLightType);
+	GetTarget()->Light3D()->SetAngle(fAngle);
+	GetTarget()->Light3D()->SetRadius(fRadius);
+
     return TRUE;
 }

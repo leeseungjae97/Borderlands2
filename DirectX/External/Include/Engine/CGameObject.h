@@ -17,6 +17,7 @@ class CScript;
 class CSkyBox;
 class CDecal;
 class CSolarSystem;
+class CPlanetMove;
 
 #define GET_COMPONENT(Type, TYPE) C##Type* Type() const { return (C##Type*)m_arrCom[(UINT)COMPONENT_TYPE::TYPE]; }
 
@@ -70,6 +71,7 @@ public:
     GET_COMPONENT(SkyBox, SKYBOX);
     GET_COMPONENT(Decal, DECAL);
     GET_COMPONENT(SolarSystem, SOLOAR_SYSTEM);
+    GET_COMPONENT(PlanetMove, PLANET_MOVE);
     //Decal* Decal()
     //{
     //    return (Decal*)m_arrCom[(UINT)COMPONENT_TYPE::TRANSFORM];

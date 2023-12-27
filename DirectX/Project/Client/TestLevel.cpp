@@ -80,7 +80,9 @@ void CreateTestLevel()
 	pSun->SetName(L"Sun");
 	pSun->AddComponent(new CTransform);
 	pSun->AddComponent(new CSolarSystem);
+	pSun->AddComponent(new CPlanetMove);
 
+	pSun->PlanetMove()->SetRotate(true);
 	pSun->Transform()->SetRelativeScale(Vec3(1000.f, 1000.f, 1000.f));
 
 	pSun->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
@@ -111,9 +113,15 @@ void CreateTestLevel()
 	pMercury->SetName(L"Mercury");
 	pMercury->AddComponent(new CTransform);
 	pMercury->AddComponent(new CSolarSystem);
+	pMercury->AddComponent(new CPlanetMove);
+
+	pMercury->PlanetMove()->SetOrbit(true);
+	pMercury->PlanetMove()->SetRotate(true);
+	pMercury->PlanetMove()->SetOrbitSpeed(1000.f);
+	pMercury->PlanetMove()->SetOrbitRadius(1000.f);
 
 	pMercury->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
-
+	pMercury->SolarSystem()->SetEmissive(true);
 	pMercury->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
 	pMercury->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
 	pMercury->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\mercury\\2k_mercury.jpg"));
@@ -126,6 +134,12 @@ void CreateTestLevel()
 	pVenus->SetName(L"Venus");
 	pVenus->AddComponent(new CTransform);
 	pVenus->AddComponent(new CSolarSystem);
+	pVenus->AddComponent(new CPlanetMove);
+
+	pVenus->PlanetMove()->SetOrbit(true);
+	pVenus->PlanetMove()->SetRotate(true);
+	pVenus->PlanetMove()->SetOrbitSpeed(1000.f);
+	pVenus->PlanetMove()->SetOrbitRadius(1200.f);
 
 	pVenus->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
 
@@ -139,6 +153,11 @@ void CreateTestLevel()
 	pEarth->SetName(L"Earth");
 	pEarth->AddComponent(new CTransform);
 	pEarth->AddComponent(new CSolarSystem);
+	pEarth->AddComponent(new CPlanetMove);
+	pEarth->PlanetMove()->SetOrbit(true);
+	pEarth->PlanetMove()->SetRotate(true);
+	pEarth->PlanetMove()->SetOrbitSpeed(1000.f);
+	pEarth->PlanetMove()->SetOrbitRadius(1400.f);
 
 	pEarth->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
 
@@ -152,6 +171,11 @@ void CreateTestLevel()
 	pMars->SetName(L"Mars");
 	pMars->AddComponent(new CTransform);
 	pMars->AddComponent(new CSolarSystem);
+	pMars->AddComponent(new CPlanetMove);
+	pMars->PlanetMove()->SetOrbit(true);
+	pMars->PlanetMove()->SetRotate(true);
+	pMars->PlanetMove()->SetOrbitSpeed(1000.f);
+	pMars->PlanetMove()->SetOrbitRadius(1600.f);
 
 	pMars->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
 
@@ -165,6 +189,11 @@ void CreateTestLevel()
 	pJupiter->SetName(L"Jupiter");
 	pJupiter->AddComponent(new CTransform);
 	pJupiter->AddComponent(new CSolarSystem);
+	pJupiter->AddComponent(new CPlanetMove);
+	pJupiter->PlanetMove()->SetOrbit(true);
+	pJupiter->PlanetMove()->SetRotate(true);
+	pJupiter->PlanetMove()->SetOrbitSpeed(1000.f);
+	pJupiter->PlanetMove()->SetOrbitRadius(1800.f);
 
 	pJupiter->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
 
@@ -178,6 +207,11 @@ void CreateTestLevel()
 	pSaturn->SetName(L"Saturn");
 	pSaturn->AddComponent(new CTransform);
 	pSaturn->AddComponent(new CSolarSystem);
+	pSaturn->AddComponent(new CPlanetMove);
+	//pSaturn->PlanetMove()->SetOrbit(true);
+	pSaturn->PlanetMove()->SetRotate(true);
+	pSaturn->PlanetMove()->SetOrbitSpeed(1000.f);
+	pSaturn->PlanetMove()->SetOrbitRadius(2000.f);
 
 	pSaturn->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
 
@@ -187,10 +221,36 @@ void CreateTestLevel()
 	
 	SpawnGameObject(pSaturn, Vec3(2000.f, 0.f, -500.f), L"Planet");
 
+	CGameObject* pSaturnRing = new CGameObject;
+	//pSaturnRing->SetParent();
+	pSaturnRing->SetName(L"Saturn ring");
+	pSaturnRing->AddComponent(new CTransform);
+	pSaturnRing->AddComponent(new CSolarSystem);
+	pSaturnRing->AddComponent(new CPlanetMove);
+	//pSaturnRing->PlanetMove()->SetOrbit(true);
+	//pSaturnRing->PlanetMove()->SetRotate(true);
+	//pSaturnRing->PlanetMove()->SetXRotate(true);
+
+	pSaturnRing->Transform()->SetRelativeScale(Vec3(1.f, 0.1f, 1.f));
+	pSaturnRing->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
+	pSaturnRing->Transform()->SetRelativePos(Vec3(1.5f, 0.f, 0.f));
+
+	pSaturnRing->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	pSaturnRing->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
+	pSaturnRing->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\saturn\\2k_saturn_ring_alpha.png"));
+	
+	//SpawnGameObject(pSaturnRing, Vec3(2000.f, 0.f, -500.f), L"Planet");
+	pSaturn->AddChild(pSaturnRing);
+
 	CGameObject* pUranus = new CGameObject;
 	pUranus->SetName(L"Uranus");
 	pUranus->AddComponent(new CTransform);
 	pUranus->AddComponent(new CSolarSystem);
+	pUranus->AddComponent(new CPlanetMove);
+	pUranus->PlanetMove()->SetOrbit(true);
+	pUranus->PlanetMove()->SetRotate(true);
+	pUranus->PlanetMove()->SetOrbitSpeed(1000.f);
+	pUranus->PlanetMove()->SetOrbitRadius(2200.f);
 
 	pUranus->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
 
@@ -204,6 +264,11 @@ void CreateTestLevel()
 	pNeptune->SetName(L"Neptune");
 	pNeptune->AddComponent(new CTransform);
 	pNeptune->AddComponent(new CSolarSystem);
+	pNeptune->AddComponent(new CPlanetMove);
+	pNeptune->PlanetMove()->SetOrbit(true);
+	pNeptune->PlanetMove()->SetRotate(true);
+	pNeptune->PlanetMove()->SetOrbitSpeed(1000.f);
+	pNeptune->PlanetMove()->SetOrbitRadius(2400.f);
 
 	pNeptune->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
 

@@ -10,6 +10,7 @@
 
 CLight3D::CLight3D()
     : CComponent(COMPONENT_TYPE::LIGHT3D)
+	, m_bShowRange(true)
 {
 	SetLightType(LIGHT_TYPE::POINT);
 }
@@ -25,7 +26,15 @@ void CLight3D::finaltick()
 	m_LightInfo.vWorldDir = Transform()->GetWorldDir(DIR_TYPE::FRONT);
 
 	m_LightIdx = CRenderMgr::GetInst()->RegisterLight3D(this, m_LightInfo);
-	//DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, true);
+	
+
+	if(m_bShowRange)
+	{
+		if((UINT)LIGHT_TYPE::POINT == m_LightInfo.LightType)
+			DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, true);
+		//else if((UINT)LIGHT_TYPE::SPOT == m_LightInfo.LightType)
+		//	DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, true);	
+	}
 }
 void CLight3D::SetRadius(float _fRadius)
 {

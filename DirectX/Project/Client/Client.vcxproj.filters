@@ -113,6 +113,9 @@
     <Filter Include="UI\InspectorUI\ComponentUI\Light3DUI">
       <UniqueIdentifier>{80a545b8-a794-4aab-b098-89a2dbdd08ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\InspectorUI\ComponentUI\PlanetMoveUI">
+      <UniqueIdentifier>{ea35f49b-707f-4020-b6ae-b7c2bb68d619}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -239,9 +242,11 @@
     <ClInclude Include="ParticleSystemUI.h">
       <Filter>UI\InspectorUI\ComponentUI\ParticleSystemUI</Filter>
     </ClInclude>
-    <ClInclude Include="TestLevel2.h" />
     <ClInclude Include="Light3DUI.h">
       <Filter>UI\InspectorUI\ComponentUI\Light3DUI</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetMoveUI.h">
+      <Filter>UI\InspectorUI\ComponentUI\PlanetMoveUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -377,9 +382,11 @@
     <ClCompile Include="ParticleSystemUI.cpp">
       <Filter>UI\InspectorUI\ComponentUI\ParticleSystemUI</Filter>
     </ClCompile>
-    <ClCompile Include="TestLevel2.cpp" />
     <ClCompile Include="Light3DUI.cpp">
       <Filter>UI\InspectorUI\ComponentUI\Light3DUI</Filter>
+    </ClCompile>
+    <ClCompile Include="PlanetMoveUI.cpp">
+      <Filter>UI\InspectorUI\ComponentUI\PlanetMoveUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

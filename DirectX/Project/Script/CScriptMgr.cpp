@@ -14,6 +14,7 @@ void CScriptMgr::GetScriptInfo(vector<wstring>& _vec)
 	_vec.push_back(L"CGravityScript");
 	_vec.push_back(L"CMissileScript");
 	_vec.push_back(L"CMonsterScript");
+	_vec.push_back(L"CPlanetMoveScript");
 	_vec.push_back(L"CPlayerScript");
 	_vec.push_back(L"CTestScript");
 }
