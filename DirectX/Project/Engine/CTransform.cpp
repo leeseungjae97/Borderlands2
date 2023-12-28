@@ -7,7 +7,8 @@
 CTransform::CTransform()
 	: CComponent(COMPONENT_TYPE::TRANSFORM)
 	, m_vRelativeScale(Vec3(1.f, 1.f, 1.f))
-	, m_bAbsolute(false)	
+	, m_bAbsolute(false)
+	, m_bExceptParentRot(false)
 	, m_vRelativeDir{
 		  Vec3(1.f, 0.f, 0.f)
 		, Vec3(0.f, 1.f, 0.f)
@@ -25,15 +26,15 @@ void CTransform::finaltick()
 	m_matWorldScale = XMMatrixIdentity();
 	m_matWorldScale = XMMatrixScaling(m_vRelativeScale.x, m_vRelativeScale.y, m_vRelativeScale.z);
 	
-	Matrix matRot = XMMatrixIdentity();
-	matRot = XMMatrixRotationX(m_vRelativeRot.x);
-	matRot *= XMMatrixRotationY(m_vRelativeRot.y);
-	matRot *= XMMatrixRotationZ(m_vRelativeRot.z);
+	Matrix m_Rot = XMMatrixIdentity();
+	m_Rot  = XMMatrixRotationX(m_vRelativeRot.x);
+	m_Rot  *= XMMatrixRotationY(m_vRelativeRot.y);
+	m_Rot  *= XMMatrixRotationZ(m_vRelativeRot.z);
 
 	Matrix matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y, m_vRelativePos.z);
 
-	
-	m_matWorld = m_matWorldScale * matRot * matTranslation;
+	m_noRotWorld = m_matWorldScale * matTranslation;
+	m_matWorld = m_matWorldScale * m_Rot * matTranslation;
 
 	Vec3 vDefaultDir[3] = {
 		  Vec3(1.f, 0.f, 0.f)
@@ -43,13 +44,14 @@ void CTransform::finaltick()
 
 	for (int i = 0; i < 3; ++i)
 	{
-		m_vWorldDir[i] = m_vRelativeDir[i] = XMVector3TransformNormal(vDefaultDir[i], matRot);
+		m_vWorldDir[i] = m_vRelativeDir[i] = XMVector3TransformNormal(vDefaultDir[i], m_Rot);
 	}
 
 	// 부모 오브젝트 확인
 	CGameObject* pParent = GetOwner()->GetParent();
 	if (pParent)
 	{
+		
 		if (m_bAbsolute)
 		{
 			Matrix matParentWorld = pParent->Transform()->m_matWorld;
@@ -63,8 +65,8 @@ void CTransform::finaltick()
 		{
 			m_matWorldScale = pParent->Transform()->m_matWorldScale;
 			m_matWorld *= pParent->Transform()->m_matWorld;
-		}
-		
+		}	
+
 
 		for (int i = 0; i < 3; ++i)
 		{
@@ -73,6 +75,11 @@ void CTransform::finaltick()
 		}
 	}
 
+	if(nullptr != GetOwner()->GetFollowObj())
+	{
+		Vec3 vFollowPos = GetOwner()->GetFollowObj()->Transform()->GetRelativePos();
+		GetOwner()->Transform()->SetRelativePos(vFollowPos);
+	}
 	m_matWorldInv = XMMatrixInverse(nullptr, m_matWorld);
 }
 

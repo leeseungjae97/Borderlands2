@@ -8,6 +8,7 @@
 #include <Engine\components.h>
 
 #include <Engine\CResMgr.h>
+#include <Engine\CRenderMgr.h>
 #include <Engine\CCollisionMgr.h>
 
 #include <Script\CPlayerScript.h>
@@ -94,6 +95,18 @@ void CreateTestLevel()
 	
 	SpawnGameObject(pSun, Vec3(0.f, 0.f, 0.f), L"Planet");
 
+	CGameObject* pSunDistortion = new CGameObject;
+	pSunDistortion->SetName(L"SunDistortion");
+	pSunDistortion->AddComponent(new CTransform);
+	pSunDistortion->AddComponent(new CMeshRender);
+	pSunDistortion->Transform()->SetRelativeScale(Vec3(22000.f, 22000.f, 22000.f));
+
+	pSunDistortion->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	pSunDistortion->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl"));
+	pSunDistortion->MeshRender()->GetMaterial()->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\noise\\noise_04.jpg"));
+	
+	SpawnGameObject(pSunDistortion, Vec3(0.f, 0.f, 0.f), 0);
+
 	CGameObject* pSunLight = new CGameObject;
 	pSunLight->SetName(L"SunLight");
 	pSunLight->AddComponent(new CTransform);
@@ -146,6 +159,7 @@ void CreateTestLevel()
 	pVenus->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
 	pVenus->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
 	pVenus->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\venus\\2k_venus_surface.jpg"));
+	pVenus->SolarSystem()->SetPlanetCoverTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\venus\\2k_venus_atmosphere.jpg"));
 	
 	SpawnGameObject(pVenus, Vec3(30000.f, 0.f, -100.f), L"Planet");
 
@@ -154,10 +168,10 @@ void CreateTestLevel()
 	pEarth->AddComponent(new CTransform);
 	pEarth->AddComponent(new CSolarSystem);
 	pEarth->AddComponent(new CPlanetMove);
-	//pEarth->PlanetMove()->SetOrbit(true);
-	//pEarth->PlanetMove()->SetRotate(true);
-	//pEarth->PlanetMove()->SetOrbitSpeed(1000.f);
-	//pEarth->PlanetMove()->SetOrbitRadius(40000.f);
+	pEarth->PlanetMove()->SetOrbit(true);
+	pEarth->PlanetMove()->SetRotate(true);
+	pEarth->PlanetMove()->SetOrbitSpeed(1000.f);
+	pEarth->PlanetMove()->SetOrbitRadius(40000.f);
 
 	pEarth->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
 
@@ -165,7 +179,7 @@ void CreateTestLevel()
 	pEarth->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
 	pEarth->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\earth\\2k_earth_daymap.jpg"));
 	pEarth->SolarSystem()->SetPlanetNormalTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\earth\\2k_earth_normal_map.tif"));
-	pEarth->SolarSystem()->SetPlanetCoverTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\earth\\2k_earth_clouds.jpg"));
+	pEarth->SolarSystem()->SetPlanetCoverTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\earth\\2k_earth_clouds_3.png"));
 	
 	SpawnGameObject(pEarth, Vec3(40000.f, 0.f, -200.f), L"Planet");
 
@@ -231,7 +245,7 @@ void CreateTestLevel()
 	pSaturn->AddComponent(new CTransform);
 	pSaturn->AddComponent(new CSolarSystem);
 	pSaturn->AddComponent(new CPlanetMove);
-	//pSaturn->PlanetMove()->SetOrbit(true);
+	pSaturn->PlanetMove()->SetOrbit(true);
 	pSaturn->PlanetMove()->SetRotate(true);
 	pSaturn->PlanetMove()->SetOrbitSpeed(1000.f);
 	pSaturn->PlanetMove()->SetOrbitRadius(70000.f);
@@ -250,17 +264,17 @@ void CreateTestLevel()
 	pSaturnRing->AddComponent(new CTransform);
 	pSaturnRing->AddComponent(new CSolarSystem);
 	pSaturnRing->AddComponent(new CPlanetMove);
-	//pSaturnRing->PlanetMove()->SetOrbit(true);
-	//pSaturnRing->PlanetMove()->SetRotate(true);
-	//pSaturnRing->PlanetMove()->SetXRotate(true);
+	pSaturnRing->PlanetMove()->SetRotate(true);
+	pSaturnRing->PlanetMove()->SetXRotate(true);
+	pSaturnRing->PlanetMove()->SetRotateSpeed(10.f);
 
-	pSaturnRing->Transform()->SetRelativeScale(Vec3(1.f, 0.1f, 1.f));
+	pSaturnRing->Transform()->SetRelativeScale(Vec3(3.5f, 3.5f, 3.5f));
 	pSaturnRing->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
-	pSaturnRing->Transform()->SetRelativePos(Vec3(1.5f, 0.f, 0.f));
+	pSaturnRing->Transform()->SetExceptParentRot(true);
 
-	pSaturnRing->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	pSaturnRing->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
-	pSaturnRing->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\saturn\\2k_saturn_ring_alpha.png"));
+	pSaturnRing->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CircleMesh"));
+	pSaturnRing->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredAlphaMtrl"));
+	pSaturnRing->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\saturn\\saturn_ring.png"));
 	
 	//SpawnGameObject(pSaturnRing, Vec3(2000.f, 0.f, -500.f), L"Planet");
 	pSaturn->AddChild(pSaturnRing);
@@ -415,18 +429,22 @@ void CreateTestLevel()
 
 	//SpawnGameObject(pRectMesh, Vec3(0.f, -500.f, 0.f), L"Player");
 
-	//CGameObject* pObject = new CGameObject;
-	//pObject->SetName(L"Decal");
-	//pObject->AddComponent(new CTransform);
-	//pObject->AddComponent(new CDecal);
-	//pObject->Decal()->SetDeferredDecal(true);
-	////pObject->Decal()->SetEmissiveDecal(true);
+	CGameObject* pObject = new CGameObject;
+	pObject->SetName(L"Decal");
+	pObject->AddComponent(new CTransform);
+	pObject->AddComponent(new CDecal);
+	pObject->Decal()->SetDeferredDecal(true);
+	//pObject->Decal()->SetEmissiveDecal(true);
 
-	//pObject->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
-	//pObject->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
+	pObject->Transform()->SetRelativeScale(Vec3(10000.f, 10000.f, 10000.f));
+	pObject->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
+	CCamera* cam = CRenderMgr::GetInst()->GetEditorCam();
+	pObject->SetFollowObj(cam->GetOwner());
 
-	//SpawnGameObject(pObject, Vec3(0.f, 0.f, 200.f), L"Default");
+	SpawnGameObject(pObject, Vec3(30000.f, 0.f, 0.f), L"Default");
+
 	
+
 	// 충돌 시킬 레이어 짝 지정
 	//CCollisionMgr::GetInst()->LayerCheck(L"Player", L"Monster");	
 }

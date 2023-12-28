@@ -29,9 +29,12 @@ void CParticleUpdateShader::UpdateData()
 	if(m_ParticleBuffer)
 	    m_ParticleBuffer->UpdateData_CS(0, false);
 
-	m_RWBuffer->UpdateData_CS(1, false);
-	m_ModuleData->UpdateData_CS(20, true);
-	m_NoiseTex->UpdateData_CS(21, true);
+	if(nullptr != m_RWBuffer)
+		m_RWBuffer->UpdateData_CS(1, false);
+	if(nullptr != m_ModuleData)
+		m_ModuleData->UpdateData_CS(20, true);
+	if(nullptr != m_NoiseTex)
+		m_NoiseTex->UpdateData_CS(21, true);
 
 	// ±×·ì ¼ö
 	m_iGroupX = (m_ParticleBuffer->GetElementCount() / m_iGroupPerThreadX) + 1;
@@ -39,8 +42,12 @@ void CParticleUpdateShader::UpdateData()
 
 void CParticleUpdateShader::Clear()
 {
-	m_ParticleBuffer->Clear_CS(false);
-	m_RWBuffer->Clear_CS(false);
-	m_ModuleData->Clear_CS(true);
-	m_NoiseTex->Clear_CS(true);
+	if(nullptr != m_ParticleBuffer)
+		m_ParticleBuffer->Clear_CS(false);
+	if(nullptr != m_RWBuffer)
+		m_RWBuffer->Clear_CS(false);
+	if(nullptr != m_ModuleData)
+		m_ModuleData->Clear_CS(true);
+	if(nullptr != m_NoiseTex)
+		m_NoiseTex->Clear_CS(true);
 }

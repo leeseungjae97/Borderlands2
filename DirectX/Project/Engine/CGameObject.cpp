@@ -15,6 +15,7 @@ CGameObject::CGameObject()
 	: m_arrCom{}
 	, m_RenderCom(nullptr)
 	, m_Parent(nullptr)
+	, m_Follow(nullptr)
 	, m_iLayerIdx(-1)
 	, m_bDead(false)
 	, m_LifeTime(0.f)
@@ -28,6 +29,7 @@ CGameObject::CGameObject(const CGameObject& _Other)
 	, m_arrCom{}
 	, m_RenderCom(nullptr)
 	, m_Parent(nullptr)
+	, m_Follow(nullptr)
 	, m_iLayerIdx(-1)
 	, m_bDead(false)
 	, m_LifeTime(0.f)
@@ -205,6 +207,11 @@ bool CGameObject::IsAncestor(CGameObject* _Target)
 	}
 
 	return false;
+}
+
+void CGameObject::SetFollowObj(CGameObject* _Target)
+{
+	m_Follow = _Target;
 }
 
 void CGameObject::DisconnectFromParent()

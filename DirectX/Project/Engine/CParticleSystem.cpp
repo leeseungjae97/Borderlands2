@@ -95,7 +95,7 @@ void CParticleSystem::SetMaxSpawn(int _MaxSpawn)
 	m_ModuleData.iMaxParticleCount = _MaxSpawn;
 	
 	m_ParticleBuffer = new CStructuredBuffer;
-	m_ParticleBuffer->Create(sizeof(tParticle), m_ModuleData.iMaxParticleCount, SB_TYPE::READ_WRITE, false);
+	m_ParticleBuffer->Create(sizeof(tParticle), m_ModuleData.iMaxParticleCount, SB_TYPE::READ_WRITE, true);
 }
 
 void CParticleSystem::SetParticleTex(const Ptr<CTexture>& _Tex)
@@ -188,8 +188,6 @@ void CParticleSystem::render()
 
 	m_ModuleDataBuffer->Clear();
 
-	//Vec3 _UnprojectPos = CKeyMgr::GetInst()->GetUnprojMousePos(m_ParticleActiveCamera, Transform()->GetWorldPos().z);
-	//Vec2 _pp = CKeyMgr::GetInst()->GetMousePos();
 	static wchar_t szBuff[256] = {};
 	swprintf_s(szBuff, L"MOUSE X : %f, MOUSE Y : %f", _UnprojectPos.x, _UnprojectPos.y);
 	CFontMgr::GetInst()->DrawFont(szBuff, 10.f, 36.f, 16.f, FONT_RGBA(255, 0, 0, 255));

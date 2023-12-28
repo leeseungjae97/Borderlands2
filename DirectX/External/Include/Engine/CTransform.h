@@ -10,6 +10,7 @@ private:
     Vec3    m_vRelativeRot;
 
     bool    m_bAbsolute;    // 상대 이동, 크기를 절대값으로 지정    
+    bool    m_bExceptParentRot;
 
     Vec3    m_vRelativeDir[3];
     Vec3    m_vWorldDir[3];
@@ -17,6 +18,7 @@ private:
     Matrix  m_matWorldScale;    // 월드 크기 행렬
     Matrix  m_matWorld; // 크기, 회전, 이동 정보를 합쳐놓음
     Matrix  m_matWorldInv; // 크기, 회전, 이동 정보를 합쳐놓음
+    Matrix  m_noRotWorld;
 
 
 public:
@@ -43,6 +45,8 @@ public:
     const Matrix& GetWorldMat() const { return m_matWorld; }
 
     void SetWorldMat(const Matrix& _mat) { m_matWorld = _mat; }
+
+    void SetExceptParentRot(bool _Except) { m_bExceptParentRot = _Except; }
 
 public:
     virtual void finaltick() override;    

@@ -16,6 +16,8 @@ private:
     float       m_fOrbitRadius;
 
     float       m_fRotateSpeed;
+
+    float       m_f;
     
 public:
     void SetRotate(bool _Rotate) { m_bRotate = _Rotate; }

@@ -175,6 +175,7 @@
     <ClInclude Include="CPlanetMove.h">
       <Filter>Source\Component\PlanetMove</Filter>
     </ClInclude>
+    <ClInclude Include="KeyUseInfoMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -333,6 +334,7 @@
     <ClCompile Include="CPlanetMove.cpp">
       <Filter>Source\Component\PlanetMove</Filter>
     </ClCompile>
+    <ClCompile Include="KeyUseInfoMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -496,6 +498,9 @@
     </Filter>
     <Filter Include="Source\Component\PlanetMove">
       <UniqueIdentifier>{54abcd0b-66ba-4166-9d19-20e0fe627076}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Manager\KeyUseInfoMgr">
+      <UniqueIdentifier>{6ceaf409-5b31-4491-8c78-9484062661c6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

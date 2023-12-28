@@ -221,6 +221,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="func.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="CDecal.h" />
+    <ClInclude Include="KeyUseInfoMgr.h" />
     <ClInclude Include="mFBXLoader.h" />
     <ClInclude Include="mMRT.h" />
     <ClInclude Include="MouseMgr.h" />
@@ -281,6 +282,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="extern.cpp" />
     <ClCompile Include="func.cpp" />
     <ClCompile Include="CDecal.cpp" />
+    <ClCompile Include="KeyUseInfoMgr.cpp" />
     <ClCompile Include="mFBXLoader.cpp" />
     <ClCompile Include="mMRT.cpp" />
     <ClCompile Include="MouseMgr.cpp" />

@@ -11,6 +11,7 @@
 #include "CRenderMgr.h"
 #include "CEventMgr.h"
 #include "CFontMgr.h"
+#include "KeyUseInfoMgr.h"
 
 CEngine::CEngine()
 	: m_hWnd(nullptr)
@@ -99,4 +100,6 @@ void CEngine::render()
 
 	// FPS, DT Ãâ·Â
 	CTimeMgr::GetInst()->render();
+
+	KeyUseInfoMgr::GetInst()->render();
 }

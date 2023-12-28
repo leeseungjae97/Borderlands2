@@ -15,6 +15,7 @@ CPlanetMove::CPlanetMove()
 	, m_fRotateSpeed(1.f)
 	, m_fOrbitSpeed(0.f)
 	, m_fOrbitRadius(0.f)
+	, m_f(XM_PI / 4.f)
 {
 }
 

@@ -167,6 +167,36 @@ void CResMgr::CreateDefaultMesh()
 	vecIdx.push_back(1);
 	vecIdx.push_back(Slice);
 
+	v.vNormal = Vec3(0.f, 0.f, 1.f);
+	v.vTangent = Vec3(1.f, 0.f, 0.f);
+	v.vBinormal = Vec3(0.f, -1.f, 0.f);
+
+	v.vPos = Vec3(0.f, 0.f, 0.f);
+	v.vColor = Vec4(1.f, 1.f, 1.f, 1.f);
+	v.vUV = Vec2(0.5f, 0.5f);
+	vecVtx.push_back(v);
+
+	// 정점 위치 지정
+	for (UINT i = 0; i < Slice; ++i)
+	{
+		v.vPos = Vec3(fRadius * cosf(fTheta * (float)i), fRadius * sinf(fTheta * (float)i), 0.f);
+		v.vUV = Vec2(v.vPos.x + 0.5f, -v.vPos.y + 0.5f);
+		vecVtx.push_back(v);
+	}
+
+	// 인덱스 설정
+	for (UINT i = Slice + 1; i < Slice * 2; ++i)
+	{
+		vecIdx.push_back(Slice);
+		vecIdx.push_back(i + 1);
+		vecIdx.push_back(i + 2);
+	}
+
+	// 마지막 삼각형
+	vecIdx.push_back(Slice);
+	vecIdx.push_back(Slice + 1);
+	vecIdx.push_back((Slice * 2) + 1);
+
 	pMesh = new CMesh(true);
 	pMesh->Create(vecVtx.data(), (UINT)vecVtx.size(), vecIdx.data(), (UINT)vecIdx.size());
 	AddRes(L"CircleMesh", pMesh);
@@ -902,6 +932,21 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	AddRes(pShader->GetKey(), pShader);
 
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"Planet3D_DeferredShader_Alpha");
+
+	pShader->CreateVertexShader(L"shader\\planet3d_deferred.fx", "VS_Planet3D_Deferred");
+	pShader->CreatePixelShader(L"shader\\planet3d_deferred.fx", "PS_Planet3D_Deferred_Alpha");
+
+	pShader->SetRSType(RS_TYPE::CULL_BACK);
+	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_DEFERRED);
+
+	// Parameter	
+	pShader->AddTexParam(TEX_0, "Output Texture");
+
+	AddRes(pShader->GetKey(), pShader);
+
 	// ============================
     // DirLightShader
     // RS_TYPE : CULL_BACK
@@ -1145,6 +1190,10 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Planet3D_DeferredShader"));
 	AddRes(L"Planet3D_DeferredMtrl", pMtrl);
 
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Planet3D_DeferredShader_Alpha"));
+	AddRes(L"Planet3D_DeferredAlphaMtrl", pMtrl);
+	
 	// DirLightMtrl
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DirLightShader"));

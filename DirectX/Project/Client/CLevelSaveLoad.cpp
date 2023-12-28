@@ -201,6 +201,7 @@ CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File)
 			Component = new CLight2D;
 			break;
 		case COMPONENT_TYPE::LIGHT3D:
+			Component = new CLight3D;
 			break;
 		case COMPONENT_TYPE::CAMERA:
 			Component = new CCamera;
@@ -216,8 +217,21 @@ CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File)
 			break;
 		case COMPONENT_TYPE::LANDSCAPE:			
 			break;
-		case COMPONENT_TYPE::DECAL:			
+		case COMPONENT_TYPE::DECAL:
+			Component = new CDecal;
 			break;
+		case COMPONENT_TYPE::PLANET_MOVE:
+			Component = new CPlanetMove;
+			break;
+		case COMPONENT_TYPE::SKYBOX:
+			Component = new CSkyBox;
+			break;
+		case COMPONENT_TYPE::SOLOAR_SYSTEM:
+			Component = new CSolarSystem;
+			break;
+
+
+
 		}
 
 		Component->LoadFromLevelFile(_File);

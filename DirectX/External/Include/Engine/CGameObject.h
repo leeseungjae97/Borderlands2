@@ -32,6 +32,8 @@ private:
     vector<CScript*>        m_vecScript;
 
     CGameObject*            m_Parent;
+    CGameObject*            m_Follow;
+
     vector<CGameObject*>    m_vecChild;
 
     int                     m_iLayerIdx; // 소속된 레이어 인덱스값
@@ -98,8 +100,9 @@ public:
 
     bool IsDead() { return m_bDead; }
     bool IsAncestor(CGameObject* _Target);
+    void SetFollowObj(CGameObject* _Target);
 
-
+    CGameObject* GetFollowObj() { return m_Follow; }
 private:
     void DisconnectFromParent();
     void ChangeToChildType();

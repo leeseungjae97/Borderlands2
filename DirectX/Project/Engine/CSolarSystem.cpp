@@ -17,7 +17,7 @@ CSolarSystem::CSolarSystem()
 
 }
 
-CSolarSystem::~CSolarSystem()
+CSolarSystem::~CSolarSystem()	
 {
 }
 
@@ -28,18 +28,18 @@ void CSolarSystem::finaltick()
 		if(nullptr == pCoverImage)
 		{
 			Vec3 vParentScale =GetOwner()->Transform()->GetRelativeScale();
-			vParentScale.x += 10000.f;
-			vParentScale.y += 10000.f;
-			vParentScale.z += 10000.f;
+			vParentScale.x += 10.f;
+			vParentScale.y += 10.f;
+			vParentScale.z += 10.f;
 			pCoverImage = new CGameObject;
 			pCoverImage->SetName(L"Cover");
 			pCoverImage->AddComponent(new CTransform);
 			pCoverImage->AddComponent(new CSolarSystem);
 			pCoverImage->AddComponent(new CPlanetMove);
-			//pCoverImage->PlanetMove()->SetOrbit(true);
-			//pCoverImage->PlanetMove()->SetRotate(true);
+			pCoverImage->PlanetMove()->SetRotate(true);
 			pCoverImage->Transform()->SetRelativeScale(vParentScale);
 			pCoverImage->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+			pCoverImage->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredAlphaMtrl"));
 			pCoverImage->SolarSystem()->SetPlanetTex(m_PlanetCoverTexture);
 			pCoverImage->Transform()->SetAbsolute(true);
 

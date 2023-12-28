@@ -100,4 +100,56 @@ PS_OUT PS_Planet3D_Deferred(VS_OUT _in)
     return output;
 }
 
+PS_OUT PS_Planet3D_Deferred_Alpha(VS_OUT _in)
+{
+    PS_OUT output = (PS_OUT) 0.f;
+   
+    output.vColor = float4(1.f, 0.f, 1.f, 1.f);
+    
+    float3 vViewNormal = _in.vViewNormal;
+    
+    if (g_btex_0)
+    {
+        output.vColor = g_tex_0.Sample(g_sam_0, _in.vUV);
+
+        if (output.vColor.a <= 0.f)
+        {
+            discard;
+        }
+        if (output.vColor.x < 0.5f && output.vColor.y < 0.5f && output.vColor.z < 0.5f)
+        {
+            discard;
+        }
+
+    }
+    
+    //if (g_btex_1)
+    //{
+    //    float3 vNormal = g_tex_1.Sample(g_sam_0, _in.vUV).xyz;
+        
+    //    // 0 ~ 1 범위의 값을 -1 ~ 1 로 확장        
+    //    vNormal = vNormal * 2.f - 1.f;
+        
+    //    float3x3 vRotateMat =
+    //    {
+    //        _in.vViewTangent,
+    //        -_in.vViewBinormal,
+    //        _in.vViewNormal        
+    //    };
+        
+    //    vViewNormal = normalize(mul(vNormal, vRotateMat));
+    //}
+
+    if (IsEmissive)
+    {
+        output.vColor.a = 1.0f;
+        output.vEmissive = output.vColor * output.vColor.a;
+    }
+    
+    output.vNormal = float4(vViewNormal, 1.f);
+    output.vPosition = float4(_in.vViewPos, 1.f);
+    output.vData = float4(0.f, 0.f, 0.f, 1.f);
+    
+    return output;
+}
 #endif

@@ -9,6 +9,10 @@ private:
     bool            m_bDeferred;
     bool            m_bEmissive;
 
+    int            m_bSwitch;
+
+    float           m_fAcc;
+
 public:
     void render() override;
     void finaltick() override;

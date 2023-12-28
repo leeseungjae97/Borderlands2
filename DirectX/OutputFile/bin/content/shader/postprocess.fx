@@ -67,42 +67,42 @@ VS_OUT VS_Distortion(VS_IN _in)
 	return output;
 }
 
+//float4 PS_Distortion(VS_OUT _in) : SV_Target
+//{
+//    float2 vUV = _in.vPosition.xy / g_Resolution;
+		
+	
+//    float fChange = cos(((vUV.x - g_AccTime * 0.05f) / 0.15f) * 2 * 3.1415926535f) * 0.05f;
+
+//    vUV.y += fChange;
+
+//    float4 vColor = g_tex_0.Sample(g_sam_0, vUV);
+//	//vColor.r *= 2.f;
+
+//    return vColor;
+//}
+
 float4 PS_Distortion(VS_OUT _in) : SV_Target
 {
     float2 vUV = _in.vPosition.xy / g_Resolution;
-		
 	
-    float fChange = cos(((vUV.x - g_AccTime * 0.05f) / 0.15f) * 2 * 3.1415926535f) * 0.05f;
+	// Noise Texture 가 세팅이 되어 있다면
+    if (g_btex_1)
+    {
+        float2 vNoiseUV = float2(_in.vUV.x - (g_AccTime * 0.2f), _in.vUV.y);
+        float4 vNoise = g_tex_1.Sample(g_sam_0, vNoiseUV);
 
-    vUV.y += fChange;
+        vNoise = (vNoise - 0.5f) * 0.02f;
+
+        vUV += vNoise.r;
+    }
 
     float4 vColor = g_tex_0.Sample(g_sam_0, vUV);
-	//vColor.r *= 2.f;
 
+    //vColor.r *= 2.f;
+	
     return vColor;
 }
-
-//float4 PS_Distortion(VS_OUT _in) : SV_Target
-//{
-//	float2 vUV = _in.vPosition.xy / g_Resolution;		
-	
-//	// Noise Texture 가 세팅이 되어 있다면
-//	if (g_btex_1)
-//	{
-//		float2 vNoiseUV = float2(_in.vUV.x - (g_AccTime * 0.2f), _in.vUV.y);
-//		float4 vNoise = g_tex_1.Sample(g_sam_0, vNoiseUV);
-
-//		vNoise = (vNoise - 0.5f) * 0.02f;		
-
-//		vUV += vNoise.r;
-//	}
-
-//	float4 vColor = g_tex_0.Sample(g_sam_0, vUV);
-
-//    //vColor.r *= 2.f;
-	
-//	return vColor;
-//}
 
 
 

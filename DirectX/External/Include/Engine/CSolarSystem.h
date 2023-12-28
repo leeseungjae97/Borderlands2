@@ -5,6 +5,7 @@ class CSolarSystem :
 {
 private:
     bool        m_bEmissive;
+    int         m_iAlphaCutCoeff;
 
     Ptr<CTexture> m_PlanetTexture;
     Ptr<CTexture> m_PlanetTexture2;
