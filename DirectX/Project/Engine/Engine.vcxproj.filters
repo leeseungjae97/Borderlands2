@@ -172,7 +172,9 @@
     <ClInclude Include="CSolarSystem.h">
       <Filter>Source\Component\RenderComponent\SolarSystem</Filter>
     </ClInclude>
-    <ClInclude Include="CPlanetMove.h" />
+    <ClInclude Include="CPlanetMove.h">
+      <Filter>Source\Component\PlanetMove</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -328,7 +330,9 @@
     <ClCompile Include="CSolarSystem.cpp">
       <Filter>Source\Component\RenderComponent\SolarSystem</Filter>
     </ClCompile>
-    <ClCompile Include="CPlanetMove.cpp" />
+    <ClCompile Include="CPlanetMove.cpp">
+      <Filter>Source\Component\PlanetMove</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">

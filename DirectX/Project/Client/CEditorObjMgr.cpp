@@ -55,8 +55,9 @@ void CEditorObjMgr::init()
 	pEditorCamObj->AddComponent(new CTransform);
 	pEditorCamObj->AddComponent(new CCamera);
 	pEditorCamObj->AddComponent(new CCameraMoveScript);
+	pEditorCamObj->Transform()->SetRelativePos(Vec3(30000.f, 30000.f, 30000.f));
 
-	pEditorCamObj->Camera()->SetFarZ(100000.f);
+	pEditorCamObj->Camera()->SetFarZ(1000000.f);
 	pEditorCamObj->Camera()->SetLayerMaskAll(true);
 	pEditorCamObj->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
 	pEditorCamObj->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);

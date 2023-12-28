@@ -26,7 +26,7 @@ CCamera::CCamera()
 	, m_iLayerMask(0)
 	, m_iCamIdx(-1)
     , m_NearZ(1.f)
-    , m_FarZ(10000.f)
+    , m_FarZ(1000000.f)
 {
 	SetName(L"Camera");
 

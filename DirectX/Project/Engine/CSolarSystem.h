@@ -7,9 +7,17 @@ private:
     bool        m_bEmissive;
 
     Ptr<CTexture> m_PlanetTexture;
+    Ptr<CTexture> m_PlanetTexture2;
+    Ptr<CTexture> m_PlanetNormalTexture;
+    Ptr<CTexture> m_PlanetCoverTexture;
+
+    CGameObject* pCoverImage;
 public:
     void SetEmissive(bool _bEmissive) { m_bEmissive = _bEmissive; }
-    void SetPlanetTex(const Ptr<CTexture>& _Tex);
+    void SetPlanetTex(const Ptr<CTexture>& _Tex) { m_PlanetTexture = _Tex; }
+    void SetPlanetTex2(const Ptr<CTexture>& _Tex){ m_PlanetTexture2 = _Tex;}
+    void SetPlanetNormalTex(const Ptr<CTexture>& _Tex){ m_PlanetNormalTexture = _Tex;}
+    void SetPlanetCoverTex(const Ptr<CTexture>& _Tex) { m_PlanetCoverTexture = _Tex;}
 public:
     virtual void finaltick() override;
     void render();

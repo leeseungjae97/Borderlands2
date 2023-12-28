@@ -9,6 +9,8 @@ private:
     bool        m_bReverseRotate;
     bool        m_bXRotate;
 
+    bool        m_bSatellite;
+
     float       m_fOrbitTheta;
     float       m_fOrbitSpeed;
     float       m_fOrbitRadius;
@@ -20,6 +22,7 @@ public:
     void SetReverseRotate(bool _Reverse) { m_bReverseRotate = _Reverse; }
     void SetXRotate(bool _XRotate) { m_bXRotate = _XRotate; }
     void SetOrbit(bool _Orbit) { m_bOrbit = _Orbit; }
+    void SetSatellite(bool _bSatellite) { m_bSatellite = _bSatellite; }
 
     void SetOrbitTheta(float _Theta) { m_fOrbitTheta = _Theta; }
     void SetRotateSpeed(float _Speed) { m_fRotateSpeed = _Speed; }
