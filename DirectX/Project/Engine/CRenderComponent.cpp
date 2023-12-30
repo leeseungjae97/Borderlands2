@@ -1,13 +1,28 @@
 #include "pch.h"
 #include "CRenderComponent.h"
 
+#include "CResMgr.h"
+#include "CTransform.h"
+
 CRenderComponent::CRenderComponent(COMPONENT_TYPE _type)
 	: CComponent(_type)
+	, m_bFrustumCheck(true)
 {
 }
 
 CRenderComponent::~CRenderComponent()
 {
+}
+
+void CRenderComponent::render_shadowmap()
+{
+	Ptr<CMaterial> pShadowMapMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"ShadowMapMtrl");
+
+	Transform()->UpdateData();
+
+	pShadowMapMtrl->UpdateData();
+
+	GetMesh()->render();
 }
 
 void CRenderComponent::SetMaterial(Ptr<CMaterial> _Mtrl)

@@ -22,6 +22,7 @@ CCamera::CCamera()
 	: CComponent(COMPONENT_TYPE::CAMERA)
 	, m_fAspectRatio(1.f)
 	, m_fScale(1.f)
+	, m_Frustum(this)
 	, m_ProjType(PROJ_TYPE::ORTHOGRAPHIC)
 	, m_iLayerMask(0)
 	, m_iCamIdx(-1)
@@ -37,6 +38,7 @@ CCamera::CCamera()
 CCamera::CCamera(const CCamera& _Other)
 	: CComponent(_Other)
 	, m_fAspectRatio(_Other.m_fAspectRatio)
+	, m_Frustum(this)
 	, m_fScale(_Other.m_fScale)
 	, m_ProjType(_Other.m_ProjType)
 	, m_iLayerMask(_Other.m_iLayerMask)
@@ -60,7 +62,9 @@ void CCamera::finaltick()
 {
 	CalcViewMat();
 
-	CalcProjMat();	
+	CalcProjMat();
+
+	m_Frustum.finaltick();
 }
 
 void CCamera::CalcViewMat()
@@ -165,6 +169,10 @@ void CCamera::SortObject()
 					|| nullptr == pRenderCom->GetMaterial()->GetShader())
 					continue;
 
+				if (pRenderCom->IsFrustumCheck() 
+					&& false == m_Frustum.FrustumCheck(vecObject[j]->Transform()->GetWorldPos(), vecObject[j]->Transform()->GetRelativeScale().x / 5.f))
+					continue;
+
 				// 쉐이더 도메인에 따른 분류
 				SHADER_DOMAIN eDomain = pRenderCom->GetMaterial()->GetShader()->GetDomain();
 				switch (eDomain)
@@ -199,6 +207,38 @@ void CCamera::SortObject()
 	}
 }
 
+void CCamera::SortObject_Shadow()
+{
+	// 이전 프레임 분류정보 제거
+	clear_shadow();
+
+	// 현재 레벨 가져와서 분류
+	CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
+
+	for (UINT i = 0; i < MAX_LAYER; ++i)
+	{
+		// 레이어 마스크 확인
+		if (m_iLayerMask & (1 << i))
+		{
+			CLayer* pLayer = pCurLevel->GetLayer(i);
+			const vector<CGameObject*>& vecObject = pLayer->GetObjects();
+
+			for (size_t j = 0; j < vecObject.size(); ++j)
+			{
+				CRenderComponent* pRenderCom = vecObject[j]->GetRenderComponent();
+
+				// 렌더링 기능이 없는 오브젝트는 제외
+				if (   nullptr == pRenderCom 
+					|| nullptr == pRenderCom->GetMaterial()
+					|| nullptr == pRenderCom->GetMaterial()->GetShader())
+					continue;
+
+				m_vecShadow.push_back(vecObject[j]);
+			}
+		}
+	}
+}
+
 void CCamera::render()
 {
 	// 행렬 업데이트
@@ -206,6 +246,9 @@ void CCamera::render()
 	g_transform.matViewInv = m_matViewInv;
 	g_transform.matProj = m_matProj;
 	g_transform.matProjInv = m_matProjInv;
+
+	// 스텐실 설정
+
 
 	// Deferred MRT
 	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED)->OMSet(true);
@@ -221,6 +264,17 @@ void CCamera::render()
 
 	// SwapChain MRT 로 변경
 	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+
+	//static Ptr<CMesh> pRectMesh2 = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
+	//static Ptr<CMaterial> pMtrl2 = CResMgr::GetInst()->FindRes<CMaterial>(L"StencilCullMtrl1");
+
+	//pMtrl2->UpdateData();
+	//pRectMesh2->render();
+
+	//pMtrl2->GetShader()->SetDSType(DS_TYPE::STENCIL_CULL_DEPLOY);
+	//pMtrl2->UpdateData();
+	//pRectMesh2->render();
+
 	static Ptr<CMesh> pRectMesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
 	static Ptr<CMaterial> pMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
 
@@ -267,6 +321,11 @@ void CCamera::clear()
 	m_vecUI.clear();
 }
 
+void CCamera::clear_shadow()
+{
+	m_vecShadow.clear();
+}
+
 void CCamera::render_deferred()
 {
 	for (size_t i = 0; i < m_vecDeferred.size(); ++i)
@@ -279,6 +338,17 @@ void CCamera::render_deferred()
 	for (size_t i = 0; i < m_vecDeferredDecal.size(); ++i)
 	{
 		m_vecDeferredDecal[i]->render();
+	}
+}
+
+void CCamera::render_shadowmap()
+{
+	g_transform.matView = m_matView;
+	g_transform.matProj = m_matProj;
+
+	for (size_t i = 0; i < m_vecShadow.size(); ++i)
+	{
+		m_vecShadow[i]->render_shadowmap();
 	}
 }
 

@@ -903,10 +903,31 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	pShader->SetRSType(RS_TYPE::CULL_BACK);
 	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
+	//pShader->SetDSType(DS_TYPE::STENCIL_CULL_TEST_O);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_DEFERRED);
 
 	// Parameter	
 	pShader->AddTexParam(TEX_0, "Output Texture");
+
+	AddRes(pShader->GetKey(), pShader);
+
+	// ============================
+	// StencilCullShader1
+	// RS_TYPE : CULL_NONE
+	// DS_TYPE : STENCIL_CULL
+	// BS_TYPE : DEFAULT
+	// Domain : Deferred
+	// ============================
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"StencilCullShader1");
+
+	pShader->CreateVertexShader(L"shader\\light.fx", "VS_MShader");
+	pShader->CreatePixelShader(L"shader\\light.fx", "PS_MShader");
+
+	pShader->SetRSType(RS_TYPE::CULL_NONE);
+	pShader->SetDSType(DS_TYPE::STENCIL_CULL_TEST_O);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_DEFERRED);
+
 
 	AddRes(pShader->GetKey(), pShader);
 
@@ -984,6 +1005,26 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_LIGHT);
 	pShader->SetBSType(BS_TYPE::ONE_ONE);
+
+	AddRes(pShader->GetKey(), pShader);
+
+	// =====================================
+	// ShadowMap Shader
+	// MRT              : SHADOWMAP
+	// Domain           : DOMAIN_LIGHT	
+	// Rasterizer       : CULL_BACK
+	// DepthStencil     : LESS
+	// Blend            : Default
+	// =====================================
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"ShadowMapShader");
+
+	pShader->CreateVertexShader(L"shader\\light.fx", "VS_ShadowMap");
+	pShader->CreatePixelShader(L"shader\\light.fx", "PS_ShadowMap");
+
+	pShader->SetRSType(RS_TYPE::CULL_BACK);
+	pShader->SetDSType(DS_TYPE::LESS);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_LIGHT);
 
 	AddRes(pShader->GetKey(), pShader);
 
@@ -1222,6 +1263,16 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DeferredAreaDecalShader"));
 	AddRes(L"DeferredAreaDecalMtrl", pMtrl);
+
+	
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"StencilCullShader1"));
+	AddRes(L"StencilCullMtrl1", pMtrl);
+
+	// ShadowMapMtrl
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"ShadowMapShader"));
+	AddRes(L"ShadowMapMtrl", pMtrl);
 }
 
 Ptr<CTexture> CResMgr::CreateTexture(const wstring& _strKey, UINT _Width, UINT _Height

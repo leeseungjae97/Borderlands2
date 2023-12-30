@@ -227,6 +227,65 @@ int CDevice::CreateDepthStencilState()
     Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
     DEVICE->CreateDepthStencilState(&Desc, m_DSState[(UINT)DS_TYPE::NO_TEST_NO_WRITE].GetAddressOf());
 
+    // 볼륨 메쉬의 BackFace 보다 앞에 있는 영역에 stencil 값 증가
+    Desc.DepthEnable = true;  
+    Desc.DepthFunc = D3D11_COMPARISON_GREATER;          // 렌더링되는 볼륨메쉬의 뒷면이 더 멀어야 통과
+    Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;  // 볼륨메쉬는 깊이를 남기지 않음
+
+    Desc.StencilEnable = true;                          // 스텐실 On
+
+    Desc.BackFace.StencilFunc           = D3D11_COMPARISON_ALWAYS;  // 스텐실 테스트는 항상 통과
+    Desc.BackFace.StencilPassOp         = D3D11_STENCIL_OP_INCR;    // 스텐실 값 1 증가
+    Desc.BackFace.StencilFailOp         = D3D11_STENCIL_OP_KEEP;    // 유지
+    Desc.BackFace.StencilDepthFailOp    = D3D11_STENCIL_OP_KEEP;    // 유지 
+      
+
+    // 볼륨 메쉬의 FrontFace 보다 뒤에 있는 영역에 stencil 값 유지
+    Desc.DepthEnable = true;
+    Desc.DepthFunc = D3D11_COMPARISON_LESS;             // 렌더링되는 볼륨메쉬의 앞면이 더 가까워야 통과
+    Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;  // 볼륨메쉬는 깊이를 남기지 않음
+
+    Desc.StencilEnable = true;                          // 스텐실 On
+
+    Desc.FrontFace.StencilFunc           = D3D11_COMPARISON_EQUAL;
+    Desc.FrontFace.StencilPassOp         = D3D11_STENCIL_OP_KEEP;   // 유지
+    Desc.FrontFace.StencilFailOp         = D3D11_STENCIL_OP_KEEP;   // 유지
+    Desc.FrontFace.StencilDepthFailOp    = D3D11_STENCIL_OP_DECR;   // 깊이 테스트 실패 -> 스텐실 값 감소
+    DEVICE->CreateDepthStencilState(&Desc, m_DSState[(UINT)DS_TYPE::STENCIL_CULL_TEST_T].GetAddressOf());
+    
+
+    // 볼륨 메쉬내부 판정, 스텐실값 변경 (CULL_NONE)
+    Desc.DepthEnable = true;
+    Desc.DepthFunc = D3D11_COMPARISON_GREATER;             // 렌더링되는 볼륨메쉬의 앞면이 더 가까워야 통과
+    Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;  // 볼륨메쉬는 깊이를 남기지 않음
+
+    Desc.StencilEnable = true;                          // 스텐실 On
+
+    Desc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+    Desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_INCR;   // 
+    Desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;   // 유지
+    Desc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;   // 깊이 테스트 실패 -> 스텐실 값 감소
+
+    Desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+    Desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_DECR;   // 유지
+    Desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;   // 유지
+    Desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;   // 깊이 테스트 실패 -> 스텐실 값 감소
+
+    DEVICE->CreateDepthStencilState(&Desc, m_DSState[(UINT)DS_TYPE::STENCIL_CULL_TEST_O].GetAddressOf());
+
+    // 스텐실 값이 1을 유지하고 있는 영역에 대해서 통과
+    Desc.DepthEnable = false;
+    Desc.DepthFunc = D3D11_COMPARISON_GREATER;           // 렌더링되는 볼륨메쉬의 뒷면이 더 멀어야 통과
+    Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;   // 볼륨메쉬는 깊이를 남기지 않음
+
+    Desc.StencilEnable = true;                           // 스텐실 On
+
+    Desc.BackFace.StencilFunc = D3D11_COMPARISON_NOT_EQUAL;  // 스텐실 테스트는 항상 통과
+    Desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_ZERO;        // 스텐실 값 0
+    Desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_ZERO;        // 스텐실 값 0
+    Desc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_ZERO;   // 스텐실 값 0
+    
+    DEVICE->CreateDepthStencilState(&Desc, m_DSState[(UINT)DS_TYPE::STENCIL_CULL_DEPLOY].GetAddressOf());
 
     return S_OK;
 }

@@ -19,6 +19,8 @@ private:
     UINT            m_LightIdx;
     bool            m_bShowRange;
 
+    CGameObject*    m_pCamObj;
+
 public:
     void SetLightColor(Vec3 _Color) { m_LightInfo.Color.vDiffuse = _Color; }
     void SetLightAmbient(Vec3 _Amb) { m_LightInfo.Color.vAmbient = _Amb; }
@@ -35,6 +37,7 @@ public:
 public:
     virtual void finaltick() override;
     void render();
+    void render_shadowmap();
 
     virtual void SaveToLevelFile(FILE* _File) override;
     virtual void LoadFromLevelFile(FILE* _File) override;
@@ -42,6 +45,7 @@ public:
     CLONE(CLight3D)
 public:
     CLight3D();
+    CLight3D(const CLight3D& _Origin);
     ~CLight3D();
 
 };

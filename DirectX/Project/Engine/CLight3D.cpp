@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CLight3D.h"
 
+#include "CCamera.h"
 #include "CRenderMgr.h"
 #include "CTransform.h"
 
@@ -11,13 +12,31 @@
 CLight3D::CLight3D()
     : CComponent(COMPONENT_TYPE::LIGHT3D)
 	, m_bShowRange(true)
+	, m_LightIdx(-1)
+	, m_pCamObj(nullptr)
 {
-	SetLightType(LIGHT_TYPE::POINT);
+	SetLightType(LIGHT_TYPE::DIRECTIONAL);
+
+	m_pCamObj = new CGameObject;
+	m_pCamObj->AddComponent(new CTransform);
+	m_pCamObj->AddComponent(new CCamera);
+
+	m_pCamObj->Camera()->SetLayerMaskAll(true);
+	m_pCamObj->Camera()->SetLayerMask(31, false);
+}
+CLight3D::CLight3D(const CLight3D& _Origin)
+	: CComponent(_Origin)
+	, m_bShowRange(_Origin.m_bShowRange)
+	, m_LightIdx(-1)
+	, m_pCamObj(nullptr)
+{
+	m_pCamObj = new CGameObject(*_Origin.m_pCamObj);
 }
 
 CLight3D::~CLight3D()
 {
-
+	if (nullptr != m_pCamObj)
+		delete m_pCamObj;
 }
 
 void CLight3D::finaltick()
@@ -35,6 +54,11 @@ void CLight3D::finaltick()
 		//else if((UINT)LIGHT_TYPE::SPOT == m_LightInfo.LightType)
 		//	DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, true);	
 	}
+
+		// 광원에 부착한 카메라 오브젝트도 위치를 광원 위치랑 동일하게..
+	// finaltick 호출시켜서 카메라 오브젝트의 카메라 컴포넌트의 view, proj 행렬 연산할수 있게 함
+	*m_pCamObj->Transform() = *Transform();
+	m_pCamObj->finaltick_module();
 }
 void CLight3D::SetRadius(float _fRadius)
 {
@@ -82,6 +106,13 @@ void CLight3D::render()
 	m_Mtrl->UpdateData();
 
 	m_Mesh->render();
+}
+
+void CLight3D::render_shadowmap()
+{
+	m_pCamObj->Camera()->SortObject_Shadow();
+
+	m_pCamObj->Camera()->render_shadowmap();
 }
 
 void CLight3D::SaveToLevelFile(FILE* _File)

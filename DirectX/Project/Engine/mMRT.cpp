@@ -16,14 +16,26 @@ MRT::~MRT()
 }
 void MRT::Create(Ptr<CTexture>* _arrRTTex, UINT _RTCount, Ptr<CTexture> _DSTex)
 {
-	for (UINT i = 0; i < _RTCount; ++i)
+	if(nullptr != _arrRTTex)
 	{
-		m_arrRT[i] = _arrRTTex[i];
+		for (UINT i = 0; i < _RTCount; ++i)
+		{
+			m_arrRT[i] = _arrRTTex[i];
+		}	
 	}
-
+	
 	m_RTCount = _RTCount;
 
 	m_DSTex = _DSTex;
+
+	m_Viewport.TopLeftX = 0;
+	m_Viewport.TopLeftY = 0;
+
+	m_Viewport.Width = _arrRTTex[0]->Width();
+	m_Viewport.Height = _arrRTTex[0]->Height();
+
+	m_Viewport.MinDepth = 0;
+	m_Viewport.MaxDepth = 1;
 }
 
 void MRT::ClearTarget()
@@ -60,4 +72,6 @@ void MRT::OMSet(bool _bStay)
 
 		CONTEXT->OMSetRenderTargets(m_RTCount, arrRTV, pDSV.Get());
 	}
+
+	CONTEXT->RSSetViewports(1, &m_Viewport);
 }

@@ -122,50 +122,32 @@ PS_DECAL_OUT PS_DeferredDecal(VS_DECAL_OUT _in) : SV_Target
     float3 vWorldPos = mul(float4(vViewPos, 1.f), g_matViewInv).xyz;
     float3 vLocal = mul(float4(vWorldPos, 1.f), g_matWorldInv).xyz;
 
-    float2 vUV = vLocal.xz;
-    vUV.x = vUV.x + 0.5f;
-    vUV.y = (1.f - vUV.y) - 0.5f;
-        
-    if (IsOutputTex)
+    if (abs(vLocal.x) < 0.5f && abs(vLocal.y) < 0.5f && abs(vLocal.z) < 0.5f)
     {
-        output.vColor = OutputTex.Sample(g_sam_0, vUV);
-            
-        if (IsEmissive)
+        // Decal 내부에 있는 좌표       
+        float2 vUV = vLocal.xz;
+        vUV.x = vUV.x + 0.5f;
+        vUV.y = (1.f - vUV.y) - 0.5f;
+        
+        if (IsOutputTex)
         {
-            output.vEmissive = output.vColor * output.vColor.a;
+            output.vColor = OutputTex.Sample(g_sam_0, vUV);
+            
+            if (IsEmissive)
+            {
+                output.vEmissive = output.vColor * output.vColor.a;
+            }
+        }
+        else
+        {
+            discard;
         }
     }
     else
     {
+        // Deacl 외부에 있는 좌표        
         discard;
     }
-
-    //if (abs(vLocal.x) < 0.5f && abs(vLocal.y) < 0.5f && abs(vLocal.z) < 0.5f)
-    //{
-    //    // Decal 내부에 있는 좌표       
-    //    //float2 vUV = vLocal.xz;
-    //    //vUV.x = vUV.x + 0.5f;
-    //    //vUV.y = (1.f - vUV.y) - 0.5f;
-        
-    //    //if (IsOutputTex)
-    //    //{
-    //    //    output.vColor = OutputTex.Sample(g_sam_0, vUV);
-            
-    //    //    if (IsEmissive)
-    //    //    {
-    //    //        output.vEmissive = output.vColor * output.vColor.a;
-    //    //    }
-    //    //}
-    //    //else
-    //    //{
-    //    //    discard;
-    //    //}
-    //}
-    //else
-    //{
-    //    // Deacl 외부에 있는 좌표        
-    //    discard;
-    //}
     
     return output;
 }

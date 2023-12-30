@@ -175,7 +175,10 @@
     <ClInclude Include="CPlanetMove.h">
       <Filter>Source\Component\PlanetMove</Filter>
     </ClInclude>
-    <ClInclude Include="KeyUseInfoMgr.h" />
+    <ClInclude Include="CFrustum.h" />
+    <ClInclude Include="KeyUseInfoMgr.h">
+      <Filter>Source\Manager\KeyUseInfoMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -334,7 +337,10 @@
     <ClCompile Include="CPlanetMove.cpp">
       <Filter>Source\Component\PlanetMove</Filter>
     </ClCompile>
-    <ClCompile Include="KeyUseInfoMgr.cpp" />
+    <ClCompile Include="CFrustum.cpp" />
+    <ClCompile Include="KeyUseInfoMgr.cpp">
+      <Filter>Source\Manager\KeyUseInfoMgr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -501,6 +507,9 @@
     </Filter>
     <Filter Include="Source\Manager\KeyUseInfoMgr">
       <UniqueIdentifier>{6ceaf409-5b31-4491-8c78-9484062661c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Component\Frustum">
+      <UniqueIdentifier>{6782d552-3184-475d-976b-5642054ec6b9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

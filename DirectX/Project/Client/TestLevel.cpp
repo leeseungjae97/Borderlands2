@@ -77,243 +77,307 @@ void CreateTestLevel()
 
 	SpawnGameObject(pUICam, Vec3(0.f, 0.f, 0.f), 0);
 
-	CGameObject* pSun = new CGameObject;
-	pSun->SetName(L"Sun");
-	pSun->AddComponent(new CTransform);
-	pSun->AddComponent(new CSolarSystem);
-	pSun->AddComponent(new CPlanetMove);
+	//CGameObject* pSun = new CGameObject;
+	//pSun->SetName(L"Sun");
+	//pSun->AddComponent(new CTransform);
+	//pSun->AddComponent(new CSolarSystem);
+	//pSun->AddComponent(new CPlanetMove);
 
-	pSun->PlanetMove()->SetRotate(true);
-	pSun->Transform()->SetRelativeScale(Vec3(21800.f, 21800.f, 21800.f));
+	//pSun->PlanetMove()->SetRotate(true);
+	//pSun->Transform()->SetRelativeScale(Vec3(21800.f, 21800.f, 21800.f));
 
-	pSun->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	pSun->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
+	//pSun->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pSun->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
 
-	pSun->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\sun\\2k_sun.jpg"));
-	//pCube->SolarSystem()->GetMaterial()->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
-	pSun->SolarSystem()->SetEmissive(true);
+	//pSun->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\sun\\2k_sun.jpg"));
+	////pCube->SolarSystem()->GetMaterial()->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
+	//pSun->SolarSystem()->SetEmissive(true);
+	//
+	//SpawnGameObject(pSun, Vec3(0.f, 0.f, 0.f), L"Planet");
+
+	//CGameObject* pSun1 = new CGameObject;
+	//pSun1->SetName(L"Sun");
+	//pSun1->AddComponent(new CTransform);
+	//pSun1->AddComponent(new CSolarSystem);
+	//pSun1->AddComponent(new CPlanetMove);
+
+	//pSun1->PlanetMove()->SetRotate(true);
+	//pSun1->Transform()->SetRelativeScale(Vec3(21800.f, 21800.f, 21800.f));
+
+	//pSun1->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pSun1->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
+
+	//pSun1->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\sun\\2k_sun.jpg"));
+	////pCube->SolarSystem()->GetMaterial()->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
+	////pSun1->SolarSystem()->SetEmissive(true);
+	//
+	//SpawnGameObject(pSun1, Vec3(10000.f, 0.f, 0.f), L"Planet");
+
+	//CGameObject* pSunDistortion = new CGameObject;
+	//pSunDistortion->SetName(L"SunDistortion");
+	//pSunDistortion->AddComponent(new CTransform);
+	//pSunDistortion->AddComponent(new CMeshRender);
+	//pSunDistortion->Transform()->SetRelativeScale(Vec3(22000.f, 22000.f, 22000.f));
+
+	//pSunDistortion->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pSunDistortion->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl"));
+	//pSunDistortion->MeshRender()->GetMaterial()->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\noise\\noise_04.jpg"));
+	//
+	//SpawnGameObject(pSunDistortion, Vec3(0.f, 0.f, 0.f), 0);
+
+	//CGameObject* pSunLight = new CGameObject;
+	//pSunLight->SetName(L"SunLight");
+	//pSunLight->AddComponent(new CTransform);
+	//pSunLight->AddComponent(new CLight3D);
+
+	//pSunLight->Light3D()->SetLightType(LIGHT_TYPE::POINT);
+	//pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
+	//pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
+	//pSunLight->Light3D()->SetRadius(1000000.f);
+	////pSunLight->Light3D()->SetAngle(XM_PI / 8.f);
+
+	////pDirLight->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
+
+	//SpawnGameObject(pSunLight, Vec3(0.f, 0.f, 0.f), L"Light");
+
+	//CGameObject* pMercury = new CGameObject;
+	//pMercury->SetName(L"Mercury");
+	//pMercury->AddComponent(new CTransform);
+	//pMercury->AddComponent(new CSolarSystem);
+	//pMercury->AddComponent(new CPlanetMove);
+
+	//pMercury->PlanetMove()->SetOrbit(true);
+	//pMercury->PlanetMove()->SetRotate(true);
+	//pMercury->PlanetMove()->SetOrbitSpeed(1000.f);
+	//pMercury->PlanetMove()->SetOrbitRadius(24000.f);
+
+	//pMercury->Transform()->SetRelativeScale(Vec3(70.f, 70.f, 70.f));
+	//pMercury->SolarSystem()->SetEmissive(true);
+	//pMercury->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pMercury->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
+	//pMercury->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\mercury\\2k_mercury.jpg"));
+	////pCube->SolarSystem()->GetMaterial()->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
+	////pMercury->SolarSystem()->SetEmissive(true);
+	//
+	//SpawnGameObject(pMercury, Vec3(24000.f, 0.f, 0.f), L"Planet");
+
+	//CGameObject* pVenus = new CGameObject;
+	//pVenus->SetName(L"Venus");
+	//pVenus->AddComponent(new CTransform);
+	//pVenus->AddComponent(new CSolarSystem);
+	//pVenus->AddComponent(new CPlanetMove);
+
+	//pVenus->PlanetMove()->SetOrbit(true);
+	//pVenus->PlanetMove()->SetRotate(true);
+	//pVenus->PlanetMove()->SetOrbitSpeed(1000.f);
+	//pVenus->PlanetMove()->SetOrbitRadius(30000.f);
+
+	//pVenus->Transform()->SetRelativeScale(Vec3(180.f, 180.f, 180.f));
+
+	//pVenus->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pVenus->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
+	//pVenus->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\venus\\2k_venus_surface.jpg"));
+	//pVenus->SolarSystem()->SetPlanetCoverTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\venus\\2k_venus_atmosphere.jpg"));
+	//
+	//SpawnGameObject(pVenus, Vec3(30000.f, 0.f, -100.f), L"Planet");
+
+	//CGameObject* pEarth = new CGameObject;
+	//pEarth->SetName(L"Earth");
+	//pEarth->AddComponent(new CTransform);
+	//pEarth->AddComponent(new CSolarSystem);
+	//pEarth->AddComponent(new CPlanetMove);
+	//pEarth->PlanetMove()->SetOrbit(true);
+	//pEarth->PlanetMove()->SetRotate(true);
+	//pEarth->PlanetMove()->SetOrbitSpeed(1000.f);
+	//pEarth->PlanetMove()->SetOrbitRadius(40000.f);
+
+	//pEarth->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
+
+	//pEarth->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pEarth->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
+	//pEarth->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\earth\\2k_earth_daymap.jpg"));
+	//pEarth->SolarSystem()->SetPlanetNormalTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\earth\\2k_earth_normal_map.tif"));
+	//pEarth->SolarSystem()->SetPlanetCoverTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\earth\\2k_earth_clouds_3.png"));
+	//
+	//SpawnGameObject(pEarth, Vec3(40000.f, 0.f, -200.f), L"Planet");
+
+	//CGameObject* pMoon = new CGameObject;
+	//pMoon->SetName(L"Moon");
+	//pMoon->AddComponent(new CTransform);
+	//pMoon->AddComponent(new CSolarSystem);
+	//pMoon->AddComponent(new CPlanetMove);
+	//pMoon->PlanetMove()->SetSatellite(true);
+	//pMoon->PlanetMove()->SetRotate(true);
+	//pMoon->PlanetMove()->SetOrbit(true);
+	//pMoon->PlanetMove()->SetOrbitSpeed(1000.f);
+	//pMoon->PlanetMove()->SetOrbitRadius(500.f);
+
+	//pMoon->Transform()->SetRelativeScale(Vec3(125.f, 125.f, 125.f));
+	//pMoon->Transform()->SetRelativePos(Vec3(500.f, 0.f, 0.f));
+
+	//pMoon->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pMoon->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
+	//pMoon->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\moon\\2k_moon.jpg"));
+	//pMoon->Transform()->SetAbsolute(true);
+	//pEarth->AddChild(pMoon);
+
+
+	//CGameObject* pMars = new CGameObject;
+	//pMars->SetName(L"Mars");
+	//pMars->AddComponent(new CTransform);
+	//pMars->AddComponent(new CSolarSystem);
+	//pMars->AddComponent(new CPlanetMove);
+	//pMars->PlanetMove()->SetOrbit(true);
+	//pMars->PlanetMove()->SetRotate(true);
+	//pMars->PlanetMove()->SetOrbitSpeed(1000.f);
+	//pMars->PlanetMove()->SetOrbitRadius(50000.f);
+
+	//pMars->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
+
+	//pMars->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pMars->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
+	//pMars->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\mars\\2k_mars.jpg"));
+	//
+	//SpawnGameObject(pMars, Vec3(50000.f, 0.f, -300.f), L"Planet");
+
+	//CGameObject* pJupiter = new CGameObject;
+	//pJupiter->SetName(L"Jupiter");
+	//pJupiter->AddComponent(new CTransform);
+	//pJupiter->AddComponent(new CSolarSystem);
+	//pJupiter->AddComponent(new CPlanetMove);
+	//pJupiter->PlanetMove()->SetOrbit(true);
+	//pJupiter->PlanetMove()->SetRotate(true);
+	//pJupiter->PlanetMove()->SetOrbitSpeed(1000.f);
+	//pJupiter->PlanetMove()->SetOrbitRadius(60000.f);
+
+	//pJupiter->Transform()->SetRelativeScale(Vec3(2240.f, 2240.f, 2240.f));
+
+	//pJupiter->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pJupiter->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
+	//pJupiter->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\jupiter\\2k_jupiter.jpg"));
+	//
+	//SpawnGameObject(pJupiter, Vec3(60000.f, 0.f, -400.f), L"Planet");
+
+	//CGameObject* pSaturn = new CGameObject;
+	//pSaturn->SetName(L"Saturn");
+	//pSaturn->AddComponent(new CTransform);
+	//pSaturn->AddComponent(new CSolarSystem);
+	//pSaturn->AddComponent(new CPlanetMove);
+	//pSaturn->PlanetMove()->SetOrbit(true);
+	//pSaturn->PlanetMove()->SetRotate(true);
+	//pSaturn->PlanetMove()->SetOrbitSpeed(1000.f);
+	//pSaturn->PlanetMove()->SetOrbitRadius(70000.f);
+
+	//pSaturn->Transform()->SetRelativeScale(Vec3(1880.f, 1880.f, 1880.f));
+
+	//pSaturn->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pSaturn->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
+	//pSaturn->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\saturn\\2k_saturn.jpg"));
+	//
+	//SpawnGameObject(pSaturn, Vec3(70000.f, 0.f, -500.f), L"Planet");
+
+	//CGameObject* pSaturnRing = new CGameObject;
+	////pSaturnRing->SetParent();
+	//pSaturnRing->SetName(L"Saturn ring");
+	//pSaturnRing->AddComponent(new CTransform);
+	//pSaturnRing->AddComponent(new CSolarSystem);
+	//pSaturnRing->AddComponent(new CPlanetMove);
+	//pSaturnRing->PlanetMove()->SetRotate(true);
+	//pSaturnRing->PlanetMove()->SetXRotate(true);
+	//pSaturnRing->PlanetMove()->SetRotateSpeed(10.f);
+
+	//pSaturnRing->Transform()->SetRelativeScale(Vec3(3.5f, 3.5f, 3.5f));
+	//pSaturnRing->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
+	//pSaturnRing->Transform()->SetExceptParentRot(true);
+
+	//pSaturnRing->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CircleMesh"));
+	//pSaturnRing->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredAlphaMtrl"));
+	//pSaturnRing->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\saturn\\saturn_ring.png"));
+	//
+	////SpawnGameObject(pSaturnRing, Vec3(2000.f, 0.f, -500.f), L"Planet");
+	//pSaturn->AddChild(pSaturnRing);
+
+	//CGameObject* pUranus = new CGameObject;
+	//pUranus->SetName(L"Uranus");
+	//pUranus->AddComponent(new CTransform);
+	//pUranus->AddComponent(new CSolarSystem);
+	//pUranus->AddComponent(new CPlanetMove);
+	//pUranus->PlanetMove()->SetOrbit(true);
+	//pUranus->PlanetMove()->SetRotate(true);
+	//pUranus->PlanetMove()->SetOrbitSpeed(1000.f);
+	//pUranus->PlanetMove()->SetOrbitRadius(75000.f);
+
+	//pUranus->Transform()->SetRelativeScale(Vec3(800.f, 800.f, 800.f));
+
+	//pUranus->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pUranus->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
+	//pUranus->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\uranus\\2k_uranus.jpg"));
+	//
+	//SpawnGameObject(pUranus, Vec3(75000.f, 0.f, -600.f), L"Planet");
+
+	//CGameObject* pNeptune = new CGameObject;
+	//pNeptune->SetName(L"Neptune");
+	//pNeptune->AddComponent(new CTransform);
+	//pNeptune->AddComponent(new CSolarSystem);
+	//pNeptune->AddComponent(new CPlanetMove);
+	//pNeptune->PlanetMove()->SetOrbit(true);
+	//pNeptune->PlanetMove()->SetRotate(true);
+	//pNeptune->PlanetMove()->SetOrbitSpeed(1000.f);
+	//pNeptune->PlanetMove()->SetOrbitRadius(80000.f);
+
+	//pNeptune->Transform()->SetRelativeScale(Vec3(780.f, 780.f, 780.f));
+
+	//pNeptune->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pNeptune->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
+	//pNeptune->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\neptune\\2k_neptune.jpg"));
+	//
+	//SpawnGameObject(pNeptune, Vec3(80000.f, 0.f, -700.f), L"Planet");
+
+
+	CGameObject* pSphere = new CGameObject;
+	pSphere->SetName(L"Sphere");
+	pSphere->AddComponent(new CTransform);
+	pSphere->AddComponent(new CMeshRender);
+	pSphere->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L""));
+	pSphere->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L""));
+
+	pSphere->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
+
+	pSphere->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	pSphere->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"));
+
+	pSphere->MeshRender()->GetMaterial()->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	
-	SpawnGameObject(pSun, Vec3(0.f, 0.f, 0.f), L"Planet");
+	SpawnGameObject(pSphere, Vec3(0.f, 0.f, 0.f), L"Planet");
 
-	CGameObject* pSunDistortion = new CGameObject;
-	pSunDistortion->SetName(L"SunDistortion");
-	pSunDistortion->AddComponent(new CTransform);
-	pSunDistortion->AddComponent(new CMeshRender);
-	pSunDistortion->Transform()->SetRelativeScale(Vec3(22000.f, 22000.f, 22000.f));
+	CGameObject* pRectMesh = new CGameObject;
+	pRectMesh->SetName(L"Sphere");
+	pRectMesh->AddComponent(new CTransform);
+	pRectMesh->AddComponent(new CMeshRender);
 
-	pSunDistortion->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	pSunDistortion->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl"));
-	pSunDistortion->MeshRender()->GetMaterial()->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\noise\\noise_04.jpg"));
+	pRectMesh->Transform()->SetRelativeScale(Vec3(500.f, 500.f, 500.f));
+
+	pRectMesh->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	pRectMesh->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"));
+
+	pRectMesh->MeshRender()->GetMaterial()->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	
-	SpawnGameObject(pSunDistortion, Vec3(0.f, 0.f, 0.f), 0);
+	SpawnGameObject(pRectMesh, Vec3(0.f, 0.f, 0.f), L"Planet");
 
 	CGameObject* pSunLight = new CGameObject;
 	pSunLight->SetName(L"SunLight");
 	pSunLight->AddComponent(new CTransform);
 	pSunLight->AddComponent(new CLight3D);
 
-	pSunLight->Light3D()->SetLightType(LIGHT_TYPE::POINT);
+	pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
 	pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
 	pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
-	pSunLight->Light3D()->SetRadius(1000000.f);
+	//pSunLight->Light3D()->SetRadius(1000000.f);
 	//pSunLight->Light3D()->SetAngle(XM_PI / 8.f);
 
 	//pDirLight->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
 
-	SpawnGameObject(pSunLight, Vec3(0.f, 0.f, 0.f), L"Light");
-
-	CGameObject* pMercury = new CGameObject;
-	pMercury->SetName(L"Mercury");
-	pMercury->AddComponent(new CTransform);
-	pMercury->AddComponent(new CSolarSystem);
-	pMercury->AddComponent(new CPlanetMove);
-
-	pMercury->PlanetMove()->SetOrbit(true);
-	pMercury->PlanetMove()->SetRotate(true);
-	pMercury->PlanetMove()->SetOrbitSpeed(1000.f);
-	pMercury->PlanetMove()->SetOrbitRadius(24000.f);
-
-	pMercury->Transform()->SetRelativeScale(Vec3(70.f, 70.f, 70.f));
-	pMercury->SolarSystem()->SetEmissive(true);
-	pMercury->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	pMercury->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
-	pMercury->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\mercury\\2k_mercury.jpg"));
-	//pCube->SolarSystem()->GetMaterial()->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
-	//pMercury->SolarSystem()->SetEmissive(true);
-	
-	SpawnGameObject(pMercury, Vec3(24000.f, 0.f, 0.f), L"Planet");
-
-	CGameObject* pVenus = new CGameObject;
-	pVenus->SetName(L"Venus");
-	pVenus->AddComponent(new CTransform);
-	pVenus->AddComponent(new CSolarSystem);
-	pVenus->AddComponent(new CPlanetMove);
-
-	pVenus->PlanetMove()->SetOrbit(true);
-	pVenus->PlanetMove()->SetRotate(true);
-	pVenus->PlanetMove()->SetOrbitSpeed(1000.f);
-	pVenus->PlanetMove()->SetOrbitRadius(30000.f);
-
-	pVenus->Transform()->SetRelativeScale(Vec3(180.f, 180.f, 180.f));
-
-	pVenus->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	pVenus->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
-	pVenus->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\venus\\2k_venus_surface.jpg"));
-	pVenus->SolarSystem()->SetPlanetCoverTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\venus\\2k_venus_atmosphere.jpg"));
-	
-	SpawnGameObject(pVenus, Vec3(30000.f, 0.f, -100.f), L"Planet");
-
-	CGameObject* pEarth = new CGameObject;
-	pEarth->SetName(L"Earth");
-	pEarth->AddComponent(new CTransform);
-	pEarth->AddComponent(new CSolarSystem);
-	pEarth->AddComponent(new CPlanetMove);
-	pEarth->PlanetMove()->SetOrbit(true);
-	pEarth->PlanetMove()->SetRotate(true);
-	pEarth->PlanetMove()->SetOrbitSpeed(1000.f);
-	pEarth->PlanetMove()->SetOrbitRadius(40000.f);
-
-	pEarth->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
-
-	pEarth->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	pEarth->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
-	pEarth->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\earth\\2k_earth_daymap.jpg"));
-	pEarth->SolarSystem()->SetPlanetNormalTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\earth\\2k_earth_normal_map.tif"));
-	pEarth->SolarSystem()->SetPlanetCoverTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\earth\\2k_earth_clouds_3.png"));
-	
-	SpawnGameObject(pEarth, Vec3(40000.f, 0.f, -200.f), L"Planet");
-
-	CGameObject* pMoon = new CGameObject;
-	pMoon->SetName(L"Moon");
-	pMoon->AddComponent(new CTransform);
-	pMoon->AddComponent(new CSolarSystem);
-	pMoon->AddComponent(new CPlanetMove);
-	pMoon->PlanetMove()->SetSatellite(true);
-	pMoon->PlanetMove()->SetRotate(true);
-	pMoon->PlanetMove()->SetOrbit(true);
-	pMoon->PlanetMove()->SetOrbitSpeed(1000.f);
-	pMoon->PlanetMove()->SetOrbitRadius(500.f);
-
-	pMoon->Transform()->SetRelativeScale(Vec3(125.f, 125.f, 125.f));
-	pMoon->Transform()->SetRelativePos(Vec3(500.f, 0.f, 0.f));
-
-	pMoon->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	pMoon->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
-	pMoon->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\moon\\2k_moon.jpg"));
-	pMoon->Transform()->SetAbsolute(true);
-	pEarth->AddChild(pMoon);
-
-
-	CGameObject* pMars = new CGameObject;
-	pMars->SetName(L"Mars");
-	pMars->AddComponent(new CTransform);
-	pMars->AddComponent(new CSolarSystem);
-	pMars->AddComponent(new CPlanetMove);
-	pMars->PlanetMove()->SetOrbit(true);
-	pMars->PlanetMove()->SetRotate(true);
-	pMars->PlanetMove()->SetOrbitSpeed(1000.f);
-	pMars->PlanetMove()->SetOrbitRadius(50000.f);
-
-	pMars->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
-
-	pMars->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	pMars->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
-	pMars->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\mars\\2k_mars.jpg"));
-	
-	SpawnGameObject(pMars, Vec3(50000.f, 0.f, -300.f), L"Planet");
-
-	CGameObject* pJupiter = new CGameObject;
-	pJupiter->SetName(L"Jupiter");
-	pJupiter->AddComponent(new CTransform);
-	pJupiter->AddComponent(new CSolarSystem);
-	pJupiter->AddComponent(new CPlanetMove);
-	pJupiter->PlanetMove()->SetOrbit(true);
-	pJupiter->PlanetMove()->SetRotate(true);
-	pJupiter->PlanetMove()->SetOrbitSpeed(1000.f);
-	pJupiter->PlanetMove()->SetOrbitRadius(60000.f);
-
-	pJupiter->Transform()->SetRelativeScale(Vec3(2240.f, 2240.f, 2240.f));
-
-	pJupiter->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	pJupiter->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
-	pJupiter->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\jupiter\\2k_jupiter.jpg"));
-	
-	SpawnGameObject(pJupiter, Vec3(60000.f, 0.f, -400.f), L"Planet");
-
-	CGameObject* pSaturn = new CGameObject;
-	pSaturn->SetName(L"Saturn");
-	pSaturn->AddComponent(new CTransform);
-	pSaturn->AddComponent(new CSolarSystem);
-	pSaturn->AddComponent(new CPlanetMove);
-	pSaturn->PlanetMove()->SetOrbit(true);
-	pSaturn->PlanetMove()->SetRotate(true);
-	pSaturn->PlanetMove()->SetOrbitSpeed(1000.f);
-	pSaturn->PlanetMove()->SetOrbitRadius(70000.f);
-
-	pSaturn->Transform()->SetRelativeScale(Vec3(1880.f, 1880.f, 1880.f));
-
-	pSaturn->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	pSaturn->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
-	pSaturn->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\saturn\\2k_saturn.jpg"));
-	
-	SpawnGameObject(pSaturn, Vec3(70000.f, 0.f, -500.f), L"Planet");
-
-	CGameObject* pSaturnRing = new CGameObject;
-	//pSaturnRing->SetParent();
-	pSaturnRing->SetName(L"Saturn ring");
-	pSaturnRing->AddComponent(new CTransform);
-	pSaturnRing->AddComponent(new CSolarSystem);
-	pSaturnRing->AddComponent(new CPlanetMove);
-	pSaturnRing->PlanetMove()->SetRotate(true);
-	pSaturnRing->PlanetMove()->SetXRotate(true);
-	pSaturnRing->PlanetMove()->SetRotateSpeed(10.f);
-
-	pSaturnRing->Transform()->SetRelativeScale(Vec3(3.5f, 3.5f, 3.5f));
-	pSaturnRing->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
-	pSaturnRing->Transform()->SetExceptParentRot(true);
-
-	pSaturnRing->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CircleMesh"));
-	pSaturnRing->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredAlphaMtrl"));
-	pSaturnRing->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\saturn\\saturn_ring.png"));
-	
-	//SpawnGameObject(pSaturnRing, Vec3(2000.f, 0.f, -500.f), L"Planet");
-	pSaturn->AddChild(pSaturnRing);
-
-	CGameObject* pUranus = new CGameObject;
-	pUranus->SetName(L"Uranus");
-	pUranus->AddComponent(new CTransform);
-	pUranus->AddComponent(new CSolarSystem);
-	pUranus->AddComponent(new CPlanetMove);
-	pUranus->PlanetMove()->SetOrbit(true);
-	pUranus->PlanetMove()->SetRotate(true);
-	pUranus->PlanetMove()->SetOrbitSpeed(1000.f);
-	pUranus->PlanetMove()->SetOrbitRadius(75000.f);
-
-	pUranus->Transform()->SetRelativeScale(Vec3(800.f, 800.f, 800.f));
-
-	pUranus->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	pUranus->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
-	pUranus->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\uranus\\2k_uranus.jpg"));
-	
-	SpawnGameObject(pUranus, Vec3(75000.f, 0.f, -600.f), L"Planet");
-
-	CGameObject* pNeptune = new CGameObject;
-	pNeptune->SetName(L"Neptune");
-	pNeptune->AddComponent(new CTransform);
-	pNeptune->AddComponent(new CSolarSystem);
-	pNeptune->AddComponent(new CPlanetMove);
-	pNeptune->PlanetMove()->SetOrbit(true);
-	pNeptune->PlanetMove()->SetRotate(true);
-	pNeptune->PlanetMove()->SetOrbitSpeed(1000.f);
-	pNeptune->PlanetMove()->SetOrbitRadius(80000.f);
-
-	pNeptune->Transform()->SetRelativeScale(Vec3(780.f, 780.f, 780.f));
-
-	pNeptune->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	pNeptune->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredMtrl"));
-	pNeptune->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\neptune\\2k_neptune.jpg"));
-	
-	SpawnGameObject(pNeptune, Vec3(80000.f, 0.f, -700.f), L"Planet");
+	SpawnGameObject(pSunLight, Vec3(0.f, 0.f, 300.f), L"Light");
 
 	CGameObject* pSkyBox = new CGameObject;
 	pSkyBox->SetName(L"SkyBox");
@@ -436,12 +500,12 @@ void CreateTestLevel()
 	pObject->Decal()->SetDeferredDecal(true);
 	//pObject->Decal()->SetEmissiveDecal(true);
 
-	pObject->Transform()->SetRelativeScale(Vec3(10000.f, 10000.f, 10000.f));
+	pObject->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
 	pObject->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
-	CCamera* cam = CRenderMgr::GetInst()->GetEditorCam();
-	pObject->SetFollowObj(cam->GetOwner());
+	//CCamera* cam = CRenderMgr::GetInst()->GetEditorCam();
+	//pObject->SetFollowObj(cam->GetOwner());
 
-	SpawnGameObject(pObject, Vec3(30000.f, 0.f, 0.f), L"Default");
+	SpawnGameObject(pObject, Vec3(0.f, 0.f, 0.f), L"Default");
 
 	
 

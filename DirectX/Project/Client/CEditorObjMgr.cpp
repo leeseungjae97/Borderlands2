@@ -55,7 +55,7 @@ void CEditorObjMgr::init()
 	pEditorCamObj->AddComponent(new CTransform);
 	pEditorCamObj->AddComponent(new CCamera);
 	pEditorCamObj->AddComponent(new CCameraMoveScript);
-	pEditorCamObj->Transform()->SetRelativePos(Vec3(30000.f, 30000.f, 30000.f));
+	pEditorCamObj->Transform()->SetRelativePos(Vec3(0.f, 0.f, 0.f));
 
 	pEditorCamObj->Camera()->SetFarZ(1000000.f);
 	pEditorCamObj->Camera()->SetLayerMaskAll(true);

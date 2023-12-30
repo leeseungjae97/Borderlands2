@@ -1,10 +1,14 @@
 #pragma once
 #include "CComponent.h"
 
+#include "CFrustum.h"
+
 class CCamera :
     public CComponent
 {
 private:
+    CFrustum    m_Frustum;
+
     float       m_fAspectRatio;
     float       m_fScale;           // Orthograpic 에서 사용하는 카메라 배율
 
@@ -33,6 +37,8 @@ private:
     vector<CGameObject*>    m_vecUI;
     vector<CGameObject*>    m_vecPost;
 
+    vector<CGameObject*>    m_vecShadow;
+
 public:
     void SetProjType(PROJ_TYPE _Type) { m_ProjType = _Type; }
     PROJ_TYPE GetProjType() { return m_ProjType; }
@@ -54,9 +60,15 @@ public:
     float GetNearZ() { return m_NearZ; }
     float GetFarZ() { return m_FarZ; }
 
+    Matrix GetProjInvMat() { return m_matProjInv; }
+    Matrix GetViewInvMat() { return m_matViewInv; }
+
 public:
     void SortObject();
+    void SortObject_Shadow();
+
     void render();
+    void render_shadowmap();
 
 public:
     virtual void begin() override;
@@ -65,9 +77,10 @@ public:
 
 private:
     void clear();
+    void clear_shadow();
 
     void render_deferred();
-
+    
     void render_opaque();
     void render_mask();
     void render_decal();

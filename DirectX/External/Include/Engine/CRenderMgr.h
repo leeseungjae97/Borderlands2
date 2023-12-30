@@ -81,6 +81,7 @@ public:
 
 private:
 	void UpdateData();
+	void render_shadowmap();
 	void render_play();
 	void render_editor();
 	void Clear();

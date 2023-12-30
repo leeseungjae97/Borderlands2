@@ -7,6 +7,7 @@
 
 #include "CCamera.h"
 #include "CLight2D.h"
+#include "CLight3D.h"
 
 #include "CResMgr.h"
 
@@ -55,17 +56,13 @@ void CRenderMgr::init()
 
 void CRenderMgr::render()
 {
-    // 렌더링 시작
-    float arrColor[4] = { 0.2f, 0.2f, 0.2f, 1.f };
-    //CDevice::GetInst()->ClearTarget(arrColor);
-    m_MRT[(UINT)MRT_TYPE::SWAPCHAIN]->ClearTarget();
-
-    // 출력 타겟 지정    
-    //CDevice::GetInst()->OMSet();
-    m_MRT[(UINT)MRT_TYPE::SWAPCHAIN]->OMSet();
+    // MRT Clear    
+    ClearMRT();
 
     // 광원 및 전역 데이터 업데이트 및 바인딩
     UpdateData();
+
+    render_shadowmap();
 
     // 렌더 함수 호출
     (this->*RENDER_FUNC)();
@@ -96,8 +93,6 @@ void CRenderMgr::render_play()
 
 void CRenderMgr::render_editor()
 {
-    // MRT Clear    
-    ClearMRT();
 
     // 물체 분류
     m_pEditorCam->SortObject();
@@ -162,6 +157,17 @@ void CRenderMgr::UpdateData()
     pGlobalBuffer->SetData(&GlobalData, sizeof(tGlobal));
     pGlobalBuffer->UpdateData();
     pGlobalBuffer->UpdateData_CS();
+}
+
+void CRenderMgr::render_shadowmap()
+{
+        // ShadowMap MRT 로 교체
+    GetMRT(MRT_TYPE::SHADOWMAP)->OMSet();
+
+    for (size_t i = 0; i < m_vecLight3D.size(); ++i)
+    {
+        m_vecLight3D[i]->render_shadowmap();
+    }
 }
 
 
@@ -250,6 +256,26 @@ void CRenderMgr::CreateMRT()
             , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
         m_MRT[(UINT)MRT_TYPE::LIGHT]->Create(arrRTTex, 2, nullptr);
+    }
+
+    // ====================
+    // ShadowMap MRT 만들기
+    // ====================
+    {
+        m_MRT[(UINT)MRT_TYPE::SHADOWMAP] = new MRT;
+    
+        Vec2 vResol = Vec2(8192, 8192);
+
+        Ptr<CTexture> arrRTTex[8] = {};
+        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"DynamicShadowMapTex", vResol.x, vResol.y
+                                                    , DXGI_FORMAT_R32_FLOAT
+                                                    , D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+            
+        Ptr<CTexture> pDSTex = CResMgr::GetInst()->CreateTexture(L"DynamicShadowMapDepthTex", vResol.x, vResol.y
+                                                    , DXGI_FORMAT_D32_FLOAT
+                                                    , D3D11_BIND_DEPTH_STENCIL);
+
+        m_MRT[(UINT)MRT_TYPE::SHADOWMAP]->Create(arrRTTex, 1, pDSTex);
     }
 }
 
