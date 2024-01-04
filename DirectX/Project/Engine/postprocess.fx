@@ -54,7 +54,7 @@ float4 PS_GrayShader(VS_OUT _in) : SV_Target
 // Distortion Shader
 // mesh : RectMesh
 // Domain : DOMAIN_POSTPROCESS
-// g_tex_0 : RederTarget Copy Texture
+// g_tex_0 : RenderTarget Copy Texture
 // g_tex_1 : Noise Texture
 // ============================
 VS_OUT VS_Distortion(VS_IN _in)

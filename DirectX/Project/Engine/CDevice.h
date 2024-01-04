@@ -16,7 +16,7 @@ private:
 	ComPtr<IDXGISwapChain>			m_SwapChain;
 
 	// Sampler
-	ComPtr<ID3D11SamplerState>		m_Sampler[2];
+	ComPtr<ID3D11SamplerState>		m_Sampler[3];
 
 	// RasterizerState
 	ComPtr<ID3D11RasterizerState>	m_RSState[(UINT)RS_TYPE::END];

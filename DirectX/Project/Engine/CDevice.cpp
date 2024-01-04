@@ -403,6 +403,13 @@ int CDevice::CreateSampler()
     tSamDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
     DEVICE->CreateSamplerState(&tSamDesc, m_Sampler[1].GetAddressOf());
 
+    tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+    tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+    tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+    tSamDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+    tSamDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+    DEVICE->CreateSamplerState(&tSamDesc, m_Sampler[2].GetAddressOf());
+
     CONTEXT->VSSetSamplers(0, 1, m_Sampler[0].GetAddressOf());
     CONTEXT->HSSetSamplers(0, 1, m_Sampler[0].GetAddressOf());
     CONTEXT->DSSetSamplers(0, 1, m_Sampler[0].GetAddressOf());
@@ -414,6 +421,13 @@ int CDevice::CreateSampler()
     CONTEXT->DSSetSamplers(1, 1, m_Sampler[1].GetAddressOf());
     CONTEXT->GSSetSamplers(1, 1, m_Sampler[1].GetAddressOf());
     CONTEXT->PSSetSamplers(1, 1, m_Sampler[1].GetAddressOf());
+
+    CONTEXT->VSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
+    CONTEXT->HSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
+    CONTEXT->DSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
+    CONTEXT->GSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
+    CONTEXT->PSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
+
 
     return S_OK;
 }

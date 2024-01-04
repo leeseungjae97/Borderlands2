@@ -332,16 +332,29 @@ void CreateTestLevel()
 	//pNeptune->SolarSystem()->SetPlanetTex(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\solar_system\\neptune\\2k_neptune.jpg"));
 	//
 	//SpawnGameObject(pNeptune, Vec3(80000.f, 0.f, -700.f), L"Planet");
+	CGameObject* pSunLight = new CGameObject;
+	pSunLight->SetName(L"SunLight");
+	pSunLight->AddComponent(new CTransform);
+	pSunLight->AddComponent(new CLight3D);
 
+	pSunLight->Transform()->SetRelativeRot(Vec3(XM_PI / 4.f, XM_PI / 4.f, 0.f));
+	pSunLight->Light3D()->SetRadius(500.f);
+	pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
+	pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
+	pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
+	//pSunLight->Light3D()->SetRadius(1000000.f);
+	//pSunLight->Light3D()->SetAngle(XM_PI / 8.f);
+
+	//pDirLight->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
+
+	SpawnGameObject(pSunLight, Vec3(-2000.f, 2000.f, -2000.f), 0);
 
 	CGameObject* pSphere = new CGameObject;
 	pSphere->SetName(L"Sphere");
 	pSphere->AddComponent(new CTransform);
 	pSphere->AddComponent(new CMeshRender);
-	pSphere->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L""));
-	pSphere->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L""));
 
-	pSphere->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
+	pSphere->Transform()->SetRelativeScale(Vec3(1000.f, 1000.f, 1000.f));
 
 	pSphere->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
 	pSphere->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"));
@@ -355,29 +368,15 @@ void CreateTestLevel()
 	pRectMesh->AddComponent(new CTransform);
 	pRectMesh->AddComponent(new CMeshRender);
 
-	pRectMesh->Transform()->SetRelativeScale(Vec3(500.f, 500.f, 500.f));
+	pRectMesh->Transform()->SetRelativeScale(Vec3(8000.f, 8000.f, 8000.f));
+	pRectMesh->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
 
 	pRectMesh->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
 	pRectMesh->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"));
 
 	pRectMesh->MeshRender()->GetMaterial()->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	
-	SpawnGameObject(pRectMesh, Vec3(0.f, 0.f, 0.f), L"Planet");
-
-	CGameObject* pSunLight = new CGameObject;
-	pSunLight->SetName(L"SunLight");
-	pSunLight->AddComponent(new CTransform);
-	pSunLight->AddComponent(new CLight3D);
-
-	pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
-	pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
-	pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
-	//pSunLight->Light3D()->SetRadius(1000000.f);
-	//pSunLight->Light3D()->SetAngle(XM_PI / 8.f);
-
-	//pDirLight->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
-
-	SpawnGameObject(pSunLight, Vec3(0.f, 0.f, 300.f), L"Light");
+	SpawnGameObject(pRectMesh, Vec3(0.f, -1000.f, 0.f), L"Planet");
 
 	CGameObject* pSkyBox = new CGameObject;
 	pSkyBox->SetName(L"SkyBox");

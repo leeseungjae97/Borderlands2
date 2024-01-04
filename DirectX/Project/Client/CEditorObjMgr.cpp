@@ -59,7 +59,7 @@ void CEditorObjMgr::init()
 
 	pEditorCamObj->Camera()->SetFarZ(1000000.f);
 	pEditorCamObj->Camera()->SetLayerMaskAll(true);
-	pEditorCamObj->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
+	//pEditorCamObj->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
 	pEditorCamObj->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
 
 	m_vecEditorObj.push_back(pEditorCamObj);

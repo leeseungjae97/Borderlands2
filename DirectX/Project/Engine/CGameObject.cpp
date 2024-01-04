@@ -127,12 +127,13 @@ void CGameObject::finaltick()
 	}
 		
 	// 소속 레이어, 부모가 없는데 finaltick 이 호출되었다.
-	if(nullptr == m_Parent)
-		assert(-1 != m_iLayerIdx); 
-	else
-	{
-		if (-1 == m_iLayerIdx) m_iLayerIdx = m_Parent->GetLayerIndex();
-	}
+	assert(-1 != m_iLayerIdx); 
+	//if(nullptr == m_Parent)
+	//	assert(-1 != m_iLayerIdx); 
+	//else
+	//{
+	//	if (-1 == m_iLayerIdx) m_iLayerIdx = m_Parent->GetLayerIndex();
+	//}
 	// 레이어 등록
 	CLayer* pCurLayer = CLevelMgr::GetInst()->GetCurLevel()->GetLayer(m_iLayerIdx);
 	pCurLayer->RegisterObject(this);

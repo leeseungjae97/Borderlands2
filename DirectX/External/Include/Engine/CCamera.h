@@ -27,6 +27,11 @@ private:
     float m_NearZ;
     float m_FarZ;
 
+    float       m_FOV;
+
+    float       m_OrthoWidth;       // Orthgraphic 에서의 가로 투영 범위
+    float       m_OrthoHeight;      // OrthGraphic 에서의 세로 투영 범위
+
     vector<CGameObject*>    m_vecDeferred;
     vector<CGameObject*>    m_vecDeferredDecal;
 
@@ -48,6 +53,15 @@ public:
 
     void SetLayerMask(int _iLayer, bool _Visible);
     void SetLayerMaskAll(bool _Visible);
+
+    void SetFOV(float _Radian) { m_FOV = _Radian; }
+    float GetFOV() { return m_FOV; }
+
+    void SetOrthoWidth(float _width) { m_OrthoWidth = _width; }
+    void SetOrthoHeight(float _height) { m_OrthoHeight = _height; }
+
+    float GetorthoWidth() { return m_OrthoWidth; }
+    float GetOrthoHeight() { return m_OrthoHeight; }
 
     void SetCameraIndex(int _idx);
 

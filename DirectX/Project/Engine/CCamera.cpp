@@ -25,6 +25,9 @@ CCamera::CCamera()
 	, m_Frustum(this)
 	, m_ProjType(PROJ_TYPE::ORTHOGRAPHIC)
 	, m_iLayerMask(0)
+	, m_FOV(XM_PI / 2.f)
+	, m_OrthoWidth(0.f)
+	, m_OrthoHeight(0.f)
 	, m_iCamIdx(-1)
     , m_NearZ(1.f)
     , m_FarZ(1000000.f)
@@ -33,6 +36,9 @@ CCamera::CCamera()
 
 	Vec2 vRenderResol = CDevice::GetInst()->GetRenderResolution();
 	m_fAspectRatio = vRenderResol.x / vRenderResol.y;
+
+	m_OrthoWidth = vRenderResol.x;
+	m_OrthoHeight = vRenderResol.y;
 }
 
 CCamera::CCamera(const CCamera& _Other)
@@ -40,6 +46,9 @@ CCamera::CCamera(const CCamera& _Other)
 	, m_fAspectRatio(_Other.m_fAspectRatio)
 	, m_Frustum(this)
 	, m_fScale(_Other.m_fScale)
+	, m_FOV(_Other.m_FOV)
+	, m_OrthoWidth(_Other.m_OrthoWidth)
+	, m_OrthoHeight(_Other.m_OrthoHeight)
 	, m_ProjType(_Other.m_ProjType)
 	, m_iLayerMask(_Other.m_iLayerMask)
 	, m_iCamIdx(-1)
@@ -104,13 +113,12 @@ void CCamera::CalcProjMat()
 	if (PROJ_TYPE::ORTHOGRAPHIC == m_ProjType)
 	{
 		// 직교 투영
-		Vec2 vResolution = CDevice::GetInst()->GetRenderResolution();
-		m_matProj =  XMMatrixOrthographicLH(vResolution.x * (1.f / m_fScale), vResolution.y * (1.f / m_fScale), m_NearZ, m_FarZ);
+		m_matProj =  XMMatrixOrthographicLH(m_OrthoWidth * (1.f / m_fScale), m_OrthoHeight * (1.f / m_fScale), m_NearZ, m_FarZ);
 	}
 	else
 	{	
 		// 원근 투영
-		m_matProj = XMMatrixPerspectiveFovLH(XM_PI / 2.f, m_fAspectRatio, m_NearZ, m_FarZ);
+		m_matProj = XMMatrixPerspectiveFovLH(m_FOV, m_fAspectRatio, m_NearZ, m_FarZ);
 	}
 	m_matProjInv = XMMatrixInverse(nullptr, m_matProj);
 }
@@ -169,9 +177,9 @@ void CCamera::SortObject()
 					|| nullptr == pRenderCom->GetMaterial()->GetShader())
 					continue;
 
-				if (pRenderCom->IsFrustumCheck() 
-					&& false == m_Frustum.FrustumCheck(vecObject[j]->Transform()->GetWorldPos(), vecObject[j]->Transform()->GetRelativeScale().x / 5.f))
-					continue;
+				//if (pRenderCom->IsFrustumCheck() 
+				//	&& false == m_Frustum.FrustumCheck(vecObject[j]->Transform()->GetWorldPos(), vecObject[j]->Transform()->GetRelativeScale().x / 5.f))
+				//	continue;
 
 				// 쉐이더 도메인에 따른 분류
 				SHADER_DOMAIN eDomain = pRenderCom->GetMaterial()->GetShader()->GetDomain();
@@ -286,6 +294,7 @@ void CCamera::render()
 		pMtrl->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
 		pMtrl->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
 		pMtrl->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+		pMtrl->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
 	}
 
 	pMtrl->UpdateData();

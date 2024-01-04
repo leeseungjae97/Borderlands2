@@ -56,11 +56,11 @@ void CRenderMgr::init()
 
 void CRenderMgr::render()
 {
-    // MRT Clear    
-    ClearMRT();
-
     // 광원 및 전역 데이터 업데이트 및 바인딩
     UpdateData();
+
+    // MRT Clear    
+    ClearMRT();
 
     render_shadowmap();
 
@@ -163,6 +163,7 @@ void CRenderMgr::render_shadowmap()
 {
         // ShadowMap MRT 로 교체
     GetMRT(MRT_TYPE::SHADOWMAP)->OMSet();
+    //m_MRT[(UINT)MRT_TYPE::SHADOWMAP]->OMSet();
 
     for (size_t i = 0; i < m_vecLight3D.size(); ++i)
     {
@@ -255,7 +256,12 @@ void CRenderMgr::CreateMRT()
             , DXGI_FORMAT_R8G8B8A8_UNORM
             , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
-        m_MRT[(UINT)MRT_TYPE::LIGHT]->Create(arrRTTex, 2, nullptr);
+        
+        arrRTTex[2] = CResMgr::GetInst()->CreateTexture(L"ShadowTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R32_FLOAT
+            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+        m_MRT[(UINT)MRT_TYPE::LIGHT]->Create(arrRTTex, 3, nullptr);
     }
 
     // ====================
@@ -276,6 +282,7 @@ void CRenderMgr::CreateMRT()
                                                     , D3D11_BIND_DEPTH_STENCIL);
 
         m_MRT[(UINT)MRT_TYPE::SHADOWMAP]->Create(arrRTTex, 1, pDSTex);
+        m_MRT[(UINT)MRT_TYPE::SHADOWMAP]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
     }
 }
 
