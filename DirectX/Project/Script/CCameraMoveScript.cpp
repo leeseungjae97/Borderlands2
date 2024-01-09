@@ -29,7 +29,10 @@ void CCameraMoveScript::Camera2DMove()
 
 	float fSpeed = m_fCamSpeed;
 	if (KEY_PRESSED(KEY::LSHIFT))
+	{
 		fSpeed *= 100.f;
+	}
+		
 
 	if (KEY_PRESSED(KEY::W))
 	{
@@ -82,6 +85,8 @@ void CCameraMoveScript::Camera3DMove()
 
 	if (KEY_PRESSED(KEY::LSHIFT))
 		fSpeed *= 10.f;
+	if (KEY_PRESSED(KEY::LCTRL))
+		fSpeed *= 0.1f;
 
 	if (KEY_PRESSED(KEY::W))
 	{

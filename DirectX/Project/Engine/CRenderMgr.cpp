@@ -161,7 +161,7 @@ void CRenderMgr::UpdateData()
 
 void CRenderMgr::render_shadowmap()
 {
-        // ShadowMap MRT 로 교체
+    // ShadowMap MRT 로 교체
     GetMRT(MRT_TYPE::SHADOWMAP)->OMSet();
     //m_MRT[(UINT)MRT_TYPE::SHADOWMAP]->OMSet();
 
@@ -283,6 +283,32 @@ void CRenderMgr::CreateMRT()
 
         m_MRT[(UINT)MRT_TYPE::SHADOWMAP]->Create(arrRTTex, 1, pDSTex);
         m_MRT[(UINT)MRT_TYPE::SHADOWMAP]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
+    }
+    {
+	    m_MRT[(UINT)MRT_TYPE::STENCIL_CULL] = new MRT;
+    
+        Vec2 vResol = CDevice::GetInst()->GetRenderResolution();
+
+        Ptr<CTexture> arrRTTex[8] = {};
+        Ptr<CTexture> pDSTex = CResMgr::GetInst()->CreateTexture(L"DepthCullingStencilTex", vResol.x, vResol.y
+                                                    , DXGI_FORMAT_D32_FLOAT
+                                                    , D3D11_BIND_DEPTH_STENCIL);
+
+        m_MRT[(UINT)MRT_TYPE::STENCIL_CULL]->Create(nullptr, 0, pDSTex);
+        m_MRT[(UINT)MRT_TYPE::STENCIL_CULL]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
+    }
+    {
+	    m_MRT[(UINT)MRT_TYPE::STENCIL_CULL_DEPLOY] = new MRT;
+    
+        Vec2 vResol = CDevice::GetInst()->GetRenderResolution();
+
+        Ptr<CTexture> arrRTTex[8] = {};
+        Ptr<CTexture> pDSTex = CResMgr::GetInst()->CreateTexture(L"DepthStencilDeployTex", vResol.x, vResol.y
+                                                    , DXGI_FORMAT_D32_FLOAT
+                                                    , D3D11_BIND_DEPTH_STENCIL);
+
+        m_MRT[(UINT)MRT_TYPE::STENCIL_CULL_DEPLOY]->Create(nullptr, 0, pDSTex);
+        m_MRT[(UINT)MRT_TYPE::STENCIL_CULL_DEPLOY]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
     }
 }
 

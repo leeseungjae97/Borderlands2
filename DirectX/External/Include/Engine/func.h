@@ -36,6 +36,8 @@ const wchar_t* ToWSTring(RES_TYPE);
 const char* ToString(COMPONENT_TYPE);
 const wchar_t* ToWSTring(COMPONENT_TYPE);
 
+wstring GetRelativePath(const wstring& _strBase, const wstring& _strPath);
+
 
 // Save / Load
 void SaveWString(const wstring& _str, FILE* _File);
@@ -114,5 +116,24 @@ void DeleteArray(T* (&Arr)[_Size])
 	{
 		if (nullptr != Arr[i])
 			delete Arr[i];
+	}
+}
+
+template <typename T, UINT _Size>
+void CopyArray(T (&DestArr)[_Size],const T (&SrcArr)[_Size])
+{
+	for (UINT i = 0; i < _Size; ++i)
+	{
+		DestArr[i] = SrcArr[i];
+	}
+}
+
+template <typename T, UINT _Size>
+void CopyArray(T* (&DestArr)[_Size],const T* (&SrcArr)[_Size])
+{
+	for (UINT i = 0; i < _Size; ++i)
+	{
+		if (nullptr != SrcArr[i])
+			DestArr[i] = SrcArr[i];
 	}
 }

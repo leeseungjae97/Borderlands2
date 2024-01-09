@@ -21,6 +21,7 @@ CGameObject::CGameObject()
 	, m_LifeTime(0.f)
 	, m_CurLifeTime(0.f)
 	, m_bLifeSpan(false)
+	, m_bESM(false)
 {
 }
 
@@ -35,6 +36,7 @@ CGameObject::CGameObject(const CGameObject& _Other)
 	, m_LifeTime(0.f)
 	, m_CurLifeTime(0.f)
 	, m_bLifeSpan(false)
+	, m_bESM(false)
 {
 	// Component บนป็
 	for (UINT i = 0; i < (UINT)COMPONENT_TYPE::END; ++i)
@@ -156,7 +158,25 @@ void CGameObject::finaltick_module()
 void CGameObject::render_shadowmap()
 {
 	if (nullptr != m_RenderCom)
-		m_RenderCom->render_shadowmap();
+	{
+		if(m_bESM)
+			m_RenderCom->render_shadowmapexp();
+		else
+			m_RenderCom->render_shadowmap();
+	}
+		
+}
+
+void CGameObject::render_stencilcull()
+{
+	if (nullptr != m_RenderCom)
+		m_RenderCom->render_stencilcull();
+}
+
+void CGameObject::render_stencildeploy()
+{
+	if (nullptr != m_RenderCom)
+		m_RenderCom->render_stencildeploy();
 }
 
 void CGameObject::render()

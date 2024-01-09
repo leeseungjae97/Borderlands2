@@ -2,6 +2,7 @@
 #include "mMRT.h"
 
 #include "CDevice.h"
+#include "CEngine.h"
 
 MRT::MRT()
 	: m_arrRT{}
@@ -31,8 +32,16 @@ void MRT::Create(Ptr<CTexture>* _arrRTTex, UINT _RTCount, Ptr<CTexture> _DSTex)
 	m_Viewport.TopLeftX = 0;
 	m_Viewport.TopLeftY = 0;
 
-	m_Viewport.Width = _arrRTTex[0]->Width();
-	m_Viewport.Height = _arrRTTex[0]->Height();
+	if(_arrRTTex)
+	{
+		m_Viewport.Width = _arrRTTex[0]->Width();
+		m_Viewport.Height = _arrRTTex[0]->Height();	
+	}else
+	{
+		m_Viewport.Width = CEngine::GetInst()->GetWindowResolution().x;
+		m_Viewport.Height = CEngine::GetInst()->GetWindowResolution().y;
+	}
+	
 
 	m_Viewport.MinDepth = 0;
 	m_Viewport.MaxDepth = 1;

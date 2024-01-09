@@ -300,5 +300,9 @@ enum class MRT_TYPE
 
 	SHADOWMAP,
 
+	STENCIL_CULL,
+
+	STENCIL_CULL_DEPLOY,
+
 	END,
 };

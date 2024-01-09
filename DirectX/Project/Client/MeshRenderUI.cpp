@@ -30,7 +30,7 @@ int MeshRenderUI::render_update()
 	char szBuff[50] = {};
 
 	Ptr<CMesh> pMesh = GetTarget()->MeshRender()->GetMesh();
-	Ptr<CMaterial> pMtrl = GetTarget()->MeshRender()->GetMaterial();
+	Ptr<CMaterial> pMtrl = GetTarget()->MeshRender()->GetMaterial(0);
 		
 	ImGui::Text("Mesh    ");
 	ImGui::SameLine();	
@@ -87,7 +87,7 @@ int MeshRenderUI::render_update()
 			CRes* pRes = (CRes*)pNode->GetData();
 			if (RES_TYPE::MATERIAL == pRes->GetType())
 			{
-				GetTarget()->MeshRender()->SetMaterial((CMaterial*)pRes);
+				GetTarget()->MeshRender()->SetMaterial((CMaterial*)pRes, 0);
 			}
 		}
 
@@ -126,5 +126,5 @@ void MeshRenderUI::SelectMaterial(DWORD_PTR _Key)
 {
 	string strKey = (char*)_Key;
 	Ptr<CMaterial> pMtrl = CResMgr::GetInst()->FindRes<CMaterial>(wstring(strKey.begin(), strKey.end()));
-	GetTarget()->MeshRender()->SetMaterial(pMtrl);
+	GetTarget()->MeshRender()->SetMaterial(pMtrl, 0);
 }

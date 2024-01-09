@@ -32,6 +32,10 @@ private:
     float       m_OrthoWidth;       // Orthgraphic 에서의 가로 투영 범위
     float       m_OrthoHeight;      // OrthGraphic 에서의 세로 투영 범위
 
+    bool        m_bESM;
+
+    float       m_fT[4];
+
     vector<CGameObject*>    m_vecDeferred;
     vector<CGameObject*>    m_vecDeferredDecal;
 
@@ -43,6 +47,9 @@ private:
     vector<CGameObject*>    m_vecPost;
 
     vector<CGameObject*>    m_vecShadow;
+
+    vector<CGameObject*>    m_vecStencil;
+    vector<CGameObject*>    m_vecStencilDeploy;
 
 public:
     void SetProjType(PROJ_TYPE _Type) { m_ProjType = _Type; }
@@ -77,12 +84,22 @@ public:
     Matrix GetProjInvMat() { return m_matProjInv; }
     Matrix GetViewInvMat() { return m_matViewInv; }
 
+    void SetESM(bool _ESM) { m_bESM = _ESM; }
+    bool GetESM() { return m_bESM; }
+
+    void SetFloatConstant(int _Index, float _Value) { m_fT[_Index] = _Value; }
+    float GetFloatConstant(int _Index) { return m_fT[_Index]; }
+
 public:
     void SortObject();
     void SortObject_Shadow();
+    void SortObject_Stencil();
+    void SortObject_StencilDeploy();
 
     void render();
     void render_shadowmap();
+    void render_stencilcull();
+    void render_stencildeploy();
 
 public:
     virtual void begin() override;
@@ -92,6 +109,8 @@ public:
 private:
     void clear();
     void clear_shadow();
+    void clear_stencil();
+    void clear_stencildeploy();
 
     void render_deferred();
     

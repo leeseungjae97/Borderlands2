@@ -42,6 +42,8 @@ private:
     float                   m_CurLifeTime;
     bool                    m_bLifeSpan;
 
+    bool                    m_bESM;
+
 public:
     // 레벨이 시작될 때 호출 or 시작 된 레벨에 합류할 때 호출
     // 생성자
@@ -52,6 +54,8 @@ public:
     void finaltick_module();
     void render();
     void render_shadowmap();
+    void render_stencilcull();
+    void render_stencildeploy();
 
 public:
     void AddComponent(CComponent* _Component);
@@ -105,6 +109,9 @@ public:
     void SetFollowObj(CGameObject* _Target);
 
     CGameObject* GetFollowObj() { return m_Follow; }
+
+    void SetESM(bool _bESM) { m_bESM = _bESM; }
+
 private:
     void DisconnectFromParent();
     void ChangeToChildType();

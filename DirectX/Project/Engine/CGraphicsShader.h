@@ -43,8 +43,12 @@ private:
     vector<tScalarParam>            m_vecScalarParam;
     vector<tTexParam>               m_vecTexParam;
 
+    int                             m_StencilRef;
+
 public:
     void CreateVertexShader(const wstring& _strFileName, const string& _strFuncName);
+    void CreateHullShader(const wstring& _strFileName, const string& _strFuncName);
+    void CreateDomainShader(const wstring& _strFileName, const string& _strFuncName);
     void CreateGeometryShader(const wstring& _strFileName, const string& _strFuncName);
     void CreatePixelShader(const wstring& _strFileName, const string& _strFuncName);
     void SetTopology(D3D11_PRIMITIVE_TOPOLOGY _Topology) { m_eTopology = _Topology; }
@@ -62,6 +66,8 @@ public:
     const vector<tScalarParam>& GetScalarParam() { return m_vecScalarParam; }
     const vector<tTexParam>& GetTexParam() { return m_vecTexParam; }
 
+    void SetStencilRef(int _Ref) { m_StencilRef = _Ref; }
+    int GetStencilRef() { return m_StencilRef; }
 public:
     CGraphicsShader();
     ~CGraphicsShader();

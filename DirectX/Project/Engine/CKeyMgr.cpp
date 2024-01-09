@@ -42,9 +42,8 @@ int g_arrVK[(UINT)KEY::END]
 	 'S',
 	 'D',
 	 'F',
-
-	  'L',
-	'K',
+	 'L',
+	 'K',
 
 	 'Z',
 	 'X',

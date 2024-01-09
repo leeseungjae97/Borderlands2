@@ -13,6 +13,7 @@
 
 #include <Script\CPlayerScript.h>
 #include <Script\CMonsterScript.h>
+#include <Script\CCameraMoveScript.h>
 
 #include "CLevelSaveLoad.h"
 
@@ -56,8 +57,10 @@ void CreateTestLevel()
 
 	pMainCam->AddComponent(new CTransform);
 	pMainCam->AddComponent(new CCamera);
+	pMainCam->AddComponent(new CCameraMoveScript);
 
-	pMainCam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
+	pMainCam->Camera()->SetFarZ(1000000.f);
+	pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
 	pMainCam->Camera()->SetCameraIndex(0);		// MainCamera 로 설정
 	pMainCam->Camera()->SetLayerMaskAll(true);	// 모든 레이어 체크
 	pMainCam->Camera()->SetLayerMask(31, false);// UI Layer 는 렌더링하지 않는다.
@@ -65,17 +68,17 @@ void CreateTestLevel()
 	SpawnGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
 
 	// UI cameara
-	CGameObject* pUICam = new CGameObject;
-	pUICam->SetName(L"UICamera");
+	//CGameObject* pUICam = new CGameObject;
+	//pUICam->SetName(L"UICamera");
 
-	pUICam->AddComponent(new CTransform);
-	pUICam->AddComponent(new CCamera);
+	//pUICam->AddComponent(new CTransform);
+	//pUICam->AddComponent(new CCamera);
 
-	pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
-	pUICam->Camera()->SetCameraIndex(1);		// Sub 카메라로 지정
-	pUICam->Camera()->SetLayerMask(31, true);	// 31번 레이어만 체크
+	//pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
+	//pUICam->Camera()->SetCameraIndex(1);		// Sub 카메라로 지정
+	//pUICam->Camera()->SetLayerMask(31, true);	// 31번 레이어만 체크
 
-	SpawnGameObject(pUICam, Vec3(0.f, 0.f, 0.f), 0);
+	//SpawnGameObject(pUICam, Vec3(0.f, 0.f, 0.f), 0);
 
 	//CGameObject* pSun = new CGameObject;
 	//pSun->SetName(L"Sun");
@@ -342,26 +345,37 @@ void CreateTestLevel()
 	pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
 	pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
 	pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
-	//pSunLight->Light3D()->SetRadius(1000000.f);
-	//pSunLight->Light3D()->SetAngle(XM_PI / 8.f);
 
-	//pDirLight->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
-
-	SpawnGameObject(pSunLight, Vec3(-2000.f, 2000.f, -2000.f), 0);
+	SpawnGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 0);
 
 	CGameObject* pSphere = new CGameObject;
-	pSphere->SetName(L"Sphere");
+	pSphere->SetName(L"Sphere1");
 	pSphere->AddComponent(new CTransform);
 	pSphere->AddComponent(new CMeshRender);
 
 	pSphere->Transform()->SetRelativeScale(Vec3(1000.f, 1000.f, 1000.f));
 
 	pSphere->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	pSphere->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"));
+	pSphere->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
 
-	pSphere->MeshRender()->GetMaterial()->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
+	pSphere->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
+	
+	SpawnGameObject(pSphere, Vec3(500.f, 500.f, 0.f), L"Planet");
+
+	pSphere = new CGameObject;
+	pSphere->SetName(L"Sphere2");
+	pSphere->AddComponent(new CTransform);
+	pSphere->AddComponent(new CMeshRender);
+
+	pSphere->Transform()->SetRelativeScale(Vec3(1000.f, 1000.f, 1000.f));
+
+	pSphere->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	pSphere->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
+
+	pSphere->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	
 	SpawnGameObject(pSphere, Vec3(0.f, 0.f, 0.f), L"Planet");
+
 
 	CGameObject* pRectMesh = new CGameObject;
 	pRectMesh->SetName(L"Sphere");
@@ -372,11 +386,24 @@ void CreateTestLevel()
 	pRectMesh->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
 
 	pRectMesh->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	pRectMesh->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"));
+	pRectMesh->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
 
-	pRectMesh->MeshRender()->GetMaterial()->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
+	pRectMesh->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	
 	SpawnGameObject(pRectMesh, Vec3(0.f, -1000.f, 0.f), L"Planet");
+
+	//CGameObject* pObject = new CGameObject;
+	//pObject->SetName(L"Tess Object");
+	//pObject->AddComponent(new CTransform);
+	//pObject->AddComponent(new CMeshRender);
+
+	//pObject->Transform()->SetRelativeScale(Vec3(200.f, 200.f, 200.f));
+	//pObject->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
+
+	//pObject->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	//pObject->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"TessMtrl"));
+	//pObject->MeshRender()->GetMaterial()->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\Sky01.png"));
+	//SpawnGameObject(pObject, Vec3(0.f, 0.f, 100.f), L"Default");
 
 	CGameObject* pSkyBox = new CGameObject;
 	pSkyBox->SetName(L"SkyBox");
@@ -497,7 +524,7 @@ void CreateTestLevel()
 	pObject->AddComponent(new CTransform);
 	pObject->AddComponent(new CDecal);
 	pObject->Decal()->SetDeferredDecal(true);
-	//pObject->Decal()->SetEmissiveDecal(true);
+	pObject->Decal()->SetEmissiveDecal(true);
 
 	pObject->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
 	pObject->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
@@ -506,6 +533,21 @@ void CreateTestLevel()
 
 	SpawnGameObject(pObject, Vec3(0.f, 0.f, 0.f), L"Default");
 
+
+	// ============
+	// FBX Loading
+	// ============	
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
+
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\mggun.fbx");
+		pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\mggun.mdat");
+		pObj = pMeshData->Instantiate();
+		pObj->SetName(L"rosi");	
+
+		SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
+	}
 	
 
 	// 충돌 시킬 레이어 짝 지정

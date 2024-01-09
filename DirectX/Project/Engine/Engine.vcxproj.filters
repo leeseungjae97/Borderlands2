@@ -179,6 +179,7 @@
     <ClInclude Include="KeyUseInfoMgr.h">
       <Filter>Source\Manager\KeyUseInfoMgr</Filter>
     </ClInclude>
+    <ClInclude Include="CMeshData.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -341,6 +342,7 @@
     <ClCompile Include="KeyUseInfoMgr.cpp">
       <Filter>Source\Manager\KeyUseInfoMgr</Filter>
     </ClCompile>
+    <ClCompile Include="CMeshData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -511,6 +513,9 @@
     <Filter Include="Source\Component\Frustum">
       <UniqueIdentifier>{6782d552-3184-475d-976b-5642054ec6b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Resource\MeshData">
+      <UniqueIdentifier>{374b666a-6dfa-4a92-a299-a57fb8f6c84a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">
@@ -571,6 +576,9 @@
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="area_decal.fx">
+      <Filter>Source\ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="tess.fx">
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
   </ItemGroup>

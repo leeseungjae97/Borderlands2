@@ -14,6 +14,10 @@ CLight3D::CLight3D()
 	, m_bShowRange(true)
 	, m_LightIdx(-1)
 	, m_pCamObj(nullptr)
+	, m_bShadow(false)
+	, m_bGaus(false)
+	, m_fLightDepthCoeff(0.01f)
+	, m_f{}
 {
 	m_pCamObj = new CGameObject;
 	m_pCamObj->AddComponent(new CTransform);
@@ -29,8 +33,12 @@ CLight3D::CLight3D(const CLight3D& _Origin)
 	, m_bShowRange(_Origin.m_bShowRange)
 	, m_LightIdx(-1)
 	, m_pCamObj(nullptr)
+	, m_bShadow(_Origin.m_bShadow)
+	, m_bGaus(_Origin.m_bGaus)
+	, m_fLightDepthCoeff(_Origin.m_fLightDepthCoeff)
 {
 	m_pCamObj = new CGameObject(*_Origin.m_pCamObj);
+	CopyArray(m_f, _Origin.m_f);
 }
 
 CLight3D::~CLight3D()
@@ -73,7 +81,7 @@ void CLight3D::SetRadius(float _fRadius)
 void CLight3D::SetLightType(LIGHT_TYPE _type)
 {
 	m_LightInfo.LightType = (int)_type;
-
+	
 	if (LIGHT_TYPE::DIRECTIONAL == (LIGHT_TYPE)m_LightInfo.LightType)
 	{
 		// 광원을 렌더링 할 때, 광원의 영향범위를 형상화 할 수 있는 메쉬(볼륨메쉬) 를 선택
@@ -82,8 +90,9 @@ void CLight3D::SetLightType(LIGHT_TYPE _type)
 
 		m_pCamObj->Camera()->SetFarZ(100000.f);
 		m_pCamObj->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
-		m_pCamObj->Camera()->SetOrthoWidth(8000.f);
-		m_pCamObj->Camera()->SetOrthoHeight(8000.f);
+		m_pCamObj->Camera()->SetOrthoWidth(80000.f);
+		m_pCamObj->Camera()->SetOrthoHeight(80000.f);
+		m_pCamObj->Camera()->SetESM(false);
 	}
 
 	else if (LIGHT_TYPE::POINT == (LIGHT_TYPE)m_LightInfo.LightType)
@@ -116,11 +125,20 @@ void CLight3D::render()
 		Matrix matVP = m_pCamObj->Camera()->GetViewMat() * m_pCamObj->Camera()->GetProjMat();
 		m_Mtrl->SetScalarParam(MAT_0, &matVP);
 		m_Mtrl->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"DynamicShadowMapTex"));
+		int IsShadow = m_bShadow;
+		int IsGau = m_bGaus;
+		m_Mtrl->SetScalarParam(INT_1, &IsShadow);
+		m_Mtrl->SetScalarParam(INT_2, &IsGau);
+		m_Mtrl->SetScalarParam(FLOAT_0, &m_fLightDepthCoeff);
+		m_Mtrl->SetScalarParam(FLOAT_1, &m_f[0]);
+		m_Mtrl->SetScalarParam(FLOAT_2, &m_f[1]);
+		m_Mtrl->SetScalarParam(FLOAT_3, &m_f[2]);
+
 	}
 
 	m_Mtrl->UpdateData();
 
-	m_Mesh->render();
+	m_Mesh->render(0);
 }
 
 void CLight3D::render_shadowmap()

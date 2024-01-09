@@ -100,7 +100,7 @@ void CParticleSystem::SetMaxSpawn(int _MaxSpawn)
 
 void CParticleSystem::SetParticleTex(const Ptr<CTexture>& _Tex)
 {
-	GetMaterial()->SetTexParam(TEX_0, _Tex);
+	GetMaterial(0)->SetTexParam(TEX_0, _Tex);
 }
 
 
@@ -179,7 +179,7 @@ void CParticleSystem::render()
 	//Vec2 mm = Vec2(_UnprojectPos.x, _UnprojectPos.y);
 	//GetMaterial()->SetScalarParam(VEC2_1, &mm);
 
-	GetMaterial()->UpdateData();
+	GetMaterial(0)->UpdateData();
 	GetMesh()->render_particle(m_ModuleData.iMaxParticleCount);
 
 	// 파티클 버퍼 바인딩 해제

@@ -902,6 +902,7 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->CreatePixelShader(L"shader\\std3d_deferred.fx", "PS_Std3D_Deferred");
 
 	pShader->SetRSType(RS_TYPE::CULL_BACK);
+	//pShader->SetRSType(RS_TYPE::WIRE_FRAME);
 	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
 	//pShader->SetDSType(DS_TYPE::STENCIL_CULL_TEST_O);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_DEFERRED);
@@ -924,9 +925,31 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->CreateVertexShader(L"shader\\light.fx", "VS_MShader");
 	pShader->CreatePixelShader(L"shader\\light.fx", "PS_MShader");
 
+	pShader->SetStencilRef(2);
 	pShader->SetRSType(RS_TYPE::CULL_NONE);
 	pShader->SetDSType(DS_TYPE::STENCIL_CULL_TEST_O);
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_DEFERRED);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_POSTPROCESS);
+
+
+	AddRes(pShader->GetKey(), pShader);
+
+	// ============================
+	// StencilDeployShader
+	// RS_TYPE : CULL_NONE
+	// DS_TYPE : STENCIL_CULL
+	// BS_TYPE : DEFAULT
+	// Domain : Deferred
+	// ============================
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"StencilDeployShader");
+
+	pShader->CreateVertexShader(L"shader\\light.fx", "VS_MShader");
+	pShader->CreatePixelShader(L"shader\\light.fx", "PS_MShader");
+
+	pShader->SetStencilRef(0);
+	pShader->SetRSType(RS_TYPE::CULL_NONE);
+	pShader->SetDSType(DS_TYPE::STENCIL_CULL_DEPLOY);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_POSTPROCESS);
 
 
 	AddRes(pShader->GetKey(), pShader);
@@ -1028,6 +1051,26 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	AddRes(pShader->GetKey(), pShader);
 
+	// =====================================
+	// ShadowMapExp Shader
+	// MRT              : SHADOWMAP
+	// Domain           : DOMAIN_LIGHT	
+	// Rasterizer       : CULL_BACK
+	// DepthStencil     : LESS
+	// Blend            : Default
+	// =====================================
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"ShadowMapExpShader");
+
+	pShader->CreateVertexShader(L"shader\\light.fx", "VS_ShadowMap");
+	pShader->CreatePixelShader(L"shader\\light.fx", "PS_ShadowMapExp");
+
+	pShader->SetRSType(RS_TYPE::CULL_BACK);
+	pShader->SetDSType(DS_TYPE::LESS);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_LIGHT);
+
+	AddRes(pShader->GetKey(), pShader);
+
 	// ============================
     // SpotLightShader
     // RS_TYPE : CULL_BACK
@@ -1115,6 +1158,32 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->AddTexParam(TEX_1, "Output Texture");
 
 	AddRes(pShader->GetKey(), pShader);
+
+	// =====================================
+	// Tess Shader
+	// MRT              : SwapChain
+	// Domain           : DOMAIN_OPAQUE	
+	// Rasterizer       : CULL_NONE
+	// DepthStencil     : LESS
+	// Blend            : Default
+	// =====================================
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"TessShader");
+
+	pShader->CreateVertexShader(L"shader\\tess.fx", "VS_Tess");
+	pShader->CreateHullShader(L"shader\\tess.fx", "HS_Tess");
+	pShader->CreateDomainShader(L"shader\\tess.fx", "DS_Tess");
+	pShader->CreatePixelShader(L"shader\\tess.fx", "PS_Tess");
+
+	pShader->SetRSType(RS_TYPE::WIRE_FRAME);
+	//pShader->SetRSType(RS_TYPE::CULL_NONE);
+	pShader->SetDSType(DS_TYPE::LESS);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_OPAQUE);
+
+	pShader->SetTopology(D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+
+	AddRes(pShader->GetKey(), pShader);
+
 }
 
 
@@ -1269,10 +1338,24 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"StencilCullShader1"));
 	AddRes(L"StencilCullMtrl1", pMtrl);
 
+	
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"StencilDeployShader"));
+	AddRes(L"StencilDeployMtrl", pMtrl);
+
 	// ShadowMapMtrl
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"ShadowMapShader"));
 	AddRes(L"ShadowMapMtrl", pMtrl);
+
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"ShadowMapExpShader"));
+	AddRes(L"ShadowMapExpMtrl", pMtrl);
+	
+	// TessMtrl
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"TessShader"));
+	AddRes(L"TessMtrl", pMtrl);	
 }
 
 Ptr<CTexture> CResMgr::CreateTexture(const wstring& _strKey, UINT _Width, UINT _Height
@@ -1308,6 +1391,30 @@ Ptr<CTexture> CResMgr::CreateTexture(const wstring& _strKey, ComPtr<ID3D11Textur
 	AddRes<CTexture>(_strKey, pTex);
 
 	return pTex;
+}
+
+Ptr<CMeshData> CResMgr::LoadFBX(const wstring& _strPath)
+{
+	wstring strFileName = path(_strPath).stem();
+
+	wstring strName = L"meshdata\\";
+	strName += strFileName + L".mdat";
+
+	Ptr<CMeshData> pMeshData = FindRes<CMeshData>(strName);
+
+	if (nullptr != pMeshData)
+		return pMeshData;
+
+	pMeshData = CMeshData::LoadFromFBX(_strPath);
+	pMeshData->SetKey(strName);
+	pMeshData->SetRelativePath(strName);
+
+	m_arrRes[(UINT)RES_TYPE::MESHDATA].insert(make_pair(strName, pMeshData.Get()));
+
+	// meshdata 를 실제파일로 저장
+	//pMeshData->Save(strName);
+
+	return pMeshData;
 }
 
 

@@ -9,7 +9,7 @@ public:
     virtual void finaltick() override;
     virtual void render() override;
 
-    CLONE(CMeshRender);
+    CLONE(CMeshRender)
 public:
     CMeshRender();
     ~CMeshRender();

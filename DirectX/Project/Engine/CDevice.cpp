@@ -33,7 +33,6 @@ int CDevice::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 #endif
 
     D3D_FEATURE_LEVEL eLevel = D3D_FEATURE_LEVEL::D3D_FEATURE_LEVEL_11_0;
-
       
 
     if (FAILED(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE
@@ -58,6 +57,9 @@ int CDevice::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
         MessageBox(nullptr, L"View 생성 실패", L"Device 초기화 에러", MB_OK);
         return E_FAIL;
     }
+
+    //UINT m4x;
+    //m_Device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4x);
 
     // ViewPort 설정
     m_ViewPort.TopLeftX = 0.f;
@@ -364,7 +366,6 @@ int CDevice::CreateBlendState()
 
     Desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-
     Desc.RenderTarget[1].BlendEnable = true;
     Desc.RenderTarget[1].BlendOp = D3D11_BLEND_OP_ADD;
     Desc.RenderTarget[1].SrcBlend = D3D11_BLEND_ONE;
@@ -406,9 +407,22 @@ int CDevice::CreateSampler()
     tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
     tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
     tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
-    tSamDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-    tSamDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+
+    tSamDesc.BorderColor[0] = (FLOAT)0.f;
+    tSamDesc.BorderColor[1] = (FLOAT)0.f;
+    tSamDesc.BorderColor[2] = (FLOAT)0.f;
+    tSamDesc.BorderColor[3] = (FLOAT)0.f;
+
+    tSamDesc.Filter = D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
     DEVICE->CreateSamplerState(&tSamDesc, m_Sampler[2].GetAddressOf());
+
+    tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+    tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+    tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+
+    tSamDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+    tSamDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+    DEVICE->CreateSamplerState(&tSamDesc, m_Sampler[3].GetAddressOf());
 
     CONTEXT->VSSetSamplers(0, 1, m_Sampler[0].GetAddressOf());
     CONTEXT->HSSetSamplers(0, 1, m_Sampler[0].GetAddressOf());
@@ -428,7 +442,12 @@ int CDevice::CreateSampler()
     CONTEXT->GSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
     CONTEXT->PSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
 
-
+    CONTEXT->VSSetSamplers(3, 1, m_Sampler[3].GetAddressOf());
+    CONTEXT->HSSetSamplers(3, 1, m_Sampler[3].GetAddressOf());
+    CONTEXT->DSSetSamplers(3, 1, m_Sampler[3].GetAddressOf());
+    CONTEXT->GSSetSamplers(3, 1, m_Sampler[3].GetAddressOf());
+    CONTEXT->PSSetSamplers(3, 1, m_Sampler[3].GetAddressOf());
+    
     return S_OK;
 }
 

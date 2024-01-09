@@ -39,7 +39,7 @@ void CSolarSystem::finaltick()
 			pCoverImage->PlanetMove()->SetRotate(true);
 			pCoverImage->Transform()->SetRelativeScale(vParentScale);
 			pCoverImage->SolarSystem()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-			pCoverImage->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredAlphaMtrl"));
+			pCoverImage->SolarSystem()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Planet3D_DeferredAlphaMtrl"), 0);
 			pCoverImage->SolarSystem()->SetPlanetTex(m_PlanetCoverTexture);
 			pCoverImage->Transform()->SetAbsolute(true);
 
@@ -52,26 +52,26 @@ void CSolarSystem::finaltick()
 void CSolarSystem::render()
 {
 
-	if (nullptr == GetMesh() || nullptr == GetMaterial())
+	if (nullptr == GetMesh() || nullptr == GetMaterial(0))
 		return;
 
 	// Transform 에 UpdateData 요청
 	Transform()->UpdateData();
 	if(nullptr != m_PlanetTexture)
-		GetMaterial()->SetTexParam(TEX_0, m_PlanetTexture);
+		GetMaterial(0)->SetTexParam(TEX_0, m_PlanetTexture);
 
 	if(nullptr != m_PlanetNormalTexture)
-		GetMaterial()->SetTexParam(TEX_1, m_PlanetNormalTexture);
+		GetMaterial(0)->SetTexParam(TEX_1, m_PlanetNormalTexture);
 
 	if(nullptr != m_PlanetTexture2)
-		GetMaterial()->SetTexParam(TEX_2, m_PlanetTexture2);
+		GetMaterial(0)->SetTexParam(TEX_2, m_PlanetTexture2);
 
-	GetMaterial()->SetScalarParam(INT_0, &m_bEmissive);
+	GetMaterial(0)->SetScalarParam(INT_0, &m_bEmissive);
 	// 재질 업데이트
-	GetMaterial()->UpdateData();
+	GetMaterial(0)->UpdateData();
 
 	// 렌더
-	GetMesh()->render();
+	GetMesh()->render(0);
 }
 
 void CSolarSystem::SaveToLevelFile(FILE* _File)

@@ -20,6 +20,12 @@ cbuffer TRANSFORM : register(b0)
 
 cbuffer MATERIAL : register(b1)
 {
+    // 재질 계수
+    float4 g_vDiff;
+    float4 g_vSpec;
+    float4 g_vAmb;
+    float4 g_vEmv;
+
     int g_int_0;
     int g_int_1;
     int g_int_2;
@@ -95,7 +101,8 @@ StructuredBuffer<tLightInfo> g_Light3DBuffer : register(t13);
 
 SamplerState g_sam_0 : register(s0);
 SamplerState g_sam_1 : register(s1);
-SamplerComparisonState g_shadow_sampler : register(s2);
+SamplerState g_sam_2 : register(s2);
+SamplerComparisonState g_shadow_sampler : register(s3);
 
 #define PI 3.1415926535f
 

@@ -21,16 +21,16 @@ CDecal::~CDecal()
 
 void CDecal::render()
 {
-    if (nullptr == GetMaterial() || nullptr == GetMesh())
+    if (nullptr == GetMaterial(0) || nullptr == GetMesh())
         return;
 
     Transform()->UpdateData();
 
     int IsEmissive = m_bEmissive;
-    GetMaterial()->SetScalarParam(INT_0, &IsEmissive);
-    GetMaterial()->UpdateData();
+    GetMaterial(0)->SetScalarParam(INT_0, &IsEmissive);
+    GetMaterial(0)->UpdateData();
 
-    GetMesh()->render();
+    GetMesh()->render(0);
 }
 
 void CDecal::finaltick()
@@ -44,11 +44,11 @@ void CDecal::SetDeferredDecal(bool _bDeferred)
 
     if (m_bDeferred)
     {
-        SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DeferredDecalMtrl"));
+        SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DeferredDecalMtrl"), 0);
 	    //GetMaterial()->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\red.png"));
     }
     else
-        SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DecalMtrl"));
+        SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DecalMtrl"), 0);
 
-    GetMaterial()->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"PositionTargetTex"));
+    GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"PositionTargetTex"));
 }

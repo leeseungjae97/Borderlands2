@@ -207,169 +207,80 @@ static float GaussianFilter[5][5] =
     0.003f,  0.0133f, 0.0219f, 0.0133f, 0.003f,
 };
 
-#define NUM_TAPS 12
-
-static const float2 fTaps_Poisson[NUM_TAPS] =
+float2 texOffset(int u, int v, float2 shadowMapSize)
 {
-    { -.326, -.406 },
-    { -.840, -.074 },
-    { -.696, .457 },
-    { -.203, .621 },
-    { .962, -.195 },
-    { .473, -.480 },
-    { .519, .767 },
-    { .185, -.893 },
-    { .507, .064 },
-    { .896, .412 },
-    { -.322, -.933 },
-    { -.792, -.598 }
-};
-
-static const float KernelOffsets[3] = { 0.0f, 1.3846153846f, 3.2307692308f };
-static const float BlurWeights[3] = { 0.2270270270f, 0.3162162162f, 0.0702702703f };
-
-float2 blurOffsets[9] =
-{
-    float2(-1.0, -1.0), float2(0.0, -1.0), float2(1.0, -1.0),
-    float2(-1.0, 0.0), float2(0.0, 0.0), float2(1.0, 0.0),
-    float2(-1.0, 1.0), float2(0.0, 1.0), float2(1.0, 1.0)
-};
-
-float blurWeights[9] =
-{
-    1.0, 2.0, 1.0,
-    2.0, 4.0, 2.0,
-    1.0, 2.0, 1.0
-};
-
-float4 Blur2(Texture2D _Tex, SamplerState _Sampler, float2 texCoords, float blurAmount, float2 texelSize)
-{
-    float4 sum = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    float total = 16.0f; // Normalization factor
-
-    for (int i = 0; i < 9; ++i)
-    {
-        float2 offset = texelSize * blurOffsets[i] * blurAmount;
-        float4 depth = _Tex.SampleLevel(_Sampler, texCoords + offset, 0.0f);
-        sum += depth * blurWeights[i];
-    }
-
-    return sum / total;
+    return float2(u * 1.0f / shadowMapSize.x, v * 1.0f / shadowMapSize.y);
 }
 
-float4 PSSimpleBlurV(Texture2D tex, float2 input)
+
+float PCF(Texture2D _Tex, float2 texCoords, float compareDepth, float coeff, float2 shadowMapSize)
 {
-    uint loopCount = 5;
-    float2 textureDimensions = (float2) 1.f;
-    float blurXOffset = 0.005f;
-    float3 textureColor = float3(1.0f, 0.0f, 0.0f);
-    float2 uv = input.xy;
-    if (uv.x > (blurXOffset + 0.005f))
+    float shadow = 0.0;
+
+    float x, y;
+    for (y = -1.5f; y <= 1.5f; y += 1.0)
     {
-        textureColor = tex.Sample(g_sam_0, uv).xyz * BlurWeights[0];
-        for (int i = 1; i < 3; i++)
+        for (x = -1.5f; x <= 1.5f; x += 1.0)
         {
-            float2 normalizedOffset = float2(0.0f, KernelOffsets[i]) / textureDimensions.y;
-            textureColor += tex.Sample(g_sam_0, uv + normalizedOffset).xyz * BlurWeights[i];
-            textureColor += tex.Sample(g_sam_0, uv - normalizedOffset).xyz * BlurWeights[i];
+            shadow += _Tex.SampleCmpLevelZero(g_shadow_sampler, texCoords + texOffset(x, y, shadowMapSize), compareDepth).r;
         }
     }
-    else if (uv.x <= (blurXOffset - 0.005f))
-    {
-        textureColor = tex.Sample(g_sam_1, uv).xyz;
-    }
 
-    // Artificially increase the workload to simulate a more complex shader.
-    const float3 textureColorOrig = textureColor;
-    for (uint i = 0; i < loopCount; i++)
-    {
-        textureColor += textureColorOrig;
-    }
-
-    if (loopCount > 0)
-    {
-        textureColor /= loopCount + 1;
-    }
-
-    return float4(textureColor, 1.0);
+    return shadow / coeff;
 }
 
-float4 BlurDepth2(Texture2D _ShaderTexture, SamplerState _SampleType, float2 _TexCoord, float _TexelSize)
+float4 GaussianBlur2(Texture2D _Tex, SamplerState _Sampler, float2 _Scale, float2 _PixelUV)
 {
-    float weight0, weight1, weight2, weight3, weight4;
-    float normalization;
-    float4 color;
-
-    float _TexCoord1 = _TexCoord + float2(_TexelSize * -4.0f, 0.0f);
-    float _TexCoord2 = _TexCoord + float2(_TexelSize * -3.0f, 0.0f);
-    float _TexCoord3 = _TexCoord + float2(_TexelSize * -2.0f, 0.0f);
-    float _TexCoord4 = _TexCoord + float2(_TexelSize * -1.0f, 0.0f);
-    float _TexCoord5 = _TexCoord + float2(_TexelSize * 0.0f, 0.0f);
-    float _TexCoord6 = _TexCoord + float2(_TexelSize * 1.0f, 0.0f);
-    float _TexCoord7 = _TexCoord + float2(_TexelSize * 2.0f, 0.0f);
-    float _TexCoord8 = _TexCoord + float2(_TexelSize * 3.0f, 0.0f);
-    float _TexCoord9 = _TexCoord + float2(_TexelSize * 4.0f, 0.0f);
-
-    weight0 = 1.0f;
-    weight1 = 0.9f;
-    weight2 = 0.55f;
-    weight3 = 0.18f;
-    weight4 = 0.1f;
-
-    // 가중치들을 살짝 평균내어 정규화 값을 만듭니다.
-    normalization = (weight0 + 2.0f * (weight1 + weight2 + weight3 + weight4));
-
-    // 가중치들을 정규화합니다.
-    weight0 = weight0 / normalization;
-    weight1 = weight1 / normalization;
-    weight2 = weight2 / normalization;
-    weight3 = weight3 / normalization;
-    weight4 = weight4 / normalization;
-
-    // 색깔을 검정색으로 초기화합니다.
-    color = float4(0.0f, 0.0f, 0.0f, 0.0f);
-
-    // 수평선상의 아홉 픽셀값들을 가중치를 곱해 더합니다.
-    color += _ShaderTexture.Sample(_SampleType, _TexCoord1) * weight4;
-    color += _ShaderTexture.Sample(_SampleType, _TexCoord2) * weight3;
-    color += _ShaderTexture.Sample(_SampleType, _TexCoord3) * weight2;
-    color += _ShaderTexture.Sample(_SampleType, _TexCoord4) * weight1;
-    color += _ShaderTexture.Sample(_SampleType, _TexCoord5) * weight0;
-    color += _ShaderTexture.Sample(_SampleType, _TexCoord6) * weight1;
-    color += _ShaderTexture.Sample(_SampleType, _TexCoord7) * weight2;
-    color += _ShaderTexture.Sample(_SampleType, _TexCoord8) * weight3;
-    color += _ShaderTexture.Sample(_SampleType, _TexCoord9) * weight4;
-
-    color.a = 1.0f;
-
-    return color;
+    // _Scale 1280 720
+    float2 PixelSize = float2(1.0f / _Scale.x, 1.0f / _Scale.y);
+    float2 StartUV = _PixelUV.xy + (-PixelSize * 3.0f);
+    float2 CurUV = StartUV;
+    float4 Result = (float4) 0.0f;
+ 
+    for (int Y = 0; Y < 5; ++Y)
+    {
+        for (int X = 0; X < 5; ++X)
+        {
+            Result += _Tex.Sample(_Sampler, CurUV) * GaussianFilter[Y][X];
+            CurUV.x += PixelSize.x;
+        }
+        
+        CurUV.x = StartUV.x;
+        CurUV.y += PixelSize.y;
+    }
+    
+    return Result;
 }
 
-float4 BlurDepth(Texture2D shadowMapTexture, SamplerComparisonState shadowSampler, float2 texelSize, float2 texCoord)
+float4 GaussianBlur(Texture2D _Tex, float2 UV)
 {
-    float blurAmount = 0.005; // 블러 양 조정
-
-    // 가우시안 블러 커널 및 가중치
-    const int kernelSize = 5;
-    float weights[kernelSize] = { 0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162 };
-
-    float blurValue = 0.0f;
-
-    // 수평 블러 적용
-    for (int i = -kernelSize / 2; i <= kernelSize / 2; ++i)
+    float4 Out = (float4) 0.0f;
+    
+    if (1.f < UV.x)
+        UV.x = frac(UV.x);
+    else if (UV.x < 0.0f)
+        UV.x = 1.0f + frac(UV.x);
+        
+    if (1.f < UV.y)
+        UV.y = frac(UV.y);
+    else if (UV.y < 0.0f)
+        UV.y = 1.0f + frac(UV.y);
+    
+    int2 iUV = UV;
+    iUV -= int2(2, 2);
+    
+    for (int i = 0; i < 5; i++)
     {
-        blurValue += shadowMapTexture.SampleCmp(shadowSampler, texCoord + float2(texelSize.x * i, 0), blurAmount) * weights[i + kernelSize / 2];
+        for (int j = 0; j < 5; j++)
+        {
+            int2 idx = int2(iUV.y + i, iUV.x + j);
+            // int2 idx = texOffset(iUV.x + i, iUV.y + i, float2(4000.f, 4000.f));
+            Out += _Tex[idx] * GaussianFilter[i][j];
+        }
     }
-
-    // 수직 블러 적용
-    for (int i = -kernelSize / 2; i <= kernelSize / 2; ++i)
-    {
-        blurValue += shadowMapTexture.SampleCmp(shadowSampler, texCoord + float2(0, texelSize.y * i), blurAmount) * weights[i + kernelSize / 2];
-    }
-
-    return float4(blurValue, blurValue, blurValue, 1.0f); // 블러된 값을 반환 (여기서는 흑백으로 표시)
+    
+    return Out;
 }
-
 
 void GaussianSample(in Texture2D _NoiseTex, float2 _vResolution, float _NomalizedThreadID, out float3 _vOut)
 {
