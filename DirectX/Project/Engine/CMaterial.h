@@ -34,6 +34,9 @@ public:
     void SetShader(Ptr<CGraphicsShader> _Shader) { m_pShader = _Shader; }
     Ptr<CGraphicsShader> GetShader() { return m_pShader; }
 
+    void SetAnim3D(bool _bTrue) { m_Const.arrAnimData[0] = (int)_bTrue; }
+    void SetBoneCount(int _iBoneCount) { m_Const.arrAnimData[1] = _iBoneCount; }
+
     virtual void UpdateData() override;
 
 private:

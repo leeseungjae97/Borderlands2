@@ -180,6 +180,8 @@
       <Filter>Source\Manager\KeyUseInfoMgr</Filter>
     </ClInclude>
     <ClInclude Include="CMeshData.h" />
+    <ClInclude Include="CAnimator3D.h" />
+    <ClInclude Include="CAnimation3D_CShader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -343,6 +345,8 @@
       <Filter>Source\Manager\KeyUseInfoMgr</Filter>
     </ClCompile>
     <ClCompile Include="CMeshData.cpp" />
+    <ClCompile Include="CAnimator3D.cpp" />
+    <ClCompile Include="CAnimation3D_CShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -515,6 +519,12 @@
     </Filter>
     <Filter Include="Source\Resource\MeshData">
       <UniqueIdentifier>{374b666a-6dfa-4a92-a299-a57fb8f6c84a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Component\Animator3D">
+      <UniqueIdentifier>{260d6af3-3796-49d3-9bd0-45266202ab2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ShaderCode\Compute\Animation3DCShader">
+      <UniqueIdentifier>{47d7770c-d818-460a-94bd-566bb181cac2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

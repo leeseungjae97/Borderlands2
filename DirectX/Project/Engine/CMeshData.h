@@ -15,7 +15,7 @@ private:
 public:
     static CMeshData* LoadFromFBX(const wstring& _strFilePath);
 
-    virtual int Save(const wstring&) override;
+    virtual int Save(const wstring& _strRelativePath) override;
     virtual int Load(const wstring& _strFilePath) override;
 
     CGameObject* Instantiate();
