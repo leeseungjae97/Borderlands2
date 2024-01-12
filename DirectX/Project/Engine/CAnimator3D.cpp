@@ -22,8 +22,12 @@ CAnimator3D::CAnimator3D()
 	, m_iFrameIdx(0)
 	, m_iNextFrameIdx(0)
 	, m_fRatio(0.f)
+	, m_bLoop(false)
+	, mClips{}
+	, mEvents{}
 	, CComponent(COMPONENT_TYPE::ANIMATOR3D)
 {
+	m_pBoneFinalMatBuffer = new CStructuredBuffer;
 }
 
 CAnimator3D::CAnimator3D(const CAnimator3D& _origin)
@@ -51,28 +55,52 @@ CAnimator3D::~CAnimator3D()
 void CAnimator3D::finaltick()
 {
 	m_dCurTime = 0.f;
-	// 현재 재생중인 Clip 의 시간을 진행한다.
-	m_vecClipUpdateTime[m_iCurClip] += DT;
 
-	if (m_vecClipUpdateTime[m_iCurClip] >= m_pVecClip->at(m_iCurClip).dTimeLength)
-	{
-		m_vecClipUpdateTime[m_iCurClip] = 0.f;
-	}
+	// 현재 재생중인 Clip 의 시간을 진행한다.
+	//TODO 
+	// m_vecClipUpdateTime[m_iCurClip] += DT;
+
+	//if (m_vecClipUpdateTime[m_iCurClip] >= m_pVecClip->at(m_iCurClip).dTimeLength)
+	//{
+	//	m_vecClipUpdateTime[m_iCurClip] = 0.f;
+	//}
+
+	m_pCurClip->finlatick();
+
+	//if(m_pCurClip->GetClipTime())
 
 	m_dCurTime = m_pVecClip->at(m_iCurClip).dStartTime + m_vecClipUpdateTime[m_iCurClip];
 
-	// 현재 프레임 인덱스 구하기
+	// 현재 프레임 인덱스 구하기 
 	double dFrameIdx = m_dCurTime * (double)m_iFrameCount;
 	m_iFrameIdx = (int)(dFrameIdx);
 
 	// 다음 프레임 인덱스
-	if (m_iFrameIdx >= m_pVecClip->at(0).iFrameLength - 1)
-		m_iNextFrameIdx = m_iFrameIdx;	// 끝이면 현재 인덱스를 유지
+	Events* events = FindEvents(m_pCurClip->GetName());
+
+	if (m_bLoop)
+	{
+		m_iNextFrameIdx = m_pCurClip->GetClipStartIdx();
+		if (events)
+			events->startEvent();
+	}
 	else
-		m_iNextFrameIdx = m_iFrameIdx + 1;
+	{
+		m_iNextFrameIdx = m_iFrameIdx;	// 끝이면 현재 인덱스를 유지
+		if (events)
+			events->endEvent();
+
+	}
+	
+	//if (m_iFrameIdx >= m_pCurClip->GetClipEndFrame())
+	//{
+	//	m_iNextFrameIdx = m_iFrameIdx;
+	//}
+	//else
+	//	m_iNextFrameIdx = m_iFrameIdx + 1;
 
 	// 프레임간의 시간에 따른 비율을 구해준다.
-	m_fRatio = (float)(dFrameIdx - (double)m_iFrameIdx);
+	// m_fRatio = (float)(dFrameIdx - (double)m_iFrameIdx);
 
 	// 컴퓨트 쉐이더 연산여부
 	m_bFinalMatUpdate = false;
@@ -80,8 +108,12 @@ void CAnimator3D::finaltick()
 
 void CAnimator3D::UpdateData()
 {
+	if (nullptr == m_pCurClip) 
+		return;
+
 	if (!m_bFinalMatUpdate)
 	{
+
 		// Animation3D Update Compute Shader
 		CAnimation3D_CShader* pUpdateShader = (CAnimation3D_CShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"Animation3DUpdateCS").Get();
 
@@ -95,8 +127,8 @@ void CAnimator3D::UpdateData()
 
 		UINT iBoneCount = (UINT)m_pVecBones->size();
 		pUpdateShader->SetBoneCount(iBoneCount);
-		pUpdateShader->SetFrameIndex(m_iFrameIdx);
-		pUpdateShader->SetNextFrameIdx(m_iNextFrameIdx);
+		pUpdateShader->SetFrameIndex(m_pCurClip->GetClipFrame());
+		pUpdateShader->SetNextFrameIdx(m_pCurClip->GetClipNextFrame());
 		pUpdateShader->SetFrameRatio(m_fRatio);
 
 		// 업데이트 쉐이더 실행
@@ -136,6 +168,78 @@ void CAnimator3D::ClearData()
 		pMtrl->SetBoneCount(0);
 	}
 }
+
+void CAnimator3D::Play(const std::wstring& _Name, bool _Loop)
+{
+	CAnimClip* pCheckClip = FindClip(_Name);
+	Events* events;
+
+	if (m_pCurClip)
+	{
+		m_pCurClip->Reset();
+		events = FindEvents(m_pCurClip->GetName());
+		if (events)
+			events->endEvent();
+	}
+
+	if (nullptr != pCheckClip)
+	{
+		m_pCurClip = pCheckClip;
+		m_pCurClip->Reset();
+		events = FindEvents(m_pCurClip->GetName());
+		if (events)
+			events->startEvent();
+	}
+
+	m_bLoop = _Loop;
+}
+
+std::shared_ptr<std::function<void()>>& CAnimator3D::StartEvent(const std::wstring key)
+{
+	Events* events = FindEvents(key + L"startEvent");
+	return events->startEvent.mEvent;
+}
+
+std::shared_ptr<std::function<void()>>& CAnimator3D::CompleteEvent(const std::wstring key)
+{
+	Events* events = FindEvents(key + L"completeEvent");
+	return events->completeEvent.mEvent;
+}
+
+std::shared_ptr<std::function<void()>>& CAnimator3D::EndEvent(const std::wstring key)
+{
+	Events* events = FindEvents(key + L"endEvent");
+	return events->endEvent.mEvent;
+}
+
+std::shared_ptr<std::function<void()>>& CAnimator3D::ProgressEvent(const std::wstring key)
+{
+	Events* events = FindEvents(key + L"progressEvent");
+	return events->progressEvent.mEvent;
+}
+
+CAnimator3D::Events* CAnimator3D::FindEvents(const std::wstring& name)
+{
+	std::map<std::wstring, Events*>::iterator iter
+		= mEvents.find(name);
+
+	if (iter == mEvents.end())
+		return nullptr;
+
+	return iter->second;
+}
+
+CAnimClip* CAnimator3D::FindClip(const std::wstring& name)
+{
+	std::map<std::wstring, CAnimClip*>::iterator iter
+		= mClips.find(name);
+
+	if (iter == mClips.end())
+		return nullptr;
+
+	return iter->second;
+}
+
 
 void CAnimator3D::SaveToLevelFile(FILE* _pFile)
 {

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CResMgr.h"
 
+#include "CAnimation3D_CShader.h"
 #include "CPathMgr.h"
 
 CResMgr::CResMgr()
@@ -1210,6 +1211,12 @@ void CResMgr::CreateDefaultComputeShader()
 	pCS = new CParticleUpdateShader(1000, 1, 1);
 	pCS->SetKey(L"ParticleUpdateCS2");
 	pCS->CreateComputeShader(L"shader\\particle_update.fx", "CS_ParticleUpdate2");
+	AddRes(pCS->GetKey(), pCS);
+
+	// Animation Matrix Update ½¦ÀÌ´õ
+	pCS = new CAnimation3D_CShader(256, 1, 1);
+	pCS->SetKey(L"Animation3DUpdateCS");
+	pCS->CreateComputeShader(L"shader\\animation3d.fx", "CS_Animation3D");
 	AddRes(pCS->GetKey(), pCS);
 }
 

@@ -23,7 +23,7 @@ public:
     CLONE_DISABLE(CMeshData);
 
 public:
-    CMeshData(bool _bEngine);
+    CMeshData(bool _bEngine = false);
     ~CMeshData();
 };
 

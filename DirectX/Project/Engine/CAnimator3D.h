@@ -1,4 +1,5 @@
 #pragma once
+#include "CAnimClip.h"
 #include "CComponent.h"
 
 class CStructuredBuffer;
@@ -7,6 +8,40 @@ class CMesh;
 class CAnimator3D :
     public CComponent
 {
+public:
+    	struct Event
+		{
+			Event(){};
+			~Event(){};
+
+			void operator=(std::shared_ptr<std::function<void()>> func)
+			{
+				mEvent = std::move(func);
+			}
+			void operator()()
+			{
+				if (mEvent)
+					(*mEvent)();
+			}
+
+			std::shared_ptr<std::function<void()>> mEvent;
+		};
+
+		struct Events
+		{
+			Events()
+				: startEvent{}
+				, completeEvent{}
+				, progressEvent{}
+				, endEvent{}
+		    {};
+			~Events(){};
+			Event startEvent;
+			Event completeEvent;
+			Event progressEvent;
+			Event endEvent;
+		};
+
 private:
     const vector<tMTBone>*      m_pVecBones;
     const vector<tMTAnimClip>*  m_pVecClip;
@@ -21,8 +56,15 @@ private:
     int							m_iNextFrameIdx; // 클립의 다음 프레임
     float						m_fRatio;	// 프레임 사이 비율
 
-    CStructuredBuffer* m_pBoneFinalMatBuffer;  // 특정 프레임의 최종 행렬
+    CStructuredBuffer*          m_pBoneFinalMatBuffer;  // 특정 프레임의 최종 행렬
     bool						m_bFinalMatUpdate; // 최종행렬 연산 수행여부
+
+    CAnimClip*                  m_pCurClip;
+
+	bool						m_bLoop;
+
+	std::map<std::wstring, CAnimClip*> mClips;
+	std::map<std::wstring, Events*> mEvents;
 
 private:
     void check_mesh(Ptr<CMesh> _pMesh);
@@ -39,6 +81,16 @@ public:
     CStructuredBuffer* GetFinalBoneMat() { return m_pBoneFinalMatBuffer; }
     UINT GetBoneCount() { return (UINT)m_pVecBones->size(); }
     void ClearData();
+
+public:
+	void Play(const std::wstring& _Name, bool repeat);
+	CAnimator3D::Events* FindEvents(const std::wstring& name);
+	CAnimClip* FindClip(const std::wstring& name);
+
+    std::shared_ptr<std::function<void()>>& StartEvent(const std::wstring key);
+	std::shared_ptr<std::function<void()>>& CompleteEvent(const std::wstring key);
+	std::shared_ptr<std::function<void()>>& EndEvent(const std::wstring key);
+	std::shared_ptr<std::function<void()>>& ProgressEvent(const std::wstring key);
 
 public:
     virtual void SaveToLevelFile(FILE* _pFile) override;

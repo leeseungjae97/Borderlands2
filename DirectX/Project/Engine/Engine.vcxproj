@@ -171,6 +171,7 @@ call EngineCopy.bat</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CAnim2D.h" />
+    <ClInclude Include="CAnimClip.h" />
     <ClInclude Include="CAnimation3D_CShader.h" />
     <ClInclude Include="CAnimator2D.h" />
     <ClInclude Include="CAnimator3D.h" />
@@ -236,6 +237,7 @@ call EngineCopy.bat</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CAnim2D.cpp" />
+    <ClCompile Include="CAnimClip.cpp" />
     <ClCompile Include="CAnimation3D_CShader.cpp" />
     <ClCompile Include="CAnimator2D.cpp" />
     <ClCompile Include="CAnimator3D.cpp" />
@@ -306,6 +308,12 @@ call EngineCopy.bat</Command>
     <None Include="SimpleMath.inl" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="animation3d.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="area_decal.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>

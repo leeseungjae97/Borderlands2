@@ -175,13 +175,24 @@
     <ClInclude Include="CPlanetMove.h">
       <Filter>Source\Component\PlanetMove</Filter>
     </ClInclude>
-    <ClInclude Include="CFrustum.h" />
     <ClInclude Include="KeyUseInfoMgr.h">
       <Filter>Source\Manager\KeyUseInfoMgr</Filter>
     </ClInclude>
-    <ClInclude Include="CMeshData.h" />
-    <ClInclude Include="CAnimator3D.h" />
-    <ClInclude Include="CAnimation3D_CShader.h" />
+    <ClInclude Include="CAnimation3D_CShader.h">
+      <Filter>Source\ShaderCode\Compute\Animation3DCShader</Filter>
+    </ClInclude>
+    <ClInclude Include="CAnimator3D.h">
+      <Filter>Source\Component\Animator3D</Filter>
+    </ClInclude>
+    <ClInclude Include="CMeshData.h">
+      <Filter>Source\Resource\MeshData</Filter>
+    </ClInclude>
+    <ClInclude Include="CFrustum.h">
+      <Filter>Source\Component\Frustum</Filter>
+    </ClInclude>
+    <ClInclude Include="CAnimClip.h">
+      <Filter>Source\Component\Animator3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -340,13 +351,24 @@
     <ClCompile Include="CPlanetMove.cpp">
       <Filter>Source\Component\PlanetMove</Filter>
     </ClCompile>
-    <ClCompile Include="CFrustum.cpp" />
     <ClCompile Include="KeyUseInfoMgr.cpp">
       <Filter>Source\Manager\KeyUseInfoMgr</Filter>
     </ClCompile>
-    <ClCompile Include="CMeshData.cpp" />
-    <ClCompile Include="CAnimator3D.cpp" />
-    <ClCompile Include="CAnimation3D_CShader.cpp" />
+    <ClCompile Include="CAnimation3D_CShader.cpp">
+      <Filter>Source\ShaderCode\Compute\Animation3DCShader</Filter>
+    </ClCompile>
+    <ClCompile Include="CAnimator3D.cpp">
+      <Filter>Source\Component\Animator3D</Filter>
+    </ClCompile>
+    <ClCompile Include="CMeshData.cpp">
+      <Filter>Source\Resource\MeshData</Filter>
+    </ClCompile>
+    <ClCompile Include="CFrustum.cpp">
+      <Filter>Source\Component\Frustum</Filter>
+    </ClCompile>
+    <ClCompile Include="CAnimClip.cpp">
+      <Filter>Source\Component\Animator3D</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -589,6 +611,9 @@
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="tess.fx">
+      <Filter>Source\ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="animation3d.fx">
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
   </ItemGroup>

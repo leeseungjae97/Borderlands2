@@ -73,6 +73,14 @@ struct tTile
 	Vec2 vSlice;
 };
 
+struct tAnimClipFrame
+{
+	int				iFrameIndex;
+	float			fDuration;
+	float			fCurClipUpdateTime;
+	vector<Matrix>	m_vecFrameBoneMat;
+};
+
 // Animator2D
 struct tAnim2DFrm
 {

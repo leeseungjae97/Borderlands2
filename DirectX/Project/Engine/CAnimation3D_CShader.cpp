@@ -8,6 +8,9 @@ CAnimation3D_CShader::CAnimation3D_CShader(UINT _iGroupPerThreadX, UINT _iGroupP
 	, m_pOffsetMatBuffer(nullptr)
 	, m_pOutputBuffer(nullptr)
 {
+	m_iGroupPerThreadX = _iGroupPerThreadX;
+	m_iGroupPerThreadY = _iGroupPerThreadY;
+	m_iGroupPerThreadZ = _iGroupPerThreadZ;
 }
 
 CAnimation3D_CShader::~CAnimation3D_CShader()
