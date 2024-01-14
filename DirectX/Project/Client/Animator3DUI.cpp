@@ -22,6 +22,14 @@ int Animator3DUI::render_update()
 	char str[50] = {};
 	const map<wstring, CAnimClip*> clips = GetTarget()->Animator3D()->GetAnimClips();
 	CAnimClip*  curAnimClip = GetTarget()->Animator3D()->GetCurAnimClip();
+
+	float ratio = GetTarget()->Animator3D()->GetBlendRatio();
+	ImGui::Text("Blend Ratio");
+	ImGui::SameLine();
+	ImGui::InputFloat("##BlendRatio", &ratio, 0.1f);
+
+	GetTarget()->Animator3D()->SetBlendRatio(ratio);
+
 	sprintf_s(str, "cur anim : %s", ConvertWCharToChar(curAnimClip->GetName().c_str()));
 	ImGui::Text(str);
 
@@ -29,6 +37,9 @@ int Animator3DUI::render_update()
 	ImGui::Text(str);
 
 	sprintf_s(str, "Anim Frame : %d", GetTarget()->Animator3D()->GetCurAnimClip()->GetClipNextFrame());
+	ImGui::Text(str);
+
+	sprintf_s(str, "Blend Time : %d", GetTarget()->Animator3D()->GetBlendAcc());
 	ImGui::Text(str);
 
 	sprintf_s(str, "Anim Ratio : %f", GetTarget()->Animator3D()->GetCurAnimClip()->GetRatio());

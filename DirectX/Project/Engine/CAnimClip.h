@@ -45,6 +45,7 @@ public:
 	int GetFPS() { return m_iFramePerSecond; }
 
 	float GetRatio() { return m_fRatio; }
+	void SetRatio(float _Ratio) { m_fRatio = _Ratio; }
 	void Reset()
 	{
 		m_iCurIdx = 0;

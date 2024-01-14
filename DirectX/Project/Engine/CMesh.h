@@ -30,8 +30,9 @@ private:
 
 	//vector<int>					m_veciFrameCount;
 
-	CStructuredBuffer*		m_pBoneFrameData;   // 전체 본 프레임 정보(크기, 이동, 회전) (프레임 개수만큼)
-	CStructuredBuffer*		m_pBoneOffset;	    // 각 뼈의 offset 행렬(각 뼈의 위치를 되돌리는 행렬) (1행 짜리)
+	CStructuredBuffer*		m_pBoneFrameData;   //
+	CStructuredBuffer*		m_pBlendFrameData;   //
+	CStructuredBuffer*		m_pBoneOffset;	    //
 
 
 	// 하나의 버텍스버퍼에 여러개의 인덱스버퍼가 연결
@@ -48,16 +49,20 @@ public:
 	const vector<tMTAnimClip>* GetAnimClip() { return &m_vecAnimClip; }
 	bool IsAnimMesh() { return !m_vecAnimClip.empty(); }
 
+	
+
 	CStructuredBuffer* GetBoneFrameDataBuffer(int _Idx); // 전체 본 프레임 정보
+	CStructuredBuffer* GetBlendFrameDataBuffer(int _Idx); // 전체 본 프레임 정보
 	CStructuredBuffer* GetBoneOffsetBuffer() { return  m_pBoneOffset; }	   // 각 뼈의 offset 행렬
 
 public:
 	static CMesh* CreateFromContainer(FBXLoader& _loader);
 	void Create(void* _VtxSysMem, UINT _iVtxCount, void* _IdxSysMem, UINT _IdxCount);
 
-private:
-	virtual int Load(const wstring& _strFilePath) override;
+	static void TransKeyFrame(CMesh* mesh);
+
 public:
+	virtual int Load(const wstring& _strFilePath) override;
 	virtual int Save(const wstring& _strRelativePath) override;
 
 

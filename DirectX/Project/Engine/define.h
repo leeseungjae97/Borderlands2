@@ -93,6 +93,11 @@ enum SCALAR_PARAM
 	INT_2,
 	INT_3,
 
+	INT_4,
+	INT_5,
+	INT_6,
+	INT_7,
+
 	FLOAT_0,
 	FLOAT_1,
 	FLOAT_2,

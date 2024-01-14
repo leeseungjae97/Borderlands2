@@ -90,6 +90,9 @@ private:
 
 	vector<tContainer>				m_vecContainer;
 
+	FbxAnimLayer*					m_pCurLayer;
+	FbxAnimLayer*					m_BlendLayer;
+
 	// Animation
 	vector<tBone*>					m_vecBone;
 	//vector<vector<vector<tKeyFrame>>>		m_vecAryKeyFrames;

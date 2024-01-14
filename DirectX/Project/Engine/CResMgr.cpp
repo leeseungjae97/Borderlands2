@@ -1407,12 +1407,12 @@ Ptr<CMeshData> CResMgr::LoadFBX(const wstring& _strPath)
 	wstring strName = L"meshdata\\";
 	strName += strFileName + L".mdat";
 
-	//Ptr<CMeshData> pMeshData = FindRes<CMeshData>(strName);
+	//Ptr<CMeshData> pMeshData;
 
-	Ptr<CMeshData> pMeshData;
+	Ptr<CMeshData> pMeshData = FindRes<CMeshData>(strName);
 
-	//if (nullptr != pMeshData)
-	//	return pMeshData;
+	if (nullptr != pMeshData)
+		return pMeshData;
 
 	pMeshData = CMeshData::LoadFromFBX(_strPath);
 	pMeshData->SetKey(strName);
@@ -1420,7 +1420,6 @@ Ptr<CMeshData> CResMgr::LoadFBX(const wstring& _strPath)
 
 	m_arrRes[(UINT)RES_TYPE::MESHDATA].insert(make_pair(strName, pMeshData.Get()));
 
-	// meshdata 를 실제파일로 저장
 	pMeshData->Save(strName);
 
 	return pMeshData;

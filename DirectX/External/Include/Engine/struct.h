@@ -195,8 +195,8 @@ struct tMTBone
 	wstring				strBoneName;
 	int					iDepth;
 	int					iParentIndx;
-	Matrix				matOffset;	// Offset 행렬(뼈 -> 루트 까지의 행렬)
-	Matrix				matBone;   // 이거 안씀
+	Matrix				matOffset;
+	Matrix				matBone;
 	
 	map<wstring ,vector<tMTKeyFrame>>	vecKeyFrame;
 };
@@ -212,9 +212,9 @@ struct tMTAnimClip
 	double			dStartTime;
 	double			dEndTime;
 	double			dTimeLength;
-	float			fUpdateTime; // 이거 안씀
+	float			fUpdateTime;
 
-	vector<tFrameTrans> vecTransKeyFrame;
+	vector<tFrameTrans>vecTransKeyFrame;
 
 	FbxTime::EMode	eMode;
 };
@@ -250,17 +250,14 @@ struct tMtrlConst
 {
 	tMtrlData mtrl;
 
-	int arrInt[4];
+	int arrInt[8];
 	float arrFloat[4];
 	Vec2 arrV2[4];
-	//Vec3 arrV3[4];
 	Vec4 arrV4[4];
 	Matrix arrMat[4];
 
-	// 텍스쳐 세팅 true / false 용도
 	int arrTex[(UINT)TEX_PARAM::TEX_END];
 
-	// 3D Animation 정보
 	int	arrAnimData[4];	
 };
 

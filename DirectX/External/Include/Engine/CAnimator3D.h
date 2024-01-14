@@ -64,23 +64,25 @@ private:
     vector<float>				m_vecClipUpdateTime;
     vector<Matrix>				m_vecFinalBoneMat; // 텍스쳐에 전달할 최종 행렬정보
     int							m_iFrameCount; // 30
-    //double						m_dCurTime;
-    //int							m_iCurClip; // 클립 인덱스	
-
-    //int							m_iFrameIdx; // 클립의 현재 프레임
-    //int							m_iNextFrameIdx; // 클립의 다음 프레임
-    //float						m_fRatio;	// 프레임 사이 비율
 
     CStructuredBuffer*          m_pBoneFinalMatBuffer;  // 특정 프레임의 최종 행렬
     bool						m_bFinalMatUpdate; // 최종행렬 연산 수행여부
 
     CAnimClip*                  m_pCurClip;
+    CAnimClip*                  m_pNextClip;
 
 	bool						m_bLoop;
-
 	bool						m_bMultipleClip;
-
 	int							m_iClipIdx;
+	int							m_iNextClipIdx;
+
+	bool						m_bBlendMode;
+	bool						m_bBlend;
+	float						m_fBlendTime;
+	float						m_fBlendAcc;
+	int							m_iNextFrame;
+
+	float						m_fBRatio;
 
 	std::map<std::wstring, CAnimClip*> mClips;
 	std::map<std::wstring, Events*> mEvents;
@@ -88,6 +90,7 @@ private:
 private:
     void check_mesh(Ptr<CMesh> _pMesh);
 	void create_clip();
+	void blend_clip();
 
 public:
     virtual void finaltick() override;
@@ -100,16 +103,22 @@ public:
 	const std::map<std::wstring, CAnimClip*>& GetAnimClips() { return mClips; }
 	const std::map<std::wstring, Events*>& GetEvents() { return mEvents; }
 
-	void SetCurAnimClip(CAnimClip* _Clip) { m_pCurClip = _Clip; }
+	void SetCurAnimClip(CAnimClip* _Clip);
 	CAnimClip* GetCurAnimClip() { return m_pCurClip; }
 
-	void SetClipIdx(int _idx) { m_iClipIdx = _idx; }
+	void SetClipIdx(int _idx);
 	int GetClipIdx() { return m_iClipIdx; }
-
 
     CStructuredBuffer* GetFinalBoneMat() { return m_pBoneFinalMatBuffer; }
     UINT GetBoneCount() { return (UINT)m_pVecBones->size(); }
     void ClearData();
+
+	void SetBlend(bool _bBlend, float _fBlendTime);
+
+	void SetBlendRatio(float _Ratio) { m_fBRatio = _Ratio; }
+	float GetBlendRatio() { return m_fBRatio; }
+
+	float GetBlendAcc() { return m_fBlendAcc; }
 
 public:
 	void Play(const std::wstring& _Name, bool repeat);

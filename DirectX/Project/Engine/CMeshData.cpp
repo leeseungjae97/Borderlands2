@@ -34,13 +34,13 @@ CMeshData* CMeshData::LoadFromFBX(const wstring& _strFilePath)
 	// ResMgr 에 메쉬 등록
 	if (nullptr != pMesh)
 	{
-		//wstring strMeshKey = L"mesh\\";
-		//strMeshKey += path(strFullPath).stem();
-		//strMeshKey += L".mesh";
-		//CResMgr::GetInst()->AddRes<CMesh>(strMeshKey, pMesh);
+		wstring strMeshKey = L"mesh\\";
+		strMeshKey += path(strFullPath).stem();
+		strMeshKey += L".mesh";
+		CResMgr::GetInst()->AddRes<CMesh>(strMeshKey, pMesh);
 
-		//// 메시를 실제 파일로 저장
-		//pMesh->Save(strMeshKey);
+		// 메시를 실제 파일로 저장
+		pMesh->Save(strMeshKey);
 	}
 
 

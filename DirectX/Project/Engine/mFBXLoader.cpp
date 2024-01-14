@@ -538,11 +538,6 @@ void FBXLoader::LoadAnimationClip()
 	{
 		FbxAnimStack* pAnimStack = m_pScene->FindMember<FbxAnimStack>(m_arrAnimName[i]->Buffer());
 
-
-		//FbxAnimEvaluator* pevaluator = m_pScene->GetAnimationEvaluator();
-		//m_pScene->SetCurrentAnimationStack();
-
-
 		if (!pAnimStack)
 			continue;
 

@@ -69,14 +69,6 @@ void LoadResRef(Ptr<T>& _Res, FILE* _File)
 	}
 }
 
-
-
-
-
-
-
-
-
 template<typename T, UINT Size>
 void Safe_Del_Array(T* (&arr)[Size])
 {

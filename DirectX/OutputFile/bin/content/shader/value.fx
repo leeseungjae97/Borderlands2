@@ -30,6 +30,11 @@ cbuffer MATERIAL : register(b1)
     int g_int_1;
     int g_int_2;
     int g_int_3;
+
+    int g_int_4;
+    int g_int_5;
+    int g_int_6;
+    int g_int_7;
     
     float g_float_0;
     float g_float_1;
@@ -40,11 +45,6 @@ cbuffer MATERIAL : register(b1)
     float2 g_vec2_1;
     float2 g_vec2_2;
     float2 g_vec2_3;
-
-    //float3 g_vec3_0;
-    //float3 g_vec3_1;
-    //float3 g_vec3_2;
-    //float3 g_vec3_3;
 
     float4 g_vec4_0;
     float4 g_vec4_1;

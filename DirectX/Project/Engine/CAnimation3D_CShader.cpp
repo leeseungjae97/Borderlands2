@@ -19,10 +19,17 @@ CAnimation3D_CShader::~CAnimation3D_CShader()
 
 void CAnimation3D_CShader::UpdateData()
 {
-	// 구조화버퍼 전달
-	m_pFrameDataBuffer->UpdateData_CS(16, true); // t16
-	m_pOffsetMatBuffer->UpdateData_CS(17, true); // t17
-	m_pOutputBuffer->UpdateData_CS(0, false);   // u0
+	if(m_pBlendFrameDataBuffer)
+		m_pBlendFrameDataBuffer->UpdateData_CS(15, true);
+
+	if(m_pFrameDataBuffer)
+		m_pFrameDataBuffer->UpdateData_CS(16, true);
+
+	if(m_pOffsetMatBuffer)
+		m_pOffsetMatBuffer->UpdateData_CS(17, true);
+
+	if(m_pOutputBuffer)
+		m_pOutputBuffer->UpdateData_CS(0, false);
 
 	m_iGroupX = (m_Const.arrInt[0] / m_iGroupPerThreadX) + 1;
 	m_iGroupY = 1;
@@ -31,7 +38,11 @@ void CAnimation3D_CShader::UpdateData()
 
 void CAnimation3D_CShader::Clear()
 {
-	// 전달한 구조화버퍼 클리어	
+	if (nullptr != m_pBlendFrameDataBuffer)
+	{
+		m_pBlendFrameDataBuffer->Clear_CS(true);
+		m_pBlendFrameDataBuffer = nullptr;
+	}
 	if (nullptr != m_pFrameDataBuffer)
 	{
 		m_pFrameDataBuffer->Clear_CS(true);

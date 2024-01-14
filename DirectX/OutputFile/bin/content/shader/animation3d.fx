@@ -206,15 +206,20 @@ struct tFrameTrans
     float4 qRot;
 };
 
+StructuredBuffer<tFrameTrans> g_blendFrameTrans : register(t15);
 StructuredBuffer<tFrameTrans> g_arrFrameTrans : register(t16);
 StructuredBuffer<matrix> g_arrOffset : register(t17);
 RWStructuredBuffer<matrix> g_arrFinelMat : register(u0);
 
 // ===========================
 // Animation3D Compute Shader
-#define BoneCount   g_int_0
-#define CurFrame    g_int_1
-#define Ratio       g_float_0
+#define BoneCount       g_int_0
+#define CurFrame        g_int_1
+#define IsBlend         g_int_2
+#define NextIdx         g_int_3
+#define Ratio           g_float_0
+#define Ratio2          g_float_1
+#define BlendLength     g_float_2
 // ===========================
 [numthreads(256, 1, 1)]
 void CS_Animation3D(int3 _iThreadIdx : SV_DispatchThreadID)
@@ -230,9 +235,22 @@ void CS_Animation3D(int3 _iThreadIdx : SV_DispatchThreadID)
     uint iFrameDataIndex = BoneCount * CurFrame + _iThreadIdx.x;
     uint iNextFrameDataIdx = BoneCount * (CurFrame + 1) + _iThreadIdx.x;
 
-    float4 vScale = lerp(g_arrFrameTrans[iFrameDataIndex].vScale, g_arrFrameTrans[iNextFrameDataIdx].vScale, Ratio);
-    float4 vTrans = lerp(g_arrFrameTrans[iFrameDataIndex].vTranslate, g_arrFrameTrans[iNextFrameDataIdx].vTranslate, Ratio);
-    float4 qRot = QuternionLerp(g_arrFrameTrans[iFrameDataIndex].qRot, g_arrFrameTrans[iNextFrameDataIdx].qRot, Ratio);
+    float4 vScale = (float4) 0.f;
+    float4 vTrans = (float4) 0.f;
+    float4 qRot = (float4) 0.f;
+
+    vScale = lerp(g_arrFrameTrans[iFrameDataIndex].vScale, g_arrFrameTrans[iNextFrameDataIdx].vScale, Ratio);
+    vTrans = lerp(g_arrFrameTrans[iFrameDataIndex].vTranslate, g_arrFrameTrans[iNextFrameDataIdx].vTranslate, Ratio);
+    qRot = QuternionLerp(g_arrFrameTrans[iFrameDataIndex].qRot, g_arrFrameTrans[iNextFrameDataIdx].qRot, Ratio);
+
+    if (IsBlend)
+    {
+        uint ChangeFrameIndex = BoneCount * NextIdx + _iThreadIdx.x;
+
+        vScale = lerp(vScale, g_blendFrameTrans[ChangeFrameIndex].vScale, Ratio2);
+        vTrans = lerp(vTrans, g_blendFrameTrans[ChangeFrameIndex].vTranslate, Ratio2);
+        qRot = QuternionLerp(qRot, g_blendFrameTrans[ChangeFrameIndex].qRot, Ratio2);
+    }
 
     // 최종 본행렬 연산
     MatrixAffineTransformation(vScale, vQZero, qRot, vTrans, matBone);
