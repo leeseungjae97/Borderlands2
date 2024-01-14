@@ -61,11 +61,11 @@ struct tKeyFrame
 struct tBone
 {
 	wstring				strBoneName;
-	int					iDepth;			// °èÃþ±¸Á¶ ±íÀÌ
-	int					iParentIndx;	// ºÎ¸ð Bone ÀÇ ÀÎµ¦½º
-	FbxAMatrix			matOffset;		// Offset Çà·Ä( -> »Ñ¸® -> Local)
+	int					iDepth;		
+	int					iParentIndx;
+	FbxAMatrix			matOffset;	
 	FbxAMatrix			matBone;
-	vector<tKeyFrame>	vecKeyFrame;
+	map<wstring, vector<tKeyFrame>>	vecKeyFrame;
 };
 
 struct tAnimClip
@@ -92,6 +92,7 @@ private:
 
 	// Animation
 	vector<tBone*>					m_vecBone;
+	//vector<vector<vector<tKeyFrame>>>		m_vecAryKeyFrames;
 	FbxArray<FbxString*>			m_arrAnimName;
 	vector<tAnimClip*>				m_vecAnimClip;
 
@@ -105,6 +106,7 @@ public:
 	const tContainer& GetContainer(int _iIdx) { return m_vecContainer[_iIdx]; }
 	vector<tBone*>& GetBones() { return m_vecBone; }
 	vector<tAnimClip*>& GetAnimClip() { return m_vecAnimClip; }
+	//vector<vector<vector<tKeyFrame>>>& GetKeyFrame() { return m_vecAryKeyFrames; }
 
 private:
 	void LoadMeshDataFromNode(FbxNode* _pRoot);

@@ -193,6 +193,9 @@
     <ClInclude Include="CAnimClip.h">
       <Filter>Source\Component\Animator3D</Filter>
     </ClInclude>
+    <ClInclude Include="LUT_Animation.h">
+      <Filter>LookUpTables</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -547,6 +550,9 @@
     </Filter>
     <Filter Include="Source\ShaderCode\Compute\Animation3DCShader">
       <UniqueIdentifier>{47d7770c-d818-460a-94bd-566bb181cac2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LookUpTables">
+      <UniqueIdentifier>{ff74bcc9-a3b3-4efc-95b0-17c28faa0925}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

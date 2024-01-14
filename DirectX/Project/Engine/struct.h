@@ -73,14 +73,6 @@ struct tTile
 	Vec2 vSlice;
 };
 
-struct tAnimClipFrame
-{
-	int				iFrameIndex;
-	float			fTimeLength;
-	float			fCurClipUpdateTime;
-	vector<Matrix>	m_vecFrameBoneMat;
-};
-
 // Animator2D
 struct tAnim2DFrm
 {
@@ -205,7 +197,8 @@ struct tMTBone
 	int					iParentIndx;
 	Matrix				matOffset;	// Offset 행렬(뼈 -> 루트 까지의 행렬)
 	Matrix				matBone;   // 이거 안씀
-	vector<tMTKeyFrame>	vecKeyFrame;
+	
+	map<wstring ,vector<tMTKeyFrame>>	vecKeyFrame;
 };
 
 struct tMTAnimClip
@@ -214,11 +207,14 @@ struct tMTAnimClip
 	int				iStartFrame;
 	int				iEndFrame;
 	int				iFrameLength;
+	int				iFrameCount;
 
 	double			dStartTime;
 	double			dEndTime;
 	double			dTimeLength;
 	float			fUpdateTime; // 이거 안씀
+
+	vector<tFrameTrans> vecTransKeyFrame;
 
 	FbxTime::EMode	eMode;
 };

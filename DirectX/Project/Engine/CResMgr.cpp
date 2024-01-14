@@ -1407,10 +1407,12 @@ Ptr<CMeshData> CResMgr::LoadFBX(const wstring& _strPath)
 	wstring strName = L"meshdata\\";
 	strName += strFileName + L".mdat";
 
-	Ptr<CMeshData> pMeshData = FindRes<CMeshData>(strName);
+	//Ptr<CMeshData> pMeshData = FindRes<CMeshData>(strName);
 
-	if (nullptr != pMeshData)
-		return pMeshData;
+	Ptr<CMeshData> pMeshData;
+
+	//if (nullptr != pMeshData)
+	//	return pMeshData;
 
 	pMeshData = CMeshData::LoadFromFBX(_strPath);
 	pMeshData->SetKey(strName);

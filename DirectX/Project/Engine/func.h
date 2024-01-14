@@ -29,6 +29,7 @@ void DrawDebugSphere(const Matrix& _matWorld, Vec4 _vColor, float _fTime = 0.f, 
 // GameObject 유효성 체크
 bool IsValidObj(CGameObject*& _Target);
 
+const char* ConvertWCharToChar(const wchar_t* _wchar);
 
 const char* ToString(RES_TYPE);
 const wchar_t* ToWSTring(RES_TYPE);
@@ -118,6 +119,30 @@ void DeleteArray(T* (&Arr)[_Size])
 	{
 		if (nullptr != Arr[i])
 			delete Arr[i];
+	}
+}
+template<typename T1, typename T2>
+void Copy_Map(const map<T1, T2>& _src, map<T1, T2>& _dest)
+{
+	for (const auto& pair : _src)
+	{
+		if (nullptr != pair.second)
+		{
+			_dest.insert(pair);
+		}
+	}
+}
+
+template<typename T>
+void Copy_Vec(vector<T*>& _src, vector<T*>& _dest)
+{
+	_dest.resize(_src.size());
+	for (size_t i = 0; i < _src.size(); ++i)
+	{
+		if (nullptr != _src[i])
+		{
+			_dest[i] = _src[i];
+		}
 	}
 }
 

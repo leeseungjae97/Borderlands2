@@ -104,7 +104,7 @@ void CAnimator2D::SaveToLevelFile(FILE* _File)
 		pair.second->SaveToLevelFile(_File);
 	}
 
-	wstring strCurAnimName;	
+	wstring strCurAnimName;
 	if(nullptr != m_pCurAnim)	
 	{
 		strCurAnimName = m_pCurAnim->GetName();

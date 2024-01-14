@@ -1,5 +1,6 @@
 #pragma once
 #include "CEntity.h"
+#include "ptr.h"
 
 class CAnimator3D;
 
@@ -8,17 +9,11 @@ class CAnimClip
 {
 private:
 	CAnimator3D*			m_pOwner;
-	vector<tAnimClipFrame>	m_vecClip;
+	tMTAnimClip				m_Clip;
 
 	int						m_iCurIdx;
 	int						m_iNextIdx;
 	float					m_fTime;
-
-	double					m_dStartTime;
-	double					m_dEndTime;
-
-	int						m_iStartIdx;
-	int						m_iEndIdx;
 
 	bool					m_bFinish;
 	bool					m_bLoop;
@@ -29,28 +24,22 @@ private:
 
 public:
 	void finlatick();
-	void Create(const std::wstring& name, vector<tMTAnimClip>& _AnimClips, int _StartIdx, int _EndIdx, bool _bRepeat);
+	void Create(const std::wstring& name, const tMTAnimClip _AnimClips, int _StartIdx, int _EndIdx, bool _bLoop);
+	void Create(const std::wstring& name, const vector<tMTAnimClip>* _AnimClips, bool _bLoop);
 
-	const tAnimClipFrame& GetCurFrame() { return m_vecClip[m_iCurIdx]; }
+	const tMTAnimClip GetCurClip() { return m_Clip; }
 
 	int GetClipFrame() { return m_iCurIdx; }
 	int GetClipNextFrame() { return m_iNextIdx; }
 
-	int GetClipSize() { return m_vecClip.size(); }
-	int GetClipEndFrame() { return m_iStartIdx + m_iEndIdx; }
-	int GetClipStartIdx() { return m_iStartIdx; }
-	int GetClipEndIdx() { return m_iEndIdx; }
+	int GetClipLength() { return m_Clip.iFrameLength; }
+	int GetStartFrame() { return m_Clip.iStartFrame; }
+	int GetEndFrame() { return m_Clip.iEndFrame; }
 
 	float GetClipTime() { return m_fTime; }
 
 	bool IsFinish() { return m_bFinish; }
 	bool IsLoop() { return m_bLoop; }
-
-	double GetStartTime() { return m_dStartTime; }
-	double GetEndTime() { return m_dEndTime; }
-
-	void SetStartTime(double _Time) { m_dStartTime = _Time; }
-	void SetEndTime(double _Time) { m_dEndTime = _Time; }
 
 	void SetFPS(int _Count) { m_iFramePerSecond = _Count; }
 	int GetFPS() { return m_iFramePerSecond; }

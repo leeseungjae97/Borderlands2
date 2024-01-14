@@ -14,15 +14,18 @@
 CAnimator3D::CAnimator3D()
 	: m_pVecBones(nullptr)
 	, m_pVecClip(nullptr)
-	, m_iCurClip(0)
-	, m_dCurTime(0.)
+	//, m_iCurClip(0)
+	//, m_dCurTime(0.0)
 	, m_iFrameCount(30)
 	, m_pBoneFinalMatBuffer(nullptr)
 	, m_bFinalMatUpdate(false)
-	, m_iFrameIdx(0)
-	, m_iNextFrameIdx(0)
-	, m_fRatio(0.f)
+	//, m_iFrameIdx(0)
+	//, m_iNextFrameIdx(0)
+	//, m_fRatio(0.f)
+	, m_iClipIdx(0)
 	, m_bLoop(false)
+	, m_bMultipleClip(false)
+	, m_pCurClip(nullptr)
 	, mClips{}
 	, mEvents{}
 	, CComponent(COMPONENT_TYPE::ANIMATOR3D)
@@ -33,16 +36,23 @@ CAnimator3D::CAnimator3D()
 CAnimator3D::CAnimator3D(const CAnimator3D& _origin)
 	: m_pVecBones(_origin.m_pVecBones)
 	, m_pVecClip(_origin.m_pVecClip)
-	, m_iCurClip(_origin.m_iCurClip)
-	, m_dCurTime(_origin.m_dCurTime)
+	//, m_iCurClip(_origin.m_iCurClip)
+	//, m_dCurTime(_origin.m_dCurTime)
 	, m_iFrameCount(_origin.m_iFrameCount)
 	, m_pBoneFinalMatBuffer(nullptr)
 	, m_bFinalMatUpdate(false)
-	, m_iFrameIdx(_origin.m_iFrameIdx)
-	, m_iNextFrameIdx(_origin.m_iNextFrameIdx)
-	, m_fRatio(_origin.m_fRatio)
+	//, m_iFrameIdx(_origin.m_iFrameIdx)
+	//, m_iNextFrameIdx(_origin.m_iNextFrameIdx)
+	//, m_fRatio(_origin.m_fRatio)
+	, m_bLoop(_origin.m_bLoop)
+	, m_bMultipleClip(_origin.m_bMultipleClip)
+	, m_pCurClip(_origin.m_pCurClip)
+	, m_iClipIdx(_origin.m_iClipIdx)
 	, CComponent(COMPONENT_TYPE::ANIMATOR3D)
 {
+	Copy_Map(_origin.mClips, mClips);
+	Copy_Map(_origin.mEvents, mEvents);
+
 	m_pBoneFinalMatBuffer = new CStructuredBuffer;
 }
 
@@ -50,59 +60,32 @@ CAnimator3D::~CAnimator3D()
 {
 	if (nullptr != m_pBoneFinalMatBuffer)
 		delete m_pBoneFinalMatBuffer;
+
+	Safe_Del_Map(mClips);
+	Safe_Del_Map(mEvents);
 }
 
 void CAnimator3D::finaltick()
 {
-	m_dCurTime = 0.f;
-
-	// 현재 재생중인 Clip 의 시간을 진행한다.
-	//TODO 
-	// m_vecClipUpdateTime[m_iCurClip] += DT;
-
-	//if (m_vecClipUpdateTime[m_iCurClip] >= m_pVecClip->at(m_iCurClip).dTimeLength)
-	//{
-	//	m_vecClipUpdateTime[m_iCurClip] = 0.f;
-	//}
-
-	m_pCurClip->finlatick();
-
-	//if(m_pCurClip->GetClipTime())
-
-	m_dCurTime = m_pVecClip->at(m_iCurClip).dStartTime + m_vecClipUpdateTime[m_iCurClip];
-
-	// 현재 프레임 인덱스 구하기 
-	double dFrameIdx = m_dCurTime * (double)m_iFrameCount;
-	m_iFrameIdx = (int)(dFrameIdx);
-
-	// 다음 프레임 인덱스
-	Events* events = FindEvents(m_pCurClip->GetName());
-
+	Events* events = nullptr;
+	if (m_pCurClip)
+	{
+		m_pCurClip->finlatick();
+	}
+	
 	if (m_bLoop)
 	{
-		m_iNextFrameIdx = m_pCurClip->GetClipStartIdx();
+		events = FindEvents(m_pCurClip->GetName());
 		if (events)
 			events->startEvent();
 	}
 	else
 	{
-		m_iNextFrameIdx = m_iFrameIdx;	// 끝이면 현재 인덱스를 유지
+		events = FindEvents(m_pCurClip->GetName());
 		if (events)
 			events->endEvent();
 
 	}
-	
-	//if (m_iFrameIdx >= m_pCurClip->GetClipEndFrame())
-	//{
-	//	m_iNextFrameIdx = m_iFrameIdx;
-	//}
-	//else
-	//	m_iNextFrameIdx = m_iFrameIdx + 1;
-
-	// 프레임간의 시간에 따른 비율을 구해준다.
-	// m_fRatio = (float)(dFrameIdx - (double)m_iFrameIdx);
-
-	// 컴퓨트 쉐이더 연산여부
 	m_bFinalMatUpdate = false;
 }
 
@@ -113,7 +96,6 @@ void CAnimator3D::UpdateData()
 
 	if (!m_bFinalMatUpdate)
 	{
-
 		// Animation3D Update Compute Shader
 		CAnimation3D_CShader* pUpdateShader = (CAnimation3D_CShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"Animation3DUpdateCS").Get();
 
@@ -121,7 +103,7 @@ void CAnimator3D::UpdateData()
 		Ptr<CMesh> pMesh = MeshRender()->GetMesh();
 		check_mesh(pMesh);
 
-		pUpdateShader->SetFrameDataBuffer(pMesh->GetBoneFrameDataBuffer());
+		pUpdateShader->SetFrameDataBuffer(pMesh->GetBoneFrameDataBuffer(m_iClipIdx));
 		pUpdateShader->SetOffsetMatBuffer(pMesh->GetBoneOffsetBuffer());
 		pUpdateShader->SetOutputBuffer(m_pBoneFinalMatBuffer);
 
@@ -129,7 +111,7 @@ void CAnimator3D::UpdateData()
 		pUpdateShader->SetBoneCount(iBoneCount);
 		pUpdateShader->SetFrameIndex(m_pCurClip->GetClipFrame());
 		pUpdateShader->SetNextFrameIdx(m_pCurClip->GetClipNextFrame());
-		pUpdateShader->SetFrameRatio(m_fRatio);
+		pUpdateShader->SetFrameRatio(m_pCurClip->GetRatio());
 
 		// 업데이트 쉐이더 실행
 		pUpdateShader->Execute();
@@ -141,11 +123,18 @@ void CAnimator3D::UpdateData()
 	m_pBoneFinalMatBuffer->UpdateData(30, PIPELINE_STAGE::PS_VERTEX);
 }
 
+void CAnimator3D::SetBones(const vector<tMTBone>* _vecBones)
+{
+	m_pVecBones = _vecBones;
+	m_vecFinalBoneMat.resize(m_pVecBones->size());
+}
+
 void CAnimator3D::SetAnimClip(const vector<tMTAnimClip>* _vecAnimClip)
 {
 	m_pVecClip = _vecAnimClip;
 	m_vecClipUpdateTime.resize(m_pVecClip->size());
 
+	create_clip();
 	// 테스트 코드
 	/*static float fTime = 0.f;
 	fTime += 1.f;
@@ -177,7 +166,7 @@ void CAnimator3D::Play(const std::wstring& _Name, bool _Loop)
 	if (m_pCurClip)
 	{
 		m_pCurClip->Reset();
-		events = FindEvents(m_pCurClip->GetName());
+		events = FindEvents(m_pCurClip->GetName() + L"endEvent");
 		if (events)
 			events->endEvent();
 	}
@@ -186,7 +175,7 @@ void CAnimator3D::Play(const std::wstring& _Name, bool _Loop)
 	{
 		m_pCurClip = pCheckClip;
 		m_pCurClip->Reset();
-		events = FindEvents(m_pCurClip->GetName());
+		events = FindEvents(m_pCurClip->GetName() + L"startEvent");
 		if (events)
 			events->startEvent();
 	}
@@ -243,10 +232,72 @@ CAnimClip* CAnimator3D::FindClip(const std::wstring& name)
 
 void CAnimator3D::SaveToLevelFile(FILE* _pFile)
 {
+	fwrite(&m_pVecBones, sizeof(tMTBone), m_pVecBones->size(), _pFile);
+
+	fwrite(&m_pVecBones, sizeof(tMTBone), m_pVecBones->size(), _pFile);
+	fwrite(&m_pVecClip, sizeof(tMTAnimClip), m_pVecClip->size(), _pFile);
+
+	fwrite(&m_vecClipUpdateTime, sizeof(float), m_vecClipUpdateTime.size(), _pFile);
+
+	fwrite(&m_vecFinalBoneMat, sizeof(Matrix), m_vecFinalBoneMat.size(), _pFile);
+	fwrite(&m_iFrameCount, sizeof(int), 1, _pFile);
+	//fwrite(&m_dCurTime, sizeof(double), 1, _pFile);
+	//fwrite(&m_iCurClip, sizeof(int), 1, _pFile);
+	//fwrite(&m_iFrameIdx, sizeof(int), 1, _pFile);
+	//fwrite(&m_iNextFrameIdx, sizeof(int), 1, _pFile);
+	//fwrite(&m_fRatio, sizeof(float), 1, _pFile);
+	fwrite(&m_bFinalMatUpdate, sizeof(bool), 1, _pFile);
+	fwrite(&m_bLoop, sizeof(bool), 1, _pFile);
+	fwrite(&m_bMultipleClip, sizeof(bool), 1, _pFile);
+	fwrite(&m_pCurClip, sizeof(CAnimClip), 1, _pFile);
+
+	size_t count = mClips.size();
+
+	fwrite(&count, sizeof(size_t), 1, _pFile);
+	for(const auto& pair : mClips)
+	{
+		SaveWString(pair.first, _pFile);
+		pair.second->SaveToLevelFile(_pFile);
+		mEvents[pair.first]->SaveToLevelFile(_pFile);
+	}
 }
 
 void CAnimator3D::LoadFromLevelFile(FILE* _pFile)
 {
+	fread(&m_pVecBones, sizeof(tMTBone), m_pVecBones->size(), _pFile);
+
+	fread(&m_pVecBones, sizeof(tMTBone), m_pVecBones->size(), _pFile);
+	fread(&m_pVecClip, sizeof(tMTAnimClip), m_pVecClip->size(), _pFile);
+
+	fread(&m_vecClipUpdateTime, sizeof(float), m_vecClipUpdateTime.size(), _pFile);
+
+	fread(&m_vecFinalBoneMat, sizeof(Matrix), m_vecFinalBoneMat.size(), _pFile);
+	fread(&m_iFrameCount, sizeof(int), 1, _pFile);
+	//fread(&m_dCurTime, sizeof(double), 1, _pFile);
+	//fread(&m_iCurClip, sizeof(int), 1, _pFile);
+	//fread(&m_iFrameIdx, sizeof(int), 1, _pFile);
+	//fread(&m_iNextFrameIdx, sizeof(int), 1, _pFile);
+	//fread(&m_fRatio, sizeof(float), 1, _pFile);
+	fread(&m_bFinalMatUpdate, sizeof(bool), 1, _pFile);
+	fread(&m_bLoop, sizeof(bool), 1, _pFile);
+	fread(&m_bMultipleClip, sizeof(bool), 1, _pFile);
+	fread(&m_pCurClip, sizeof(CAnimClip), 1, _pFile);
+
+	size_t count = 0;
+	fread(&count, sizeof(size_t), 1, _pFile);
+	for (size_t i = 0 ; i < count; ++i)
+	{
+		wstring strCurAnimName;
+		LoadWString(strCurAnimName, _pFile);
+		CAnimClip* clip = new CAnimClip();
+		clip->LoadFromLevelFile(_pFile);
+
+		mClips.insert(make_pair(strCurAnimName, clip));
+
+		Events* events = new Events();
+		events->LoadFromLevelFile(_pFile);
+		mEvents.insert(make_pair(strCurAnimName, events));
+	}
 }
 
 void CAnimator3D::check_mesh(Ptr<CMesh> _pMesh)
@@ -256,4 +307,46 @@ void CAnimator3D::check_mesh(Ptr<CMesh> _pMesh)
 	{
 		m_pBoneFinalMatBuffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, false, nullptr);
 	}
+}
+
+void CAnimator3D::create_clip()
+{
+	if (mClips.size() != 0 || mEvents.size() != 0) return;
+
+	//if (m_pVecClip->size() > 1)
+	//{
+	//	tMTAnimClip clip  = m_pVecClip->at(0);
+	//	CAnimClip* pAnimClip = new CAnimClip();
+	//	mClips.insert(std::make_pair(clip.strAnimName, pAnimClip));
+
+	//	pAnimClip->Create(L"test1", clip, 0, 20, true);
+
+	//	m_pCurClip = FindClip(L"test1");
+	//}
+	//else
+	//{
+	//	
+	//}
+	//m_bLoop = true;
+
+	wstring testClip = L"";
+	for (size_t i = 0; i < m_pVecClip->size(); ++i)
+	{
+		tMTAnimClip clip = m_pVecClip->at(i);
+
+		CAnimClip* pAnimClip = new CAnimClip();
+		if(L"" == testClip)
+			testClip = clip.strAnimName;
+
+		pAnimClip->Create(clip.strAnimName, clip
+			, clip.iStartFrame, clip.iEndFrame, true);
+		//pAnimClip->Create(clip.strAnimName, m_pVecClip, true);
+
+		mClips.insert(std::make_pair(clip.strAnimName, pAnimClip));
+		Events* events = FindEvents(m_pVecClip->at(i).strAnimName);
+
+		mEvents.insert(make_pair(clip.strAnimName, events));
+	}
+
+	m_pCurClip = mClips.at(testClip);
 }

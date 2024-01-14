@@ -65,66 +65,66 @@ void CCollisionMgr::CollisionBtwLayer(CLayer* _Left, CLayer* _Right)
 
 void CCollisionMgr::CollisionBtwObject(CGameObject* _LeftObject, CGameObject* _RightObject)
 {
-	if (!(_LeftObject->Collider2D() && _RightObject->Collider2D()))
-		return;
+	//if (!(_LeftObject->Collider2D() && _RightObject->Collider2D()))
+	//	return;
 
-	// 충돌체 ID 생성
-	CollisionID id = {};
-	id.LeftID = _LeftObject->Collider2D()->GetID();
-	id.RightID = _RightObject->Collider2D()->GetID();
-	
-	// ID 검색
-	map<UINT_PTR, bool>::iterator iter = m_mapColID.find(id.id);
-	if (iter == m_mapColID.end())
-	{
-		m_mapColID.insert(make_pair(id.id, false));
-		iter = m_mapColID.find(id.id);
-	}
+	//// 충돌체 ID 생성
+	//CollisionID id = {};
+	//id.LeftID = _LeftObject->Collider2D()->GetID();
+	//id.RightID = _RightObject->Collider2D()->GetID();
+	//
+	//// ID 검색
+	//map<UINT_PTR, bool>::iterator iter = m_mapColID.find(id.id);
+	//if (iter == m_mapColID.end())
+	//{
+	//	m_mapColID.insert(make_pair(id.id, false));
+	//	iter = m_mapColID.find(id.id);
+	//}
 
-	// 둘 중 하나라도 삭제 예정 상태라면(Dead 상태)
-	bool bDead = false;
-	if (_LeftObject->IsDead() || _RightObject->IsDead())
-	{
-		bDead = true;
-	}
-	
-	// 두 충돌체가 지금 충돌 중인지 확인
-	if (CollisionBtwCollider(_LeftObject->Collider2D(), _RightObject->Collider2D()))
-	{
-		// 이전에 충돌한 적이 있고, 둘중 하나 이상이 삭제 예정이라면
-		if (bDead && iter->second)
-		{
-			_LeftObject->Collider2D()->EndOverlap(_RightObject->Collider2D());
-			_RightObject->Collider2D()->EndOverlap(_LeftObject->Collider2D());
-		}
-		else if (iter->second)
-		{
-			// 계속 충돌 중
-			_LeftObject->Collider2D()->OnOverlap(_RightObject->Collider2D());
-			_RightObject->Collider2D()->OnOverlap(_LeftObject->Collider2D());
-		}
-		else
-		{
-			// 이번 프레임에 충돌
-			if (!bDead) // 둘중 하나라도 Dead 상태면 충돌을 무시한다.
-			{
-				_LeftObject->Collider2D()->BeginOverlap(_RightObject->Collider2D());
-				_RightObject->Collider2D()->BeginOverlap(_LeftObject->Collider2D());
-				iter->second = true;
-			}			
-		}
-	}
+	//// 둘 중 하나라도 삭제 예정 상태라면(Dead 상태)
+	//bool bDead = false;
+	//if (_LeftObject->IsDead() || _RightObject->IsDead())
+	//{
+	//	bDead = true;
+	//}
+	//
+	//// 두 충돌체가 지금 충돌 중인지 확인
+	//if (CollisionBtwCollider(_LeftObject->Collider2D(), _RightObject->Collider2D()))
+	//{
+	//	// 이전에 충돌한 적이 있고, 둘중 하나 이상이 삭제 예정이라면
+	//	if (bDead && iter->second)
+	//	{
+	//		_LeftObject->Collider2D()->EndOverlap(_RightObject->Collider2D());
+	//		_RightObject->Collider2D()->EndOverlap(_LeftObject->Collider2D());
+	//	}
+	//	else if (iter->second)
+	//	{
+	//		// 계속 충돌 중
+	//		_LeftObject->Collider2D()->OnOverlap(_RightObject->Collider2D());
+	//		_RightObject->Collider2D()->OnOverlap(_LeftObject->Collider2D());
+	//	}
+	//	else
+	//	{
+	//		// 이번 프레임에 충돌
+	//		if (!bDead) // 둘중 하나라도 Dead 상태면 충돌을 무시한다.
+	//		{
+	//			_LeftObject->Collider2D()->BeginOverlap(_RightObject->Collider2D());
+	//			_RightObject->Collider2D()->BeginOverlap(_LeftObject->Collider2D());
+	//			iter->second = true;
+	//		}			
+	//	}
+	//}
 
-	else
-	{
-		// 충돌 해제
-		if (iter->second)
-		{
-			_LeftObject->Collider2D()->EndOverlap(_RightObject->Collider2D());
-			_RightObject->Collider2D()->EndOverlap(_LeftObject->Collider2D());
-			iter->second = false;
-		}
-	}
+	//else
+	//{
+	//	// 충돌 해제
+	//	if (iter->second)
+	//	{
+	//		_LeftObject->Collider2D()->EndOverlap(_RightObject->Collider2D());
+	//		_RightObject->Collider2D()->EndOverlap(_LeftObject->Collider2D());
+	//		iter->second = false;
+	//	}
+	//}
 
 
 }

@@ -185,6 +185,15 @@ bool IsValidObj(CGameObject*& _Target)
 	return true;
 }
 
+const char* ConvertWCharToChar(const wchar_t* _wchar)
+{
+	char pChar[255];
+	int strSize = WideCharToMultiByte(CP_ACP, 0, _wchar, -1, NULL, 0, NULL, NULL);
+	WideCharToMultiByte(CP_ACP, 0, _wchar, -1, pChar, strSize, 0, 0);
+
+	return pChar;
+}
+
 const char* ToString(RES_TYPE type)
 {
 	return RES_TYPE_STR[(UINT)type];

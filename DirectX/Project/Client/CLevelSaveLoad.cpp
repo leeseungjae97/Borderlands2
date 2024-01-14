@@ -186,19 +186,11 @@ CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File)
 		case COMPONENT_TYPE::TRANSFORM:
 			Component = new CTransform;
 			break;
-		case COMPONENT_TYPE::COLLIDER2D:
-			Component = new CCollider2D;
-			break;
 		case COMPONENT_TYPE::COLLIDER3D:
 			//Component = new CCollider2D;
 			break;
-		case COMPONENT_TYPE::ANIMATOR2D:
-			Component = new CAnimator2D;
-			break;
 		case COMPONENT_TYPE::ANIMATOR3D:
-			break;
-		case COMPONENT_TYPE::LIGHT2D:
-			Component = new CLight2D;
+			Component = new CAnimator3D;
 			break;
 		case COMPONENT_TYPE::LIGHT3D:
 			Component = new CLight3D;
@@ -229,9 +221,6 @@ CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File)
 		case COMPONENT_TYPE::SOLOAR_SYSTEM:
 			Component = new CSolarSystem;
 			break;
-
-
-
 		}
 
 		Component->LoadFromLevelFile(_File);

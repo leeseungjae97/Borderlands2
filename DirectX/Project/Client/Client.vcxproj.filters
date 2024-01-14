@@ -116,6 +116,9 @@
     <Filter Include="UI\InspectorUI\ComponentUI\PlanetMoveUI">
       <UniqueIdentifier>{ea35f49b-707f-4020-b6ae-b7c2bb68d619}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\InspectorUI\ComponentUI\Animator3DUI">
+      <UniqueIdentifier>{debb03ee-e529-4419-91fa-1113e02c8c82}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -247,6 +250,9 @@
     </ClInclude>
     <ClInclude Include="PlanetMoveUI.h">
       <Filter>UI\InspectorUI\ComponentUI\PlanetMoveUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Animator3DUI.h">
+      <Filter>UI\InspectorUI\ComponentUI\Animator3DUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -387,6 +393,9 @@
     </ClCompile>
     <ClCompile Include="PlanetMoveUI.cpp">
       <Filter>UI\InspectorUI\ComponentUI\PlanetMoveUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Animator3DUI.cpp">
+      <Filter>UI\InspectorUI\ComponentUI\Animator3DUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -89,15 +89,15 @@ void CPlayerScript::Shoot()
 	SpawnGameObject(pCloneMissile, vMissilePos, L"PlayerProjectile");
 }
 
-void CPlayerScript::BeginOverlap(CCollider2D* _Other)
-{
-	CGameObject* pOtherObject = _Other->GetOwner();
-
-	if (pOtherObject->GetName() == L"Monster")
-	{
-		DestroyObject(pOtherObject);		
-	}
-}
+//void CPlayerScript::BeginOverlap(CCollider2D* _Other)
+//{
+//	CGameObject* pOtherObject = _Other->GetOwner();
+//
+//	if (pOtherObject->GetName() == L"Monster")
+//	{
+//		DestroyObject(pOtherObject);		
+//	}
+//}
 
 
 

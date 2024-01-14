@@ -2,11 +2,8 @@
 
 
 #include "CTransform.h"
-#include "CCollider2D.h"
-#include "CLight2D.h"
 #include "CLight3D.h"
 #include "CCamera.h"
-#include "CAnimator2D.h"
 #include "CSkyBox.h"
 
 #include "CMeshRender.h"

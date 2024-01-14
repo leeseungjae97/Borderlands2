@@ -217,23 +217,14 @@ void MenuUI::AddComponent(COMPONENT_TYPE _type)
     case COMPONENT_TYPE::TRANSFORM:
         pSelectedObject->AddComponent(new CTransform);
         break;
-    case COMPONENT_TYPE::COLLIDER2D:
-        pSelectedObject->AddComponent(new CCollider2D);
-        break;
     case COMPONENT_TYPE::COLLIDER3D:
         //pSelectedObject->AddComponent(new CCollider3D);
         break;
-    case COMPONENT_TYPE::ANIMATOR2D:
-        pSelectedObject->AddComponent(new CAnimator2D);
-        break;
     case COMPONENT_TYPE::ANIMATOR3D:
-        //pSelectedObject->AddComponent(new CAnimator3D);
-        break;
-    case COMPONENT_TYPE::LIGHT2D:
-        pSelectedObject->AddComponent(new CLight2D);
+        pSelectedObject->AddComponent(new CAnimator3D);
         break;
     case COMPONENT_TYPE::LIGHT3D:
-        //pSelectedObject->AddComponent(new CLight3D);
+        pSelectedObject->AddComponent(new CLight3D);
         break;
     case COMPONENT_TYPE::CAMERA:
         pSelectedObject->AddComponent(new CCamera);
@@ -251,7 +242,7 @@ void MenuUI::AddComponent(COMPONENT_TYPE _type)
         //pSelectedObject->AddComponent(new CLandScape);
         break;
     case COMPONENT_TYPE::DECAL:
-        //pSelectedObject->AddComponent(new CDecal);
+        pSelectedObject->AddComponent(new CDecal);
         break;            
     }
 
