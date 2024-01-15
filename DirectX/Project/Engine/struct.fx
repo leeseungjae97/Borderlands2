@@ -114,6 +114,13 @@ struct tParticleModule
     int dummy3;
 };
 
+struct tFrameTrans
+{
+    float4 vTranslate;
+    float4 vScale;
+    float4 qRot;
+};
+
 struct tSkinningInfo
 {
     float3 vPos;

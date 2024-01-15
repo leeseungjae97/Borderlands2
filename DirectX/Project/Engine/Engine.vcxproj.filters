@@ -85,9 +85,6 @@
     <ClInclude Include="CLevel.h">
       <Filter>Source\Level</Filter>
     </ClInclude>
-    <ClInclude Include="CLayer.h">
-      <Filter>Source\Level</Filter>
-    </ClInclude>
     <ClInclude Include="CTexture.h">
       <Filter>Source\Resource\Texture</Filter>
     </ClInclude>
@@ -196,6 +193,11 @@
     <ClInclude Include="LUT_Animation.h">
       <Filter>LookUpTables</Filter>
     </ClInclude>
+    <ClInclude Include="CLayer.h">
+      <Filter>Source\Level\Layer</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneMgr.h" />
+    <ClInclude Include="Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -259,9 +261,6 @@
       <Filter>Source\Manager\ResMgr</Filter>
     </ClCompile>
     <ClCompile Include="CLevel.cpp">
-      <Filter>Source\Level</Filter>
-    </ClCompile>
-    <ClCompile Include="CLayer.cpp">
       <Filter>Source\Level</Filter>
     </ClCompile>
     <ClCompile Include="CTexture.cpp">
@@ -372,6 +371,11 @@
     <ClCompile Include="CAnimClip.cpp">
       <Filter>Source\Component\Animator3D</Filter>
     </ClCompile>
+    <ClCompile Include="CLayer.cpp">
+      <Filter>Source\Level\Layer</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneMgr.cpp" />
+    <ClCompile Include="Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -553,6 +557,18 @@
     </Filter>
     <Filter Include="LookUpTables">
       <UniqueIdentifier>{ff74bcc9-a3b3-4efc-95b0-17c28faa0925}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Level\Layer">
+      <UniqueIdentifier>{f6b9e83d-6b5b-4550-b900-3ac0429c43b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Component\PathFind">
+      <UniqueIdentifier>{253e45a2-14db-482c-b27f-8aea8b8dc3dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Manager\SceneMgr">
+      <UniqueIdentifier>{92c34761-5cf7-4b0f-bfab-edf5b6f9b168}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Scene">
+      <UniqueIdentifier>{e4a95712-6105-47ec-832d-60be2b9d78d2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

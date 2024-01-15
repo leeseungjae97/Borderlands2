@@ -33,6 +33,7 @@ private:
     // 등록된 GameObject 제거
     void clear();
 
+    //CLONE_DISABLE(CLevel);
     CLONE(CLevel);
 public:
     CLevel();

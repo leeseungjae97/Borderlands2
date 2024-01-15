@@ -119,6 +119,9 @@
     <Filter Include="UI\InspectorUI\ComponentUI\Animator3DUI">
       <UniqueIdentifier>{debb03ee-e529-4419-91fa-1113e02c8c82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{e29e3c16-62d1-49e4-b763-20e6c588323b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -253,6 +256,12 @@
     </ClInclude>
     <ClInclude Include="Animator3DUI.h">
       <Filter>UI\InspectorUI\ComponentUI\Animator3DUI</Filter>
+    </ClInclude>
+    <ClInclude Include="MainScene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene.h">
+      <Filter>Scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -396,6 +405,12 @@
     </ClCompile>
     <ClCompile Include="Animator3DUI.cpp">
       <Filter>UI\InspectorUI\ComponentUI\Animator3DUI</Filter>
+    </ClCompile>
+    <ClCompile Include="MainScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene.cpp">
+      <Filter>Scenes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

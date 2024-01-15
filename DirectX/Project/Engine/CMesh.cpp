@@ -32,6 +32,9 @@ CMesh::~CMesh()
 
 	if (nullptr != m_pBoneOffset)
 		delete m_pBoneOffset;
+
+	if (nullptr != m_pBlendFrameData)
+		delete m_pBlendFrameData;
 }
 
 CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)

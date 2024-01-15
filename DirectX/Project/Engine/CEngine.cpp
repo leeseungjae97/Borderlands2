@@ -12,6 +12,7 @@
 #include "CEventMgr.h"
 #include "CFontMgr.h"
 #include "KeyUseInfoMgr.h"
+#include "SceneMgr.h"
 
 CEngine::CEngine()
 	: m_hWnd(nullptr)
@@ -57,7 +58,7 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 
 	CFontMgr::GetInst()->init();
 
-	CLevelMgr::GetInst()->init();		
+	//CLevelMgr::GetInst()->init();		
 	
 
 
@@ -92,6 +93,15 @@ void CEngine::tick()
 
 	// Level 내에 GameObject 들의 변경점에 의해서 발생한 충돌을 체크한다.
 	CCollisionMgr::GetInst()->tick();
+
+	if(KEY_PRESSED(KEY::E))
+	{
+		SceneMgr::GetInst()->ChangeScene(SCENE_TYPE::S_GAME);
+	}
+	if (KEY_PRESSED(KEY::R))
+	{
+		SceneMgr::GetInst()->ChangeScene(SCENE_TYPE::S_MAIN);
+	}
 }
 
 void CEngine::render()

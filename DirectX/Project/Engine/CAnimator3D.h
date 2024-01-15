@@ -62,11 +62,11 @@ private:
     const vector<tMTAnimClip>*  m_pVecClip;
 
     vector<float>				m_vecClipUpdateTime;
-    vector<Matrix>				m_vecFinalBoneMat; // 텍스쳐에 전달할 최종 행렬정보
-    int							m_iFrameCount; // 30
+    vector<Matrix>				m_vecFinalBoneMat;
+    int							m_iFrameCount;
 
-    CStructuredBuffer*          m_pBoneFinalMatBuffer;  // 특정 프레임의 최종 행렬
-    bool						m_bFinalMatUpdate; // 최종행렬 연산 수행여부
+    CStructuredBuffer*          m_pBoneFinalMatBuffer;
+    bool						m_bFinalMatUpdate;
 
     CAnimClip*                  m_pCurClip;
     CAnimClip*                  m_pNextClip;
@@ -80,7 +80,6 @@ private:
 	bool						m_bBlend;
 	float						m_fBlendTime;
 	float						m_fBlendAcc;
-	int							m_iNextFrame;
 
 	float						m_fBRatio;
 
@@ -90,7 +89,6 @@ private:
 private:
     void check_mesh(Ptr<CMesh> _pMesh);
 	void create_clip();
-	void blend_clip();
 
 public:
     virtual void finaltick() override;

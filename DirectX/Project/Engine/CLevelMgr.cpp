@@ -11,18 +11,21 @@ CLevelMgr::CLevelMgr()
 
 CLevelMgr::~CLevelMgr()
 {
-	if (nullptr != m_pCurLevel)
-		delete m_pCurLevel;
+	//if (nullptr != m_pCurLevel)
+	//	delete m_pCurLevel;
 }
 
 void CLevelMgr::init()
 {
-	m_pCurLevel = new CLevel;
-	m_pCurLevel->ChangeState(LEVEL_STATE::STOP);
+	//m_pCurLevel = new CLevel;
+	//m_pCurLevel->ChangeState(LEVEL_STATE::STOP);
 }
 
 void CLevelMgr::tick()
 {
+	if (nullptr == m_pCurLevel)
+		return;
+
 	m_pCurLevel->clear();
 
 	if (LEVEL_STATE::PLAY == m_pCurLevel->GetState())
@@ -41,16 +44,19 @@ CGameObject* CLevelMgr::FindObjectByName(const wstring& _strName)
 
 void CLevelMgr::FindObjectByName(const wstring& _strName, vector<CGameObject*>& _vec)
 {
+	if (nullptr == m_pCurLevel)
+		return;
+
 	m_pCurLevel->FindObjectByName(_strName, _vec);
 }
 
 void CLevelMgr::ChangeLevel(CLevel* _NextLevel)
 {
-	if (nullptr != m_pCurLevel)
-	{
-		delete m_pCurLevel;
-		m_pCurLevel = nullptr;
-	}
+	//if (nullptr != m_pCurLevel)
+	//{
+	//	delete m_pCurLevel;
+	//	m_pCurLevel = nullptr;
+	//}
 
 	m_pCurLevel = _NextLevel;
 }

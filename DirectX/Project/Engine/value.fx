@@ -20,7 +20,6 @@ cbuffer TRANSFORM : register(b0)
 
 cbuffer MATERIAL : register(b1)
 {
-    // 재질 계수
     float4 g_vDiff;
     float4 g_vSpec;
     float4 g_vAmb;
@@ -71,7 +70,6 @@ cbuffer MATERIAL : register(b1)
     int g_btexarr_0;
     int g_btexarr_1;
 
-    // 3D Animation 정보
     int g_iAnim;
     int g_iBoneCount;
     int2 padding;

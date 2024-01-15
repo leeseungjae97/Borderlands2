@@ -5,12 +5,17 @@
 #include "Client.h"
 
 #include <Engine\CDevice.h>
+#include <Engine\SceneMgr.h>
 #include "CEditorObjMgr.h"
 
 // ImGui
+#include "GameScene.h"
 #include "ImGuiMgr.h"
+#include "MainScene.h"
 
 #include "TestLevel.h"
+
+
 
 // 전역 변수:
 HINSTANCE   hInst;                                // 현재 인스턴스입니다.
@@ -28,7 +33,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ int       nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //_CrtSetBreakAlloc(1119);
+    //_CrtSetBreakAlloc(17336);
    
     MyRegisterClass(hInstance);
 
@@ -37,6 +42,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return FALSE;
     }
+
+    SceneMgr::GetInst()->create(SCENE_TYPE::S_MAIN, new MainScene());
+    SceneMgr::GetInst()->create(SCENE_TYPE::S_GAME, new GameScene());
 
     // CEngine 초기화
     if (FAILED(CEngine::GetInst()->init(g_hWnd, 1280, 768)))
@@ -50,8 +58,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // ImGui 초기화
     ImGuiMgr::GetInst()->init(g_hWnd);
 
+    SceneMgr::GetInst()->init();
     // 테스트 용 레벨 생성
-    CreateTestLevel();
+    //CreateTestLevel();
 
     // 메세지 루프
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
@@ -83,7 +92,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }       
     }
 
-   
+    SceneMgr::GetInst()->release();
 
     return (int) msg.wParam;
 }

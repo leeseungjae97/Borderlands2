@@ -19,7 +19,6 @@ public:
 
 	void SetFrameRatio(float _fFrameRatio) { m_Const.arrFloat[0] = _fFrameRatio; }
 	void SetBlendRatio(float _fFrameRatio) { m_Const.arrFloat[1] = _fFrameRatio; }
-	void SetBlendLength(float _iLen) { m_Const.arrFloat[2] = _iLen; }
 
 	void SetFrameDataBuffer(CStructuredBuffer* _buffer) { m_pFrameDataBuffer = _buffer; }
 	void SetOffsetMatBuffer(CStructuredBuffer* _buffer) { m_pOffsetMatBuffer = _buffer; }

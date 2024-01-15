@@ -18,6 +18,7 @@ CAnimator3D::CAnimator3D()
 	, m_pBoneFinalMatBuffer(nullptr)
 	, m_bFinalMatUpdate(false)
 	, m_iClipIdx(0)
+	, m_iNextClipIdx(0)
 	, m_bLoop(false)
 	, m_bMultipleClip(false)
 	, m_pCurClip(nullptr)
@@ -35,17 +36,20 @@ CAnimator3D::CAnimator3D()
 
 CAnimator3D::CAnimator3D(const CAnimator3D& _origin)
 	: m_pVecBones(_origin.m_pVecBones)
-	, m_pVecClip(_origin.m_pVecClip)
-	, m_iFrameCount(_origin.m_iFrameCount)
-	, m_pBoneFinalMatBuffer(nullptr)
-	, m_bFinalMatUpdate(false)
-	, m_bLoop(_origin.m_bLoop)
-	, m_bMultipleClip(_origin.m_bMultipleClip)
-	, m_pCurClip(_origin.m_pCurClip)
-	, m_iClipIdx(_origin.m_iClipIdx)
-	, m_bBlend(_origin.m_bBlend)
-	, m_fBlendTime(_origin.m_fBlendTime)
-	, CComponent(COMPONENT_TYPE::ANIMATOR3D)
+	  , m_pVecClip(_origin.m_pVecClip)
+	  , m_iFrameCount(_origin.m_iFrameCount)
+	  , m_pBoneFinalMatBuffer(nullptr)
+	  , m_bFinalMatUpdate(false)
+	  , m_bLoop(_origin.m_bLoop)
+	  , m_bMultipleClip(_origin.m_bMultipleClip)
+	  , m_pCurClip(_origin.m_pCurClip)
+	  , m_pNextClip(_origin.m_pNextClip)
+	  , m_iClipIdx(_origin.m_iClipIdx)
+	  , m_iNextClipIdx(_origin.m_iNextClipIdx)
+	  , m_bBlendMode(_origin.m_bBlendMode)
+      , m_bBlend(_origin.m_bBlend)
+	  , m_fBlendTime(_origin.m_fBlendTime)
+	  , CComponent(COMPONENT_TYPE::ANIMATOR3D)
 {
 	Copy_Map(_origin.mClips, mClips);
 	Copy_Map(_origin.mEvents, mEvents);
@@ -68,22 +72,22 @@ void CAnimator3D::finaltick()
 
 	if (m_bBlend)
 	{
+		if(m_pNextClip)
+			m_pNextClip->finlatick();
+
 		m_fBlendAcc += DT;
-		//++m_iNextFrame;
-		m_pNextClip->finlatick();
+		m_fBRatio = m_fBlendAcc / m_fBlendTime;
 
 		if (m_fBlendAcc >= m_fBlendTime)
 		{
 			m_bBlend = false;
 			m_fBlendAcc = 0.f;
-			//m_fBlendTime = 0.f;
-			m_iNextFrame = 0;
+
 			m_pCurClip->Reset();
 			m_pCurClip = m_pNextClip;
 			m_iClipIdx = m_iNextClipIdx;
 			m_pNextClip = nullptr;
 		}
-
 	}
 	else
 	{
@@ -134,7 +138,6 @@ void CAnimator3D::UpdateData()
 		if(m_bBlend)
 		{
 			pUpdateShader->SetBlendFrameDataBuffer(pMesh->GetBlendFrameDataBuffer(m_iNextClipIdx));
-			//pUpdateShader->SetNextFrame(0);
 			pUpdateShader->SetNextFrame(m_pNextClip->GetClipFrame());
 		}
 
@@ -145,11 +148,7 @@ void CAnimator3D::UpdateData()
 
 		if (m_bBlend)
 		{
-			m_fBRatio = m_fBlendAcc / m_fBlendTime;
 			pUpdateShader->SetBlendRatio(m_fBRatio);
-			pUpdateShader->SetBlendLength(m_fBlendTime);
-			//pUpdateShader->SetBlendRatio(m_pNextClip->GetRatio());
-			//pUpdateShader->SetBlendLength(m_pNextClip->GetClipLength());
 		}
 		
 		pUpdateShader->SetIsBlend(m_bBlend);
@@ -176,18 +175,10 @@ void CAnimator3D::SetAnimClip(const vector<tMTAnimClip>* _vecAnimClip)
 	m_vecClipUpdateTime.resize(m_pVecClip->size());
 
 	create_clip();
-	// 테스트 코드
-	/*static float fTime = 0.f;
-	fTime += 1.f;
-	m_vecClipUpdateTime[0] = fTime;*/
 }
 
 void CAnimator3D::SetCurAnimClip(CAnimClip* _Clip)
 {
-	//m_pNextClip = m_pCurClip;
-	//m_iNextFrame = m_pNextClip->GetClipFrame();
-	//m_pNextClip->Reset();
-	//m_pCurClip = _Clip;
 	if (m_bBlendMode)
 	{
 		m_pNextClip = _Clip;
@@ -395,27 +386,4 @@ void CAnimator3D::create_clip()
 	}
 
 	m_pCurClip = mClips.at(testClip);
-}
-
-void CAnimator3D::blend_clip()
-{
-	//int curClipNextFrame = m_pCurClip->GetClipNextFrame();
-	//int curClipFrame = curClipNextFrame - 1 > -1 ? curClipNextFrame - 1 : 0;
-
-	//vector<tFrameTrans> curTransKeyFrame =  m_pCurClip->GetCurClip().vecTransKeyFrame;
-	//tFrameTrans curTarnskeyFrame = curTransKeyFrame[curClipFrame];
-
-	//int prevClipNextFrame = m_pNextClip->GetClipNextFrame();
-	//int prevClipFrame = prevClipNextFrame - 1 > -1 ? prevClipNextFrame - 1 : 0;
-
-	//vector<tFrameTrans> prevTransKeyFrame = m_pNextClip->GetCurClip().vecTransKeyFrame;
-	//tFrameTrans prevTarnskeyFrame = prevTransKeyFrame[prevClipFrame];
-
-	//m_pCurClip->GetRatio();
-
-	//m_fRatio = 1.f - (bt - m_fBlendTime) / bt;
-
-	//m_pCurClip->SetRatio();
-
-	m_bBlend = false;
 }
