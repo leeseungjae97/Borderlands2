@@ -13,7 +13,8 @@
 
 #define DT CTimeMgr::GetInst()->GetDeltaTime()
 
-#define MAX_LAYER 32
+#define MAX_LAYER	32
+#define MAX_MIP		8
 
 #define SINGLE(type) private: type(); ~type(); friend class CSingleton<type>;
 
@@ -102,6 +103,11 @@ enum SCALAR_PARAM
 	FLOAT_1,
 	FLOAT_2,
 	FLOAT_3,
+
+	FLOAT_4,
+	FLOAT_5,
+	FLOAT_6,
+	FLOAT_7,
 
 	VEC2_0,
 	VEC2_1,
@@ -265,6 +271,7 @@ enum class LEVEL_STATE
 	PLAY,
 	PAUSE,
 	STOP,
+	NO_UPDATE_RENDER,
 };
 
 enum class SB_TYPE

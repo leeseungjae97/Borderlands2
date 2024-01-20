@@ -38,6 +38,8 @@ int ListUI::render_update()
         {
             const bool is_selected = (m_iSelectedIdx == i);
 
+            if (m_vecStrData[i] == L"") continue;
+
             // 리스트 아이템 출력, 반환값은 클릭 True/ False
             if (ImGui::Selectable(m_vecStrData[i].c_str(), is_selected))
             {

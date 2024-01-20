@@ -1,8 +1,12 @@
 #include "pch.h"
 #include "CResMgr.h"
 
-#include "CAnimation3D_CShader.h"
+#include "CAnimation3DShader.h"
+#include "CColorMapShader.h"
+#include "CHeightMapShader.h"
 #include "CPathMgr.h"
+#include "CRayCastShader.h"
+#include "CWeightMapShader.h"
 
 CResMgr::CResMgr()
 	: m_Changed(false)
@@ -1185,8 +1189,34 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	AddRes(pShader->GetKey(), pShader);
 
-}
+	// ============================
+	// LandScapeShader	
+	// RS_TYPE : CULL_BACK
+	// DS_TYPE : LESS
+	// BS_TYPE : DEFAULT
+	// 
+	// Parameter
+	// g_tex_0 : Output Texture
+	// g_tex_1 : Normal Texture
+	// Domain : Opaque
+	// ============================
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"LandScapeShader");
+	pShader->CreateVertexShader(L"shader\\landscape.fx", "VS_LandScape");
+	pShader->CreateHullShader(L"shader\\landscape.fx", "HS_LandScape");
+	pShader->CreateDomainShader(L"shader\\landscape.fx", "DS_LandScape");
+	pShader->CreatePixelShader(L"shader\\landscape.fx", "PS_LandScape");
 
+	pShader->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	pShader->SetRSType(RS_TYPE::CULL_BACK);
+	//pShader->SetRSType(RS_TYPE::WIRE_FRAME);
+	pShader->SetDSType(DS_TYPE::LESS);
+	pShader->SetBSType(BS_TYPE::DEFAULT);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_DEFERRED);
+
+	AddRes(pShader->GetKey(), pShader);
+
+}
 
 #include "CSetColorShader.h"
 #include "CParticleUpdateShader.h"
@@ -1214,9 +1244,29 @@ void CResMgr::CreateDefaultComputeShader()
 	AddRes(pCS->GetKey(), pCS);
 
 	// Animation Matrix Update ½¦ÀÌ´õ
-	pCS = new CAnimation3D_CShader(256, 1, 1);
+	pCS = new CAnimation3DShader(256, 1, 1);
 	pCS->SetKey(L"Animation3DUpdateCS");
 	pCS->CreateComputeShader(L"shader\\animation3d.fx", "CS_Animation3D");
+	AddRes(pCS->GetKey(), pCS);
+
+	pCS = new CHeightMapShader(32, 32, 1);
+	pCS->SetKey(L"HeightMapShaderCS");
+	pCS->CreateComputeShader(L"shader\\heightmap.fx", "CS_HeightMap");
+	AddRes(pCS->GetKey(), pCS);
+
+	pCS = new CRayCastShader(32, 32, 1);
+	pCS->SetKey(L"RaycastShaderCS");
+	pCS->CreateComputeShader(L"shader\\raycast.fx", "CS_Raycast");
+	AddRes(pCS->GetKey(), pCS);
+
+	pCS = new CColorMapShader(32, 32, 1);
+	pCS->SetKey(L"ColorMapShaderCS");
+	pCS->CreateComputeShader(L"shader\\colormap.fx", "CS_ColorMap");
+	AddRes(pCS->GetKey(), pCS);
+
+	pCS = new CWeightMapShader(32, 32, 1);
+	pCS->SetKey(L"WeightMapShader");
+	pCS->CreateComputeShader(L"shader\\weightmap.fx", "CS_WeightMap");
 	AddRes(pCS->GetKey(), pCS);
 }
 
@@ -1362,7 +1412,12 @@ void CResMgr::CreateDefaultMaterial()
 	// TessMtrl
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"TessShader"));
-	AddRes(L"TessMtrl", pMtrl);	
+	AddRes(L"TessMtrl", pMtrl);
+
+	// LandScapeMtrl
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"LandScapeShader"));
+	AddRes(L"LandScapeMtrl", pMtrl);
 }
 
 Ptr<CTexture> CResMgr::CreateTexture(const wstring& _strKey, UINT _Width, UINT _Height

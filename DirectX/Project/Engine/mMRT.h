@@ -23,6 +23,8 @@ public:
     void ClearTarget();
     void OMSet(bool _bStay = false);
 
+    const D3D11_VIEWPORT& GetViewPort() { return m_Viewport; }
+
 public:
     CLONE_DISABLE(MRT)
 

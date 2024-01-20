@@ -20,6 +20,8 @@
 
 #include <Engine/CSetColorShader.h>
 
+//#include <Engine/PhysXT.h>
+
 
 void CreateTestLevel()
 {
@@ -40,8 +42,9 @@ void CreateTestLevel()
 
 	//Ptr<CSound> pSound = CResMgr::GetInst()->FindRes<CSound>(L"sound\\BGM_Stage1.wav");
 	//pSound->Play(1, 0.5f, false);
-
-	CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
+	CLevel* pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"main level");
+	CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
+	//CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
 	pCurLevel->ChangeState(LEVEL_STATE::STOP);
 
 	// Layer 이름설정
@@ -49,7 +52,6 @@ void CreateTestLevel()
 	pCurLevel->GetLayer(1)->SetName(L"Planet");
 	pCurLevel->GetLayer(10)->SetName(L"Light");
 	pCurLevel->GetLayer(31)->SetName(L"ViewPort UI");
-
 
 	// Main Camera Object 생성
 	CGameObject* pMainCam = new CGameObject;
@@ -65,7 +67,8 @@ void CreateTestLevel()
 	pMainCam->Camera()->SetLayerMaskAll(true);	// 모든 레이어 체크
 	pMainCam->Camera()->SetLayerMask(31, false);// UI Layer 는 렌더링하지 않는다.
 
-	SpawnGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
+	//SpawnGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
+	PreloadingGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
 
 	// UI cameara
 	//CGameObject* pUICam = new CGameObject;
@@ -346,7 +349,8 @@ void CreateTestLevel()
 	pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
 	pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
 
-	SpawnGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 0);
+	//SpawnGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 0);
+	PreloadingGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 0);
 
 	CGameObject* pSphere = new CGameObject;
 	pSphere->SetName(L"Sphere1");
@@ -360,7 +364,8 @@ void CreateTestLevel()
 
 	pSphere->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	
-	SpawnGameObject(pSphere, Vec3(500.f, 500.f, 0.f), L"Planet");
+	//SpawnGameObject(pSphere, Vec3(500.f, 500.f, 0.f), L"Planet");
+	PreloadingGameObject(pSphere, Vec3(500.f, 500.f, 0.f), L"Planet");
 
 	pSphere = new CGameObject;
 	pSphere->SetName(L"Sphere2");
@@ -374,7 +379,8 @@ void CreateTestLevel()
 
 	pSphere->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	
-	SpawnGameObject(pSphere, Vec3(0.f, 0.f, 0.f), L"Planet");
+	//SpawnGameObject(pSphere, Vec3(0.f, 0.f, 0.f), L"Planet");
+	PreloadingGameObject(pSphere, Vec3(0.f, 0.f, 0.f), L"Planet");
 
 
 	CGameObject* pRectMesh = new CGameObject;
@@ -390,7 +396,8 @@ void CreateTestLevel()
 
 	pRectMesh->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	
-	SpawnGameObject(pRectMesh, Vec3(0.f, -1000.f, 0.f), L"Planet");
+	//SpawnGameObject(pRectMesh, Vec3(0.f, -1000.f, 0.f), L"Planet");
+	PreloadingGameObject(pRectMesh, Vec3(0.f, -1000.f, 0.f), L"Planet");
 
 	//CGameObject* pObject = new CGameObject;
 	//pObject->SetName(L"Tess Object");
@@ -415,7 +422,8 @@ void CreateTestLevel()
 	pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
 	pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\2k_stars_milky_way.jpg"));
 
-	SpawnGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 0);
+	//SpawnGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 0);
+	PreloadingGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 0);
 
 	//CGameObject* pPLight = new CGameObject;
 	//pPLight->SetName(L"PointLight1");
@@ -531,8 +539,24 @@ void CreateTestLevel()
 	//CCamera* cam = CRenderMgr::GetInst()->GetEditorCam();
 	//pObject->SetFollowObj(cam->GetOwner());
 
-	SpawnGameObject(pObject, Vec3(0.f, 0.f, 0.f), L"Default");
+	//SpawnGameObject(pObject, Vec3(0.f, 0.f, 0.f), L"Default");
+	PreloadingGameObject(pObject, Vec3(0.f, 0.f, 0.f), L"Default");
 
+	// LandScape Object
+	CGameObject* pLandScape = new CGameObject;
+	pLandScape->SetName(L"LandScape");
+
+	pLandScape->AddComponent(new CTransform);
+	pLandScape->AddComponent(new CLandScape);
+
+	pLandScape->Transform()->SetRelativeScale(Vec3(200.f, 1000.f, 200.f));
+	pLandScape->LandScape()->SetHeightMapName(L"HeightMap2");
+	pLandScape->LandScape()->SetColorMapName(L"ColorMap2");
+	pLandScape->LandScape()->SetFace(32, 32);
+	pLandScape->LandScape()->SetFrustumCheck(false);
+	//pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
+
+	PreloadingGameObject(pLandScape, Vec3(0.f, 0.f, 0.f), 0);
 
 	// ============
 	// FBX Loading
@@ -541,7 +565,9 @@ void CreateTestLevel()
 		Ptr<CMeshData> pMeshData = nullptr;
 		CGameObject* pObj = nullptr;
 
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\Monster.fbx");
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\Monster.fbx");
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\anim_NLA.fbx");
 		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\house.mdat");
 		//pObj = pMeshData->Instantiate();
 		//pObj->SetName(L"House");
@@ -550,12 +576,95 @@ void CreateTestLevel()
 		//pMeshData = CResMgr::GetInst()->Load<CMeshData>(L"meshdata\\monster.mdat", L"meshdata\\monster.mdat");
 		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\anim_NLA.mdat");
 		pObj = pMeshData->Instantiate();
-		pObj->SetName(L"Monster");
+		pObj->SetName(L"fbx object");
 
-		SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
+		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
+		PreloadingGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
 	}
 	
+	pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"switch level");
+	CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
+	//CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
+	pCurLevel->ChangeState(LEVEL_STATE::STOP);
 
+	pCurLevel->GetLayer(0)->SetName(L"Default");
+	pCurLevel->GetLayer(1)->SetName(L"Planet");
+	pCurLevel->GetLayer(10)->SetName(L"Light");
+	pCurLevel->GetLayer(31)->SetName(L"ViewPort UI");
+
+	pMainCam = new CGameObject;
+	pMainCam->SetName(L"MainCamera");
+
+	pMainCam->AddComponent(new CTransform);
+	pMainCam->AddComponent(new CCamera);
+	pMainCam->AddComponent(new CCameraMoveScript);
+
+	pMainCam->Camera()->SetFarZ(1000000.f);
+	pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
+	pMainCam->Camera()->SetCameraIndex(0);		// MainCamera 로 설정
+	pMainCam->Camera()->SetLayerMaskAll(true);	// 모든 레이어 체크
+	pMainCam->Camera()->SetLayerMask(31, false);// UI Layer 는 렌더링하지 않는다.
+	
+	PreloadingGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
+
+	pObject = new CGameObject;
+	pObject->SetName(L"Decal");
+	pObject->AddComponent(new CTransform);
+	pObject->AddComponent(new CDecal);
+
+	//pObject->Decal()->Set
+	pObject->Decal()->SetDeferredDecal(true);
+	//pObject->Decal()->SetEmissiveDecal(true);
+
+	pObject->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
+	pObject->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
+	//CCamera* cam = CRenderMgr::GetInst()->GetEditorCam();
+	//pObject->SetFollowObj(cam->GetOwner());
+
+	//SpawnGameObject(pObject, Vec3(0.f, 0.f, 0.f), L"Default");
+
+	PreloadingGameObject(pObject, Vec3(0.f, 0.f, 0.f), L"Default");
+
+	pLandScape = new CGameObject;
+	pLandScape->SetName(L"LandScape");
+
+	pLandScape->AddComponent(new CTransform);
+	pLandScape->AddComponent(new CLandScape);
+
+	pLandScape->Transform()->SetRelativeScale(Vec3(200.f, 1000.f, 200.f));
+	pLandScape->LandScape()->SetBrushGuideLine(pObject);
+	pLandScape->LandScape()->SetHeightMapName(L"HeightMap1");
+	pLandScape->LandScape()->SetColorMapName(L"ColorMap1");
+	pLandScape->LandScape()->SetFace(32, 32);
+	pLandScape->LandScape()->SetFrustumCheck(false);
+	//pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
+	PreloadingGameObject(pLandScape, Vec3(0.f, 0.f, 0.f), 0);
+
+	pSunLight = new CGameObject;
+	pSunLight->SetName(L"SunLight");
+	pSunLight->AddComponent(new CTransform);
+	pSunLight->AddComponent(new CLight3D);
+
+	pSunLight->Transform()->SetRelativeRot(Vec3(XM_PI / 4.f, XM_PI / 4.f, 0.f));
+	pSunLight->Light3D()->SetRadius(500.f);
+	pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
+	pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
+	pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
+
+	//SpawnGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 0);
+	PreloadingGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 0);
+
+	pSkyBox = new CGameObject;
+	pSkyBox->SetName(L"SkyBox");
+
+	pSkyBox->AddComponent(new CTransform);
+	pSkyBox->AddComponent(new CSkyBox);
+
+	pSkyBox->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100));
+	pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
+	pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\2k_stars_milky_way.jpg"));
+
+	PreloadingGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 0);
 	// 충돌 시킬 레이어 짝 지정
 	//CCollisionMgr::GetInst()->LayerCheck(L"Player", L"Monster");	
 }

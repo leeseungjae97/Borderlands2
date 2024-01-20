@@ -13,6 +13,7 @@ public:
     void render() override;
     void finaltick() override;
 
+    void SetDecalTex(Ptr<CTexture> _Tex);
     void SetDeferredDecal(bool _bDeferred);
     void SetEmissiveDecal(bool _bActivate) { m_bEmissive = _bActivate; }
 

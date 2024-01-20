@@ -37,7 +37,6 @@ void SceneMgr::ChangeScene(SCENE_TYPE _Type)
 		m_pCurScene->exit();
 
 	m_pCurScene = m_vecScenes[(UINT)_Type];
-	m_pCurScene->MainLvToCurLv();
 
 	if (m_pCurScene)
 		m_pCurScene->enter();

@@ -58,7 +58,7 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 
 	CFontMgr::GetInst()->init();
 
-	//CLevelMgr::GetInst()->init();		
+	CLevelMgr::GetInst()->init();		
 	
 
 
@@ -96,11 +96,11 @@ void CEngine::tick()
 
 	if(KEY_PRESSED(KEY::E))
 	{
-		SceneMgr::GetInst()->ChangeScene(SCENE_TYPE::S_GAME);
+		ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"switch level"));
 	}
 	if (KEY_PRESSED(KEY::R))
 	{
-		SceneMgr::GetInst()->ChangeScene(SCENE_TYPE::S_MAIN);
+		ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"main level"));
 	}
 }
 

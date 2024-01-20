@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CAnimator3D.h"
 
-#include "CAnimation3D_CShader.h"
+#include "CAnimation3DShader.h"
 #include "CComputeShader.h"
 #include "CMaterial.h"
 #include "ptr.h"
@@ -13,7 +13,6 @@
 
 CAnimator3D::CAnimator3D()
 	: m_pVecBones(nullptr)
-	, m_pVecClip(nullptr)
 	, m_iFrameCount(30)
 	, m_pBoneFinalMatBuffer(nullptr)
 	, m_bFinalMatUpdate(false)
@@ -111,49 +110,38 @@ void CAnimator3D::finaltick()
 		}
 	}
 
-
-	
-
 	m_bFinalMatUpdate = false;
 }
 
 void CAnimator3D::UpdateData()
 {
-	if (nullptr == m_pCurClip)
-		return;
-
 	if (!m_bFinalMatUpdate)
 	{
 		// Animation3D Update Compute Shader
-		CAnimation3D_CShader* pUpdateShader = (CAnimation3D_CShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"Animation3DUpdateCS").Get();
+		CAnimation3DShader* pUpdateShader = (CAnimation3DShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"Animation3DUpdateCS").Get();
 
 		// Bone Data
 		Ptr<CMesh> pMesh = MeshRender()->GetMesh();
 		check_mesh(pMesh);
 
-		pUpdateShader->SetFrameDataBuffer(pMesh->GetBoneFrameDataBuffer(m_iClipIdx));
+		pUpdateShader->SetFrameDataBuffer(pMesh->GetBoneFrameDataBuffer(m_pCurClip->GetAnimName()));
 		pUpdateShader->SetOffsetMatBuffer(pMesh->GetBoneOffsetBuffer());
 		pUpdateShader->SetOutputBuffer(m_pBoneFinalMatBuffer);
 
+		pUpdateShader->SetIsBlend(m_bBlend);
+
 		if(m_bBlend)
 		{
-			pUpdateShader->SetBlendFrameDataBuffer(pMesh->GetBlendFrameDataBuffer(m_iNextClipIdx));
+			pUpdateShader->SetBlendFrameDataBuffer(pMesh->GetBlendFrameDataBuffer(m_pNextClip->GetAnimName()));
 			pUpdateShader->SetNextFrame(m_pNextClip->GetClipFrame());
+			pUpdateShader->SetBlendRatio(m_fBRatio);
 		}
 
 		UINT iBoneCount = (UINT)m_pVecBones->size();
 		pUpdateShader->SetBoneCount(iBoneCount);
 		pUpdateShader->SetFrameIndex(m_pCurClip->GetClipFrame());
 		pUpdateShader->SetFrameRatio(m_pCurClip->GetRatio());
-
-		if (m_bBlend)
-		{
-			pUpdateShader->SetBlendRatio(m_fBRatio);
-		}
 		
-		pUpdateShader->SetIsBlend(m_bBlend);
-
-		// 업데이트 쉐이더 실행
 		pUpdateShader->Execute();
 
 		m_bFinalMatUpdate = true;
@@ -169,10 +157,10 @@ void CAnimator3D::SetBones(const vector<tMTBone>* _vecBones)
 	m_vecFinalBoneMat.resize(m_pVecBones->size());
 }
 
-void CAnimator3D::SetAnimClip(const vector<tMTAnimClip>* _vecAnimClip)
+void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 {
 	m_pVecClip = _vecAnimClip;
-	m_vecClipUpdateTime.resize(m_pVecClip->size());
+	m_vecClipUpdateTime.resize(m_pVecClip.size());
 
 	create_clip();
 }
@@ -296,7 +284,8 @@ void CAnimator3D::SaveToLevelFile(FILE* _pFile)
 	fwrite(&m_pVecBones, sizeof(tMTBone), m_pVecBones->size(), _pFile);
 
 	fwrite(&m_pVecBones, sizeof(tMTBone), m_pVecBones->size(), _pFile);
-	fwrite(&m_pVecClip, sizeof(tMTAnimClip), m_pVecClip->size(), _pFile);
+	//fwrite(&m_pVecClip, sizeof(tMTAnimClip), m_pVecClip->size(), _pFile);
+	fwrite(&m_pVecClip, sizeof(tMTAnimClip), m_pVecClip.size(), _pFile);
 
 	fwrite(&m_vecClipUpdateTime, sizeof(float), m_vecClipUpdateTime.size(), _pFile);
 
@@ -324,7 +313,8 @@ void CAnimator3D::LoadFromLevelFile(FILE* _pFile)
 	fread(&m_pVecBones, sizeof(tMTBone), m_pVecBones->size(), _pFile);
 
 	fread(&m_pVecBones, sizeof(tMTBone), m_pVecBones->size(), _pFile);
-	fread(&m_pVecClip, sizeof(tMTAnimClip), m_pVecClip->size(), _pFile);
+	//fread(&m_pVecClip, sizeof(tMTAnimClip), m_pVecClip->size(), _pFile);
+	fread(&m_pVecClip, sizeof(tMTAnimClip), m_pVecClip.size(), _pFile);
 
 	fread(&m_vecClipUpdateTime, sizeof(float), m_vecClipUpdateTime.size(), _pFile);
 
@@ -367,9 +357,10 @@ void CAnimator3D::create_clip()
 	if (mClips.size() != 0 || mEvents.size() != 0) return;
 
 	wstring testClip = L"";
-	for (size_t i = 0; i < m_pVecClip->size(); ++i)
+	//for (size_t i = 0; i < m_pVecClip->size(); ++i)
+	for (auto& pair : m_pVecClip)
 	{
-		tMTAnimClip clip = m_pVecClip->at(i);
+		tMTAnimClip clip = pair.second;
 
 		CAnimClip* pAnimClip = new CAnimClip();
 		if (L"" == testClip)
@@ -380,7 +371,7 @@ void CAnimator3D::create_clip()
 		//pAnimClip->Create(clip.strAnimName, m_pVecClip, true);
 
 		mClips.insert(std::make_pair(clip.strAnimName, pAnimClip));
-		Events* events = FindEvents(m_pVecClip->at(i).strAnimName);
+		Events* events = FindEvents(clip.strAnimName);
 
 		mEvents.insert(make_pair(clip.strAnimName, events));
 	}

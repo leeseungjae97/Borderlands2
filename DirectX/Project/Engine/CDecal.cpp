@@ -13,6 +13,7 @@ CDecal::CDecal()
 {
     SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CubeMesh"));
     SetDeferredDecal(m_bDeferred);
+    m_DecalTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\red_circle.png");
 }
 
 CDecal::~CDecal()
@@ -35,7 +36,13 @@ void CDecal::render()
 
 void CDecal::finaltick()
 {
-    DrawDebugCube(Transform()->GetWorldMat(), Vec4(0.f, 1.f, 0.f, 1.f), 0.f, true);
+    //DrawDebugCube(Transform()->GetWorldMat(), Vec4(0.f, 1.f, 0.f, 1.f), 0.f, true);
+}
+
+void CDecal::SetDecalTex(Ptr<CTexture> _Tex)
+{
+    m_DecalTex = _Tex;
+    GetMaterial(0)->SetTexParam(TEX_1, m_DecalTex);
 }
 
 void CDecal::SetDeferredDecal(bool _bDeferred)
@@ -45,7 +52,7 @@ void CDecal::SetDeferredDecal(bool _bDeferred)
     if (m_bDeferred)
     {
         SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DeferredDecalMtrl"), 0);
-	    //GetMaterial()->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\red.png"));
+	    GetMaterial(0)->SetTexParam(TEX_1, m_DecalTex);
     }
     else
         SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DecalMtrl"), 0);

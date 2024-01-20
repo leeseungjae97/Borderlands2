@@ -5,7 +5,6 @@
 #include "CLevel.h"
 #include "CLayer.h"
 #include "CGameObject.h"
-#include "CCollider2D.h"
 
 CCollisionMgr::CCollisionMgr()
     : m_matrix{}
@@ -21,46 +20,46 @@ CCollisionMgr::~CCollisionMgr()
 
 void CCollisionMgr::tick()
 {
-	CLevel* pLevel = CLevelMgr::GetInst()->GetCurLevel();
+	//CLevel* pLevel = CLevelMgr::GetInst()->GetCurLevel();
 
-	for (UINT iRow = 0; iRow < MAX_LAYER; ++iRow)
-	{
-		for (UINT iCol = iRow; iCol < MAX_LAYER; ++iCol)
-		{
-			if (!(m_matrix[iRow] & (1 << iCol)))
-				continue;
+	//for (UINT iRow = 0; iRow < MAX_LAYER; ++iRow)
+	//{
+	//	for (UINT iCol = iRow; iCol < MAX_LAYER; ++iCol)
+	//	{
+	//		if (!(m_matrix[iRow] & (1 << iCol)))
+	//			continue;
 
-			// iRow 레이어와 iCol 레이어는 서로 충돌검사를 진행한다.
-			CollisionBtwLayer(pLevel->GetLayer(iRow), pLevel->GetLayer(iCol));
-		}
-	}
+	//		// iRow 레이어와 iCol 레이어는 서로 충돌검사를 진행한다.
+	//		CollisionBtwLayer(pLevel->GetLayer(iRow), pLevel->GetLayer(iCol));
+	//	}
+	//}
 }
 
 void CCollisionMgr::CollisionBtwLayer(CLayer* _Left, CLayer* _Right)
 {
-	const vector<CGameObject*>& vecLeft = _Left->GetObjects();
-	const vector<CGameObject*>& vecRight = _Right->GetObjects();
+	//const vector<CGameObject*>& vecLeft = _Left->GetObjects();
+	//const vector<CGameObject*>& vecRight = _Right->GetObjects();
 
-	if (_Left == _Right)
-	{
-		for (size_t i = 0; i < vecLeft.size(); ++i)
-		{
-			for (size_t j = i + 1; j < vecRight.size(); ++j)
-			{
-				CollisionBtwObject(vecLeft[i], vecRight[j]);				
-			}
-		}
-	}
-	else
-	{
-		for (size_t i = 0; i < vecLeft.size(); ++i)
-		{
-			for (size_t j = 0; j < vecRight.size(); ++j)
-			{
-				CollisionBtwObject(vecLeft[i], vecRight[j]);				
-			}
-		}
-	}
+	//if (_Left == _Right)
+	//{
+	//	for (size_t i = 0; i < vecLeft.size(); ++i)
+	//	{
+	//		for (size_t j = i + 1; j < vecRight.size(); ++j)
+	//		{
+	//			CollisionBtwObject(vecLeft[i], vecRight[j]);				
+	//		}
+	//	}
+	//}
+	//else
+	//{
+	//	for (size_t i = 0; i < vecLeft.size(); ++i)
+	//	{
+	//		for (size_t j = 0; j < vecRight.size(); ++j)
+	//		{
+	//			CollisionBtwObject(vecLeft[i], vecRight[j]);				
+	//		}
+	//	}
+	//}
 }
 
 void CCollisionMgr::CollisionBtwObject(CGameObject* _LeftObject, CGameObject* _RightObject)
@@ -144,37 +143,37 @@ bool CCollisionMgr::CollisionBtwCollider(CCollider2D* _pLeft, CCollider2D* _pRig
 	};
 
 	// 두 충돌체의 각 표면 벡터 2개씩 구함
-	Vec3 arrProj[4] = {};
+	//Vec3 arrProj[4] = {};
 
-	arrProj[0] = XMVector3TransformCoord(arrLocal[1], _pLeft->GetColliderWorldMat()) - XMVector3TransformCoord(arrLocal[0], _pLeft->GetColliderWorldMat());
-	arrProj[1] = XMVector3TransformCoord(arrLocal[3], _pLeft->GetColliderWorldMat()) - XMVector3TransformCoord(arrLocal[0], _pLeft->GetColliderWorldMat());
+	//arrProj[0] = XMVector3TransformCoord(arrLocal[1], _pLeft->GetColliderWorldMat()) - XMVector3TransformCoord(arrLocal[0], _pLeft->GetColliderWorldMat());
+	//arrProj[1] = XMVector3TransformCoord(arrLocal[3], _pLeft->GetColliderWorldMat()) - XMVector3TransformCoord(arrLocal[0], _pLeft->GetColliderWorldMat());
 	
-	arrProj[2] = XMVector3TransformCoord(arrLocal[1], _pRight->GetColliderWorldMat()) - XMVector3TransformCoord(arrLocal[0], _pRight->GetColliderWorldMat());
-	arrProj[3] = XMVector3TransformCoord(arrLocal[3], _pRight->GetColliderWorldMat()) - XMVector3TransformCoord(arrLocal[0], _pRight->GetColliderWorldMat());
+	//arrProj[2] = XMVector3TransformCoord(arrLocal[1], _pRight->GetColliderWorldMat()) - XMVector3TransformCoord(arrLocal[0], _pRight->GetColliderWorldMat());
+	//arrProj[3] = XMVector3TransformCoord(arrLocal[3], _pRight->GetColliderWorldMat()) - XMVector3TransformCoord(arrLocal[0], _pRight->GetColliderWorldMat());
 	
 	// 두 충돌체의 중심점을 구함
-	Vec3 vCenter = XMVector3TransformCoord(Vec3(0.f, 0.f, 0.f), _pRight->GetColliderWorldMat()) - XMVector3TransformCoord(Vec3(0.f, 0.f, 0.f), _pLeft->GetColliderWorldMat());
+	//Vec3 vCenter = XMVector3TransformCoord(Vec3(0.f, 0.f, 0.f), _pRight->GetColliderWorldMat()) - XMVector3TransformCoord(Vec3(0.f, 0.f, 0.f), _pLeft->GetColliderWorldMat());
 	
 
 	// 분리축 테스트
-	for (int i = 0; i < 4; ++i)
-	{
-		Vec3 vProj = arrProj[i];
-		vProj.Normalize();
+	//for (int i = 0; i < 4; ++i)
+	//{
+	//	Vec3 vProj = arrProj[i];
+	//	vProj.Normalize();
 
-		// 4개의 표면백터를 지정된 투영축으로 투영시킨 거리의 총합 / 2
-		float fProjDist = 0.f;
-		for (int j = 0; j < 4; ++j)
-		{
-			fProjDist += fabsf(arrProj[j].Dot(vProj));
-		}
-		fProjDist /= 2.f;
+	//	// 4개의 표면백터를 지정된 투영축으로 투영시킨 거리의 총합 / 2
+	//	float fProjDist = 0.f;
+	//	for (int j = 0; j < 4; ++j)
+	//	{
+	//		fProjDist += fabsf(arrProj[j].Dot(vProj));
+	//	}
+	//	fProjDist /= 2.f;
 
-		float fCenter = fabsf(vCenter.Dot(vProj));
+	//	float fCenter = fabsf(vCenter.Dot(vProj));
 
-		if (fProjDist < fCenter)
-			return false;
-	}
+	//	if (fProjDist < fCenter)
+	//		return false;
+	//}
 
 
     return true;

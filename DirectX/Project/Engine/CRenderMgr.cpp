@@ -6,6 +6,8 @@
 #include "CStructuredBuffer.h"
 
 #include "CCamera.h"
+#include "CLevel.h"
+#include "CLevelMgr.h"
 #include "CLight2D.h"
 #include "CLight3D.h"
 
@@ -121,6 +123,21 @@ void CRenderMgr::SetRenderFunc(bool _IsPlay)
         RENDER_FUNC = &CRenderMgr::render_play;
     else
         RENDER_FUNC = &CRenderMgr::render_editor;
+}
+
+CCamera* CRenderMgr::GetMainCam()
+{
+    if (CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
+    {
+        if (m_vecCam.empty())
+            return nullptr;
+
+        return m_vecCam[0];
+    }
+    else
+    {
+        return m_pEditorCam;
+    }
 }
 
 void CRenderMgr::CopyRenderTarget()

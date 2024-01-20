@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CAnimClip.h"
 
-#include "CAnimation3D_CShader.h"
+#include "CAnimation3DShader.h"
 #include "CAnimator3D.h"
 #include "CMeshRender.h"
 #include "CResMgr.h"
@@ -34,22 +34,22 @@ void CAnimClip::finlatick()
 
 	if (m_Clip.dTimeLength < m_fTime)
 	{
-		m_fTime = 0.f;
+		m_fTime = 0.01f;
 	}
 
-	if (m_Clip.iEndFrame <= m_iCurIdx)
+	if (m_Clip.iEndFrame - 1 <= m_iCurIdx)
 	{
 		if (m_bLoop)
 		{
-			m_iCurIdx = m_Clip.iStartFrame;
+			m_iCurIdx = m_Clip.iStartFrame + 1;
 			m_iNextIdx = m_iCurIdx;
-			m_fTime = 0.f;
+			m_fTime = 0.01f;
 		}
 		else
 		{
 			m_iCurIdx = m_Clip.iEndFrame;
 			m_iNextIdx = m_iCurIdx;
-			m_fTime = 0.f;
+			m_fTime = 0.01f;
 			m_bFinish = true;
 		}
 	}

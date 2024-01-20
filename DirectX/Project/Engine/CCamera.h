@@ -24,8 +24,8 @@ private:
 
     int         m_iCamIdx;          // 카메라 우선순위
 
-    float m_NearZ;
-    float m_FarZ;
+    float       m_NearZ;
+    float       m_FarZ;
 
     float       m_FOV;
 
@@ -35,6 +35,8 @@ private:
     bool        m_bESM;
 
     float       m_fT[4];
+
+    tRay        m_ray;
 
     vector<CGameObject*>    m_vecDeferred;
     vector<CGameObject*>    m_vecDeferredDecal;
@@ -89,6 +91,11 @@ public:
 
     void SetFloatConstant(int _Index, float _Value) { m_fT[_Index] = _Value; }
     float GetFloatConstant(int _Index) { return m_fT[_Index]; }
+
+    const tRay& GetRay() { return m_ray; }
+
+protected:
+    void CalRay();
 
 public:
     void SortObject();

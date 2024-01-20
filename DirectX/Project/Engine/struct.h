@@ -251,7 +251,7 @@ struct tMtrlConst
 	tMtrlData mtrl;
 
 	int arrInt[8];
-	float arrFloat[4];
+	float arrFloat[8];
 	Vec2 arrV2[4];
 	Vec4 arrV4[4];
 	Matrix arrMat[4];
@@ -274,5 +274,21 @@ struct tGlobal
 
 extern tGlobal GlobalData;
 
+// 광선 구조체
+struct tRay
+{
+	Vec3 vStart;
+	Vec3 vDir;
+};
+
+// Raycast 결과를 받을 구조체
+struct tRaycastOut
+{
+	Vec2	vUV;
+	float	fDist;
+	int		bSuccess;
+	Vec3	vCrossPos;
+	float	pad;
+};
 
 

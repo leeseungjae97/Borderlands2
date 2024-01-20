@@ -26,6 +26,17 @@ void Scene::finaltick()
 {
 }
 
+void Scene::exit()
+{
+
+}
+
+void Scene::enter()
+{
+	CLevel* plevel = GetLevel(m_stringMainLevelName);
+	ChangeCurLevel(plevel);
+}
+
 CLevel* Scene::CreateLevel(const wstring& name, bool IsMain)
 {
 	CLevel* m_pLevel = new CLevel();
@@ -50,15 +61,13 @@ CLevel* Scene::GetLevel(const wstring& name)
 
 void Scene::MainLvToCurLv()
 {
-	CLevel* plevel = GetLevel(m_stringMainLevelName);
-	CLevelMgr::GetInst()->ChangeLevel(plevel);
-	plevel->ChangeState(LEVEL_STATE::STOP);
+	
 }
 
 void Scene::ChangeLevel(const wstring& name)
 {
 	if(FindLevel(name))
-		CLevelMgr::GetInst()->ChangeLevel(GetLevel(name));
+		ChangeCurLevel(GetLevel(name));
 }
 
 bool Scene::FindLevel(const wstring& name)

@@ -25,6 +25,8 @@ CLevel::~CLevel()
 
 void CLevel::begin()
 {
+	if (m_State == LEVEL_STATE::NO_UPDATE_RENDER) return;
+
 	for (UINT i = 0; i < MAX_LAYER; ++i)
 	{
 		m_arrLayer[i]->begin();
@@ -33,6 +35,8 @@ void CLevel::begin()
 
 void CLevel::tick()
 {
+	if (m_State == LEVEL_STATE::NO_UPDATE_RENDER) return;
+
 	for (UINT i = 0; i < MAX_LAYER; ++i)
 	{
 		m_arrLayer[i]->tick();
@@ -41,6 +45,8 @@ void CLevel::tick()
 
 void CLevel::finaltick()
 {
+	if (m_State == LEVEL_STATE::NO_UPDATE_RENDER) return;
+
 	for (UINT i = 0; i < MAX_LAYER; ++i)
 	{
 		m_arrLayer[i]->finaltick();

@@ -27,21 +27,32 @@ private:
 public:
     int Create(UINT _Width, UINT _Height, DXGI_FORMAT _pixelformat
         , UINT _BindFlag, D3D11_USAGE _Usage);
+    int CreateArrayTexture(const vector<Ptr<CTexture>>& _vecTex, int _iMipLevel);
+    void GenerateMip(UINT _iMipLevel);
 
     int Create(ComPtr<ID3D11Texture2D> _tex2D);
-
 
 public:
     float Width() { return (float)m_Desc.Width; }
 	float Height() { return (float)m_Desc.Height; }
-	ComPtr<ID3D11Texture2D>             GetTex2D() { return m_Tex2D; }
-	ComPtr<ID3D11ShaderResourceView>    GetSRV() { return m_SRV; }
-	ComPtr<ID3D11RenderTargetView>	    GetRTV() { return m_RTV; }
-	ComPtr<ID3D11DepthStencilView>	    GetDSV() { return m_DSV; }
-	ComPtr<ID3D11UnorderedAccessView>   GetUAV() { return m_UAV; }
+
+    UINT GetArraySize() { return m_Desc.ArraySize; }
+    UINT GetRowPitch()const { return (UINT)m_Image.GetImages()->rowPitch; }
+    UINT GetSlicePitch()const { return (UINT)m_Image.GetImages()->slicePitch; }
+    void* GetSysMem() { return m_Image.GetPixels(); }
+
+    const Image* GetImage(int index) { return m_Image.GetImage(0, 0, index); }
+
+    const D3D11_TEXTURE2D_DESC&         GetDesc()   { return m_Desc; }
+	ComPtr<ID3D11Texture2D>             GetTex2D()  { return m_Tex2D; }
+	ComPtr<ID3D11ShaderResourceView>    GetSRV()    { return m_SRV; }
+	ComPtr<ID3D11RenderTargetView>	    GetRTV()    { return m_RTV; }
+	ComPtr<ID3D11DepthStencilView>	    GetDSV()    { return m_DSV; }
+	ComPtr<ID3D11UnorderedAccessView>   GetUAV()    { return m_UAV; }
 
 private:
     virtual int Load(const wstring& _strFilePath) override;
+    int Load(const wstring& _strFilePath, int _iMipLevel);
 public:
     virtual int Save(const wstring& _strRelativePath) override;
 

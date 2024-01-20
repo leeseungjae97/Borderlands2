@@ -122,6 +122,9 @@
     <Filter Include="Scenes">
       <UniqueIdentifier>{e29e3c16-62d1-49e4-b763-20e6c588323b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\InspectorUI\ComponentUI\LandScapeUI">
+      <UniqueIdentifier>{a3cb3dc6-db53-409b-ba14-822bb1744900}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -262,6 +265,9 @@
     </ClInclude>
     <ClInclude Include="GameScene.h">
       <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="LandScapeUI.h">
+      <Filter>UI\InspectorUI\ComponentUI\LandScapeUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -411,6 +417,9 @@
     </ClCompile>
     <ClCompile Include="GameScene.cpp">
       <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="LandScapeUI.cpp">
+      <Filter>UI\InspectorUI\ComponentUI\LandScapeUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

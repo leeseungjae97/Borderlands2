@@ -39,7 +39,12 @@ cbuffer MATERIAL : register(b1)
     float g_float_1;
     float g_float_2;
     float g_float_3;
-    
+
+    float g_float_4;
+    float g_float_5;
+    float g_float_6;
+    float g_float_7;
+
     float2 g_vec2_0;
     float2 g_vec2_1;
     float2 g_vec2_2;

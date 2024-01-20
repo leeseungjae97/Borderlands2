@@ -255,6 +255,13 @@ void CGameObject::SetFollowObj(CGameObject* _Target)
 	m_Follow = _Target;
 }
 
+bool CGameObject::IsPreLoadingObject()
+{
+	bool bTemp = m_bPreLoading;
+	m_bPreLoading = false;
+	return bTemp;
+}
+
 void CGameObject::DisconnectFromParent()
 {
 	if (!m_Parent)

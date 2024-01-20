@@ -19,6 +19,7 @@
 #include "PrefabUI.h"
 #include "GraphicsShaderUI.h"
 #include "ComputeShaderUI.h"
+#include "LandScapeUI.h"
 #include "Light3DUI.h"
 #include "MaterialUI.h"
 #include "ParticleSystemUI.h"
@@ -65,8 +66,12 @@ InspectorUI::InspectorUI()
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::LIGHT3D]);
 
 	m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D] = new Animator3DUI;
-	m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D]->SetSize(0.f, 300.f);
+	m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D]->SetSize(0.f, 500.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D]);
+
+	m_arrComUI[(UINT)COMPONENT_TYPE::LANDSCAPE] = new LandScapeUI;
+	m_arrComUI[(UINT)COMPONENT_TYPE::LANDSCAPE]->SetSize(0.f, 500.f);
+	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::LANDSCAPE]);
 
 	m_arrComUI[(UINT)COMPONENT_TYPE::PLANET_MOVE] = new PlanetMoveUI;
 	m_arrComUI[(UINT)COMPONENT_TYPE::PLANET_MOVE]->SetSize(0.f, 150.f);

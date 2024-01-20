@@ -134,13 +134,13 @@
       <Filter>Source\Resource\Shader\ComputeShader</Filter>
     </ClInclude>
     <ClInclude Include="CSetColorShader.h">
-      <Filter>Source\ShaderCode\Compute\SetColor</Filter>
+      <Filter>Source\ShaderCode\Compute Shader\SetColor</Filter>
     </ClInclude>
     <ClInclude Include="CParticleSystem.h">
       <Filter>Source\Component\RenderComponent\ParticleSystem</Filter>
     </ClInclude>
     <ClInclude Include="CParticleUpdateShader.h">
-      <Filter>Source\ShaderCode\Compute\ParticleUpdate</Filter>
+      <Filter>Source\ShaderCode\Compute Shader\ParticleUpdate</Filter>
     </ClInclude>
     <ClInclude Include="CSound.h">
       <Filter>Source\Resource\Sound</Filter>
@@ -175,8 +175,8 @@
     <ClInclude Include="KeyUseInfoMgr.h">
       <Filter>Source\Manager\KeyUseInfoMgr</Filter>
     </ClInclude>
-    <ClInclude Include="CAnimation3D_CShader.h">
-      <Filter>Source\ShaderCode\Compute\Animation3DCShader</Filter>
+    <ClInclude Include="CAnimation3DShader.h">
+      <Filter>Source\ShaderCode\Compute Shader\Animation3DShader</Filter>
     </ClInclude>
     <ClInclude Include="CAnimator3D.h">
       <Filter>Source\Component\Animator3D</Filter>
@@ -198,6 +198,31 @@
     </ClInclude>
     <ClInclude Include="SceneMgr.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="CLandScape.h">
+      <Filter>Source\Component\RenderComponent\Landscape</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysXT.h">
+      <Filter>Source\PhysX</Filter>
+    </ClInclude>
+    <ClInclude Include="physx_imm_utils.h">
+      <Filter>Source\PhysX</Filter>
+    </ClInclude>
+    <ClInclude Include="physx_util.h">
+      <Filter>Source\PhysX</Filter>
+    </ClInclude>
+    <ClInclude Include="CRayCastShader.h">
+      <Filter>Source\ShaderCode\Compute Shader\RayCastShader</Filter>
+    </ClInclude>
+    <ClInclude Include="CHeightMapShader.h">
+      <Filter>Source\ShaderCode\Compute Shader\HeightMapShader</Filter>
+    </ClInclude>
+    <ClInclude Include="CColorMapShader.h">
+      <Filter>Source\ShaderCode\Compute Shader\ColorMapShader</Filter>
+    </ClInclude>
+    <ClInclude Include="CWeightMapShader.h">
+      <Filter>Source\ShaderCode\Compute Shader\WeightMapShader</Filter>
+    </ClInclude>
+    <ClInclude Include="CPathFind.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -315,13 +340,13 @@
       <Filter>Source\Resource\Shader\ComputeShader</Filter>
     </ClCompile>
     <ClCompile Include="CSetColorShader.cpp">
-      <Filter>Source\ShaderCode\Compute\SetColor</Filter>
+      <Filter>Source\ShaderCode\Compute Shader\SetColor</Filter>
     </ClCompile>
     <ClCompile Include="CParticleSystem.cpp">
       <Filter>Source\Component\RenderComponent\ParticleSystem</Filter>
     </ClCompile>
     <ClCompile Include="CParticleUpdateShader.cpp">
-      <Filter>Source\ShaderCode\Compute\ParticleUpdate</Filter>
+      <Filter>Source\ShaderCode\Compute Shader\ParticleUpdate</Filter>
     </ClCompile>
     <ClCompile Include="CSound.cpp">
       <Filter>Source\Resource\Sound</Filter>
@@ -356,8 +381,8 @@
     <ClCompile Include="KeyUseInfoMgr.cpp">
       <Filter>Source\Manager\KeyUseInfoMgr</Filter>
     </ClCompile>
-    <ClCompile Include="CAnimation3D_CShader.cpp">
-      <Filter>Source\ShaderCode\Compute\Animation3DCShader</Filter>
+    <ClCompile Include="CAnimation3DShader.cpp">
+      <Filter>Source\ShaderCode\Compute Shader\Animation3DShader</Filter>
     </ClCompile>
     <ClCompile Include="CAnimator3D.cpp">
       <Filter>Source\Component\Animator3D</Filter>
@@ -376,6 +401,31 @@
     </ClCompile>
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="CLandScape.cpp">
+      <Filter>Source\Component\RenderComponent\Landscape</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysXT.cpp">
+      <Filter>Source\PhysX</Filter>
+    </ClCompile>
+    <ClCompile Include="physx_imm_utils.cpp">
+      <Filter>Source\PhysX</Filter>
+    </ClCompile>
+    <ClCompile Include="physx_util.cpp">
+      <Filter>Source\PhysX</Filter>
+    </ClCompile>
+    <ClCompile Include="CRayCastShader.cpp">
+      <Filter>Source\ShaderCode\Compute Shader\RayCastShader</Filter>
+    </ClCompile>
+    <ClCompile Include="CHeightMapShader.cpp">
+      <Filter>Source\ShaderCode\Compute Shader\HeightMapShader</Filter>
+    </ClCompile>
+    <ClCompile Include="CColorMapShader.cpp">
+      <Filter>Source\ShaderCode\Compute Shader\ColorMapShader</Filter>
+    </ClCompile>
+    <ClCompile Include="CWeightMapShader.cpp">
+      <Filter>Source\ShaderCode\Compute Shader\WeightMapShader</Filter>
+    </ClCompile>
+    <ClCompile Include="CPathFind.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -504,15 +554,6 @@
     <Filter Include="Source\ShaderCode">
       <UniqueIdentifier>{7bae9d30-a4aa-4ff1-abdc-5ed8dcbd21ce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\ShaderCode\Compute">
-      <UniqueIdentifier>{e7e58685-e989-40bc-92c9-4f79bf523b39}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\ShaderCode\Compute\SetColor">
-      <UniqueIdentifier>{10f44ac0-4d7c-466f-8168-e9649d728a5f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\ShaderCode\Compute\ParticleUpdate">
-      <UniqueIdentifier>{12834beb-ba3f-4987-aee4-cf905f38179d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Module">
       <UniqueIdentifier>{77da0800-3a79-4f9b-aa08-9bf7e06d17d5}</UniqueIdentifier>
     </Filter>
@@ -552,9 +593,6 @@
     <Filter Include="Source\Component\Animator3D">
       <UniqueIdentifier>{260d6af3-3796-49d3-9bd0-45266202ab2d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\ShaderCode\Compute\Animation3DCShader">
-      <UniqueIdentifier>{47d7770c-d818-460a-94bd-566bb181cac2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="LookUpTables">
       <UniqueIdentifier>{ff74bcc9-a3b3-4efc-95b0-17c28faa0925}</UniqueIdentifier>
     </Filter>
@@ -564,11 +602,32 @@
     <Filter Include="Source\Component\PathFind">
       <UniqueIdentifier>{253e45a2-14db-482c-b27f-8aea8b8dc3dd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Manager\SceneMgr">
-      <UniqueIdentifier>{92c34761-5cf7-4b0f-bfab-edf5b6f9b168}</UniqueIdentifier>
+    <Filter Include="Source\PhysX">
+      <UniqueIdentifier>{7e9d8349-0d65-4b7d-a91a-c65bac473573}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Scene">
-      <UniqueIdentifier>{e4a95712-6105-47ec-832d-60be2b9d78d2}</UniqueIdentifier>
+    <Filter Include="Source\ShaderCode\Compute Shader">
+      <UniqueIdentifier>{e7e58685-e989-40bc-92c9-4f79bf523b39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ShaderCode\Compute Shader\SetColor">
+      <UniqueIdentifier>{10f44ac0-4d7c-466f-8168-e9649d728a5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ShaderCode\Compute Shader\ParticleUpdate">
+      <UniqueIdentifier>{12834beb-ba3f-4987-aee4-cf905f38179d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ShaderCode\Compute Shader\RayCastShader">
+      <UniqueIdentifier>{794f2ff5-7da5-4ce6-87ea-30051c6a6007}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ShaderCode\Compute Shader\Animation3DShader">
+      <UniqueIdentifier>{47d7770c-d818-460a-94bd-566bb181cac2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ShaderCode\Compute Shader\ColorMapShader">
+      <UniqueIdentifier>{3c0a2b6b-07ad-4210-a170-fd1a9d1fb3fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ShaderCode\Compute Shader\HeightMapShader">
+      <UniqueIdentifier>{84e34483-be87-4f71-8599-3e7b71e2eadf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ShaderCode\Compute Shader\WeightMapShader">
+      <UniqueIdentifier>{68f83462-b4d8-4d1a-b934-5abf68f8409f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -597,10 +656,10 @@
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="setcolor.fx">
-      <Filter>Source\ShaderCode\Compute\SetColor</Filter>
+      <Filter>Source\ShaderCode\Compute Shader\SetColor</Filter>
     </FxCompile>
     <FxCompile Include="particle_update.fx">
-      <Filter>Source\ShaderCode\Compute\ParticleUpdate</Filter>
+      <Filter>Source\ShaderCode\Compute Shader\ParticleUpdate</Filter>
     </FxCompile>
     <FxCompile Include="particle_render.fx">
       <Filter>Source\ShaderCode</Filter>
@@ -636,6 +695,21 @@
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="animation3d.fx">
+      <Filter>Source\ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="landscape.fx">
+      <Filter>Source\ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="raycast.fx">
+      <Filter>Source\ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="heightmap.fx">
+      <Filter>Source\ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="colormap.fx">
+      <Filter>Source\ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="weightmap.fx">
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
   </ItemGroup>

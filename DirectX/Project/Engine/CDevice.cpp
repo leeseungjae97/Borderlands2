@@ -395,13 +395,15 @@ int CDevice::CreateSampler()
     tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
     tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
     tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-    tSamDesc.Filter   = D3D11_FILTER_ANISOTROPIC;    
+    tSamDesc.Filter   = D3D11_FILTER_ANISOTROPIC;
+    tSamDesc.MaxLOD = D3D11_FLOAT32_MAX;
     DEVICE->CreateSamplerState(&tSamDesc, m_Sampler[0].GetAddressOf());
 
     tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
     tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
     tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
     tSamDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+    tSamDesc.MaxLOD = D3D11_FLOAT32_MAX;
     DEVICE->CreateSamplerState(&tSamDesc, m_Sampler[1].GetAddressOf());
 
     tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
@@ -429,24 +431,28 @@ int CDevice::CreateSampler()
     CONTEXT->DSSetSamplers(0, 1, m_Sampler[0].GetAddressOf());
     CONTEXT->GSSetSamplers(0, 1, m_Sampler[0].GetAddressOf());
     CONTEXT->PSSetSamplers(0, 1, m_Sampler[0].GetAddressOf());
+    CONTEXT->CSSetSamplers(0, 1, m_Sampler[0].GetAddressOf());
 
     CONTEXT->VSSetSamplers(1, 1, m_Sampler[1].GetAddressOf());
     CONTEXT->HSSetSamplers(1, 1, m_Sampler[1].GetAddressOf());
     CONTEXT->DSSetSamplers(1, 1, m_Sampler[1].GetAddressOf());
     CONTEXT->GSSetSamplers(1, 1, m_Sampler[1].GetAddressOf());
     CONTEXT->PSSetSamplers(1, 1, m_Sampler[1].GetAddressOf());
+    CONTEXT->CSSetSamplers(1, 1, m_Sampler[1].GetAddressOf());
 
     CONTEXT->VSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
     CONTEXT->HSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
     CONTEXT->DSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
     CONTEXT->GSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
     CONTEXT->PSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
+    CONTEXT->CSSetSamplers(2, 1, m_Sampler[2].GetAddressOf());
 
     CONTEXT->VSSetSamplers(3, 1, m_Sampler[3].GetAddressOf());
     CONTEXT->HSSetSamplers(3, 1, m_Sampler[3].GetAddressOf());
     CONTEXT->DSSetSamplers(3, 1, m_Sampler[3].GetAddressOf());
     CONTEXT->GSSetSamplers(3, 1, m_Sampler[3].GetAddressOf());
     CONTEXT->PSSetSamplers(3, 1, m_Sampler[3].GetAddressOf());
+    CONTEXT->CSSetSamplers(3, 1, m_Sampler[3].GetAddressOf());
     
     return S_OK;
 }

@@ -55,19 +55,19 @@ void CCameraMoveScript::Camera2DMove()
 	}
 
 
-	if (KEY_PRESSED(KEY::_1))
-	{
-		float fScale = Camera()->GetScale();
-		fScale += DT * 1.f;
-		Camera()->SetScale(fScale);
-	}
+	//if (KEY_PRESSED(KEY::_1))
+	//{
+	//	float fScale = Camera()->GetScale();
+	//	fScale += DT * 1.f;
+	//	Camera()->SetScale(fScale);
+	//}
 
-	if (KEY_PRESSED(KEY::_2))
-	{
-		float fScale = Camera()->GetScale();
-		fScale -= DT * 1.f;
-		Camera()->SetScale(fScale);
-	}
+	//if (KEY_PRESSED(KEY::_2))
+	//{
+	//	float fScale = Camera()->GetScale();
+	//	fScale -= DT * 1.f;
+	//	Camera()->SetScale(fScale);
+	//}
 
 	Transform()->SetRelativePos(vPos);
 }
@@ -86,7 +86,7 @@ void CCameraMoveScript::Camera3DMove()
 	if (KEY_PRESSED(KEY::LSHIFT))
 		fSpeed *= 10.f;
 	if (KEY_PRESSED(KEY::LCTRL))
-		fSpeed *= 0.1f;
+		fSpeed *= 0.05f;
 
 	if (KEY_PRESSED(KEY::W))
 	{

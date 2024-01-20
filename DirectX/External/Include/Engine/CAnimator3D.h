@@ -59,7 +59,8 @@ public:
 
 private:
     const vector<tMTBone>*      m_pVecBones;
-    const vector<tMTAnimClip>*  m_pVecClip;
+    //const vector<tMTAnimClip>*  m_pVecClip;
+    map<wstring, tMTAnimClip>  m_pVecClip;
 
     vector<float>				m_vecClipUpdateTime;
     vector<Matrix>				m_vecFinalBoneMat;
@@ -96,7 +97,8 @@ public:
 
 public:
 	void SetBones(const vector<tMTBone>* _vecBones);
-    void SetAnimClip(const vector<tMTAnimClip>* _vecAnimClip);
+    //void SetAnimClip(const vector<tMTAnimClip>* _vecAnimClip);
+	void SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip);
 
 	const std::map<std::wstring, CAnimClip*>& GetAnimClips() { return mClips; }
 	const std::map<std::wstring, Events*>& GetEvents() { return mEvents; }

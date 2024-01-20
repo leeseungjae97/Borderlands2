@@ -22,7 +22,8 @@ private:
 	UINT					m_VtxCount;
 
 	// Animation3D 정보
-	vector<tMTAnimClip>		m_vecAnimClip;
+	map<wstring ,tMTAnimClip>	m_vecAnimClip;
+	//vector<tMTAnimClip>		m_vecAnimClip;
 	vector<tMTBone>			m_vecBones;
 	vector<Matrix>			m_vecBoneOffset;
 
@@ -46,13 +47,14 @@ public:
 
 	const vector<tMTBone>* GetBones() { return &m_vecBones; }
 	UINT GetBoneCount() { return (UINT)m_vecBones.size(); }
-	const vector<tMTAnimClip>* GetAnimClip() { return &m_vecAnimClip; }
+	//const vector<tMTAnimClip>* GetAnimClip() { return &m_vecAnimClip; }
+	const map<wstring, tMTAnimClip>& GetAnimClip() { return m_vecAnimClip; }
 	bool IsAnimMesh() { return !m_vecAnimClip.empty(); }
 
 	
 
-	CStructuredBuffer* GetBoneFrameDataBuffer(int _Idx); // 전체 본 프레임 정보
-	CStructuredBuffer* GetBlendFrameDataBuffer(int _Idx); // 전체 본 프레임 정보
+	CStructuredBuffer* GetBoneFrameDataBuffer(const wstring& _AnimName); // 전체 본 프레임 정보
+	CStructuredBuffer* GetBlendFrameDataBuffer(const wstring& _AnimName); // 전체 본 프레임 정보
 	CStructuredBuffer* GetBoneOffsetBuffer() { return  m_pBoneOffset; }	   // 각 뼈의 offset 행렬
 
 public:

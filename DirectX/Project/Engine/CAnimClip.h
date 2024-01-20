@@ -29,6 +29,7 @@ public:
 
 	const tMTAnimClip GetCurClip() { return m_Clip; }
 
+	const wstring& GetAnimName() { return m_Clip.strAnimName; }
 	int GetClipFrame() { return m_iCurIdx; }
 	int GetClipNextFrame() { return m_iNextIdx; }
 

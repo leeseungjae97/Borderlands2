@@ -131,7 +131,8 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 		tClip.iFrameLength = tClip.iEndFrame - tClip.iStartFrame;
 		tClip.eMode = vecAnimClip[i]->eMode;
 
-		pMesh->m_vecAnimClip.push_back(tClip);
+		//pMesh->m_vecAnimClip.push_back(tClip);
+		pMesh->m_vecAnimClip.insert(make_pair(tClip.strAnimName, tClip));
 	}
 
 	//pMesh->m_veciFrameCount.resize(vecAnimClip.size());
@@ -156,7 +157,7 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 			vector<tKeyFrame> frame = vecBone[i]->vecKeyFrame.at(animName);
 			vector<tMTKeyFrame> vecMTKeyFrames;
 
-			for(UINT k = 0 ; k < frame.size(); ++k)
+			for (UINT k = 0; k < frame.size(); ++k)
 			{
 				tKeyFrame _tKeyFrame = frame[k];
 				tMTKeyFrame _tMTKeyframe = {};
@@ -179,9 +180,10 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 			}
 
 			bone.vecKeyFrame.insert(make_pair(animName, vecMTKeyFrames));
-			
 
-			pMesh->m_vecAnimClip[j].iFrameCount = (max(iFrameCount, (UINT)frame.size()));
+
+			//pMesh->m_vecAnimClip[j].iFrameCount = (max(iFrameCount, (UINT)frame.size()));
+			pMesh->m_vecAnimClip.at(animName).iFrameCount = (max(iFrameCount, (UINT)frame.size()));
 		}
 		pMesh->m_vecBones.push_back(bone);
 	}
@@ -200,17 +202,19 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 
 	return pMesh;
 }
-CStructuredBuffer* CMesh::GetBoneFrameDataBuffer(int _Idx)
+CStructuredBuffer* CMesh::GetBoneFrameDataBuffer(const wstring& _AnimName)
 {
-	tMTAnimClip clip = m_vecAnimClip[_Idx];
+	//tMTAnimClip clip = m_vecAnimClip[_Idx];
+	tMTAnimClip clip = m_vecAnimClip.at(_AnimName);
 	m_pBoneFrameData->Create(sizeof(tFrameTrans), (UINT)m_vecBoneOffset.size() * clip.iFrameCount
 		, SB_TYPE::READ_ONLY, false, clip.vecTransKeyFrame.data());
 	return m_pBoneFrameData;
 }
 
-CStructuredBuffer* CMesh::GetBlendFrameDataBuffer(int _Idx)
+CStructuredBuffer* CMesh::GetBlendFrameDataBuffer(const wstring& _AnimName)
 {
-	tMTAnimClip clip = m_vecAnimClip[_Idx];
+	//tMTAnimClip clip = m_vecAnimClip[_Idx];
+	tMTAnimClip clip = m_vecAnimClip.at(_AnimName);
 	m_pBlendFrameData->Create(sizeof(tFrameTrans), (UINT)m_vecBoneOffset.size() * clip.iFrameCount
 		, SB_TYPE::READ_ONLY, false, clip.vecTransKeyFrame.data());
 	return m_pBlendFrameData;
@@ -234,7 +238,7 @@ void CMesh::Create(void* _VtxSysMem, UINT _iVtxCount, void* _IdxSysMem, UINT _Id
 	m_tVBDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 	m_tVBDesc.MiscFlags = 0;
 	m_tVBDesc.StructureByteStride = 0;
-	
+
 	D3D11_SUBRESOURCE_DATA tSub = {};
 	tSub.pSysMem = _VtxSysMem;
 	if (FAILED(DEVICE->CreateBuffer(&m_tVBDesc, &tSub, m_VB.GetAddressOf())))
@@ -246,7 +250,7 @@ void CMesh::Create(void* _VtxSysMem, UINT _iVtxCount, void* _IdxSysMem, UINT _Id
 	indexInfo.tIBDesc.ByteWidth = sizeof(UINT) * indexInfo.iIdxCount;
 	indexInfo.tIBDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
 	indexInfo.tIBDesc.CPUAccessFlags = 0;
-	indexInfo.tIBDesc.Usage = D3D11_USAGE_DEFAULT;	
+	indexInfo.tIBDesc.Usage = D3D11_USAGE_DEFAULT;
 
 	tSub = {};
 	tSub.pSysMem = _IdxSysMem;
@@ -255,7 +259,7 @@ void CMesh::Create(void* _VtxSysMem, UINT _iVtxCount, void* _IdxSysMem, UINT _Id
 		assert(nullptr);
 	}
 
-	
+
 	// SystemMem 데이터 복사
 	m_pVtxSys = new Vtx[m_VtxCount];
 	memcpy(m_pVtxSys, _VtxSysMem, sizeof(Vtx) * m_VtxCount);
@@ -274,9 +278,11 @@ void CMesh::TransKeyFrame(CMesh* mesh)
 
 		mesh->m_vecBoneOffset.push_back(_bone.matOffset);
 
-		for (size_t k = 0; k < mesh->m_vecAnimClip.size(); ++k)
+		//for (size_t k = 0; k < mesh->m_vecAnimClip.size(); ++k)
+		for (auto& pair : mesh->m_vecAnimClip)
 		{
-			tMTAnimClip clip = mesh->m_vecAnimClip[k];
+			//tMTAnimClip clip = mesh->m_vecAnimClip[k];
+			tMTAnimClip clip = pair.second;
 			wstring animName = clip.strAnimName;
 
 			clip.vecTransKeyFrame
@@ -294,7 +300,8 @@ void CMesh::TransKeyFrame(CMesh* mesh)
 					vecMTKeyFrame[j].qRot
 				};
 			}
-			mesh->m_vecAnimClip[k] = clip;
+			//mesh->m_vecAnimClip[k] = clip;
+			pair.second = clip;
 		}
 	}
 }
@@ -379,7 +386,8 @@ int CMesh::Load(const wstring& _strFilePath)
 		fread(&tClip.iFrameLength, sizeof(int), 1, pFile);
 		fread(&tClip.iFrameCount, sizeof(int), 1, pFile);
 
-		m_vecAnimClip.push_back(tClip);
+		//m_vecAnimClip.push_back(tClip);
+		m_vecAnimClip.insert(make_pair(tClip.strAnimName, tClip));
 	}
 
 	iCount = 0;
@@ -396,14 +404,14 @@ int CMesh::Load(const wstring& _strFilePath)
 
 		size_t count = 0;
 		fread(&count, sizeof(size_t), 1, pFile);
-		for (size_t j = 0 ; j < count; ++j)
+		for (size_t j = 0; j < count; ++j)
 		{
 			wstring animName;
 			LoadWString(animName, pFile);
 			size_t vecSize;
 			fread(&vecSize, sizeof(size_t), 1, pFile);
 			vector<tMTKeyFrame> vectMT;
-			for(size_t k = 0 ; k < vecSize; ++k)
+			for (size_t k = 0; k < vecSize; ++k)
 			{
 				tMTKeyFrame _tMTKeyFrame;
 				fread(&_tMTKeyFrame, sizeof(tMTKeyFrame), 1, pFile);
@@ -469,18 +477,31 @@ int CMesh::Save(const wstring& _strRelativePath)
 	// Animation3D 정보 
 	UINT iCount = (UINT)m_vecAnimClip.size();
 	fwrite(&iCount, sizeof(int), 1, pFile);
-	for (UINT i = 0; i < iCount; ++i)
+	//for (UINT i = 0; i < iCount; ++i)
+	//{
+	//	SaveWString(m_vecAnimClip[i].strAnimName, pFile);
+	//	fwrite(&m_vecAnimClip[i].dStartTime, sizeof(double), 1, pFile);
+	//	fwrite(&m_vecAnimClip[i].dEndTime, sizeof(double), 1, pFile);
+	//	fwrite(&m_vecAnimClip[i].dTimeLength, sizeof(double), 1, pFile);
+	//	fwrite(&m_vecAnimClip[i].eMode, sizeof(int), 1, pFile);
+	//	fwrite(&m_vecAnimClip[i].fUpdateTime, sizeof(float), 1, pFile);
+	//	fwrite(&m_vecAnimClip[i].iStartFrame, sizeof(int), 1, pFile);
+	//	fwrite(&m_vecAnimClip[i].iEndFrame, sizeof(int), 1, pFile);
+	//	fwrite(&m_vecAnimClip[i].iFrameLength, sizeof(int), 1, pFile);
+	//	fwrite(&m_vecAnimClip[i].iFrameCount, sizeof(int), 1, pFile);
+	//}
+	for(const auto& pair : m_vecAnimClip)
 	{
-		SaveWString(m_vecAnimClip[i].strAnimName, pFile);
-		fwrite(&m_vecAnimClip[i].dStartTime, sizeof(double), 1, pFile);
-		fwrite(&m_vecAnimClip[i].dEndTime, sizeof(double), 1, pFile);
-		fwrite(&m_vecAnimClip[i].dTimeLength, sizeof(double), 1, pFile);
-		fwrite(&m_vecAnimClip[i].eMode, sizeof(int), 1, pFile);
-		fwrite(&m_vecAnimClip[i].fUpdateTime, sizeof(float), 1, pFile);
-		fwrite(&m_vecAnimClip[i].iStartFrame, sizeof(int), 1, pFile);
-		fwrite(&m_vecAnimClip[i].iEndFrame, sizeof(int), 1, pFile);
-		fwrite(&m_vecAnimClip[i].iFrameLength, sizeof(int), 1, pFile);
-		fwrite(&m_vecAnimClip[i].iFrameCount, sizeof(int), 1, pFile);
+		SaveWString(pair.second.strAnimName, pFile);
+		fwrite(&pair.second.dStartTime, sizeof(double), 1, pFile);
+		fwrite(&pair.second.dEndTime, sizeof(double), 1, pFile);
+		fwrite(&pair.second.dTimeLength, sizeof(double), 1, pFile);
+		fwrite(&pair.second.eMode, sizeof(int), 1, pFile);
+		fwrite(&pair.second.fUpdateTime, sizeof(float), 1, pFile);
+		fwrite(&pair.second.iStartFrame, sizeof(int), 1, pFile);
+		fwrite(&pair.second.iEndFrame, sizeof(int), 1, pFile);
+		fwrite(&pair.second.iFrameLength, sizeof(int), 1, pFile);
+		fwrite(&pair.second.iFrameCount, sizeof(int), 1, pFile);
 	}
 
 	iCount = (UINT)m_vecBones.size();
@@ -496,12 +517,12 @@ int CMesh::Save(const wstring& _strRelativePath)
 
 		size_t count = m_vecBones[i].vecKeyFrame.size();
 		fwrite(&count, sizeof(size_t), 1, pFile);
-		for(const auto& pair : m_vecBones[i].vecKeyFrame)
+		for (const auto& pair : m_vecBones[i].vecKeyFrame)
 		{
 			SaveWString(pair.first, pFile);
 			size_t vecSize = pair.second.size();
 			fwrite(&vecSize, sizeof(size_t), 1, pFile);
-			for(size_t j = 0 ; j < vecSize; ++j)
+			for (size_t j = 0; j < vecSize; ++j)
 			{
 				fwrite(&pair.second[j], sizeof(tMTKeyFrame), 1, pFile);
 			}

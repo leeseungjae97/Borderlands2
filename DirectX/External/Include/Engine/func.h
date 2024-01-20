@@ -4,9 +4,14 @@
 
 // 오브젝트 생성
 class CGameObject;
+class CLevel;
+void PreloadingGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
+void PreloadingGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName);
+
 void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
 void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName);
 
+void ChangeCurLevel(CLevel* _ChangeLevel);
 // 오브젝트 삭제
 void DestroyObject(CGameObject* _DeletObject);
 
@@ -28,8 +33,6 @@ void DrawDebugSphere(const Matrix& _matWorld, Vec4 _vColor, float _fTime = 0.f, 
 
 // GameObject 유효성 체크
 bool IsValidObj(CGameObject*& _Target);
-
-const char* ConvertWCharToChar(const wchar_t* _wchar);
 
 const char* ToString(RES_TYPE);
 const wchar_t* ToWSTring(RES_TYPE);

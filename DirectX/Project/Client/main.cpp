@@ -43,8 +43,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-    SceneMgr::GetInst()->create(SCENE_TYPE::S_MAIN, new MainScene());
-    SceneMgr::GetInst()->create(SCENE_TYPE::S_GAME, new GameScene());
+    //SceneMgr::GetInst()->create(SCENE_TYPE::S_MAIN, new MainScene());
+    //SceneMgr::GetInst()->create(SCENE_TYPE::S_GAME, new GameScene());
 
     // CEngine 초기화
     if (FAILED(CEngine::GetInst()->init(g_hWnd, 1280, 768)))
@@ -58,9 +58,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // ImGui 초기화
     ImGuiMgr::GetInst()->init(g_hWnd);
 
-    SceneMgr::GetInst()->init();
+    //SceneMgr::GetInst()->init();
     // 테스트 용 레벨 생성
-    //CreateTestLevel();
+    CreateTestLevel();
 
     // 메세지 루프
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));

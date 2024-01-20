@@ -13,8 +13,8 @@ public:
     virtual void tick();
     virtual void finaltick();
 
-    virtual void exit() = 0;
-    virtual void enter() = 0;
+    virtual void exit();
+    virtual void enter();
 
 public:
     CLevel* CreateLevel(const wstring& name, bool IsMain = false);

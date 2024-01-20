@@ -13,6 +13,8 @@ CLevelMgr::~CLevelMgr()
 {
 	//if (nullptr != m_pCurLevel)
 	//	delete m_pCurLevel;
+
+	Safe_Del_Map(m_mapLevels);
 }
 
 void CLevelMgr::init()
@@ -50,13 +52,47 @@ void CLevelMgr::FindObjectByName(const wstring& _strName, vector<CGameObject*>& 
 	m_pCurLevel->FindObjectByName(_strName, _vec);
 }
 
+CLevel* CLevelMgr::CreateLevel(const wstring& name)
+{
+	CLevel* pLevel = nullptr;
+	pLevel = GetLevel(name);
+	if (pLevel)
+		return pLevel;
+
+	pLevel = new CLevel();
+	m_mapLevels.insert(make_pair(name, pLevel));
+
+	return pLevel;
+}
+
+CLevel* CLevelMgr::GetLevel(const wstring& name)
+{
+	if (m_mapLevels.empty())
+		return nullptr;
+
+	for(const auto& iter : m_mapLevels)
+	{
+		if(iter.second)
+		{
+			if (iter.first == name)
+				return iter.second;
+		}
+	}
+
+	return nullptr;
+}
+
 void CLevelMgr::ChangeLevel(CLevel* _NextLevel)
 {
-	//if (nullptr != m_pCurLevel)
-	//{
-	//	delete m_pCurLevel;
-	//	m_pCurLevel = nullptr;
-	//}
-
+	LEVEL_STATE prevState = LEVEL_STATE::STOP;
+	if (nullptr != m_pCurLevel)
+	{
+		prevState = m_pCurLevel->GetState();
+		//delete m_pCurLevel;
+		//m_pCurLevel = nullptr;
+		m_pCurLevel->ChangeState(LEVEL_STATE::NO_UPDATE_RENDER);
+	}
+	
 	m_pCurLevel = _NextLevel;
+	m_pCurLevel->ChangeState(prevState);
 }

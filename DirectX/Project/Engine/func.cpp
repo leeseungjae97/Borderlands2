@@ -10,6 +10,19 @@
 #include "ptr.h"
 #include "CResMgr.h"
 
+void PreloadingGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx)
+{
+	_NewObject->Transform()->SetRelativePos(_vWorldPos);
+	_NewObject->SetPreLoadingObject(true);
+	CLevelMgr::GetInst()->GetCurLevel()->AddGameObject(_NewObject, _LayerIdx, false);
+}
+
+void PreloadingGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName)
+{
+	_NewObject->Transform()->SetRelativePos(_vWorldPos);
+	CLevelMgr::GetInst()->GetCurLevel()->AddGameObject(_NewObject, _LayerName, false);
+}
+
 void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx)
 {
 	_NewObject->Transform()->SetRelativePos(_vWorldPos);
@@ -35,6 +48,17 @@ void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _L
 
 	CEventMgr::GetInst()->AddEvent(evn);
 }
+
+void ChangeCurLevel(CLevel* _ChangeLevel)
+{
+	tEvent evn = {};
+
+	evn.Type = EVENT_TYPE::LEVEL_CHANGE;
+	evn.wParam = (DWORD_PTR)_ChangeLevel;
+
+	CEventMgr::GetInst()->AddEvent(evn);
+}
+
 
 void DestroyObject(CGameObject* _DeletObject)
 {
@@ -183,15 +207,6 @@ bool IsValidObj(CGameObject*& _Target)
 	}
 
 	return true;
-}
-
-const char* ConvertWCharToChar(const wchar_t* _wchar)
-{
-	char pChar[255];
-	int strSize = WideCharToMultiByte(CP_ACP, 0, _wchar, -1, NULL, 0, NULL, NULL);
-	WideCharToMultiByte(CP_ACP, 0, _wchar, -1, pChar, strSize, 0, 0);
-
-	return pChar;
 }
 
 const char* ToString(RES_TYPE type)

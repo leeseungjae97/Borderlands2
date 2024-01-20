@@ -67,6 +67,10 @@ void CMaterial::SetScalarParam(SCALAR_PARAM _Param, const void* _Src)
 	case FLOAT_1:
 	case FLOAT_2:
 	case FLOAT_3:
+	case FLOAT_4:
+	case FLOAT_5:
+	case FLOAT_6:
+	case FLOAT_7:
 		m_Const.arrFloat[_Param - FLOAT_0] = *((float*)_Src);
 		break;
 
@@ -126,6 +130,10 @@ void CMaterial::GetScalarParam(SCALAR_PARAM _param, void* _pData)
 	case FLOAT_1:
 	case FLOAT_2:
 	case FLOAT_3:
+	case FLOAT_4:
+	case FLOAT_5:
+	case FLOAT_6:
+	case FLOAT_7:
 	{
 		int idx = (UINT)_param - (UINT)FLOAT_0;
 		*((float*)_pData) = m_Const.arrFloat[idx];

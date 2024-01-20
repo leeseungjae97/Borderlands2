@@ -21,7 +21,7 @@ int Animator3DUI::render_update()
 		return FALSE;
 	char str[50] = {};
 	const map<wstring, CAnimClip*> clips = GetTarget()->Animator3D()->GetAnimClips();
-	CAnimClip*  curAnimClip = GetTarget()->Animator3D()->GetCurAnimClip();
+	CAnimClip* curAnimClip = GetTarget()->Animator3D()->GetCurAnimClip();
 
 	float ratio = GetTarget()->Animator3D()->GetBlendRatio();
 	ImGui::Text("Blend Ratio");
@@ -30,8 +30,9 @@ int Animator3DUI::render_update()
 
 	GetTarget()->Animator3D()->SetBlendRatio(ratio);
 
-	sprintf_s(str, "cur anim : %s", ConvertWCharToChar(curAnimClip->GetName().c_str()));
-	ImGui::Text(str);
+	wstring wanimName = curAnimClip->GetCurClip().strAnimName;
+	string animName = string(wanimName.begin(), wanimName.end());
+	ImGui::Text("cur anim : %s", animName.c_str());
 
 	sprintf_s(str, "Anim Idx : %d", GetTarget()->Animator3D()->GetClipIdx());
 	ImGui::Text(str);
@@ -53,9 +54,9 @@ int Animator3DUI::render_update()
 	int count = 0;
 	for (const auto& pair : clips)
 	{
-		const wchar_t* mchar = pair.first.c_str();
-		sprintf_s(str, "%s", ConvertWCharToChar(mchar));
-		if(ImGui::Button(str))
+		wstring wanimName = pair.first;
+		string animName = string(wanimName.begin(), wanimName.end());
+		if(ImGui::Button(animName.c_str()))
 		{
 			mChosen = pair.first;
 			idx = count;

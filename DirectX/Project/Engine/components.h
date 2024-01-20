@@ -14,6 +14,6 @@
 #include "CPlanetMove.h"
 
 #include "CAnimator3D.h"
+#include "CLandScape.h"
 
 //#include "CCollider3D.h"
-//#include "Landscape.h"

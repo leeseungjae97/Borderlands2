@@ -16,6 +16,7 @@ class CSkyBox;
 class CDecal;
 class CSolarSystem;
 class CPlanetMove;
+class CLandScape;
 
 #define GET_COMPONENT(Type, TYPE) C##Type* Type() const { return (C##Type*)m_arrCom[(UINT)COMPONENT_TYPE::TYPE]; }
 
@@ -41,7 +42,7 @@ private:
     bool                    m_bLifeSpan;
 
     bool                    m_bESM;
-
+    bool                    m_bPreLoading;
 public:
     // 레벨이 시작될 때 호출 or 시작 된 레벨에 합류할 때 호출
     // 생성자
@@ -76,6 +77,7 @@ public:
     GET_COMPONENT(Decal, DECAL);
     GET_COMPONENT(SolarSystem, SOLOAR_SYSTEM);
     GET_COMPONENT(PlanetMove, PLANET_MOVE);
+    GET_COMPONENT(LandScape, LANDSCAPE);
     //Decal* Decal()
     //{
     //    return (Decal*)m_arrCom[(UINT)COMPONENT_TYPE::TRANSFORM];
@@ -108,6 +110,8 @@ public:
 
     void SetESM(bool _bESM) { m_bESM = _bESM; }
 
+    void SetPreLoadingObject(bool _PreLoading) { m_bPreLoading = _PreLoading; }
+    bool IsPreLoadingObject();
 private:
     void DisconnectFromParent();
     void ChangeToChildType();
