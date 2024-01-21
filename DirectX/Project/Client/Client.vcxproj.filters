@@ -113,17 +113,14 @@
     <Filter Include="UI\InspectorUI\ComponentUI\Light3DUI">
       <UniqueIdentifier>{80a545b8-a794-4aab-b098-89a2dbdd08ac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="UI\InspectorUI\ComponentUI\PlanetMoveUI">
-      <UniqueIdentifier>{ea35f49b-707f-4020-b6ae-b7c2bb68d619}</UniqueIdentifier>
-    </Filter>
     <Filter Include="UI\InspectorUI\ComponentUI\Animator3DUI">
       <UniqueIdentifier>{debb03ee-e529-4419-91fa-1113e02c8c82}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scenes">
-      <UniqueIdentifier>{e29e3c16-62d1-49e4-b763-20e6c588323b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="UI\InspectorUI\ComponentUI\LandScapeUI">
       <UniqueIdentifier>{a3cb3dc6-db53-409b-ba14-822bb1744900}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\InspectorUI\ComponentUI\DecalUI">
+      <UniqueIdentifier>{aeddd3ea-73c9-4078-8363-e7a7786d5c99}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -254,20 +251,14 @@
     <ClInclude Include="Light3DUI.h">
       <Filter>UI\InspectorUI\ComponentUI\Light3DUI</Filter>
     </ClInclude>
-    <ClInclude Include="PlanetMoveUI.h">
-      <Filter>UI\InspectorUI\ComponentUI\PlanetMoveUI</Filter>
-    </ClInclude>
     <ClInclude Include="Animator3DUI.h">
       <Filter>UI\InspectorUI\ComponentUI\Animator3DUI</Filter>
     </ClInclude>
-    <ClInclude Include="MainScene.h">
-      <Filter>Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="GameScene.h">
-      <Filter>Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="LandScapeUI.h">
       <Filter>UI\InspectorUI\ComponentUI\LandScapeUI</Filter>
+    </ClInclude>
+    <ClInclude Include="DecalUI.h">
+      <Filter>UI\InspectorUI\ComponentUI\DecalUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -406,20 +397,14 @@
     <ClCompile Include="Light3DUI.cpp">
       <Filter>UI\InspectorUI\ComponentUI\Light3DUI</Filter>
     </ClCompile>
-    <ClCompile Include="PlanetMoveUI.cpp">
-      <Filter>UI\InspectorUI\ComponentUI\PlanetMoveUI</Filter>
-    </ClCompile>
     <ClCompile Include="Animator3DUI.cpp">
       <Filter>UI\InspectorUI\ComponentUI\Animator3DUI</Filter>
     </ClCompile>
-    <ClCompile Include="MainScene.cpp">
-      <Filter>Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="GameScene.cpp">
-      <Filter>Scenes</Filter>
-    </ClCompile>
     <ClCompile Include="LandScapeUI.cpp">
       <Filter>UI\InspectorUI\ComponentUI\LandScapeUI</Filter>
+    </ClCompile>
+    <ClCompile Include="DecalUI.cpp">
+      <Filter>UI\InspectorUI\ComponentUI\DecalUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

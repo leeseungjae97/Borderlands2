@@ -11,7 +11,12 @@ void PreloadingGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstrin
 void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
 void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName);
 
+//Test Code
+void AddTestGameObject(Vec3 _WorldPos, int _LayerIndex);
+
 void ChangeCurLevel(CLevel* _ChangeLevel);
+
+void LevelRecognize();
 // 오브젝트 삭제
 void DestroyObject(CGameObject* _DeletObject);
 
@@ -41,7 +46,6 @@ const char* ToString(COMPONENT_TYPE);
 const wchar_t* ToWSTring(COMPONENT_TYPE);
 
 wstring GetRelativePath(const wstring& _strBase, const wstring& _strPath);
-
 
 // Save / Load
 void SaveWString(const wstring& _str, FILE* _File);

@@ -138,4 +138,10 @@ struct tRaycastOut
     float pad;
 };
 
+struct tNode
+{
+    int     iCoordX;
+    int     iCoordY;
+    float3  vPos;
+};
 #endif

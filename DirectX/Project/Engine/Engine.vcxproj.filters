@@ -166,12 +166,6 @@
     <ClInclude Include="CDecal.h">
       <Filter>Source\Component\RenderComponent\Decal</Filter>
     </ClInclude>
-    <ClInclude Include="CSolarSystem.h">
-      <Filter>Source\Component\RenderComponent\SolarSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="CPlanetMove.h">
-      <Filter>Source\Component\PlanetMove</Filter>
-    </ClInclude>
     <ClInclude Include="KeyUseInfoMgr.h">
       <Filter>Source\Manager\KeyUseInfoMgr</Filter>
     </ClInclude>
@@ -196,8 +190,6 @@
     <ClInclude Include="CLayer.h">
       <Filter>Source\Level\Layer</Filter>
     </ClInclude>
-    <ClInclude Include="SceneMgr.h" />
-    <ClInclude Include="Scene.h" />
     <ClInclude Include="CLandScape.h">
       <Filter>Source\Component\RenderComponent\Landscape</Filter>
     </ClInclude>
@@ -222,7 +214,12 @@
     <ClInclude Include="CWeightMapShader.h">
       <Filter>Source\ShaderCode\Compute Shader\WeightMapShader</Filter>
     </ClInclude>
-    <ClInclude Include="CPathFind.h" />
+    <ClInclude Include="CPathFind.h">
+      <Filter>Source\Component\PathFind</Filter>
+    </ClInclude>
+    <ClInclude Include="CLandScapePathShader.h">
+      <Filter>Source\ShaderCode\Compute Shader\LandScapePathShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -372,12 +369,6 @@
     <ClCompile Include="CDecal.cpp">
       <Filter>Source\Component\RenderComponent\Decal</Filter>
     </ClCompile>
-    <ClCompile Include="CSolarSystem.cpp">
-      <Filter>Source\Component\RenderComponent\SolarSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="CPlanetMove.cpp">
-      <Filter>Source\Component\PlanetMove</Filter>
-    </ClCompile>
     <ClCompile Include="KeyUseInfoMgr.cpp">
       <Filter>Source\Manager\KeyUseInfoMgr</Filter>
     </ClCompile>
@@ -399,8 +390,6 @@
     <ClCompile Include="CLayer.cpp">
       <Filter>Source\Level\Layer</Filter>
     </ClCompile>
-    <ClCompile Include="SceneMgr.cpp" />
-    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="CLandScape.cpp">
       <Filter>Source\Component\RenderComponent\Landscape</Filter>
     </ClCompile>
@@ -425,7 +414,12 @@
     <ClCompile Include="CWeightMapShader.cpp">
       <Filter>Source\ShaderCode\Compute Shader\WeightMapShader</Filter>
     </ClCompile>
-    <ClCompile Include="CPathFind.cpp" />
+    <ClCompile Include="CPathFind.cpp">
+      <Filter>Source\Component\PathFind</Filter>
+    </ClCompile>
+    <ClCompile Include="CLandScapePathShader.cpp">
+      <Filter>Source\ShaderCode\Compute Shader\LandScapePathShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -575,12 +569,6 @@
     <Filter Include="Source\Device\MRT">
       <UniqueIdentifier>{14024dff-86f9-4d03-a98b-e625ac49e880}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Component\RenderComponent\SolarSystem">
-      <UniqueIdentifier>{5954eaeb-a92a-4e4c-8928-2c0723179a59}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Component\PlanetMove">
-      <UniqueIdentifier>{54abcd0b-66ba-4166-9d19-20e0fe627076}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Manager\KeyUseInfoMgr">
       <UniqueIdentifier>{6ceaf409-5b31-4491-8c78-9484062661c6}</UniqueIdentifier>
     </Filter>
@@ -629,12 +617,15 @@
     <Filter Include="Source\ShaderCode\Compute Shader\WeightMapShader">
       <UniqueIdentifier>{68f83462-b4d8-4d1a-b934-5abf68f8409f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\ShaderCode\Compute Shader\LandScapePathShader">
+      <UniqueIdentifier>{6f3947b0-018a-433e-9e77-d7f6046c59ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <None Include="cpp.hint" />
     <None Include="SimpleMath.inl">
       <Filter>Source\Module\SimpleMath</Filter>
     </None>
-    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="value.fx">
@@ -710,6 +701,9 @@
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="weightmap.fx">
+      <Filter>Source\ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="landscape_path.fx">
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
   </ItemGroup>

@@ -58,9 +58,8 @@ public:
 		};
 
 private:
-    const vector<tMTBone>*      m_pVecBones;
-    //const vector<tMTAnimClip>*  m_pVecClip;
-    map<wstring, tMTAnimClip>  m_pVecClip;
+    vector<tMTBone>				m_pVecBones;
+    map<wstring, tMTAnimClip>	m_pMapClip;
 
     vector<float>				m_vecClipUpdateTime;
     vector<Matrix>				m_vecFinalBoneMat;
@@ -110,7 +109,7 @@ public:
 	int GetClipIdx() { return m_iClipIdx; }
 
     CStructuredBuffer* GetFinalBoneMat() { return m_pBoneFinalMatBuffer; }
-    UINT GetBoneCount() { return (UINT)m_pVecBones->size(); }
+    UINT GetBoneCount() { return (UINT)m_pVecBones.size(); }
     void ClearData();
 
 	void SetBlend(bool _bBlend, float _fBlendTime);

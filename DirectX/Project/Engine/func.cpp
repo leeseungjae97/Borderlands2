@@ -5,6 +5,7 @@
 #include "CLevel.h"
 #include "CLayer.h"
 #include "CGameObject.h"
+#include "CMeshRender.h"
 #include "CTransform.h"
 #include "CRenderMgr.h"
 #include "ptr.h"
@@ -48,6 +49,25 @@ void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _L
 
 	CEventMgr::GetInst()->AddEvent(evn);
 }
+void AddTestGameObject(Vec3 _WorldPos, int _LayerIndex)
+{
+	static int testObjectNumbering = 0;
+	CGameObject* testObject = new CGameObject;
+	testObject->SetName(L"testObject" + std::to_wstring(testObjectNumbering));
+
+	++testObjectNumbering;
+
+	testObject->AddComponent(new CTransform);
+	testObject->Transform()->SetRelativePos(_WorldPos);
+	testObject->Transform()->SetRelativeScale(Vec3(50.f, 50.f, 50.f));
+
+	testObject->AddComponent(new CMeshRender);
+	testObject->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	testObject->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
+	testObject->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
+	testObject->Transform()->SetRelativePos(_WorldPos);
+	CLevelMgr::GetInst()->GetCurLevel()->AddGameObject(testObject, _LayerIndex, false);
+}
 
 void ChangeCurLevel(CLevel* _ChangeLevel)
 {
@@ -56,6 +76,13 @@ void ChangeCurLevel(CLevel* _ChangeLevel)
 	evn.Type = EVENT_TYPE::LEVEL_CHANGE;
 	evn.wParam = (DWORD_PTR)_ChangeLevel;
 
+	CEventMgr::GetInst()->AddEvent(evn);
+}
+
+void LevelRecognize()
+{
+	tEvent evn = {};
+	evn.Type = EVENT_TYPE::LEVEL_RECOG;
 	CEventMgr::GetInst()->AddEvent(evn);
 }
 
@@ -69,7 +96,7 @@ void DestroyObject(CGameObject* _DeletObject)
 
 	evn.Type = EVENT_TYPE::DELETE_OBJECT;
 	evn.wParam = (DWORD_PTR)_DeletObject;
-	
+
 	CEventMgr::GetInst()->AddEvent(evn);
 }
 
@@ -238,9 +265,8 @@ wstring GetRelativePath(const wstring& _strBase, const wstring& _strPath)
 
 	return wstring();
 }
-
 void SaveWString(const wstring& _str, FILE* _File)
-{	
+{
 	UINT iLen = (UINT)_str.length();
 	fwrite(&iLen, sizeof(UINT), 1, _File);
 	fwrite(_str.c_str(), sizeof(wchar_t), _str.length(), _File);
@@ -248,11 +274,12 @@ void SaveWString(const wstring& _str, FILE* _File)
 
 void LoadWString(wstring& _str, FILE* _File)
 {
+	//if (L"" == _str || nullptr == _File) return;
 	wchar_t szBuffer[256] = {};
 
 	UINT iLen = 0;
 	fread(&iLen, sizeof(UINT), 1, _File);
-	fread(szBuffer, sizeof(wchar_t), iLen, _File);	
+	fread(szBuffer, sizeof(wchar_t), iLen, _File);
 
 	_str = szBuffer;
 }

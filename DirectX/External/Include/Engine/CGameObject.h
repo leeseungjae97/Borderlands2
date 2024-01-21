@@ -14,8 +14,6 @@ class CTileMap;
 class CScript;
 class CSkyBox;
 class CDecal;
-class CSolarSystem;
-class CPlanetMove;
 class CLandScape;
 
 #define GET_COMPONENT(Type, TYPE) C##Type* Type() const { return (C##Type*)m_arrCom[(UINT)COMPONENT_TYPE::TYPE]; }
@@ -75,8 +73,6 @@ public:
     GET_COMPONENT(Animator3D, ANIMATOR3D);
     GET_COMPONENT(SkyBox, SKYBOX);
     GET_COMPONENT(Decal, DECAL);
-    GET_COMPONENT(SolarSystem, SOLOAR_SYSTEM);
-    GET_COMPONENT(PlanetMove, PLANET_MOVE);
     GET_COMPONENT(LandScape, LANDSCAPE);
     //Decal* Decal()
     //{

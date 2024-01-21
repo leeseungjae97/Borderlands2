@@ -34,8 +34,7 @@ enum class COMPONENT_TYPE
 	ANIMATOR3D,		// Bone Sknning Animation
 	LIGHT2D,		// 2Â÷¿ø ±¤¿ø
 	LIGHT3D,		// 3Â÷¿ø ±¤¿ø
-	SOLOAR_SYSTEM,
-	PLANET_MOVE,
+	PATH_FIND,
 	CAMERA,			// Camera
 
 	// render
@@ -238,7 +237,9 @@ enum class EVENT_TYPE
 
 	DELETE_RESOURCE,	// wParam : RES_TYPE, lParam : Resource Adress
 
-	LEVEL_CHANGE,	
+	LEVEL_CHANGE,
+	LEVEL_RESET,
+	LEVEL_RECOG,
 };
 
 

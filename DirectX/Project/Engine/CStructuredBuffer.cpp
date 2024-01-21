@@ -14,7 +14,7 @@ CStructuredBuffer::~CStructuredBuffer()
 }
 
 void CStructuredBuffer::Create(UINT _iElementSize, UINT _iElementCount
-	, SB_TYPE _Type, bool _bSysAccess, void* _pSysMem)
+	, SB_TYPE _Type, bool _bSysAccess, string bufName, void* _pSysMem)
 {
 	m_SB = nullptr;
 	m_SRV = nullptr;
@@ -116,6 +116,8 @@ void CStructuredBuffer::Create(UINT _iElementSize, UINT _iElementCount
 			assert(nullptr);
 		}
 	}
+	DEVICE->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * bufName.length(), &bufName);
+	//DEVICE->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("testestest") - 1, "testestest");
 }
 
 void CStructuredBuffer::SetData(void* _pSrc, UINT _iSize)

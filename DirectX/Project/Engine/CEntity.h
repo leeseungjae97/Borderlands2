@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef ENTITY_H
+#define ENTITY_H
+
 class CEntity
 {
 private:
@@ -23,3 +26,4 @@ public:
 	virtual ~CEntity();
 };
 
+#endif

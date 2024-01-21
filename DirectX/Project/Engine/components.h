@@ -10,8 +10,6 @@
 #include "CTileMap.h"
 #include "CParticleSystem.h"
 #include "CDecal.h"
-#include "CSolarSystem.h"
-#include "CPlanetMove.h"
 
 #include "CAnimator3D.h"
 #include "CLandScape.h"

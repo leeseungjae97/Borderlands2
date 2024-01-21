@@ -605,8 +605,8 @@ void FBXLoader::LoadAnimationData(FbxMesh* _pMesh, tContainer* _pContainer)
 	if (iSkinCount <= 0 || m_vecAnimClip.empty())
 		return;
 
-	//m_vecAryKeyFrames.resize(m_vecAnimClip.size());
-	//for(int i = 0 ; i < m_vecAnimClip.size(); ++i)
+	//m_vecAryKeyFrames.resize(m_mapAnimClip.size());
+	//for(int i = 0 ; i < m_mapAnimClip.size(); ++i)
 	//{
 	//	m_vecAryKeyFrames[i].resize(m_vecBone.size());
 	//}

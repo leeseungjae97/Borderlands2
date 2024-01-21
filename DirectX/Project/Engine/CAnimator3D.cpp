@@ -12,7 +12,7 @@
 #include "CTimeMgr.h"
 
 CAnimator3D::CAnimator3D()
-	: m_pVecBones(nullptr)
+	: CComponent(COMPONENT_TYPE::ANIMATOR3D)
 	, m_iFrameCount(30)
 	, m_pBoneFinalMatBuffer(nullptr)
 	, m_bFinalMatUpdate(false)
@@ -28,14 +28,14 @@ CAnimator3D::CAnimator3D()
 	, m_bBlendMode(true)
 	, mClips{}
 	, mEvents{}
-	, CComponent(COMPONENT_TYPE::ANIMATOR3D)
+	, m_pVecBones{}
 {
 	m_pBoneFinalMatBuffer = new CStructuredBuffer;
 }
 
 CAnimator3D::CAnimator3D(const CAnimator3D& _origin)
 	: m_pVecBones(_origin.m_pVecBones)
-	  , m_pVecClip(_origin.m_pVecClip)
+	  , m_pMapClip(_origin.m_pMapClip)
 	  , m_iFrameCount(_origin.m_iFrameCount)
 	  , m_pBoneFinalMatBuffer(nullptr)
 	  , m_bFinalMatUpdate(false)
@@ -61,8 +61,24 @@ CAnimator3D::~CAnimator3D()
 	if (nullptr != m_pBoneFinalMatBuffer)
 		delete m_pBoneFinalMatBuffer;
 
-	Safe_Del_Map(mClips);
 	Safe_Del_Map(mEvents);
+	Safe_Del_Map(mClips);
+
+	for(tMTBone& bone : m_pVecBones)
+	{
+		for (auto& pair : bone.vecKeyFrame)
+		{
+			pair.second.clear();
+		}
+		
+		bone.vecKeyFrame.clear();
+	}
+	m_pVecBones.clear();
+
+	m_pMapClip.clear();
+
+	m_vecClipUpdateTime.clear();
+	m_vecFinalBoneMat.clear();
 }
 
 void CAnimator3D::finaltick()
@@ -93,20 +109,19 @@ void CAnimator3D::finaltick()
 		if (m_pCurClip)
 		{
 			m_pCurClip->finlatick();
-		}
 
-
-		if (m_bLoop)
-		{
-			events = FindEvents(m_pCurClip->GetName());
-			if (events)
-				events->startEvent();
-		}
-		else
-		{
-			events = FindEvents(m_pCurClip->GetName());
-			if (events)
-				events->endEvent();
+			if (m_bLoop)
+			{
+				events = FindEvents(m_pCurClip->GetName());
+				if (events)
+					events->startEvent();
+			}
+			else
+			{
+				events = FindEvents(m_pCurClip->GetName());
+				if (events)
+					events->endEvent();
+			}
 		}
 	}
 
@@ -115,7 +130,7 @@ void CAnimator3D::finaltick()
 
 void CAnimator3D::UpdateData()
 {
-	if (!m_bFinalMatUpdate)
+	if (!m_bFinalMatUpdate && m_pCurClip)
 	{
 		// Animation3D Update Compute Shader
 		CAnimation3DShader* pUpdateShader = (CAnimation3DShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"Animation3DUpdateCS").Get();
@@ -137,7 +152,7 @@ void CAnimator3D::UpdateData()
 			pUpdateShader->SetBlendRatio(m_fBRatio);
 		}
 
-		UINT iBoneCount = (UINT)m_pVecBones->size();
+		UINT iBoneCount = (UINT)m_pVecBones.size();
 		pUpdateShader->SetBoneCount(iBoneCount);
 		pUpdateShader->SetFrameIndex(m_pCurClip->GetClipFrame());
 		pUpdateShader->SetFrameRatio(m_pCurClip->GetRatio());
@@ -153,14 +168,14 @@ void CAnimator3D::UpdateData()
 
 void CAnimator3D::SetBones(const vector<tMTBone>* _vecBones)
 {
-	m_pVecBones = _vecBones;
-	m_vecFinalBoneMat.resize(m_pVecBones->size());
+	m_pVecBones = *_vecBones;
+	m_vecFinalBoneMat.resize(m_pVecBones.size());
 }
 
 void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 {
-	m_pVecClip = _vecAnimClip;
-	m_vecClipUpdateTime.resize(m_pVecClip.size());
+	m_pMapClip = _vecAnimClip;
+	m_vecClipUpdateTime.resize(m_pMapClip.size());
 
 	create_clip();
 }
@@ -281,66 +296,175 @@ CAnimClip* CAnimator3D::FindClip(const std::wstring& name)
 
 void CAnimator3D::SaveToLevelFile(FILE* _pFile)
 {
-	fwrite(&m_pVecBones, sizeof(tMTBone), m_pVecBones->size(), _pFile);
 
-	fwrite(&m_pVecBones, sizeof(tMTBone), m_pVecBones->size(), _pFile);
-	//fwrite(&m_pVecClip, sizeof(tMTAnimClip), m_pVecClip->size(), _pFile);
-	fwrite(&m_pVecClip, sizeof(tMTAnimClip), m_pVecClip.size(), _pFile);
+	UINT vecSize = m_pVecBones.size();
+	fwrite(&vecSize, sizeof(UINT), 1, _pFile);
 
-	fwrite(&m_vecClipUpdateTime, sizeof(float), m_vecClipUpdateTime.size(), _pFile);
+	for (UINT i = 0; i < vecSize; ++i)
+	{
+		SaveWString(m_pVecBones[i].strBoneName, _pFile);
+		fwrite(&m_pVecBones[i].iDepth, sizeof(int), 1, _pFile);
+		fwrite(&m_pVecBones[i].iParentIndx, sizeof(int), 1, _pFile);
+		fwrite(&m_pVecBones[i].matBone, sizeof(Matrix), 1, _pFile);
+		fwrite(&m_pVecBones[i].matOffset, sizeof(Matrix), 1, _pFile);
 
-	fwrite(&m_vecFinalBoneMat, sizeof(Matrix), m_vecFinalBoneMat.size(), _pFile);
+		size_t count = m_pVecBones[i].vecKeyFrame.size();
+		fwrite(&count, sizeof(size_t), 1, _pFile);
+		for (const auto& pair : m_pVecBones[i].vecKeyFrame)
+		{
+			SaveWString(pair.first, _pFile);
+			size_t vecSize = pair.second.size();
+			fwrite(&vecSize, sizeof(size_t), 1, _pFile);
+			for (size_t j = 0; j < vecSize; ++j)
+			{
+				fwrite(&pair.second[j], sizeof(tMTKeyFrame), 1, _pFile);
+			}
+		}
+	}
+
+	UINT mapSize = m_pMapClip.size();
+	fwrite(&mapSize, sizeof(UINT), 1, _pFile);
+	for (const auto& pair : m_pMapClip)
+	{
+		SaveWString(pair.second.strAnimName, _pFile);
+		fwrite(&pair.second.dStartTime, sizeof(double), 1, _pFile);
+		fwrite(&pair.second.dEndTime, sizeof(double), 1, _pFile);
+		fwrite(&pair.second.dTimeLength, sizeof(double), 1, _pFile);
+		fwrite(&pair.second.eMode, sizeof(int), 1, _pFile);
+		fwrite(&pair.second.fUpdateTime, sizeof(float), 1, _pFile);
+		fwrite(&pair.second.iStartFrame, sizeof(int), 1, _pFile);
+		fwrite(&pair.second.iEndFrame, sizeof(int), 1, _pFile);
+		fwrite(&pair.second.iFrameLength, sizeof(int), 1, _pFile);
+		fwrite(&pair.second.iFrameCount, sizeof(int), 1, _pFile);
+	}
+
+	vecSize = m_vecClipUpdateTime.size();
+	fwrite(&vecSize, sizeof(UINT), 1, _pFile);
+	for (const auto& pair : m_vecClipUpdateTime)
+	{
+		fwrite(&pair, sizeof(float), 1, _pFile);
+
+	}
+
+	vecSize = m_vecFinalBoneMat.size();
+	fwrite(&vecSize, sizeof(UINT), 1, _pFile);
+	for(const auto& pair : m_vecFinalBoneMat)
+	{
+		fwrite(&pair, sizeof(Matrix), 1, _pFile);
+	}
+
 	fwrite(&m_iFrameCount, sizeof(int), 1, _pFile);
 	fwrite(&m_iClipIdx, sizeof(int), 1, _pFile);
 	fwrite(&m_bFinalMatUpdate, sizeof(bool), 1, _pFile);
 	fwrite(&m_bLoop, sizeof(bool), 1, _pFile);
 	fwrite(&m_bMultipleClip, sizeof(bool), 1, _pFile);
-	fwrite(&m_pCurClip, sizeof(CAnimClip), 1, _pFile);
 
-	size_t count = mClips.size();
+	//size_t count = mClips.size();
 
-	fwrite(&count, sizeof(size_t), 1, _pFile);
-	for (const auto& pair : mClips)
-	{
-		SaveWString(pair.first, _pFile);
-		pair.second->SaveToLevelFile(_pFile);
-		mEvents[pair.first]->SaveToLevelFile(_pFile);
-	}
+	//fwrite(&count, sizeof(size_t), 1, _pFile);
+	//for (const auto& pair : mClips)
+	//{
+	//	SaveWString(pair.first, _pFile);
+	//	pair.second->SaveToLevelFile(_pFile);
+	//	mEvents[pair.first]->SaveToLevelFile(_pFile);
+	//}
 }
 
 void CAnimator3D::LoadFromLevelFile(FILE* _pFile)
 {
-	fread(&m_pVecBones, sizeof(tMTBone), m_pVecBones->size(), _pFile);
+	UINT vecSize = 0;
+	fread(&vecSize, sizeof(UINT), 1, _pFile);
+	m_pVecBones.resize(vecSize);
+	for (int i = 0; i < vecSize; ++i)
+	{
+		LoadWString(m_pVecBones[i].strBoneName, _pFile);
+		fread(&m_pVecBones[i].iDepth, sizeof(int), 1, _pFile);
+		fread(&m_pVecBones[i].iParentIndx, sizeof(int), 1, _pFile);
+		fread(&m_pVecBones[i].matBone, sizeof(Matrix), 1, _pFile);
+		fread(&m_pVecBones[i].matOffset, sizeof(Matrix), 1, _pFile);
 
-	fread(&m_pVecBones, sizeof(tMTBone), m_pVecBones->size(), _pFile);
-	//fread(&m_pVecClip, sizeof(tMTAnimClip), m_pVecClip->size(), _pFile);
-	fread(&m_pVecClip, sizeof(tMTAnimClip), m_pVecClip.size(), _pFile);
+		size_t count = 0;
+		fread(&count, sizeof(size_t), 1, _pFile);
+		for (size_t j = 0; j < count; ++j)
+		{
+			wstring animName;
+			LoadWString(animName, _pFile);
+			size_t vecSize;
+			fread(&vecSize, sizeof(size_t), 1, _pFile);
+			vector<tMTKeyFrame> vectMT;
+			for (size_t k = 0; k < vecSize; ++k)
+			{
+				tMTKeyFrame _tMTKeyFrame;
+				fread(&_tMTKeyFrame, sizeof(tMTKeyFrame), 1, _pFile);
+				vectMT.push_back(_tMTKeyFrame);
+			}
 
-	fread(&m_vecClipUpdateTime, sizeof(float), m_vecClipUpdateTime.size(), _pFile);
+			m_pVecBones[i].vecKeyFrame.insert(make_pair(animName, vectMT));
+		}
+	}
 
-	fread(&m_vecFinalBoneMat, sizeof(Matrix), m_vecFinalBoneMat.size(), _pFile);
+	UINT mapSize = 0;
+	fread(&mapSize, sizeof(int), 1, _pFile);
+	for (int i = 0; i < mapSize; ++i)
+	{
+		tMTAnimClip tClip = {};
+
+		LoadWString(tClip.strAnimName, _pFile);
+		fread(&tClip.dStartTime, sizeof(double), 1, _pFile);
+		fread(&tClip.dEndTime, sizeof(double), 1, _pFile);
+		fread(&tClip.dTimeLength, sizeof(double), 1, _pFile);
+		fread(&tClip.eMode, sizeof(int), 1, _pFile);
+		fread(&tClip.fUpdateTime, sizeof(float), 1, _pFile);
+		fread(&tClip.iStartFrame, sizeof(int), 1, _pFile);
+		fread(&tClip.iEndFrame, sizeof(int), 1, _pFile);
+		fread(&tClip.iFrameLength, sizeof(int), 1, _pFile);
+		fread(&tClip.iFrameCount, sizeof(int), 1, _pFile);
+
+		//m_mapAnimClip.push_back(tClip);
+		m_pMapClip.insert(make_pair(tClip.strAnimName, tClip));
+	}
+
+	fread(&vecSize, sizeof(UINT), 1, _pFile);
+	for (int i = 0 ; i < vecSize; ++i)
+	{
+		float fUpdateTime = 0.f;
+		fread(&fUpdateTime, sizeof(float), 1, _pFile);
+
+		m_vecClipUpdateTime.push_back(fUpdateTime);
+	}
+
+	fread(&vecSize, sizeof(UINT), 1, _pFile);
+	for (int i = 0; i < vecSize; ++i)
+	{
+		Matrix mBoneMat = {};
+		fread(&mBoneMat, sizeof(Matrix), 1, _pFile);
+
+		m_vecFinalBoneMat.push_back(mBoneMat);
+	}
+
 	fread(&m_iFrameCount, sizeof(int), 1, _pFile);
 	fread(&m_iClipIdx, sizeof(int), 1, _pFile);
 	fread(&m_bFinalMatUpdate, sizeof(bool), 1, _pFile);
 	fread(&m_bLoop, sizeof(bool), 1, _pFile);
 	fread(&m_bMultipleClip, sizeof(bool), 1, _pFile);
-	fread(&m_pCurClip, sizeof(CAnimClip), 1, _pFile);
 
-	size_t count = 0;
-	fread(&count, sizeof(size_t), 1, _pFile);
-	for (size_t i = 0; i < count; ++i)
-	{
-		wstring strCurAnimName;
-		LoadWString(strCurAnimName, _pFile);
-		CAnimClip* clip = new CAnimClip();
-		clip->LoadFromLevelFile(_pFile);
+	//size_t count = 0;
+	//fread(&count, sizeof(size_t), 1, _pFile);
+	//for (size_t i = 0; i < count; ++i)
+	//{
+	//	wstring strCurAnimName;
+	//	LoadWString(strCurAnimName, _pFile);
+	//	CAnimClip* clip = new CAnimClip();
+	//	clip->LoadFromLevelFile(_pFile);
 
-		mClips.insert(make_pair(strCurAnimName, clip));
+	//	mClips.insert(make_pair(strCurAnimName, clip));
 
-		Events* events = new Events();
-		events->LoadFromLevelFile(_pFile);
-		mEvents.insert(make_pair(strCurAnimName, events));
-	}
+	//	Events* events = new Events();
+	//	events->LoadFromLevelFile(_pFile);
+	//	mEvents.insert(make_pair(strCurAnimName, events));
+	//}
+
+	create_clip();
 }
 
 void CAnimator3D::check_mesh(Ptr<CMesh> _pMesh)
@@ -348,7 +472,7 @@ void CAnimator3D::check_mesh(Ptr<CMesh> _pMesh)
 	UINT iBoneCount = _pMesh->GetBoneCount();
 	if (m_pBoneFinalMatBuffer->GetElementCount() != iBoneCount)
 	{
-		m_pBoneFinalMatBuffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, false, nullptr);
+		m_pBoneFinalMatBuffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, false, "m_pBoneFinalMatBuffer",nullptr);
 	}
 }
 
@@ -357,8 +481,8 @@ void CAnimator3D::create_clip()
 	if (mClips.size() != 0 || mEvents.size() != 0) return;
 
 	wstring testClip = L"";
-	//for (size_t i = 0; i < m_pVecClip->size(); ++i)
-	for (auto& pair : m_pVecClip)
+	//for (size_t i = 0; i < m_pMapClip->size(); ++i)
+	for (auto& pair : m_pMapClip)
 	{
 		tMTAnimClip clip = pair.second;
 
@@ -368,10 +492,14 @@ void CAnimator3D::create_clip()
 
 		pAnimClip->Create(clip.strAnimName, clip
 			, clip.iStartFrame, clip.iEndFrame, true);
-		//pAnimClip->Create(clip.strAnimName, m_pVecClip, true);
+
+		//pAnimClip->Create(clip.strAnimName, m_pMapClip, true);
 
 		mClips.insert(std::make_pair(clip.strAnimName, pAnimClip));
 		Events* events = FindEvents(clip.strAnimName);
+
+		if (nullptr == events)
+			events = new Events();
 
 		mEvents.insert(make_pair(clip.strAnimName, events));
 	}

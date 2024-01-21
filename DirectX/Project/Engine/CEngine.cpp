@@ -12,7 +12,6 @@
 #include "CEventMgr.h"
 #include "CFontMgr.h"
 #include "KeyUseInfoMgr.h"
-#include "SceneMgr.h"
 
 CEngine::CEngine()
 	: m_hWnd(nullptr)
@@ -94,19 +93,19 @@ void CEngine::tick()
 	// Level 내에 GameObject 들의 변경점에 의해서 발생한 충돌을 체크한다.
 	CCollisionMgr::GetInst()->tick();
 
-	if(KEY_PRESSED(KEY::E))
-	{
-		ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"switch level"));
-	}
-	if (KEY_PRESSED(KEY::R))
-	{
-		ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"main level"));
-	}
+	//if(KEY_PRESSED(KEY::E))
+	//{
+	//	ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"switch level"));
+	//}
+	//if (KEY_PRESSED(KEY::R))
+	//{
+	//	ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"main level"));
+	//}
 }
 
 void CEngine::render()
 {	
-	CRenderMgr::GetInst()->render();	
+	CRenderMgr::GetInst()->render();
 
 	// FPS, DT 출력
 	CTimeMgr::GetInst()->render();

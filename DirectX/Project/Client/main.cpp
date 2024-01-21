@@ -5,13 +5,10 @@
 #include "Client.h"
 
 #include <Engine\CDevice.h>
-#include <Engine\SceneMgr.h>
 #include "CEditorObjMgr.h"
 
 // ImGui
-#include "GameScene.h"
 #include "ImGuiMgr.h"
-#include "MainScene.h"
 
 #include "TestLevel.h"
 
@@ -26,6 +23,28 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+#ifdef _DEBUG
+#include <dxgidebug.h>
+#pragma comment(lib, "dxguid.lib")
+
+void D3D_LEAK_CHECK()
+{
+    HMODULE dxgidebugdll = GetModuleHandleW(L"dxgidebug.dll");
+    decltype(&DXGIGetDebugInterface) GetDebugInterface = reinterpret_cast<decltype(&DXGIGetDebugInterface)>(GetProcAddress(dxgidebugdll, "DXGIGetDebugInterface"));
+
+    IDXGIDebug* debug;
+
+    GetDebugInterface(IID_PPV_ARGS(&debug));
+
+    OutputDebugStringW(L"Leak Live Direct3D Object List:\r\n");
+    debug->ReportLiveObjects(DXGI_DEBUG_D3D11, DXGI_DEBUG_RLO_DETAIL);
+    OutputDebugStringW(L"Leak Live Direct3D Object List End.\r\n");
+
+    debug->Release();
+
+}
+#endif
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -43,9 +62,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-    //SceneMgr::GetInst()->create(SCENE_TYPE::S_MAIN, new MainScene());
-    //SceneMgr::GetInst()->create(SCENE_TYPE::S_GAME, new GameScene());
-
     // CEngine 초기화
     if (FAILED(CEngine::GetInst()->init(g_hWnd, 1280, 768)))
     {
@@ -58,7 +74,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // ImGui 초기화
     ImGuiMgr::GetInst()->init(g_hWnd);
 
-    //SceneMgr::GetInst()->init();
     // 테스트 용 레벨 생성
     CreateTestLevel();
 
@@ -92,7 +107,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }       
     }
 
-    SceneMgr::GetInst()->release();
+#ifdef _DEBUG
+    //D3D_LEAK_CHECK();
+#endif
+
 
     return (int) msg.wParam;
 }

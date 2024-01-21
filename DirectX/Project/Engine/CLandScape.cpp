@@ -1,9 +1,13 @@
 #include "pch.h"
 #include "CLandScape.h"
 
+#include <Engine/CLevel.h>
+
 #include "CCamera.h"
 #include "CDecal.h"
 #include "CKeyMgr.h"
+#include "CLayer.h"
+#include "CLevelMgr.h"
 #include "CRenderMgr.h"
 #include "CResMgr.h"
 #include "CStructuredBuffer.h"
@@ -35,13 +39,13 @@ CLandScape::~CLandScape()
 void CLandScape::SetFaceX(UINT _FaceX)
 {
 	m_iFaceX = _FaceX;
-	//CreateMesh();
+	CreateMesh();
 }
 
 void CLandScape::SetFaceZ(UINT _FaceZ)
 {
 	m_iFaceZ = _FaceZ;
-	//CreateMesh();
+	CreateMesh();
 }
 
 void CLandScape::SetFace(UINT _FaceX, UINT _FaceZ)
@@ -49,14 +53,17 @@ void CLandScape::SetFace(UINT _FaceX, UINT _FaceZ)
 	m_iFaceX = _FaceX;
 	m_iFaceZ = _FaceZ;
 
-	//CreateMesh();
+	CreateMesh();
 }
 
 void CLandScape::CreateMesh()
 {
-	Vtx v;
-	vector<Vtx> vecVtx;
+	m_vecNode.clear();
 
+	Vtx v;
+	tNode node;
+	vector<Vtx> vecVtx;
+	m_vecNode.resize(m_iFaceZ * m_iFaceX);
 	for (int i = 0; i < m_iFaceZ + 1; ++i)
 	{
 		for (int j = 0; j < m_iFaceX + 1; ++j)
@@ -102,6 +109,31 @@ void CLandScape::CreateMesh()
 	SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"LandScapeMtrl"), 0);
 }
 
+void CLandScape::CreateNode()
+{
+	Vec3 vPos = Transform()->GetRelativePos();
+	Vec3 vScale = Transform()->GetRelativeScale();
+	float _x = vScale.x / 2.f;
+	float _z = vScale.z / 2.f;
+	for (int i = 0; i < m_iFaceZ; ++i)
+	{
+		for (int j = 0; j < m_iFaceX; ++j)
+		{
+			tNode node;
+			node.iCoordX = j;
+			node.iCoordY = i;
+			node.vLandPos = vPos;
+			node.vPos.x = _x + j * vScale.x;
+			node.vPos.y = 0.f;
+			node.vPos.z = _z + i * vScale.z;
+
+			//AddTestGameObject(node.vPos, 0);
+
+			m_vecNode.push_back(node);
+		}
+	}
+}
+
 void CLandScape::SetBrush(Ptr<CTexture> _BrushTex)
 {
 	m_pBrushTex = _BrushTex;
@@ -123,6 +155,13 @@ void CLandScape::SetColorMapName(const wstring& name)
 
 void CLandScape::finaltick()
 {
+	static bool initPathPos = false;
+	if(!initPathPos)
+	{
+		CreateNode();
+		initPathPos = true;
+	}
+
 	if(KEY_TAP(KEY::_1))
 		m_iWeightIdx = 0;
 	else if (KEY_TAP(KEY::_2))
@@ -217,6 +256,7 @@ void CLandScape::render()
 	m_pWeightMapBuffer->Clear();
 }
 
+
 void CLandScape::init()
 {
 	CreateMesh();
@@ -227,8 +267,11 @@ void CLandScape::init()
 
 	// 레이캐스팅 결과 받는 버퍼
 	m_pCrossBuffer = new CStructuredBuffer;
-	m_pCrossBuffer->Create(sizeof(tRaycastOut), 1, SB_TYPE::READ_WRITE, true);
+	m_pCrossBuffer->Create(sizeof(tRaycastOut), 1, SB_TYPE::READ_WRITE, true, "Land Scape Cross Buffer");
 
+	//m_pNodesBuffer = new CStructuredBuffer;
+	//m_pNodesBuffer->Create(sizeof(tNode), 1, SB_TYPE::READ_WRITE, true, "m_pNodesBuffer");
+	//m_vecNodes.resize(m_iFaceX * m_iFaceZ);
 
 	//vector<Ptr<CTexture>> vecTex;
 	//vecTex.push_back(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
@@ -254,40 +297,15 @@ void CLandScape::init()
 
 void CLandScape::CreateComputeShader()
 {
-	// ======================
-	// 높이 수정 컴퓨트 쉐이더
-	// ======================
 	m_pCSHeightMap = (CHeightMapShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"HeightMapShaderCS").Get();
-	//if (nullptr == m_HeightMap)
-	//{
-	//	m_pCSHeightMap = new CHeightMapShader(32, 32, 1);
-	//	m_pCSHeightMap->CreateComputeShader(L"shader\\heightmap.fx", "CS_HeightMap");
-	//	CResMgr::GetInst()->AddRes<CComputeShader>(L"HeightMapShader", m_pCSHeightMap.Get());
-	//}
 
-	// =====================
-	// 지형 피킹 컴퓨트 쉐이더
-	// =====================
 	m_pCSRaycast = (CRayCastShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"RaycastShaderCS").Get();
-	//if (nullptr == m_pCSRaycast)
-	//{
-	//	m_pCSRaycast = new CRayCastShader(32, 32, 1);
-	//	m_pCSRaycast->CreateComputeShader(L"shader\\raycast.fx", "CS_Raycast");
-	//	CResMgr::GetInst()->AddRes<CComputeShader>(L"RaycastShader", m_pCSRaycast.Get());
-	//}
+
 	m_pCSColorMap = (CColorMapShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"ColorMapShaderCS").Get();
 
-	// =======================
-	// 가중치 수정 컴퓨트 쉐이더
-	// =======================
 	m_pCSWeightMap = (CWeightMapShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"WeightMapShader").Get();
-	//if (nullptr == m_pCSWeightMap)
-	//{
-	//	m_pCSWeightMap = new CWeightMapShader(32, 32, 1);
-	//	m_pCSWeightMap->CreateComputeShader(L"shader\\weightmap.fx", "CS_WeightMap");
-	//	CResMgr::GetInst()->AddRes<CComputeShader>(L"WeightMapShader", m_pCSWeightMap.Get());
-	//}
 
+	//m_pCSPathInit = (CLandScapePathShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"PathInitShader").Get();
 }
 
 void CLandScape::CreateTexture()
@@ -332,7 +350,7 @@ void CLandScape::CreateWeightMap()
 	m_iWeightHeight = 1024;
 
 	m_pWeightMapBuffer = new CStructuredBuffer;
-	m_pWeightMapBuffer->Create(sizeof(tWeight_4), m_iWeightWidth * m_iWeightHeight, SB_TYPE::READ_WRITE, false);
+	m_pWeightMapBuffer->Create(sizeof(tWeight_4), m_iWeightWidth * m_iWeightHeight, SB_TYPE::READ_WRITE, false, "Land Scape Weight Buffer");
 }
 
 void CLandScape::RayCasting()
@@ -373,4 +391,57 @@ void CLandScape::RayCasting()
 		m_pBrushLineDecal->Transform()->SetRelativeScale(scale);
 	}
 	
+}
+
+void CLandScape::LoadFromLevelFile(FILE* _FILE)
+{
+	fread(&m_iFaceX, sizeof(UINT), 1, _FILE);
+	fread(&m_iFaceZ, sizeof(UINT), 1, _FILE);
+	fread(&m_vBrushScale, sizeof(Vec2), 1, _FILE);
+	fread(&m_iWeightWidth, sizeof(UINT), 1, _FILE);
+	fread(&m_iWeightHeight, sizeof(UINT), 1, _FILE);
+	fread(&m_iWeightIdx, sizeof(UINT), 1, _FILE);
+	fread(&m_eMod, sizeof(UINT), 1, _FILE);
+
+	LoadResRef(m_pBrushTex, _FILE);
+	LoadResRef(m_HeightMap, _FILE);
+	LoadResRef(m_ColorMap, _FILE);
+	LoadResRef(m_pTileArrTex, _FILE);
+
+	LoadWString(m_HeightMapName, _FILE);
+	LoadWString(m_ColorMapName, _FILE);
+
+	CreateComputeShader();
+
+	if(nullptr == m_pCrossBuffer)
+		m_pCrossBuffer = new CStructuredBuffer;
+
+	m_pCrossBuffer->Create(sizeof(tRaycastOut), 1, SB_TYPE::READ_WRITE, true, "Land Scape Cross Buffer");
+
+	if(nullptr == m_pWeightMapBuffer)
+		m_pWeightMapBuffer = new CStructuredBuffer;
+
+	m_pWeightMapBuffer->Create(sizeof(tWeight_4), m_iWeightWidth * m_iWeightHeight, SB_TYPE::READ_WRITE, false , "Land Scape Weight Buffer");
+
+	//CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
+	//pCurLevel->GetLayer(1)->GetObjects();
+}
+
+void CLandScape::SaveToLevelFile(FILE* _FILE)
+{
+	fwrite(&m_iFaceX, sizeof(UINT), 1, _FILE);
+	fwrite(&m_iFaceZ, sizeof(UINT), 1, _FILE);
+	fwrite(&m_vBrushScale, sizeof(Vec2), 1, _FILE);
+	fwrite(&m_iWeightWidth, sizeof(UINT), 1, _FILE);
+	fwrite(&m_iWeightHeight, sizeof(UINT), 1, _FILE);
+	fwrite(&m_iWeightIdx, sizeof(UINT), 1, _FILE);
+	fwrite(&m_eMod, sizeof(UINT), 1, _FILE);
+
+	SaveResRef(m_pBrushTex.Get(), _FILE);
+	SaveResRef(m_HeightMap.Get(), _FILE);
+	SaveResRef(m_ColorMap.Get(), _FILE);
+	SaveResRef(m_pTileArrTex.Get(), _FILE);
+
+	SaveWString(m_HeightMapName, _FILE);
+	SaveWString(m_ColorMapName, _FILE);
 }

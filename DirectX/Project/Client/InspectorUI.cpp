@@ -19,11 +19,11 @@
 #include "PrefabUI.h"
 #include "GraphicsShaderUI.h"
 #include "ComputeShaderUI.h"
+#include "DecalUI.h"
 #include "LandScapeUI.h"
 #include "Light3DUI.h"
 #include "MaterialUI.h"
 #include "ParticleSystemUI.h"
-#include "PlanetMoveUI.h"
 #include "ScriptUI.h"
 
 
@@ -47,6 +47,10 @@ InspectorUI::InspectorUI()
 	m_arrComUI[(UINT)COMPONENT_TYPE::CAMERA] = new CameraUI;
 	m_arrComUI[(UINT)COMPONENT_TYPE::CAMERA]->SetSize(0.f, 150.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::CAMERA]);
+
+	m_arrComUI[(UINT)COMPONENT_TYPE::DECAL] = new DecalUI;
+	m_arrComUI[(UINT)COMPONENT_TYPE::DECAL]->SetSize(0.f, 150.f);
+	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::DECAL]);
 
 	//m_arrComUI[(UINT)COMPONENT_TYPE::COLLIDER2D] = new Collider2DUI;
 	//m_arrComUI[(UINT)COMPONENT_TYPE::COLLIDER2D]->SetSize(0.f, 150.f);
@@ -72,10 +76,6 @@ InspectorUI::InspectorUI()
 	m_arrComUI[(UINT)COMPONENT_TYPE::LANDSCAPE] = new LandScapeUI;
 	m_arrComUI[(UINT)COMPONENT_TYPE::LANDSCAPE]->SetSize(0.f, 500.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::LANDSCAPE]);
-
-	m_arrComUI[(UINT)COMPONENT_TYPE::PLANET_MOVE] = new PlanetMoveUI;
-	m_arrComUI[(UINT)COMPONENT_TYPE::PLANET_MOVE]->SetSize(0.f, 150.f);
-	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::PLANET_MOVE]);
 
 	m_arrComUI[(UINT)COMPONENT_TYPE::TILEMAP] = new TileMapUI;
 	m_arrComUI[(UINT)COMPONENT_TYPE::TILEMAP]->SetSize(0.f, 150.f);

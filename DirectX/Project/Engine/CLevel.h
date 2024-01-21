@@ -1,4 +1,7 @@
 #pragma once
+
+#ifndef _LEVEL
+#define _LEVEL
 #include "CEntity.h"
 
 class CLayer;
@@ -42,3 +45,4 @@ public:
     friend class CLevelMgr;
 };
 
+#endif

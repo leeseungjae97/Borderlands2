@@ -22,8 +22,8 @@ private:
 	UINT					m_VtxCount;
 
 	// Animation3D Á¤º¸
-	map<wstring ,tMTAnimClip>	m_vecAnimClip;
-	//vector<tMTAnimClip>		m_vecAnimClip;
+	map<wstring ,tMTAnimClip>	m_mapAnimClip;
+	//vector<tMTAnimClip>		m_mapAnimClip;
 	vector<tMTBone>			m_vecBones;
 	vector<Matrix>			m_vecBoneOffset;
 
@@ -47,9 +47,9 @@ public:
 
 	const vector<tMTBone>* GetBones() { return &m_vecBones; }
 	UINT GetBoneCount() { return (UINT)m_vecBones.size(); }
-	//const vector<tMTAnimClip>* GetAnimClip() { return &m_vecAnimClip; }
-	const map<wstring, tMTAnimClip>& GetAnimClip() { return m_vecAnimClip; }
-	bool IsAnimMesh() { return !m_vecAnimClip.empty(); }
+	//const vector<tMTAnimClip>* GetAnimClip() { return &m_mapAnimClip; }
+	const map<wstring, tMTAnimClip>& GetAnimClip() { return m_mapAnimClip; }
+	bool IsAnimMesh() { return !m_mapAnimClip.empty(); }
 
 	
 

@@ -20,6 +20,9 @@ public:
     CLevel* CreateLevel(const wstring& name);
     CLevel* GetLevel(const wstring& name);
     void ChangeLevel(CLevel* _NextLevel);
+    void DeleteLevel(CLevel* _DeleteLevel);
+    void ResetLevel(CLevel* _ResetData);
+    void InsertLevel(const wstring& _strName, CLevel* _Level);
 
 public:
     void init();

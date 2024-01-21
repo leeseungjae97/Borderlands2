@@ -164,8 +164,8 @@
     <ClInclude Include="ComponentUI.h" />
     <ClInclude Include="ComputeShaderUI.h" />
     <ClInclude Include="ContentUI.h" />
+    <ClInclude Include="DecalUI.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="GameScene.h" />
     <ClInclude Include="GraphicsShaderUI.h" />
     <ClInclude Include="ImGuiMgr.h" />
     <ClInclude Include="ImGui\imconfig.h" />
@@ -178,7 +178,6 @@
     <ClInclude Include="Light2DUI.h" />
     <ClInclude Include="Light3DUI.h" />
     <ClInclude Include="ListUI.h" />
-    <ClInclude Include="MainScene.h" />
     <ClInclude Include="MaterialUI.h" />
     <ClInclude Include="MenuUI.h" />
     <ClInclude Include="MeshDataUI.h" />
@@ -188,7 +187,6 @@
     <ClInclude Include="ParamUI.h" />
     <ClInclude Include="ParticleSystemUI.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="PlanetMoveUI.h" />
     <ClInclude Include="PrefabUI.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResUI.h" />
@@ -213,7 +211,7 @@
     <ClCompile Include="ComponentUI.cpp" />
     <ClCompile Include="ComputeShaderUI.cpp" />
     <ClCompile Include="ContentUI.cpp" />
-    <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="DecalUI.cpp" />
     <ClCompile Include="GraphicsShaderUI.cpp" />
     <ClCompile Include="ImGuiMgr.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
@@ -229,7 +227,6 @@
     <ClCompile Include="Light3DUI.cpp" />
     <ClCompile Include="ListUI.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MainScene.cpp" />
     <ClCompile Include="MaterialUI.cpp" />
     <ClCompile Include="MenuUI.cpp" />
     <ClCompile Include="MeshDataUI.cpp" />
@@ -242,7 +239,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PlanetMoveUI.cpp" />
     <ClCompile Include="PrefabUI.cpp" />
     <ClCompile Include="ResUI.cpp" />
     <ClCompile Include="ScriptUI.cpp" />

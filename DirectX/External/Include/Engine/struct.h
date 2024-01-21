@@ -291,4 +291,10 @@ struct tRaycastOut
 	float	pad;
 };
 
-
+struct tNode
+{
+	int		iCoordX;
+	int		iCoordY;
+	Vec3	vPos;
+	Vec3	vLandPos;
+};

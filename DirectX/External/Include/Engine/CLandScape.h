@@ -3,6 +3,7 @@
 #include "CRayCastShader.h"
 #include "CColorMapShader.h"
 #include "CWeightMapShader.h"
+
 #include "ptr.h"
 
 #include "CRenderComponent.h"
@@ -55,6 +56,14 @@ private:
     LANDSCAPE_MOD           m_eMod; 	        // 지형 툴모드에서 상태값
 
     Ptr<CTexture>           m_pTileArrTex;      // 타일 배열 텍스쳐
+
+    // ========================================================================
+    vector<tNode>           m_vecNode;
+
+
+    //Ptr<CLandScapePathShader> m_pCSPathInit;
+    //CStructuredBuffer*        m_pNodesBuffer;
+
 public:
     void SetTessEdge(float _Edge) { m_TessEdge = _Edge; }
     float GetTessEdge() { return m_TessEdge; }
@@ -103,12 +112,16 @@ public:
     void CreateMesh();
     void CreateComputeShader();
     void CreateTexture();
+    void CreateNode();
 
     void CreateHeightMap();
     void CreateColorMap();
     void CreateWeightMap();
 
     void RayCasting();
+
+    void LoadFromLevelFile(FILE* _FILE) override;
+    void SaveToLevelFile(FILE* _FILE) override;
 
 public:
     CLONE(CLandScape);

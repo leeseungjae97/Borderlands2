@@ -30,24 +30,27 @@ int Animator3DUI::render_update()
 
 	GetTarget()->Animator3D()->SetBlendRatio(ratio);
 
-	wstring wanimName = curAnimClip->GetCurClip().strAnimName;
-	string animName = string(wanimName.begin(), wanimName.end());
-	ImGui::Text("cur anim : %s", animName.c_str());
+	if(curAnimClip)
+	{
+		wstring wanimName = curAnimClip->GetCurClip().strAnimName;
+		string animName = string(wanimName.begin(), wanimName.end());
+		ImGui::Text("cur anim : %s", animName.c_str());
 
-	sprintf_s(str, "Anim Idx : %d", GetTarget()->Animator3D()->GetClipIdx());
-	ImGui::Text(str);
+		sprintf_s(str, "Anim Idx : %d", GetTarget()->Animator3D()->GetClipIdx());
+		ImGui::Text(str);
 
-	sprintf_s(str, "Anim Frame : %d", GetTarget()->Animator3D()->GetCurAnimClip()->GetClipNextFrame());
-	ImGui::Text(str);
+		sprintf_s(str, "Anim Frame : %d", GetTarget()->Animator3D()->GetCurAnimClip()->GetClipNextFrame());
+		ImGui::Text(str);
 
-	sprintf_s(str, "Blend Time : %d", GetTarget()->Animator3D()->GetBlendAcc());
-	ImGui::Text(str);
+		sprintf_s(str, "Blend Time : %d", GetTarget()->Animator3D()->GetBlendAcc());
+		ImGui::Text(str);
 
-	sprintf_s(str, "Anim Ratio : %f", GetTarget()->Animator3D()->GetCurAnimClip()->GetRatio());
-	ImGui::Text(str);
+		sprintf_s(str, "Anim Ratio : %f", GetTarget()->Animator3D()->GetCurAnimClip()->GetRatio());
+		ImGui::Text(str);
 
-	sprintf_s(str, "Anim Bone : %d", GetTarget()->Animator3D()->GetBoneCount());
-	ImGui::Text(str);
+		sprintf_s(str, "Anim Bone : %d", GetTarget()->Animator3D()->GetBoneCount());
+		ImGui::Text(str);
+	}
 
 	wstring mChosen = L"";
 	int idx = 0;

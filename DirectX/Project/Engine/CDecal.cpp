@@ -12,8 +12,8 @@ CDecal::CDecal()
     , m_bEmissive(false)
 {
     SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CubeMesh"));
-    SetDeferredDecal(m_bDeferred);
     m_DecalTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\red_circle.png");
+    SetDeferredDecal(m_bDeferred);
 }
 
 CDecal::~CDecal()
@@ -58,4 +58,20 @@ void CDecal::SetDeferredDecal(bool _bDeferred)
         SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DecalMtrl"), 0);
 
     GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"PositionTargetTex"));
+}
+
+void CDecal::LoadFromLevelFile(FILE* _FILE)
+{
+    LoadResRef(m_DecalTex, _FILE);
+
+    fread(&m_bDeferred, sizeof(bool), 1, _FILE);
+    fread(&m_bEmissive, sizeof(bool), 1, _FILE);
+}
+
+void CDecal::SaveToLevelFile(FILE* _File)
+{
+    SaveResRef(m_DecalTex.Get(), _File);
+
+    fwrite(&m_bDeferred, sizeof(bool), 1, _File);
+    fwrite(&m_bEmissive, sizeof(bool), 1, _File);
 }

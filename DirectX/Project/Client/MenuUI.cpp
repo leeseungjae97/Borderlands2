@@ -150,7 +150,8 @@ int MenuUI::render_update()
                 CLevel* pNewLevel = CLevelSaveLoad::LoadLevel(L"Level\\Temp.lv");
              
                 tEvent evn = {};
-                evn.Type = EVENT_TYPE::LEVEL_CHANGE;
+                //evn.Type = EVENT_TYPE::LEVEL_CHANGE;
+                evn.Type = EVENT_TYPE::LEVEL_RESET;
                 evn.wParam = DWORD_PTR(pNewLevel);
                 CEventMgr::GetInst()->AddEvent(evn);
 
@@ -235,11 +236,11 @@ void MenuUI::AddComponent(COMPONENT_TYPE _type)
     case COMPONENT_TYPE::PARTICLESYSTEM:
         pSelectedObject->AddComponent(new CParticleSystem);
         break;
-    case COMPONENT_TYPE::TILEMAP:
-        pSelectedObject->AddComponent(new CTileMap);
-        break;
+    //case COMPONENT_TYPE::TILEMAP:
+    //    pSelectedObject->AddComponent(new CTileMap);
+    //    break;
     case COMPONENT_TYPE::LANDSCAPE:
-        //pSelectedObject->AddComponent(new CLandScape);
+        pSelectedObject->AddComponent(new CLandScape);
         break;
     case COMPONENT_TYPE::DECAL:
         pSelectedObject->AddComponent(new CDecal);

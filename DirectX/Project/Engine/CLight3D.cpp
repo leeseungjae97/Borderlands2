@@ -150,8 +150,47 @@ void CLight3D::render_shadowmap()
 
 void CLight3D::SaveToLevelFile(FILE* _File)
 {
+	fwrite(&m_LightInfo, sizeof(tLightInfo), 1, _File);
+
+	SaveResRef(m_Mesh.Get(), _File);
+	SaveResRef(m_Mtrl.Get(), _File);
+
+	fwrite(&m_LightIdx, sizeof(UINT), 1, _File);
+	fwrite(&m_bShowRange, sizeof(int), 1, _File);
+
+	fwrite(&m_bShadow, sizeof(int), 1, _File);
+	fwrite(&m_bGaus, sizeof(int), 1, _File);
+	fwrite(&m_fLightDepthCoeff, sizeof(float), 1, _File);
+
+	fwrite(&m_f[0], sizeof(float), 1, _File);
+	fwrite(&m_f[1], sizeof(float), 1, _File);
+	fwrite(&m_f[2], sizeof(float), 1, _File);
 }
 
 void CLight3D::LoadFromLevelFile(FILE* _File)
 {
+	fread(&m_LightInfo, sizeof(tLightInfo), 1, _File);
+
+	LoadResRef(m_Mesh, _File);
+	LoadResRef(m_Mtrl, _File);
+
+	fread(&m_LightIdx, sizeof(UINT), 1, _File);
+	fread(&m_bShowRange, sizeof(int), 1, _File);
+
+	fread(&m_bShadow, sizeof(int), 1, _File);
+	fread(&m_bGaus, sizeof(int), 1, _File);
+	fread(&m_fLightDepthCoeff, sizeof(float), 1, _File);
+
+	fread(&m_f[0], sizeof(float), 1, _File);
+	fread(&m_f[1], sizeof(float), 1, _File);
+	fread(&m_f[2], sizeof(float), 1, _File);
+
+	//m_pCamObj = new CGameObject;
+	//m_pCamObj->AddComponent(new CTransform);
+	//m_pCamObj->AddComponent(new CCamera);
+
+	//m_pCamObj->Camera()->SetLayerMaskAll(true);
+	//m_pCamObj->Camera()->SetLayerMask(31, false);
+
+	//SetLightType(LIGHT_TYPE::DIRECTIONAL);
 }

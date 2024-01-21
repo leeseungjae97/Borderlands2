@@ -65,6 +65,8 @@ CGameObject::~CGameObject()
 	Safe_Del_Array(m_arrCom);
 	Safe_Del_Vec(m_vecScript);
 	Safe_Del_Vec(m_vecChild);
+	//if (m_RenderCom)
+	//	delete m_RenderCom;
 }
 
 void CGameObject::begin()

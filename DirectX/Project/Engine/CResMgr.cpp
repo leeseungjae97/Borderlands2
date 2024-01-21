@@ -364,9 +364,9 @@ void CResMgr::CreateDefaultMesh()
 		vecIdx.push_back(i * 2 + 3);
 	}
 
-	pMesh = new CMesh;
+	pMesh = new CMesh(true);
 	pMesh->Create(arrCube, 24, vecIdx.data(), (UINT)vecIdx.size());
-	AddRes(L"CubeMesh", pMesh);
+	AddRes<CMesh>(L"CubeMesh", pMesh);
 	vecIdx.clear();
 
 	// ===============
@@ -1208,8 +1208,8 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->CreatePixelShader(L"shader\\landscape.fx", "PS_LandScape");
 
 	pShader->SetTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
-	pShader->SetRSType(RS_TYPE::CULL_BACK);
-	//pShader->SetRSType(RS_TYPE::WIRE_FRAME);
+	//pShader->SetRSType(RS_TYPE::CULL_BACK);
+	pShader->SetRSType(RS_TYPE::WIRE_FRAME);
 	pShader->SetDSType(DS_TYPE::LESS);
 	pShader->SetBSType(BS_TYPE::DEFAULT);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_DEFERRED);
@@ -1268,6 +1268,11 @@ void CResMgr::CreateDefaultComputeShader()
 	pCS->SetKey(L"WeightMapShader");
 	pCS->CreateComputeShader(L"shader\\weightmap.fx", "CS_WeightMap");
 	AddRes(pCS->GetKey(), pCS);
+
+	//pCS = new CWeightMapShader(32, 32, 1);
+	//pCS->SetKey(L"PathInitShader");
+	//pCS->CreateComputeShader(L"shader\\landscape_path.fx", "CS_MakePath");
+	//AddRes(pCS->GetKey(), pCS);
 }
 
 void CResMgr::CreateDefaultMaterial()

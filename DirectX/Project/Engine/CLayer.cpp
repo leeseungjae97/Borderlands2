@@ -11,6 +11,7 @@ CLayer::CLayer()
 CLayer::~CLayer()
 {
 	Safe_Del_Vec(m_vecParentObj);
+	//Safe_Del_Vec(m_vecObject);
 }
 
 void CLayer::begin()

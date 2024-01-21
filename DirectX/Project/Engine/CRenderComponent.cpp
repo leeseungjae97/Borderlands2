@@ -128,8 +128,8 @@ void CRenderComponent::SetMaterial(Ptr<CMaterial> _Mtrl, UINT _Idx)
 
 void CRenderComponent::SaveToLevelFile(FILE* _File)
 {
-	COMPONENT_TYPE type = GetType();
-	fwrite(&type, sizeof(UINT), 1, _File);
+	//COMPONENT_TYPE type = GetType();
+	//fwrite(&type, sizeof(UINT), 1, _File);
 
 
 	SaveResRef(m_pMesh.Get(), _File);
@@ -140,6 +140,7 @@ void CRenderComponent::SaveToLevelFile(FILE* _File)
 	for (UINT i = 0; i < iMtrlCount; ++i)
 	{
 		SaveResRef(m_vecMtrls[i].pSharedMtrl.Get(), _File);
+		//SaveResRef(m_vecMtrls[i].pDynamicMtrl.Get(), _File);
 	}
 
 	fwrite(&m_bDynamicShadow, 1, 1, _File);
@@ -156,9 +157,15 @@ void CRenderComponent::LoadFromLevelFile(FILE* _File)
 
 	for (UINT i = 0; i < iMtrlCount; ++i)
 	{
-		Ptr<CMaterial> pMtrl;
-		LoadResRef(pMtrl, _File);
-		SetMaterial(pMtrl, i);
+		Ptr<CMaterial> pCurMtrl;
+		//Ptr<CMaterial> pDyMtrl;
+		tMtrlSet mtrlSet;
+		LoadResRef(pCurMtrl, _File);
+		//LoadResRef(pDyMtrl, _File);
+		//mtrlSet.pCurrentMtrl = pCurMtrl;
+		//mtrlSet.pDynamicMtrl = pDyMtrl;
+		m_vecMtrls.push_back(mtrlSet);
+		SetMaterial(pCurMtrl, i);
 	}
 
 	fread(&m_bDynamicShadow, 1, 1, _File);

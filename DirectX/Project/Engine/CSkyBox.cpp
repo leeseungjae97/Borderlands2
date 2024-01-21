@@ -73,12 +73,14 @@ void CSkyBox::finaltick()
 
 void CSkyBox::SaveToLevelFile(FILE* _File)
 {
-    CRenderComponent::SaveToLevelFile(_File);
+	fwrite(&m_Type, sizeof(UINT), 1, _File);
+	SaveResRef(m_SkyBoxTex.Get(), _File);
 }
 
 void CSkyBox::LoadFromLevelFile(FILE* _FILE)
 {
-    CRenderComponent::LoadFromLevelFile(_FILE);
+	fread(&m_Type, sizeof(UINT), 1, _FILE);
+	LoadResRef(m_SkyBoxTex, _FILE);
 }
 
 

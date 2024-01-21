@@ -207,19 +207,14 @@ CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File)
 		case COMPONENT_TYPE::TILEMAP:
 			Component = new CTileMap;
 			break;
-		case COMPONENT_TYPE::LANDSCAPE:			
+		case COMPONENT_TYPE::LANDSCAPE:
+			Component = new CLandScape;
 			break;
 		case COMPONENT_TYPE::DECAL:
 			Component = new CDecal;
 			break;
-		case COMPONENT_TYPE::PLANET_MOVE:
-			Component = new CPlanetMove;
-			break;
 		case COMPONENT_TYPE::SKYBOX:
 			Component = new CSkyBox;
-			break;
-		case COMPONENT_TYPE::SOLOAR_SYSTEM:
-			Component = new CSolarSystem;
 			break;
 		}
 

@@ -131,8 +131,8 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 		tClip.iFrameLength = tClip.iEndFrame - tClip.iStartFrame;
 		tClip.eMode = vecAnimClip[i]->eMode;
 
-		//pMesh->m_vecAnimClip.push_back(tClip);
-		pMesh->m_vecAnimClip.insert(make_pair(tClip.strAnimName, tClip));
+		//pMesh->m_mapAnimClip.push_back(tClip);
+		pMesh->m_mapAnimClip.insert(make_pair(tClip.strAnimName, tClip));
 	}
 
 	//pMesh->m_veciFrameCount.resize(vecAnimClip.size());
@@ -182,8 +182,8 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 			bone.vecKeyFrame.insert(make_pair(animName, vecMTKeyFrames));
 
 
-			//pMesh->m_vecAnimClip[j].iFrameCount = (max(iFrameCount, (UINT)frame.size()));
-			pMesh->m_vecAnimClip.at(animName).iFrameCount = (max(iFrameCount, (UINT)frame.size()));
+			//pMesh->m_mapAnimClip[j].iFrameCount = (max(iFrameCount, (UINT)frame.size()));
+			pMesh->m_mapAnimClip.at(animName).iFrameCount = (max(iFrameCount, (UINT)frame.size()));
 		}
 		pMesh->m_vecBones.push_back(bone);
 	}
@@ -194,7 +194,7 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 		TransKeyFrame(pMesh);
 
 		pMesh->m_pBoneOffset = new CStructuredBuffer;
-		pMesh->m_pBoneOffset->Create(sizeof(Matrix), (UINT)pMesh->m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false, pMesh->m_vecBoneOffset.data());
+		pMesh->m_pBoneOffset->Create(sizeof(Matrix), (UINT)pMesh->m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false, "Mesh Bone Offset Buffer",pMesh->m_vecBoneOffset.data());
 
 		pMesh->m_pBoneFrameData = new CStructuredBuffer;
 		pMesh->m_pBlendFrameData = new CStructuredBuffer;
@@ -204,19 +204,19 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 }
 CStructuredBuffer* CMesh::GetBoneFrameDataBuffer(const wstring& _AnimName)
 {
-	//tMTAnimClip clip = m_vecAnimClip[_Idx];
-	tMTAnimClip clip = m_vecAnimClip.at(_AnimName);
+	//tMTAnimClip clip = m_mapAnimClip[_Idx];
+	tMTAnimClip clip = m_mapAnimClip.at(_AnimName);
 	m_pBoneFrameData->Create(sizeof(tFrameTrans), (UINT)m_vecBoneOffset.size() * clip.iFrameCount
-		, SB_TYPE::READ_ONLY, false, clip.vecTransKeyFrame.data());
+		, SB_TYPE::READ_ONLY, false, "Mesh Bone Frame Data Buffer",clip.vecTransKeyFrame.data());
 	return m_pBoneFrameData;
 }
 
 CStructuredBuffer* CMesh::GetBlendFrameDataBuffer(const wstring& _AnimName)
 {
-	//tMTAnimClip clip = m_vecAnimClip[_Idx];
-	tMTAnimClip clip = m_vecAnimClip.at(_AnimName);
+	//tMTAnimClip clip = m_mapAnimClip[_Idx];
+	tMTAnimClip clip = m_mapAnimClip.at(_AnimName);
 	m_pBlendFrameData->Create(sizeof(tFrameTrans), (UINT)m_vecBoneOffset.size() * clip.iFrameCount
-		, SB_TYPE::READ_ONLY, false, clip.vecTransKeyFrame.data());
+		, SB_TYPE::READ_ONLY, false, "Mesh Bone Frame Data Buffer",clip.vecTransKeyFrame.data());
 	return m_pBlendFrameData;
 }
 
@@ -278,10 +278,10 @@ void CMesh::TransKeyFrame(CMesh* mesh)
 
 		mesh->m_vecBoneOffset.push_back(_bone.matOffset);
 
-		//for (size_t k = 0; k < mesh->m_vecAnimClip.size(); ++k)
-		for (auto& pair : mesh->m_vecAnimClip)
+		//for (size_t k = 0; k < mesh->m_mapAnimClip.size(); ++k)
+		for (auto& pair : mesh->m_mapAnimClip)
 		{
-			//tMTAnimClip clip = mesh->m_vecAnimClip[k];
+			//tMTAnimClip clip = mesh->m_mapAnimClip[k];
 			tMTAnimClip clip = pair.second;
 			wstring animName = clip.strAnimName;
 
@@ -300,7 +300,7 @@ void CMesh::TransKeyFrame(CMesh* mesh)
 					vecMTKeyFrame[j].qRot
 				};
 			}
-			//mesh->m_vecAnimClip[k] = clip;
+			//mesh->m_mapAnimClip[k] = clip;
 			pair.second = clip;
 		}
 	}
@@ -386,8 +386,8 @@ int CMesh::Load(const wstring& _strFilePath)
 		fread(&tClip.iFrameLength, sizeof(int), 1, pFile);
 		fread(&tClip.iFrameCount, sizeof(int), 1, pFile);
 
-		//m_vecAnimClip.push_back(tClip);
-		m_vecAnimClip.insert(make_pair(tClip.strAnimName, tClip));
+		//m_mapAnimClip.push_back(tClip);
+		m_mapAnimClip.insert(make_pair(tClip.strAnimName, tClip));
 	}
 
 	iCount = 0;
@@ -422,12 +422,12 @@ int CMesh::Load(const wstring& _strFilePath)
 		}
 	}
 
-	if (m_vecAnimClip.size() > 0 && m_vecBones.size() > 0)
+	if (m_mapAnimClip.size() > 0 && m_vecBones.size() > 0)
 	{
 		TransKeyFrame(this);
 
 		m_pBoneOffset = new CStructuredBuffer;
-		m_pBoneOffset->Create(sizeof(Matrix), (UINT)m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false, m_vecBoneOffset.data());
+		m_pBoneOffset->Create(sizeof(Matrix), (UINT)m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false, "Mesh Bone Offset Buffer",m_vecBoneOffset.data());
 
 		m_pBoneFrameData = new CStructuredBuffer;
 		m_pBlendFrameData = new CStructuredBuffer;
@@ -475,22 +475,22 @@ int CMesh::Save(const wstring& _strRelativePath)
 	}
 
 	// Animation3D Á¤º¸ 
-	UINT iCount = (UINT)m_vecAnimClip.size();
+	UINT iCount = (UINT)m_mapAnimClip.size();
 	fwrite(&iCount, sizeof(int), 1, pFile);
 	//for (UINT i = 0; i < iCount; ++i)
 	//{
-	//	SaveWString(m_vecAnimClip[i].strAnimName, pFile);
-	//	fwrite(&m_vecAnimClip[i].dStartTime, sizeof(double), 1, pFile);
-	//	fwrite(&m_vecAnimClip[i].dEndTime, sizeof(double), 1, pFile);
-	//	fwrite(&m_vecAnimClip[i].dTimeLength, sizeof(double), 1, pFile);
-	//	fwrite(&m_vecAnimClip[i].eMode, sizeof(int), 1, pFile);
-	//	fwrite(&m_vecAnimClip[i].fUpdateTime, sizeof(float), 1, pFile);
-	//	fwrite(&m_vecAnimClip[i].iStartFrame, sizeof(int), 1, pFile);
-	//	fwrite(&m_vecAnimClip[i].iEndFrame, sizeof(int), 1, pFile);
-	//	fwrite(&m_vecAnimClip[i].iFrameLength, sizeof(int), 1, pFile);
-	//	fwrite(&m_vecAnimClip[i].iFrameCount, sizeof(int), 1, pFile);
+	//	SaveWString(m_mapAnimClip[i].strAnimName, pFile);
+	//	fwrite(&m_mapAnimClip[i].dStartTime, sizeof(double), 1, pFile);
+	//	fwrite(&m_mapAnimClip[i].dEndTime, sizeof(double), 1, pFile);
+	//	fwrite(&m_mapAnimClip[i].dTimeLength, sizeof(double), 1, pFile);
+	//	fwrite(&m_mapAnimClip[i].eMode, sizeof(int), 1, pFile);
+	//	fwrite(&m_mapAnimClip[i].fUpdateTime, sizeof(float), 1, pFile);
+	//	fwrite(&m_mapAnimClip[i].iStartFrame, sizeof(int), 1, pFile);
+	//	fwrite(&m_mapAnimClip[i].iEndFrame, sizeof(int), 1, pFile);
+	//	fwrite(&m_mapAnimClip[i].iFrameLength, sizeof(int), 1, pFile);
+	//	fwrite(&m_mapAnimClip[i].iFrameCount, sizeof(int), 1, pFile);
 	//}
-	for(const auto& pair : m_vecAnimClip)
+	for(const auto& pair : m_mapAnimClip)
 	{
 		SaveWString(pair.second.strAnimName, pFile);
 		fwrite(&pair.second.dStartTime, sizeof(double), 1, pFile);

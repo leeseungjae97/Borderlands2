@@ -41,6 +41,8 @@ CRenderMgr::~CRenderMgr()
         delete m_Light3DBuffer;
 
     DeleteArray(m_MRT);
+
+    //Safe_Del_Vec(m_vecCam);
 }
 
 
@@ -48,10 +50,10 @@ void CRenderMgr::init()
 {
     // Light2DBuffer 구조화 버퍼 생성
     m_Light2DBuffer = new CStructuredBuffer;
-    m_Light2DBuffer->Create(sizeof(tLightInfo), 10, SB_TYPE::READ_ONLY, true);
+    m_Light2DBuffer->Create(sizeof(tLightInfo), 10, SB_TYPE::READ_ONLY, true, "Light 2D Buffer");
 
     m_Light3DBuffer = new CStructuredBuffer;
-    m_Light3DBuffer->Create(sizeof(tLightInfo), 10, SB_TYPE::READ_ONLY, true);
+    m_Light3DBuffer->Create(sizeof(tLightInfo), 10, SB_TYPE::READ_ONLY, true, "Light 3D Buffer");
 
     CreateMRT();
 }
@@ -82,12 +84,9 @@ void CRenderMgr::render_play()
         if (nullptr == m_vecCam[i])
             continue;
 
-        // 물체 분류작업
-        // - 해당 카메라가 볼 수 있는 물체(레이어 분류)
-        // - 재질에 따른 분류 (재질->쉐이더) 쉐이더 도메인
-        //   쉐이더 도메인에 따라서 렌더링 순서분류
         m_vecCam[i]->SortObject();
 
+        m_MRT[(UINT)MRT_TYPE::SWAPCHAIN]->OMSet();
 
         m_vecCam[i]->render();
     }
@@ -95,6 +94,8 @@ void CRenderMgr::render_play()
 
 void CRenderMgr::render_editor()
 {
+    if (nullptr == m_pEditorCam)
+        return;
 
     // 물체 분류
     m_pEditorCam->SortObject();
@@ -113,7 +114,7 @@ int CRenderMgr::RegisterCamera(CCamera* _Cam, int _idx)
         m_vecCam.resize(_idx + 1);
     }
 
-    m_vecCam[_idx] = _Cam;    
+    m_vecCam[_idx] = _Cam;
     return _idx;
 }
 
@@ -155,11 +156,11 @@ void CRenderMgr::UpdateData()
     // 구조화버퍼의 크기가 모자라면 더 크게 새로 만든다.
     if (m_Light2DBuffer->GetElementCount() < m_vecLight2DInfo.size())
     {
-        m_Light2DBuffer->Create(sizeof(tLightInfo), m_vecLight2DInfo.size(), SB_TYPE::READ_ONLY, true);
+        m_Light2DBuffer->Create(sizeof(tLightInfo), m_vecLight2DInfo.size(), SB_TYPE::READ_ONLY, true, "Light 2D Buffer");
     }
     if (m_Light3DBuffer->GetElementCount() < m_vecLight3DInfo.size())
     {
-        m_Light3DBuffer->Create(sizeof(tLightInfo), m_vecLight3DInfo.size(), SB_TYPE::READ_ONLY, true);
+        m_Light3DBuffer->Create(sizeof(tLightInfo), m_vecLight3DInfo.size(), SB_TYPE::READ_ONLY, true, "Light 3D Buffer");
     }
 
     // 구조화버퍼로 광원 데이터를 옮긴다.
@@ -184,7 +185,8 @@ void CRenderMgr::render_shadowmap()
 
     for (size_t i = 0; i < m_vecLight3D.size(); ++i)
     {
-        m_vecLight3D[i]->render_shadowmap();
+        if(m_vecLight3D[i])
+			m_vecLight3D[i]->render_shadowmap();
     }
 }
 
@@ -243,6 +245,7 @@ void CRenderMgr::CreateMRT()
             , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
         m_MRT[(UINT)MRT_TYPE::DEFERRED]->Create(arrRTTex, 5, nullptr);
+        //m_MRT[(UINT)MRT_TYPE::DEFERRED]->SetClearColor(Vec4(0.f, 0.f, 1.f, 1.f), 0);
     }
     // ====================
 	// Decal MRT 만들기
@@ -279,6 +282,7 @@ void CRenderMgr::CreateMRT()
             , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
         m_MRT[(UINT)MRT_TYPE::LIGHT]->Create(arrRTTex, 3, nullptr);
+        //m_MRT[(UINT)MRT_TYPE::LIGHT]->SetClearColor(Vec4(0.f, 1.f, 0.f, 1.f), 0);
     }
 
     // ====================
