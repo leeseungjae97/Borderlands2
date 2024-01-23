@@ -54,6 +54,12 @@ typedef Vector4 Vec4;
 #ifdef _DEBUG
 #pragma comment(lib, "FBXLoader/x64/debug/libfbxsdk-md.lib")
 
+#pragma comment(lib, "Recast/x64/debug/Recast.lib")
+#pragma comment(lib, "Recast/x64/debug/Detour.lib")
+#pragma comment(lib, "Recast/x64/debug/DebugUtils.lib")
+#pragma comment(lib, "Recast/x64/debug/DetourCrowd.lib")
+#pragma comment(lib, "Recast/x64/debug/DetourTileCache.lib")
+
 //#pragma comment(lib, "PhysX/debug/PhysXVehicle_static_64.lib")
 //#pragma comment(lib, "PhysX/debug/PhysXVehicle2_static_64.lib")
 //#pragma comment(lib, "PhysX/debug/PhysXExtensions_static_64.lib")
@@ -68,6 +74,12 @@ typedef Vector4 Vec4;
 #else
 #pragma comment(lib, "FBXLoader/x64/release/libfbxsdk-md.lib")
 
+#pragma comment(lib, "Recast/x64/release/Recast.lib")
+#pragma comment(lib, "Recast/x64/release/Detour.lib")
+#pragma comment(lib, "Recast/x64/release/DebugUtils.lib")
+#pragma comment(lib, "Recast/x64/release/DetourCrowd.lib")
+#pragma comment(lib, "Recast/x64/release/DetourTileCache.lib")
+
 //#pragma comment(lib, "PhysX/release/PhysXVehicle_static_64.lib")
 //#pragma comment(lib, "PhysX/release/PhysXVehicle2_static_64.lib")
 //#pragma comment(lib, "PhysX/release/PhysXExtensions_static_64.lib")
@@ -79,6 +91,8 @@ typedef Vector4 Vec4;
 //#pragma comment(lib, "PhysX/release/PhysXCommon_static_64.lib")
 //#pragma comment(lib, "PhysX/release/PhysXFoundation_static_64.lib")
 #endif
+
+
 
 #include "define.h"
 #include "struct.h"

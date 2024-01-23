@@ -196,6 +196,11 @@ void CParticleSystem::render()
 	CFontMgr::GetInst()->DrawFont(szBuff, 10.f, 52.f, 16.f, FONT_RGBA(255, 0, 0, 255));
 }
 
+void CParticleSystem::render(UINT _iSubset)
+{
+	render();
+}
+
 void CParticleSystem::SaveToLevelFile(FILE* _File)
 {
 	CRenderComponent::SaveToLevelFile(_File);

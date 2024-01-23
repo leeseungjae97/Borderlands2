@@ -54,3 +54,29 @@ void CMeshRender::render()
 	if (Animator3D())
 		Animator3D()->ClearData();
 }
+
+void CMeshRender::render(UINT _iSubset)
+{
+	if (nullptr == GetMesh() || nullptr == GetMaterial(_iSubset))
+		return;
+
+	// Transform 에 UpdateData 요청
+	Transform()->UpdateData();
+
+	// Animator3D 업데이트
+	if (Animator3D())
+	{
+		Animator3D()->UpdateData();
+		GetMaterial(_iSubset)->SetAnim3D(true); // Animation Mesh 알리기
+		GetMaterial(_iSubset)->SetBoneCount(Animator3D()->GetBoneCount());
+	}
+
+	// 사용할 재질 업데이트
+	GetMaterial(_iSubset)->UpdateData();
+
+	// 사용할 메쉬 업데이트 및 렌더링
+	GetMesh()->render(_iSubset);
+
+	if (Animator3D())
+		Animator3D()->ClearData();
+}

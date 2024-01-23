@@ -3,6 +3,7 @@
 
 #include "CAnimation3DShader.h"
 #include "CColorMapShader.h"
+#include "CCopyBoneShader.h"
 #include "CHeightMapShader.h"
 #include "CPathMgr.h"
 #include "CRayCastShader.h"
@@ -22,6 +23,7 @@ void CResMgr::init()
 	InitSound();
 
 	CreateDefaultMesh();
+	CreateDefaultLayout();
 	CreateDefaultGraphicsShader();
 	CreateDefaultComputeShader();
 	CreateDefaultMaterial();	
@@ -585,69 +587,37 @@ void CResMgr::CreateDefaultMesh()
 	vecIdx.clear();
 }
 
+void CResMgr::CreateDefaultLayout()
+{
+	AddInputLayout(DXGI_FORMAT_R32G32B32_FLOAT, "POSITION", 0, 0);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "COLOR", 0, 0);
+	AddInputLayout(DXGI_FORMAT_R32G32_FLOAT, "TEXCOORD", 0, 0);
+
+	AddInputLayout(DXGI_FORMAT_R32G32B32_FLOAT, "NORMAL", 0, 0);
+	AddInputLayout(DXGI_FORMAT_R32G32B32_FLOAT, "TANGENT", 0, 0);
+	AddInputLayout(DXGI_FORMAT_R32G32B32_FLOAT, "BINORMAL", 0, 0);
+
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "BLENDWEIGHT", 0, 0);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "BLENDINDICES", 0, 0);
+
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "WORLD", 1, 0);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "WORLD", 1, 1);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "WORLD", 1, 2);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "WORLD", 1, 3);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "WV", 1, 0);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "WV", 1, 1);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "WV", 1, 2);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "WV", 1, 3);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "WVP", 1, 0);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "WVP", 1, 1);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "WVP", 1, 2);
+	AddInputLayout(DXGI_FORMAT_R32G32B32A32_FLOAT, "WVP", 1, 3);
+	AddInputLayout(DXGI_FORMAT_R32_UINT, "ROWINDEX", 1, 0);
+}
+
 void CResMgr::CreateDefaultGraphicsShader()
 {
 	Ptr<CGraphicsShader> pShader = nullptr;
-
-	// ============================
-	// Std2DShader
-	// RasterizerState      : None
-	// BlendState           : Mask
-	// DepthStencilState    : Less
-	//
-	// Parameter
-	// g_tex_0              : Output Texture
-	// ============================
-	pShader = new CGraphicsShader;
-	pShader->SetKey(L"Std2DShader");
-	pShader->CreateVertexShader(L"shader\\std2d.fx", "VS_Std2D");
-	pShader->CreatePixelShader(L"shader\\std2d.fx", "PS_Std2D");
-
-	pShader->SetRSType(RS_TYPE::CULL_NONE);
-	pShader->SetDSType(DS_TYPE::LESS);
-	pShader->SetBSType(BS_TYPE::MASK);
-
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_MASK);
-
-	// Param
-	pShader->AddTexParam(TEX_0, "Output Texture");
-
-	AddRes(pShader->GetKey(), pShader);
-
-
-
-	// ======================================
-	// Std2DLightShader
-	// RasterizerState      : None
-	// BlendState           : Mask
-	// DepthStencilState    : Less
-	//
-	// Parameter
-	// g_tex_0              : Output Texture
-	// g_tex_1              : Nomal Texture
-	// ======================================
-	pShader = new CGraphicsShader;
-	pShader->SetKey(L"Std2DLightShader");
-	pShader->CreateVertexShader(L"shader\\std2d.fx", "VS_Std2DLight");
-	pShader->CreatePixelShader(L"shader\\std2d.fx", "PS_Std2DLight");
-
-	pShader->SetRSType(RS_TYPE::CULL_NONE);
-	pShader->SetDSType(DS_TYPE::LESS);
-	pShader->SetBSType(BS_TYPE::MASK);
-
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_MASK);
-
-	// Param
-	pShader->AddScalarParam(INT_1, "Test Int");
-	pShader->AddScalarParam(FLOAT_0, "Test Float");
-	pShader->AddScalarParam(VEC2_0, "Test Vec2");
-	pShader->AddScalarParam(VEC4_0, "Test Vec4");
-
-	pShader->AddTexParam(TEX_0, "Output Texture 1");
-	pShader->AddTexParam(TEX_1, "Output Texture 2");
-	pShader->AddTexParam(TEX_2, "Output Texture 3");
-
-	AddRes(pShader->GetKey(), pShader);
 
 	// =================
 	// DebugShape Shader
@@ -692,30 +662,6 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_MASK);
 
 	AddRes(pShader->GetKey(), pShader);
-
-	// ============================
-	// TileMap Shader
-	// 
-	// RS_TYPE : CULL_NONE
-	// DS_TYPE : LESS
-	// BS_TYPE : MASK
-
-	// Parameter
-	// g_tex_0 : Tile Atlas Texture
-	// ============================
-	pShader = new CGraphicsShader;
-	pShader->SetKey(L"TileMapShader");
-	pShader->CreateVertexShader(L"shader\\tilemap.fx", "VS_TileMap");
-	pShader->CreatePixelShader(L"shader\\tilemap.fx", "PS_TileMap");
-	
-	pShader->SetRSType(RS_TYPE::CULL_NONE);
-	pShader->SetDSType(DS_TYPE::LESS);
-	pShader->SetBSType(BS_TYPE::MASK);
-
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_MASK);
-
-	AddRes(pShader->GetKey(), pShader);
-
 
 	// ============================
 	// ParticleRender
@@ -809,28 +755,6 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	AddRes(pShader->GetKey(), pShader);
 
-
-	// ============================
-	// TestShader
-	// RS_TYPE : CULL_NONE
-	// DS_TYPE : LESS
-	// BS_TYPE : DEFAULT	 
-	// Domain : MASK
-	// ============================
-	pShader = new CGraphicsShader;
-	pShader->SetKey(L"TestShader");
-	pShader->CreateVertexShader(L"shader\\test.fx", "VS_TestShader");
-	pShader->CreatePixelShader(L"shader\\test.fx", "PS_TestShader");
-	pShader->SetRSType(RS_TYPE::CULL_NONE);
-	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_MASK);
-
-	// Parameter
-	pShader->AddScalarParam(INT_0, "Color Type");
-	pShader->AddTexParam(TEX_0, "Output Texture");
-
-	AddRes(pShader->GetKey(), pShader);
-
 	// ============================
     // Std3DShader
     // RS_TYPE : CULL_BACK
@@ -917,65 +841,6 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	AddRes(pShader->GetKey(), pShader);
 
-	// ============================
-	// StencilCullShader1
-	// RS_TYPE : CULL_NONE
-	// DS_TYPE : STENCIL_CULL
-	// BS_TYPE : DEFAULT
-	// Domain : Deferred
-	// ============================
-	pShader = new CGraphicsShader;
-	pShader->SetKey(L"StencilCullShader1");
-
-	pShader->CreateVertexShader(L"shader\\light.fx", "VS_MShader");
-	pShader->CreatePixelShader(L"shader\\light.fx", "PS_MShader");
-
-	pShader->SetStencilRef(2);
-	pShader->SetRSType(RS_TYPE::CULL_NONE);
-	pShader->SetDSType(DS_TYPE::STENCIL_CULL_TEST_O);
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_POSTPROCESS);
-
-
-	AddRes(pShader->GetKey(), pShader);
-
-	// ============================
-	// StencilDeployShader
-	// RS_TYPE : CULL_NONE
-	// DS_TYPE : STENCIL_CULL
-	// BS_TYPE : DEFAULT
-	// Domain : Deferred
-	// ============================
-	pShader = new CGraphicsShader;
-	pShader->SetKey(L"StencilDeployShader");
-
-	pShader->CreateVertexShader(L"shader\\light.fx", "VS_MShader");
-	pShader->CreatePixelShader(L"shader\\light.fx", "PS_MShader");
-
-	pShader->SetStencilRef(0);
-	pShader->SetRSType(RS_TYPE::CULL_NONE);
-	pShader->SetDSType(DS_TYPE::STENCIL_CULL_DEPLOY);
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_POSTPROCESS);
-
-
-	AddRes(pShader->GetKey(), pShader);
-
-	// ============================
-	// Planet3D_Deferred
-	// RS_TYPE : CULL_FRONT
-	// DS_TYPE : LESS
-	// BS_TYPE : DEFAULT
-	// Domain : Deferred
-	// ============================
-	pShader = new CGraphicsShader;
-	pShader->SetKey(L"Planet3D_DeferredShader");
-
-	pShader->CreateVertexShader(L"shader\\planet3d_deferred.fx", "VS_Planet3D_Deferred");
-	pShader->CreatePixelShader(L"shader\\planet3d_deferred.fx", "PS_Planet3D_Deferred");
-
-	pShader->SetRSType(RS_TYPE::CULL_BACK);
-	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_DEFERRED);
-
 	// Parameter	
 	pShader->AddTexParam(TEX_0, "Output Texture");
 
@@ -1049,26 +914,6 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	pShader->CreateVertexShader(L"shader\\light.fx", "VS_ShadowMap");
 	pShader->CreatePixelShader(L"shader\\light.fx", "PS_ShadowMap");
-
-	pShader->SetRSType(RS_TYPE::CULL_BACK);
-	pShader->SetDSType(DS_TYPE::LESS);
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_LIGHT);
-
-	AddRes(pShader->GetKey(), pShader);
-
-	// =====================================
-	// ShadowMapExp Shader
-	// MRT              : SHADOWMAP
-	// Domain           : DOMAIN_LIGHT	
-	// Rasterizer       : CULL_BACK
-	// DepthStencil     : LESS
-	// Blend            : Default
-	// =====================================
-	pShader = new CGraphicsShader;
-	pShader->SetKey(L"ShadowMapExpShader");
-
-	pShader->CreateVertexShader(L"shader\\light.fx", "VS_ShadowMap");
-	pShader->CreatePixelShader(L"shader\\light.fx", "PS_ShadowMapExp");
 
 	pShader->SetRSType(RS_TYPE::CULL_BACK);
 	pShader->SetDSType(DS_TYPE::LESS);
@@ -1269,6 +1114,12 @@ void CResMgr::CreateDefaultComputeShader()
 	pCS->CreateComputeShader(L"shader\\weightmap.fx", "CS_WeightMap");
 	AddRes(pCS->GetKey(), pCS);
 
+	// Animation Matrix Copy Ω¶¿Ã¥ı
+	pCS = new CCopyBoneShader(1024, 1, 1);
+	pCS->SetKey(L"CopyBoneCS");
+	pCS->CreateComputeShader(L"shader\\copybone.fx", "CS_CopyBoneMatrix");
+	AddRes(pCS->GetKey(), pCS);
+
 	//pCS = new CWeightMapShader(32, 32, 1);
 	//pCS->SetKey(L"PathInitShader");
 	//pCS->CreateComputeShader(L"shader\\landscape_path.fx", "CS_MakePath");
@@ -1279,31 +1130,21 @@ void CResMgr::CreateDefaultMaterial()
 {
 	Ptr<CMaterial> pMtrl = nullptr;
 
-	// Test Material
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"TestShader"));
-	AddRes(L"TestMtrl", pMtrl);
-
 	// Std2D Material
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DShader"));
-	AddRes(L"Std2DMtrl", pMtrl);
+	//pMtrl = new CMaterial(true);
+	//pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DShader"));
+	//AddRes(L"Std2DMtrl", pMtrl);
 
 	// Std2DAnim Material
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DShader"));
-	AddRes(L"Std2DAnimMtrl", pMtrl);
+	//pMtrl = new CMaterial(true);
+	//pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DShader"));
+	//AddRes(L"Std2DAnimMtrl", pMtrl);
 
 	// Std2DLight Material
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DLightShader"));
-	AddRes(L"Std2DLightMtrl", pMtrl);
+	//pMtrl = new CMaterial(true);
+	//pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DLightShader"));
+	//AddRes(L"Std2DLightMtrl", pMtrl);
 
-	// Std2DLight Material
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DLightShader"));
-	AddRes(L"Std2DAnimLightMtrl", pMtrl);
-	
 	// DebugShape Material
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DebugShapeShader"));
@@ -1313,11 +1154,6 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DebugSphereShapeShader"));
 	AddRes(L"DebugSphereShapeMtrl", pMtrl);
-
-	// TileMap Material
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"TileMapShader"));
-	AddRes(L"TileMapMtrl", pMtrl);
 
 	// Particle Render Material
 	pMtrl = new CMaterial(true);
@@ -1339,11 +1175,6 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DistortionShader"));
 	AddRes(L"DistortionMtrl", pMtrl);	
 
-	// TestShader
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"TestShader"));
-	AddRes(L"TestShaderMtrl", pMtrl);
-
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std3DShader"));
 	AddRes(L"Std3DShaderMtrl", pMtrl);
@@ -1357,15 +1188,6 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std3D_DeferredShader"));
 	AddRes(L"Std3D_DeferredMtrl", pMtrl);
 
-	//Planet3D_DeferredShader
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Planet3D_DeferredShader"));
-	AddRes(L"Planet3D_DeferredMtrl", pMtrl);
-
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Planet3D_DeferredShader_Alpha"));
-	AddRes(L"Planet3D_DeferredAlphaMtrl", pMtrl);
-	
 	// DirLightMtrl
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DirLightShader"));
@@ -1395,15 +1217,14 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DeferredAreaDecalShader"));
 	AddRes(L"DeferredAreaDecalMtrl", pMtrl);
 
-	
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"StencilCullShader1"));
-	AddRes(L"StencilCullMtrl1", pMtrl);
+	//pMtrl = new CMaterial(true);
+	//pMtrl->SetShader(FindRes<CGraphicsShader>(L"StencilCullShader1"));
+	//AddRes(L"StencilCullMtrl1", pMtrl);
 
-	
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"StencilDeployShader"));
-	AddRes(L"StencilDeployMtrl", pMtrl);
+	//
+	//pMtrl = new CMaterial(true);
+	//pMtrl->SetShader(FindRes<CGraphicsShader>(L"StencilDeployShader"));
+	//AddRes(L"StencilDeployMtrl", pMtrl);
 
 	// ShadowMapMtrl
 	pMtrl = new CMaterial(true);
@@ -1495,4 +1316,36 @@ void CResMgr::DeleteRes(RES_TYPE _type, const wstring& _strKey)
 	m_arrRes[(UINT)_type].erase(iter);	
 
 	m_Changed = true;
+}
+
+void CResMgr::AddInputLayout(DXGI_FORMAT _eFormat, const char* _strSemanticName, UINT _iSlotNum, UINT _iSemanticIdx)
+{
+	D3D11_INPUT_ELEMENT_DESC LayoutDesc = {};
+
+	if (0 == _iSlotNum)
+	{
+		LayoutDesc.AlignedByteOffset = m_iLayoutOffset_0;
+		LayoutDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		LayoutDesc.InstanceDataStepRate = 0;
+	}
+	else if (1 == _iSlotNum)
+	{
+		LayoutDesc.AlignedByteOffset = m_iLayoutOffset_1;
+		LayoutDesc.InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
+		LayoutDesc.InstanceDataStepRate = 1;
+	}
+
+	LayoutDesc.Format = _eFormat;
+	LayoutDesc.InputSlot = _iSlotNum;
+	LayoutDesc.SemanticName = _strSemanticName;
+	LayoutDesc.SemanticIndex = _iSemanticIdx;
+
+	m_vecLayoutInfo.push_back(LayoutDesc);
+
+
+	// Offset ¡ı∞°
+	if (0 == _iSlotNum)
+		m_iLayoutOffset_0 += GetSizeofFormat(_eFormat);
+	else if (1 == _iSlotNum)
+		m_iLayoutOffset_1 += GetSizeofFormat(_eFormat);
 }

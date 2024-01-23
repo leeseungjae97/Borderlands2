@@ -38,7 +38,11 @@ private:
 
     tRay        m_ray;
 
-    vector<CGameObject*>    m_vecDeferred;
+    map<ULONG64, vector<tInstObj>>		m_mapInstGroup_D;	    // Deferred
+    map<ULONG64, vector<tInstObj>>		m_mapInstGroup_F;	    // Foward ( Opaque, Mask )	
+    map<INT_PTR, vector<tInstObj>>		m_mapSingleObj;		    // Single Object
+
+    //vector<CGameObject*>    m_vecDeferred;
     vector<CGameObject*>    m_vecDeferredDecal;
 
     vector<CGameObject*>    m_vecOpaque;
@@ -49,9 +53,6 @@ private:
     vector<CGameObject*>    m_vecPost;
 
     vector<CGameObject*>    m_vecShadow;
-
-    vector<CGameObject*>    m_vecStencil;
-    vector<CGameObject*>    m_vecStencilDeploy;
 
 public:
     void SetProjType(PROJ_TYPE _Type) { m_ProjType = _Type; }
@@ -100,13 +101,9 @@ protected:
 public:
     void SortObject();
     void SortObject_Shadow();
-    void SortObject_Stencil();
-    void SortObject_StencilDeploy();
 
     void render();
     void render_shadowmap();
-    void render_stencilcull();
-    void render_stencildeploy();
 
 public:
     virtual void begin() override;
@@ -116,13 +113,12 @@ public:
 private:
     void clear();
     void clear_shadow();
-    void clear_stencil();
-    void clear_stencildeploy();
 
     void render_deferred();
-    
-    void render_opaque();
-    void render_mask();
+    void render_forward();
+
+    //void render_opaque();
+    //void render_mask();
     void render_decal();
     void render_transparent();
     void render_postprocess();
@@ -131,7 +127,7 @@ private:
 
     void CalcViewMat();
     void CalcProjMat();
-
+    void UpdateMatrix();
 
     virtual void SaveToLevelFile(FILE* _File) override;
     virtual void LoadFromLevelFile(FILE* _File) override;

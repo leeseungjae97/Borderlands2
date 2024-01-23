@@ -26,11 +26,10 @@ private:
 
 public:
     virtual void render() = 0;
+    virtual void render(UINT _iSubset) = 0;
     virtual void render_shadowmap();
 
     void render_shadowmapexp();
-    void render_stencilcull();
-    void render_stencildeploy();
 
 public:
     void SetMesh(Ptr<CMesh> _Mesh);
@@ -41,6 +40,7 @@ public:
     Ptr<CMaterial> GetMaterial(UINT _Idx);
     Ptr<CMaterial> GetSharedMaterial(UINT _Idx);
     Ptr<CMaterial> GetDynamicMaterial(UINT _Idx);
+    ULONG64 GetInstID(UINT _iMtrlIdx);
 
     UINT GetMtrlCount() { return (UINT)m_vecMtrls.size(); }
 

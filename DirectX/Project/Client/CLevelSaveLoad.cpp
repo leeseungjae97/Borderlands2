@@ -204,9 +204,6 @@ CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File)
 		case COMPONENT_TYPE::PARTICLESYSTEM:
 			Component = new CParticleSystem;
 			break;
-		case COMPONENT_TYPE::TILEMAP:
-			Component = new CTileMap;
-			break;
 		case COMPONENT_TYPE::LANDSCAPE:
 			Component = new CLandScape;
 			break;

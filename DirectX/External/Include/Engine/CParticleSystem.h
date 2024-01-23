@@ -75,7 +75,7 @@ public:
 public:
     virtual void finaltick() override;
     virtual void render() override;
-
+	void render(UINT _iSubset) override;
     virtual void SaveToLevelFile(FILE* _File) override;
     virtual void LoadFromLevelFile(FILE* _File) override;
 

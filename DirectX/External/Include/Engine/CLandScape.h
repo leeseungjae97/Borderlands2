@@ -7,6 +7,7 @@
 #include "ptr.h"
 
 #include "CRenderComponent.h"
+#include "RecastNavi.h"
 
 enum class LANDSCAPE_MOD
 {
@@ -56,13 +57,13 @@ private:
     LANDSCAPE_MOD           m_eMod; 	        // 지형 툴모드에서 상태값
 
     Ptr<CTexture>           m_pTileArrTex;      // 타일 배열 텍스쳐
-
+    RecastNavi*          m_Recast;
     // ========================================================================
     vector<tNode>           m_vecNode;
+    CStructuredBuffer*      m_pNodesBuffer;
 
 
     //Ptr<CLandScapePathShader> m_pCSPathInit;
-    //CStructuredBuffer*        m_pNodesBuffer;
 
 public:
     void SetTessEdge(float _Edge) { m_TessEdge = _Edge; }
@@ -106,6 +107,7 @@ public:
 
     virtual void finaltick() override;
     virtual void render() override;
+    void render(UINT _iSubset) override;
 
 public:
     void init();

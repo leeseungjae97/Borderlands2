@@ -71,6 +71,11 @@ void CSkyBox::finaltick()
 {
 }
 
+void CSkyBox::render(UINT _iSubset)
+{
+	render();
+}
+
 void CSkyBox::SaveToLevelFile(FILE* _File)
 {
 	fwrite(&m_Type, sizeof(UINT), 1, _File);

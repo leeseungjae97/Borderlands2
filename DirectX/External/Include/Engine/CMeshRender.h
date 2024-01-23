@@ -9,6 +9,8 @@ public:
     virtual void finaltick() override;
     virtual void render() override;
 
+    void render(UINT _iSubset) override;
+
     CLONE(CMeshRender)
 public:
     CMeshRender();

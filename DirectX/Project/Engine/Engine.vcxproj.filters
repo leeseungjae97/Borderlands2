@@ -121,9 +121,6 @@
     <ClInclude Include="CStructuredBuffer.h">
       <Filter>Source\Device\StructuredBuffer</Filter>
     </ClInclude>
-    <ClInclude Include="CTileMap.h">
-      <Filter>Source\Component\RenderComponent\TileMap</Filter>
-    </ClInclude>
     <ClInclude Include="CAnimator2D.h">
       <Filter>Source\Component\Animator2D</Filter>
     </ClInclude>
@@ -219,6 +216,21 @@
     </ClInclude>
     <ClInclude Include="CLandScapePathShader.h">
       <Filter>Source\ShaderCode\Compute Shader\LandScapePathShader</Filter>
+    </ClInclude>
+    <ClInclude Include="RecastNavi.h">
+      <Filter>Source\Recast\RecastNavi</Filter>
+    </ClInclude>
+    <ClInclude Include="RecastMesh.h">
+      <Filter>Source\Recast</Filter>
+    </ClInclude>
+    <ClInclude Include="RecastBuildContext.h">
+      <Filter>Source\Recast</Filter>
+    </ClInclude>
+    <ClInclude Include="CInstancingBuffer.h">
+      <Filter>Source\Device\InstancingBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="CCopyBoneShader.h">
+      <Filter>Source\ShaderCode\Compute Shader\CopyBoneShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -324,9 +336,6 @@
     <ClCompile Include="CStructuredBuffer.cpp">
       <Filter>Source\Device\StructuredBuffer</Filter>
     </ClCompile>
-    <ClCompile Include="CTileMap.cpp">
-      <Filter>Source\Component\RenderComponent\TileMap</Filter>
-    </ClCompile>
     <ClCompile Include="CAnimator2D.cpp">
       <Filter>Source\Component\Animator2D</Filter>
     </ClCompile>
@@ -420,6 +429,21 @@
     <ClCompile Include="CLandScapePathShader.cpp">
       <Filter>Source\ShaderCode\Compute Shader\LandScapePathShader</Filter>
     </ClCompile>
+    <ClCompile Include="RecastNavi.cpp">
+      <Filter>Source\Recast\RecastNavi</Filter>
+    </ClCompile>
+    <ClCompile Include="RecastMesh.cpp">
+      <Filter>Source\Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="RecastBuildContext.cpp">
+      <Filter>Source\Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="CInstancingBuffer.cpp">
+      <Filter>Source\Device\InstancingBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="CCopyBoneShader.cpp">
+      <Filter>Source\ShaderCode\Compute Shader\CopyBoneShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -508,9 +532,6 @@
     </Filter>
     <Filter Include="Source\Component\RenderComponent\ParticleSystem">
       <UniqueIdentifier>{ddedfa9d-149c-436d-ba74-99ef2cbf0457}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Component\RenderComponent\TileMap">
-      <UniqueIdentifier>{a31ec3b6-9833-48c1-95cf-2ec5f761508b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Component\RenderComponent\Decal">
       <UniqueIdentifier>{77837a5b-9428-40ac-b78f-5ecbda8d05d1}</UniqueIdentifier>
@@ -620,6 +641,18 @@
     <Filter Include="Source\ShaderCode\Compute Shader\LandScapePathShader">
       <UniqueIdentifier>{6f3947b0-018a-433e-9e77-d7f6046c59ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Recast">
+      <UniqueIdentifier>{ced98faf-18b1-46ab-9602-6b3311e0464c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Recast\RecastNavi">
+      <UniqueIdentifier>{7eea664e-6ae6-424c-960b-1783adb3d89a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Device\InstancingBuffer">
+      <UniqueIdentifier>{aaab91ed-282d-4333-a90c-334499306df4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ShaderCode\Compute Shader\CopyBoneShader">
+      <UniqueIdentifier>{292c633a-ce56-44a1-abac-0122e5a8b64a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -641,9 +674,6 @@
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="func.fx">
-      <Filter>Source\ShaderCode</Filter>
-    </FxCompile>
-    <FxCompile Include="tilemap.fx">
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="setcolor.fx">
@@ -676,9 +706,6 @@
     <FxCompile Include="light.fx">
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
-    <FxCompile Include="planet3d_deferred.fx">
-      <Filter>Source\ShaderCode</Filter>
-    </FxCompile>
     <FxCompile Include="area_decal.fx">
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
@@ -704,6 +731,9 @@
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="landscape_path.fx">
+      <Filter>Source\ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="copybone.fx">
       <Filter>Source\ShaderCode</Filter>
     </FxCompile>
   </ItemGroup>

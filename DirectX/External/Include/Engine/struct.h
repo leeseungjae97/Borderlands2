@@ -18,7 +18,34 @@ struct tVertex
 
 typedef tVertex Vtx;
 
+// ===========
+// Instancing
+// ===========
+union uInstID
+{
+	struct
+	{
+		UINT iMesh;
+		WORD iMtrl;
+		WORD iMtrlIdx;
+	};
+	ULONG64 llID;
+};
 
+class CGameObject;
+struct tInstObj
+{
+	CGameObject* pObj;
+	UINT		 iMtrlIdx;
+};
+
+struct tInstancingData
+{
+	Matrix matWorld;
+	Matrix matWV;
+	Matrix matWVP;
+	int    iRowIdx;
+};
 
 
 // Event

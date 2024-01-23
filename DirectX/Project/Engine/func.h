@@ -1,18 +1,16 @@
 #pragma once
 
 
-
 // 오브젝트 생성
 class CGameObject;
 class CLevel;
-void PreloadingGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
-void PreloadingGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName);
+class CMesh;
+//class Ptr;
+void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
+void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName);
 
 void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
 void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName);
-
-//Test Code
-void AddTestGameObject(Vec3 _WorldPos, int _LayerIndex);
 
 void ChangeCurLevel(CLevel* _ChangeLevel);
 
@@ -53,9 +51,15 @@ void LoadWString(wstring& _str, FILE* _File);
 
 Matrix GetMatrixFromFbxMatrix(FbxAMatrix& _mat);
 
+int GetSizeofFormat(DXGI_FORMAT _eFormat);
+
 class CRes;
 template<typename T>
 class Ptr;
+
+//Test Code
+void TestSpawnGameObject(Vec3 _WorldPos, int _LayerIndex, Ptr<CMesh> _Mesh);
+void TestPreloadGameObject(Vec3 _WorldPos, int _LayerIndex, Ptr<CMesh> _Mesh);
 
 void SaveResRef(Ptr<CRes> _Res, FILE* _File);
 

@@ -116,7 +116,7 @@ void CStructuredBuffer::Create(UINT _iElementSize, UINT _iElementCount
 			assert(nullptr);
 		}
 	}
-	DEVICE->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * bufName.length(), &bufName);
+	//DEVICE->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof(char) * bufName.length(), &bufName);
 	//DEVICE->SetPrivateData(WKPDID_D3DDebugObjectName, sizeof("testestest") - 1, "testestest");
 }
 

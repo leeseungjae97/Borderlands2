@@ -15,8 +15,8 @@
 
 CLandScape::CLandScape()
 	: CRenderComponent(COMPONENT_TYPE::LANDSCAPE)
-	, m_iFaceX(32)
-	, m_iFaceZ(32)
+	, m_iFaceX(2)
+	, m_iFaceZ(2)
 	, m_TessEdge(8)
 	, m_TessInside(8)
 	, m_iWeightIdx(0)
@@ -24,6 +24,7 @@ CLandScape::CLandScape()
 {
 	//CreateMesh();
 	//SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"LandScapeMtrl"), 0);
+	m_Recast = new RecastNavi;
 	init();
 }
 
@@ -34,6 +35,9 @@ CLandScape::~CLandScape()
 
 	if (nullptr != m_pWeightMapBuffer)
 		delete m_pWeightMapBuffer;
+
+	if (nullptr != m_Recast)
+		delete m_Recast;
 }
 
 void CLandScape::SetFaceX(UINT _FaceX)
@@ -101,8 +105,9 @@ void CLandScape::CreateMesh()
 		}
 	}
 
-	Ptr<CMesh> pMesh = new CMesh;
+	Ptr<CMesh> pMesh = new CMesh(true);
 	pMesh->Create(vecVtx.data(), (UINT)vecVtx.size(), vecIdx.data(), (UINT)vecIdx.size());
+	CResMgr::GetInst()->AddRes<CMesh>(L"LandScapeMesh", pMesh);
 	SetMesh(pMesh);
 
 	// Mesh 재설정하고 나면 재질이 날라가기 때문에 다시 설정
@@ -111,27 +116,29 @@ void CLandScape::CreateMesh()
 
 void CLandScape::CreateNode()
 {
-	Vec3 vPos = Transform()->GetRelativePos();
-	Vec3 vScale = Transform()->GetRelativeScale();
-	float _x = vScale.x / 2.f;
-	float _z = vScale.z / 2.f;
-	for (int i = 0; i < m_iFaceZ; ++i)
-	{
-		for (int j = 0; j < m_iFaceX; ++j)
-		{
-			tNode node;
-			node.iCoordX = j;
-			node.iCoordY = i;
-			node.vLandPos = vPos;
-			node.vPos.x = _x + j * vScale.x;
-			node.vPos.y = 0.f;
-			node.vPos.z = _z + i * vScale.z;
+	//Vec3 vPos = Transform()->GetRelativePos();
+	//Vec3 vScale = Transform()->GetRelativeScale();
+	//float _x = vScale.x / 2.f;
+	//float _z = vScale.z / 2.f;
+	//for (int i = 0; i < m_iFaceZ; ++i)
+	//{
+	//	for (int j = 0; j < m_iFaceX; ++j)
+	//	{
+	//		tNode node;
+	//		node.iCoordX = j;
+	//		node.iCoordY = i;
+	//		node.vLandPos = vPos;
+	//		node.vPos.x = _x + j * vScale.x;
+	//		node.vPos.y = 0.f;
+	//		node.vPos.z = _z + i * vScale.z;
 
-			//AddTestGameObject(node.vPos, 0);
+	//		//TestPreloadGameObject(node.vPos, 0);
 
-			m_vecNode.push_back(node);
-		}
-	}
+	//		m_vecNode.push_back(node);
+	//	}
+	//}
+
+	m_Recast->HandleBuild(GetOwner());
 }
 
 void CLandScape::SetBrush(Ptr<CTexture> _BrushTex)
@@ -256,6 +263,11 @@ void CLandScape::render()
 	m_pWeightMapBuffer->Clear();
 }
 
+void CLandScape::render(UINT _iSubset)
+{
+	render();
+}
+
 
 void CLandScape::init()
 {
@@ -267,8 +279,10 @@ void CLandScape::init()
 
 	// 레이캐스팅 결과 받는 버퍼
 	m_pCrossBuffer = new CStructuredBuffer;
-	m_pCrossBuffer->Create(sizeof(tRaycastOut), 1, SB_TYPE::READ_WRITE, true, "Land Scape Cross Buffer");
+	m_pCrossBuffer->Create(sizeof(tRaycastOut), 1, SB_TYPE::READ_WRITE, true, "m_pCrossBuffer");
 
+	m_pNodesBuffer = new CStructuredBuffer;
+	m_pNodesBuffer->Create(sizeof(tNode), 1, SB_TYPE::READ_WRITE, false, "m_pNodesBuffer");
 	//m_pNodesBuffer = new CStructuredBuffer;
 	//m_pNodesBuffer->Create(sizeof(tNode), 1, SB_TYPE::READ_WRITE, true, "m_pNodesBuffer");
 	//m_vecNodes.resize(m_iFaceX * m_iFaceZ);
@@ -304,6 +318,7 @@ void CLandScape::CreateComputeShader()
 	m_pCSColorMap = (CColorMapShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"ColorMapShaderCS").Get();
 
 	m_pCSWeightMap = (CWeightMapShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"WeightMapShader").Get();
+
 
 	//m_pCSPathInit = (CLandScapePathShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"PathInitShader").Get();
 }

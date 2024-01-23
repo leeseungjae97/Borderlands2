@@ -13,17 +13,6 @@ CRenderComponent::CRenderComponent(COMPONENT_TYPE _type)
 CRenderComponent::~CRenderComponent()
 {
 }
-void CRenderComponent::render_stencildeploy()
-{
-	Ptr<CMaterial> pStencilMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"StencilDeployMtrl");
-
-	Transform()->UpdateData();
-
-	pStencilMtrl->GetShader()->SetStencilRef(0);
-	pStencilMtrl->UpdateData();
-
-	GetMesh()->render(0);
-}
 
 void CRenderComponent::SetMesh(Ptr<CMesh> _Mesh)
 {
@@ -84,17 +73,13 @@ Ptr<CMaterial> CRenderComponent::GetDynamicMaterial(UINT _Idx)
 	return m_vecMtrls[_Idx].pCurrentMtrl;
 }
 
-
-void CRenderComponent::render_stencilcull()
+ULONG64 CRenderComponent::GetInstID(UINT _iMtrlIdx)
 {
-	Ptr<CMaterial> pStencilMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"StencilCullMtrl1");
+	if (m_pMesh == NULL || m_vecMtrls[_iMtrlIdx].pCurrentMtrl == NULL)
+		return 0;
 
-	Transform()->UpdateData();
-
-	pStencilMtrl->GetShader()->SetStencilRef(2);
-	pStencilMtrl->UpdateData();
-
-	GetMesh()->render(0);
+	uInstID id{ (UINT)m_pMesh->GetID(), (WORD)m_vecMtrls[_iMtrlIdx].pCurrentMtrl->GetID(), (WORD)_iMtrlIdx };
+	return id.llID;
 }
 
 void CRenderComponent::render_shadowmap()

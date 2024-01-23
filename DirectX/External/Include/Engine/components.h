@@ -7,11 +7,12 @@
 #include "CSkyBox.h"
 
 #include "CMeshRender.h"
-#include "CTileMap.h"
 #include "CParticleSystem.h"
 #include "CDecal.h"
 
 #include "CAnimator3D.h"
 #include "CLandScape.h"
+
+#include "CPathFind.h"
 
 //#include "CCollider3D.h"

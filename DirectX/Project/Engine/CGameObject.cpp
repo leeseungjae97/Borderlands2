@@ -168,19 +168,6 @@ void CGameObject::render_shadowmap()
 	}
 		
 }
-
-void CGameObject::render_stencilcull()
-{
-	if (nullptr != m_RenderCom)
-		m_RenderCom->render_stencilcull();
-}
-
-void CGameObject::render_stencildeploy()
-{
-	if (nullptr != m_RenderCom)
-		m_RenderCom->render_stencildeploy();
-}
-
 void CGameObject::render()
 {
 	if (nullptr != m_RenderCom)

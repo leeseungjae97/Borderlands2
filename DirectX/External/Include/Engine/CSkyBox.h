@@ -16,7 +16,7 @@ public:
 public:
     virtual void render() override;
     virtual void finaltick() override;
-
+    virtual void render(UINT _iSubset) override;
     virtual void SaveToLevelFile(FILE* _File) override;
     virtual void LoadFromLevelFile(FILE* _FILE) override;
     CLONE(CSkyBox)

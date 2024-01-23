@@ -22,6 +22,10 @@ private:
     map<wstring, Ptr<CRes>> m_arrRes[(UINT)RES_TYPE::END];
     bool                    m_Changed;
 
+    vector<D3D11_INPUT_ELEMENT_DESC>	m_vecLayoutInfo;
+    UINT								m_iLayoutOffset_0;
+    UINT								m_iLayoutOffset_1;
+
 public:
     void init();
     void tick();
@@ -29,6 +33,7 @@ public:
 private:
     void InitSound();
     void CreateDefaultMesh();
+    void CreateDefaultLayout();
     void CreateDefaultGraphicsShader();
     void CreateDefaultComputeShader();
     void CreateDefaultMaterial();  
@@ -46,6 +51,8 @@ public:
 
     Ptr<CMeshData> LoadFBX(const wstring& _strPath);
 
+    const vector<D3D11_INPUT_ELEMENT_DESC>& GetInputLayoutInfo() { return m_vecLayoutInfo; }
+
     bool IsResourceChanged() { return m_Changed; }
 
     template<typename T>
@@ -57,6 +64,7 @@ public:
     template<typename T>
     Ptr<T> Load(const wstring& _strKey, const wstring& _strRelativePath);
 
+    void AddInputLayout(DXGI_FORMAT _eFormat, const char* _strSemanticName, UINT _iSlotNum, UINT _iSemanticIdx);
 private:
     void DeleteRes(RES_TYPE _type, const wstring& _strKey);
 
@@ -114,7 +122,8 @@ template<typename T>
 inline void CResMgr::AddRes(const wstring& _strKey, Ptr<T> _Res)
 {
     // 중복키로 리소스 추가하려는 경우
-    assert( ! FindRes<T>(_strKey).Get() );
+    //assert( ! FindRes<T>(_strKey).Get() );
+    //if(FindRes<T>(_strKey).Get())
 
     RES_TYPE type = GetResType<T>();
     m_arrRes[(UINT)type].insert(make_pair(_strKey, _Res.Get()));

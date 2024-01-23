@@ -67,7 +67,7 @@ void CreateTestLevel()
 	pMainCam->Camera()->SetLayerMask(31, false);// UI Layer 는 렌더링하지 않는다.
 
 	//SpawnGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
-	PreloadingGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
+	PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
 
 	// UI cameara
 	//CGameObject* pUICam = new CGameObject;
@@ -94,7 +94,7 @@ void CreateTestLevel()
 	pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
 
 	//SpawnGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 0);
-	PreloadingGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 0);
+	PreloadGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 0);
 
 	//CGameObject* pSphere = new CGameObject;
 	//pSphere->SetName(L"Sphere1");
@@ -109,7 +109,7 @@ void CreateTestLevel()
 	//pSphere->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	//
 	////SpawnGameObject(pSphere, Vec3(500.f, 500.f, 0.f), L"Planet");
-	//PreloadingGameObject(pSphere, Vec3(500.f, 500.f, 0.f), L"Objects");
+	//PreloadGameObject(pSphere, Vec3(500.f, 500.f, 0.f), L"Objects");
 
 	//pSphere = new CGameObject;
 	//pSphere->SetName(L"Sphere2");
@@ -124,7 +124,7 @@ void CreateTestLevel()
 	//pSphere->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	//
 	////SpawnGameObject(pSphere, Vec3(0.f, 0.f, 0.f), L"Planet");
-	//PreloadingGameObject(pSphere, Vec3(0.f, 0.f, 0.f), L"Objects");
+	//PreloadGameObject(pSphere, Vec3(0.f, 0.f, 0.f), L"Objects");
 
 
 	//CGameObject* pRectMesh = new CGameObject;
@@ -141,7 +141,7 @@ void CreateTestLevel()
 	//pRectMesh->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	//
 	////SpawnGameObject(pRectMesh, Vec3(0.f, -1000.f, 0.f), L"Planet");
-	//PreloadingGameObject(pRectMesh, Vec3(0.f, -1000.f, 0.f), L"Objects");
+	//PreloadGameObject(pRectMesh, Vec3(0.f, -1000.f, 0.f), L"Objects");
 
 	//CGameObject* pObject = new CGameObject;
 	//pObject->SetName(L"Tess Object");
@@ -152,9 +152,9 @@ void CreateTestLevel()
 	//pObject->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
 
 	//pObject->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	//pObject->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"TessMtrl"));
-	//pObject->MeshRender()->GetMaterial()->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\Sky01.png"));
-	//SpawnGameObject(pObject, Vec3(0.f, 0.f, 100.f), L"Default");
+	//pObject->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
+	//pObject->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\Sky01.png"));
+	//SpawnGameObject(pObject, Vec3(0.f, 0.f, 100.f), 1);
 
 	CGameObject* pSkyBox = new CGameObject;
 	pSkyBox->SetName(L"SkyBox");
@@ -167,7 +167,7 @@ void CreateTestLevel()
 	pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\2k_stars_milky_way.jpg"));
 
 	//SpawnGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 0);
-	PreloadingGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 0);
+	PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 0);
 
 	//CGameObject* pObject = new CGameObject;
 	//pObject->SetName(L"Decal");
@@ -182,7 +182,7 @@ void CreateTestLevel()
 	////pObject->SetFollowObj(cam->GetOwner());
 
 	////SpawnGameObject(pObject, Vec3(0.f, 0.f, 0.f), L"Default");
-	//PreloadingGameObject(pObject, Vec3(0.f, 0.f, 0.f), L"Default");
+	//PreloadGameObject(pObject, Vec3(0.f, 0.f, 0.f), L"Default");
 
 	// LandScape Object
 	CGameObject* pLandScape = new CGameObject;
@@ -197,34 +197,39 @@ void CreateTestLevel()
 	//pLandScape->LandScape()->SetBrushGuideLine(pObject);
 	pLandScape->LandScape()->SetHeightMapName(L"HeightMap2");
 	pLandScape->LandScape()->SetColorMapName(L"ColorMap2");
-	pLandScape->LandScape()->SetFace(32, 32);
+	//pLandScape->LandScape()->SetFace(32, 32);
 	pLandScape->LandScape()->SetFrustumCheck(false);
 	//pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
 
-	PreloadingGameObject(pLandScape, Vec3(0.f, 0.f, 0.f), L"Objects");
+	PreloadGameObject(pLandScape, Vec3(-100.f, 0.f, 0.f), L"Objects");
 
 	// ============
 	// FBX Loading
 	// ============	
 	{
-		Ptr<CMeshData> pMeshData = nullptr;
-		CGameObject* pObj = nullptr;
+		//for (int i = 0; i < 10; ++i)
+		//{
+		//	Ptr<CMeshData> pMeshData = nullptr;
+		//	CGameObject* pObj = nullptr;
 
-		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\Monster.fbx");
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
-		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\anim_NLA.fbx");
-		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\house.mdat");
-		//pObj = pMeshData->Instantiate();
-		//pObj->SetName(L"House");
+		//	//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\Monster.fbx");
+		//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+		//	//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\anim_NLA.fbx");
+		//	//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\house.mdat");
+		//	//pObj = pMeshData->Instantiate();
+		//	//pObj->SetName(L"House");
 
-		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\monster.fbx");
-		//pMeshData = CResMgr::GetInst()->Load<CMeshData>(L"meshdata\\monster.mdat", L"meshdata\\monster.mdat");
-		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\anim_NLA.mdat");
-		pObj = pMeshData->Instantiate();
-		pObj->SetName(L"fbx object");
+		//	//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\monster.fbx");
+		//	//pMeshData = CResMgr::GetInst()->Load<CMeshData>(L"meshdata\\monster.mdat", L"meshdata\\monster.mdat");
+		//	//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\anim_NLA.mdat");
+		//	pObj = pMeshData->Instantiate();
+		//	pObj->AddComponent(new CPathFind);
+		//	//pObj->PathFind()->SetMVecEnd()
+		//	pObj->SetName(L"fbx object");
 
-		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
-		PreloadingGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
+		//	//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
+		//	PreloadGameObject(pObj, Vec3(i * 20.f, 0.f, 100.f), L"Default");
+		//}
 	}
 	
 	//pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"switch level");
@@ -250,7 +255,7 @@ void CreateTestLevel()
 	//pMainCam->Camera()->SetLayerMaskAll(true);	// 모든 레이어 체크
 	//pMainCam->Camera()->SetLayerMask(31, false);// UI Layer 는 렌더링하지 않는다.
 	//
-	//PreloadingGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
+	//PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
 
 	//CGameObject* pLandScape = new CGameObject;
 	//pLandScape->SetName(L"LandScape");
@@ -265,7 +270,7 @@ void CreateTestLevel()
 	//pLandScape->LandScape()->SetFace(32, 32);
 	//pLandScape->LandScape()->SetFrustumCheck(false);
 	////pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
-	//PreloadingGameObject(pLandScape, Vec3(0.f, 0.f, 0.f), 1);
+	//PreloadGameObject(pLandScape, Vec3(0.f, 0.f, 0.f), 1);
 
 	//CGameObject* pSunLight = new CGameObject;
 	//pSunLight->SetName(L"SunLight");
@@ -279,7 +284,7 @@ void CreateTestLevel()
 	//pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
 
 	////SpawnGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 0);
-	//PreloadingGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 1);
+	//PreloadGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 1);
 
 	//CGameObject* pSkyBox = new CGameObject;
 	//pSkyBox->SetName(L"SkyBox");
@@ -291,7 +296,7 @@ void CreateTestLevel()
 	//pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
 	//pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\2k_stars_milky_way.jpg"));
 
-	//PreloadingGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 1);
+	//PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 1);
 	// 충돌 시킬 레이어 짝 지정
 	//CCollisionMgr::GetInst()->LayerCheck(L"Player", L"Monster");	
 }

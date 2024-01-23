@@ -14,6 +14,7 @@ class CTileMap;
 class CScript;
 class CSkyBox;
 class CDecal;
+class CPathFind;
 class CLandScape;
 
 #define GET_COMPONENT(Type, TYPE) C##Type* Type() const { return (C##Type*)m_arrCom[(UINT)COMPONENT_TYPE::TYPE]; }
@@ -51,8 +52,6 @@ public:
     void finaltick_module();
     void render();
     void render_shadowmap();
-    void render_stencilcull();
-    void render_stencildeploy();
 
 public:
     void AddComponent(CComponent* _Component);
@@ -74,6 +73,7 @@ public:
     GET_COMPONENT(SkyBox, SKYBOX);
     GET_COMPONENT(Decal, DECAL);
     GET_COMPONENT(LandScape, LANDSCAPE);
+    GET_COMPONENT(PathFind, PATH_FIND);
     //Decal* Decal()
     //{
     //    return (Decal*)m_arrCom[(UINT)COMPONENT_TYPE::TRANSFORM];

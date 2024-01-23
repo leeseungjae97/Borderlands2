@@ -2,6 +2,7 @@
 #include "CMesh.h"
 
 #include "CDevice.h"
+#include "CInstancingBuffer.h"
 #include "CPathMgr.h"
 #include "mFBXLoader.h"
 
@@ -544,11 +545,32 @@ void CMesh::UpdateData(UINT _iSubset)
 	CONTEXT->IASetIndexBuffer(m_vecIdxInfo[_iSubset].pIB.Get(), DXGI_FORMAT_R32_UINT, 0);
 }
 
+void CMesh::UpdateData_Instancing(UINT _iSubSet)
+{
+	if (_iSubSet >= m_vecIdxInfo.size())
+		assert(nullptr);
+
+	ID3D11Buffer* arrBuffer[2] = { m_VB.Get(), CInstancingBuffer::GetInst()->GetBuffer().Get() };
+	UINT		  iStride[2] = { sizeof(Vtx), sizeof(tInstancingData) };
+	UINT		  iOffset[2] = { 0, 0 };
+
+	CONTEXT->IASetVertexBuffers(0, 2, arrBuffer, iStride, iOffset);
+	CONTEXT->IASetIndexBuffer(m_vecIdxInfo[_iSubSet].pIB.Get(), DXGI_FORMAT_R32_UINT, 0);
+}
+
 void CMesh::render(UINT _iSubset)
 {
 	UpdateData(_iSubset);
 
 	CONTEXT->DrawIndexed(m_vecIdxInfo[_iSubset].iIdxCount, 0, 0);
+}
+
+void CMesh::render_instancing(UINT _iSubSet)
+{
+	UpdateData_Instancing(_iSubSet);
+
+	CONTEXT->DrawIndexedInstanced(m_vecIdxInfo[_iSubSet].iIdxCount
+		, CInstancingBuffer::GetInst()->GetInstanceCount(), 0, 0, 0);
 }
 
 void CMesh::render_particle(UINT _iParticleCount)
