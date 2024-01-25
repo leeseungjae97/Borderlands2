@@ -4,7 +4,8 @@
 class CMonsterScript :
     public CScript
 {
-private:
+public:
+    void Move();
 
 public:
     virtual void tick() override;

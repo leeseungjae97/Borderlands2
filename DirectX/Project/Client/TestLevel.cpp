@@ -58,7 +58,7 @@ void CreateTestLevel()
 
 	pMainCam->AddComponent(new CTransform);
 	pMainCam->AddComponent(new CCamera);
-	pMainCam->AddComponent(new CCameraMoveScript);
+	//pMainCam->AddComponent(new CCameraMoveScript);
 
 	pMainCam->Camera()->SetFarZ(1000000.f);
 	pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
@@ -89,6 +89,10 @@ void CreateTestLevel()
 
 	pSunLight->Transform()->SetRelativeRot(Vec3(XM_PI / 4.f, XM_PI / 4.f, 0.f));
 	pSunLight->Light3D()->SetRadius(500.f);
+	//pSunLight->Light3D()->SetShadow(true);
+	//pSunLight->Light3D()->SetFloatConstant(0, 5);
+	//pSunLight->Light3D()->SetFloatConstant(1, 0.005);
+	//pSunLight->Light3D()->SetLightDepthCoeff(0.005);
 	pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
 	pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
 	pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
@@ -111,8 +115,8 @@ void CreateTestLevel()
 	////SpawnGameObject(pSphere, Vec3(500.f, 500.f, 0.f), L"Planet");
 	//PreloadGameObject(pSphere, Vec3(500.f, 500.f, 0.f), L"Objects");
 
-	//pSphere = new CGameObject;
-	//pSphere->SetName(L"Sphere2");
+	//CGameObject* pSphere = new CGameObject;
+	//pSphere->SetName(L"Sphere");
 	//pSphere->AddComponent(new CTransform);
 	//pSphere->AddComponent(new CMeshRender);
 
@@ -127,21 +131,21 @@ void CreateTestLevel()
 	//PreloadGameObject(pSphere, Vec3(0.f, 0.f, 0.f), L"Objects");
 
 
-	//CGameObject* pRectMesh = new CGameObject;
-	//pRectMesh->SetName(L"Sphere");
-	//pRectMesh->AddComponent(new CTransform);
-	//pRectMesh->AddComponent(new CMeshRender);
+	CGameObject* pRectMesh = new CGameObject;
+	pRectMesh->SetName(L"Rect");
+	pRectMesh->AddComponent(new CTransform);
+	pRectMesh->AddComponent(new CMeshRender);
 
-	//pRectMesh->Transform()->SetRelativeScale(Vec3(8000.f, 8000.f, 8000.f));
-	//pRectMesh->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
+	pRectMesh->Transform()->SetRelativeScale(Vec3(8000.f, 8000.f, 8000.f));
+	pRectMesh->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
 
-	//pRectMesh->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	//pRectMesh->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
+	pRectMesh->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	pRectMesh->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
 
-	//pRectMesh->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
-	//
-	////SpawnGameObject(pRectMesh, Vec3(0.f, -1000.f, 0.f), L"Planet");
-	//PreloadGameObject(pRectMesh, Vec3(0.f, -1000.f, 0.f), L"Objects");
+	pRectMesh->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
+	
+	//SpawnGameObject(pRectMesh, Vec3(0.f, -1000.f, 0.f), L"Planet");
+	PreloadGameObject(pRectMesh, Vec3(0.f, -1000.f, 0.f), L"Objects");
 
 	//CGameObject* pObject = new CGameObject;
 	//pObject->SetName(L"Tess Object");
@@ -207,70 +211,126 @@ void CreateTestLevel()
 	// FBX Loading
 	// ============	
 	{
-		//for (int i = 0; i < 10; ++i)
-		//{
-		//	Ptr<CMeshData> pMeshData = nullptr;
-		//	CGameObject* pObj = nullptr;
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
 
-		//	//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\Monster.fbx");
-		//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
-		//	//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\anim_NLA.fbx");
-		//	//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\house.mdat");
-		//	//pObj = pMeshData->Instantiate();
-		//	//pObj->SetName(L"House");
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\Monster.fbx");
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\soldier_fps.fbx");
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\anim_NLA.fbx");
+		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\house.mdat");
+		//pObj = pMeshData->Instantiate();
+		//pObj->SetName(L"House");
 
-		//	//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\monster.fbx");
-		//	//pMeshData = CResMgr::GetInst()->Load<CMeshData>(L"meshdata\\monster.mdat", L"meshdata\\monster.mdat");
-		//	//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\anim_NLA.mdat");
-		//	pObj = pMeshData->Instantiate();
-		//	pObj->AddComponent(new CPathFind);
-		//	//pObj->PathFind()->SetMVecEnd()
-		//	pObj->SetName(L"fbx object");
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\monster.fbx");
+		//pMeshData = CResMgr::GetInst()->Load<CMeshData>(L"meshdata\\monster.mdat", L"meshdata\\monster.mdat");
+		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\anim_NLA.mdat");
+		pObj = pMeshData->Instantiate();
+		//pObj->AddComponent(new CPathFind);
+		//pObj->AddComponent(new CMonsterScript);
+		pObj->AddComponent(new CPlayerScript);
+		pObj->SetFollowObj(pMainCam);
 
-		//	//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
-		//	PreloadGameObject(pObj, Vec3(i * 20.f, 0.f, 100.f), L"Default");
-		//}
+		//pObj->PathFind()->SetMVecEnd()
+		pObj->SetName(L"soldier hands");
+
+		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
+		PreloadGameObject(pObj, Vec3(20.f, 0.f, 100.f), L"Default");
+	}
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
+
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\Monster.fbx");
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\terrain.fbx");
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\anim_NLA.fbx");
+		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\house.mdat");
+		//pObj = pMeshData->Instantiate();
+		//pObj->SetName(L"House");
+
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\monster.fbx");
+		//pMeshData = CResMgr::GetInst()->Load<CMeshData>(L"meshdata\\monster.mdat", L"meshdata\\monster.mdat");
+		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\anim_NLA.mdat");
+		pObj = pMeshData->Instantiate();
+		//pObj->AddComponent(new CPathFind);
+		//pObj->AddComponent(new CMonsterScript);
+		//pObj->AddComponent(new CPlayerScript);
+		//pObj->SetFollowObj(pMainCam);
+
+		//pObj->PathFind()->SetMVecEnd()
+		pObj->SetName(L"fbx terrain");
+
+		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
+		PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), L"Default");
+	}
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
+
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\Monster.fbx");
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\anim_NLA.fbx");
+		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\house.mdat");
+		//pObj = pMeshData->Instantiate();
+		//pObj->SetName(L"House");
+
+		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\monster.fbx");
+		//pMeshData = CResMgr::GetInst()->Load<CMeshData>(L"meshdata\\monster.mdat", L"meshdata\\monster.mdat");
+		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\anim_NLA.mdat");
+		pObj = pMeshData->Instantiate();
+		//pObj->AddComponent(new CPathFind);
+		//pObj->AddComponent(new CMonsterScript);
+		//pObj->AddComponent(new CPlayerScript);
+		//pObj->SetFollowObj(pMainCam);
+
+		//pObj->PathFind()->SetMVecEnd()
+		pObj->SetName(L"fbx nomad");
+
+		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
+		PreloadGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
 	}
 	
-	//pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"switch level");
-	//CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
-	////CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
-	//pCurLevel->ChangeState(LEVEL_STATE::STOP);
+	pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"switch level");
+	CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
+	//CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
+	pCurLevel->ChangeState(LEVEL_STATE::STOP);
 
-	//pCurLevel->GetLayer(0)->SetName(L"Default");
-	//pCurLevel->GetLayer(1)->SetName(L"Objects");
-	//pCurLevel->GetLayer(10)->SetName(L"Light");
-	//pCurLevel->GetLayer(31)->SetName(L"ViewPort UI");
+	pCurLevel->GetLayer(0)->SetName(L"Default");
+	pCurLevel->GetLayer(1)->SetName(L"Objects");
+	pCurLevel->GetLayer(10)->SetName(L"Light");
+	pCurLevel->GetLayer(31)->SetName(L"ViewPort UI");
 
-	//pMainCam = new CGameObject;
-	//pMainCam->SetName(L"MainCamera");
+	pMainCam = new CGameObject;
+	pMainCam->SetName(L"MainCamera");
 
-	//pMainCam->AddComponent(new CTransform);
-	//pMainCam->AddComponent(new CCamera);
-	//pMainCam->AddComponent(new CCameraMoveScript);
+	pMainCam->AddComponent(new CTransform);
+	pMainCam->AddComponent(new CCamera);
+	pMainCam->AddComponent(new CCameraMoveScript);
 
-	//pMainCam->Camera()->SetFarZ(1000000.f);
-	//pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
-	//pMainCam->Camera()->SetCameraIndex(0);		// MainCamera 로 설정
-	//pMainCam->Camera()->SetLayerMaskAll(true);	// 모든 레이어 체크
-	//pMainCam->Camera()->SetLayerMask(31, false);// UI Layer 는 렌더링하지 않는다.
-	//
-	//PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
+	pMainCam->Camera()->SetFarZ(1000000.f);
+	pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
+	pMainCam->Camera()->SetCameraIndex(0);		// MainCamera 로 설정
+	pMainCam->Camera()->SetLayerMaskAll(true);	// 모든 레이어 체크
+	pMainCam->Camera()->SetLayerMask(31, false);// UI Layer 는 렌더링하지 않는다.
+	
+	PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
 
-	//CGameObject* pLandScape = new CGameObject;
-	//pLandScape->SetName(L"LandScape");
+	/*CGameObject**/ pLandScape = new CGameObject;
+	pLandScape->SetName(L"LandScape");
 
-	//pLandScape->AddComponent(new CTransform);
-	//pLandScape->AddComponent(new CLandScape);
+	pLandScape->AddComponent(new CTransform);
+	pLandScape->AddComponent(new CLandScape);
 
-	//pLandScape->Transform()->SetRelativeScale(Vec3(200.f, 1000.f, 200.f));
-	////pLandScape->LandScape()->SetBrushGuideLine(pObject);
-	//pLandScape->LandScape()->SetHeightMapName(L"HeightMap1");
-	//pLandScape->LandScape()->SetColorMapName(L"ColorMap1");
-	//pLandScape->LandScape()->SetFace(32, 32);
-	//pLandScape->LandScape()->SetFrustumCheck(false);
-	////pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
-	//PreloadGameObject(pLandScape, Vec3(0.f, 0.f, 0.f), 1);
+	pLandScape->Transform()->SetRelativeScale(Vec3(200.f, 1000.f, 200.f));
+	//pLandScape->LandScape()->SetBrushGuideLine(pObject);
+	pLandScape->LandScape()->SetHeightMapName(L"HeightMap1");
+	pLandScape->LandScape()->SetColorMapName(L"ColorMap1");
+	pLandScape->LandScape()->SetFace(32, 32);
+	pLandScape->LandScape()->SetFrustumCheck(false);
+	//pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
+	PreloadGameObject(pLandScape, Vec3(0.f, 0.f, 0.f), 1);
 
 	//CGameObject* pSunLight = new CGameObject;
 	//pSunLight->SetName(L"SunLight");

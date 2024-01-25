@@ -10,6 +10,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourCommon.h"
 #include "DetourDebugDraw.h"
+#include "InputGeom.h"
 
 enum PolyAreas
 {
@@ -56,11 +57,28 @@ struct RecastToolState
 	virtual void handleUpdate(const float dt) = 0;
 };
 
+struct NavMeshSetHeader
+{
+	int magic;
+	int version;
+	int numTiles;
+	dtNavMeshParams params;
+};
+
+struct NavMeshTileHeader
+{
+	dtTileRef tileRef;
+	int dataSize;
+};
+
+static const int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'MSET';
+static const int NAVMESHSET_VERSION = 1;
+
 class RecastNavi
 {
 protected:
-	//class InputGeom* m_geom;
-	class dtNavMesh* m_navMesh;
+	InputGeom* m_geom;
+	dtNavMesh* m_navMesh;
 	//class dtNavMeshQuery* m_navQuery;
 	//class dtCrowd* m_crowd;
 	//class duDebugDraw* m_dd;
@@ -92,11 +110,10 @@ protected:
 	rcPolyMesh* m_pmesh;
 	rcConfig m_cfg;
 	rcPolyMeshDetail* m_dmesh;
-
 private:
 	void clean_up();
 public:
-	virtual class dtNavMesh* getNavMesh() { return m_navMesh; }
+	virtual dtNavMesh* getNavMesh() { return m_navMesh; }
 	//virtual class dtNavMeshQuery* getNavMeshQuery() { return m_navQuery; }
 	
 	virtual float getAgentRadius() { return m_agentRadius; }
@@ -109,6 +126,9 @@ public:
 
 public:
 	void HandleBuild(CGameObject* _Obj);
+	dtNavMesh* LoadNavMesh(const wstring& path);
+	void SaveNavMesh(const char* path, const dtNavMesh* _NavMesh);
+	//void LoadObj(const char* path);
 
 public:
 	RecastNavi();

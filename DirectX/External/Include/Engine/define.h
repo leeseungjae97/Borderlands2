@@ -18,7 +18,7 @@
 
 #define SINGLE(type) private: type(); ~type(); friend class CSingleton<type>;
 
-
+#define PI 3.1415926535f
 
 
 
@@ -28,11 +28,8 @@ enum class COMPONENT_TYPE
 {
 	// update
 	TRANSFORM,		// 위치, 크기, 회전
-	COLLIDER2D,		// 2차원 충돌
 	COLLIDER3D,		// 3차원 충돌
-	ANIMATOR2D,		// Sprite Animation
 	ANIMATOR3D,		// Bone Sknning Animation
-	LIGHT2D,		// 2차원 광원
 	LIGHT3D,		// 3차원 광원
 	PATH_FIND,
 	CAMERA,			// Camera
@@ -40,7 +37,6 @@ enum class COMPONENT_TYPE
 	// render
 	MESHRENDER,		// 기본적인 렌더링
 	PARTICLESYSTEM, // 입자 렌더링
-	TILEMAP,		// 2차원 타일
 	LANDSCAPE,		// 3차원 지형
 	SKYBOX,
 	DECAL,			// 내부 렌더링
@@ -240,6 +236,7 @@ enum class EVENT_TYPE
 	LEVEL_CHANGE,
 	LEVEL_RESET,
 	LEVEL_RECOG,
+	LEVEL_LOAD,
 };
 
 

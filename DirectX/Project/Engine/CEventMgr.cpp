@@ -85,7 +85,6 @@ void CEventMgr::tick()
 
 		break;
 		case EVENT_TYPE::DELETE_RESOURCE:
-			// wParam : RES_TYPE, lParam : Resource Adress
 		{
 			RES_TYPE type = (RES_TYPE)m_vecEvent[i].wParam;
 			CRes* pRes = (CRes*)m_vecEvent[i].lParam;
@@ -95,13 +94,16 @@ void CEventMgr::tick()
 		break;
 		case EVENT_TYPE::LEVEL_CHANGE:
 		{
-			//CLevel* Level = CLevelMgr::GetInst()->GetCurLevel();
-			//LEVEL_STATE prevState = Level->GetState();
-			//Level->ChangeState(LEVEL_STATE::NO_UPDATE_RENDER);
-
 			CLevel* Level = (CLevel*)m_vecEvent[i].wParam;
-			//Level->ChangeState(LEVEL_STATE::STOP);
 			CLevelMgr::GetInst()->ChangeLevel(Level);
+			CRenderMgr::GetInst()->ClearCamera();
+			m_LevelChanged = true;
+		}
+		break;
+		case EVENT_TYPE::LEVEL_LOAD:
+		{
+			CLevel* Level = (CLevel*)m_vecEvent[i].wParam;
+			CLevelMgr::GetInst()->LoadLevel(Level);
 			CRenderMgr::GetInst()->ClearCamera();
 			m_LevelChanged = true;
 		}

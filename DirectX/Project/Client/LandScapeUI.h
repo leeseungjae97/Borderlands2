@@ -11,7 +11,7 @@ public:
     void SelectBrushTexture(DWORD_PTR _Key);
     void SelectHeightMap(DWORD_PTR _Key);
     void SelectColorMap(DWORD_PTR _Key);
-
+    void SelectMesh(DWORD_PTR _Key);
 public:
     LandScapeUI();
     ~LandScapeUI();

@@ -45,6 +45,15 @@ void LandScapeUI::SelectColorMap(DWORD_PTR _Key)
 	GetTarget()->LandScape()->SetColorMap(pTexture);
 }
 
+void LandScapeUI::SelectMesh(DWORD_PTR _Key)
+{
+	string strKey = (char*)_Key;
+	wstring strTowstring = wstring(strKey.begin(), strKey.end());
+	Ptr<CMesh> pMesh = CResMgr::GetInst()->FindRes<CMesh>(strTowstring);
+	GetTarget()->LandScape()->SetLandScapeMesh(pMesh);
+}
+
+
 int LandScapeUI::render_update()
 {
 	if (FALSE == ComponentUI::render_update())
@@ -75,6 +84,50 @@ int LandScapeUI::render_update()
 		GetTarget()->LandScape()->SetBrushPopUp(!iPopUp);
 	}
 
+	char szBuff[50] = {};
+
+	Ptr<CMesh> pMesh = GetTarget()->LandScape()->GetMesh();
+	Ptr<CMaterial> pMtrl = GetTarget()->LandScape()->GetMaterial(0);
+
+	ImGui::Text("Mesh    ");
+	ImGui::SameLine();
+	GetResKey(pMesh.Get(), szBuff, 50);
+	ImGui::InputText("##MeshName", szBuff, 50, ImGuiInputTextFlags_ReadOnly);
+
+	// Mesh 드랍 체크
+	if (ImGui::BeginDragDropTarget())
+	{
+		// 해당 노드에서 마우스 뗀 경우, 지정한 PayLoad 키값이 일치한 경우
+		const ImGuiPayload* pPayLoad = ImGui::AcceptDragDropPayload("Resource");
+		if (pPayLoad)
+		{
+			TreeNode* pNode = (TreeNode*)pPayLoad->Data;
+			CRes* pRes = (CRes*)pNode->GetData();
+			if (RES_TYPE::MESH == pRes->GetType())
+			{
+				GetTarget()->LandScape()->SetMesh((CMesh*)pRes);
+			}
+		}
+
+		ImGui::EndDragDropTarget();
+	}
+
+	ImGui::SameLine();
+	if (ImGui::Button("##MeshSelectBtn", ImVec2(18, 18)))
+	{
+		const map<wstring, Ptr<CRes>>& mapMesh = CResMgr::GetInst()->GetResources(RES_TYPE::MESH);
+
+		ListUI* pListUI = (ListUI*)ImGuiMgr::GetInst()->FindUI("##List");
+		pListUI->Reset("Mesh List", ImVec2(300.f, 500.f));
+		for (const auto& pair : mapMesh)
+		{
+			pListUI->AddItem(string(pair.first.begin(), pair.first.end()));
+		}
+
+		// 항목 선택시 호출받을 델리게이트 등록
+		pListUI->AddDynamic_Select(this, (UI_DELEGATE_1)&LandScapeUI::SelectMesh);
+	}
+
 	Vec2 scale = GetTarget()->LandScape()->GetBrushScale();
 	float fScale[2] = {scale.x, scale.y};
 	ImGui::Text("Brush Scale");
@@ -84,6 +137,16 @@ int LandScapeUI::render_update()
 	scale.y = fScale[1];
 
 	GetTarget()->LandScape()->SetBrushScale(scale);
+
+	if(ImGui::Button("Bake##Bake"))
+	{
+		GetTarget()->LandScape()->Bake();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Save##Save"))
+	{
+		GetTarget()->LandScape()->SaveCurMesh();
+	}
 	//float fEdge = (int)GetTarget()->LandScape()->GetTessEdge();
 	//float fInside = (int)GetTarget()->LandScape()->GetTessInside();
 

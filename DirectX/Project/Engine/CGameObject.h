@@ -10,7 +10,6 @@ class CAnimator3D;
 class CLight3D;
 class CCamera;
 class CRenderComponent;
-class CTileMap;
 class CScript;
 class CSkyBox;
 class CDecal;
@@ -68,7 +67,6 @@ public:
     GET_COMPONENT(ParticleSystem, PARTICLESYSTEM);
     GET_COMPONENT(Camera, CAMERA);
     GET_COMPONENT(Light3D, LIGHT3D);
-    GET_COMPONENT(TileMap, TILEMAP);
     GET_COMPONENT(Animator3D, ANIMATOR3D);
     GET_COMPONENT(SkyBox, SKYBOX);
     GET_COMPONENT(Decal, DECAL);

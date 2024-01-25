@@ -25,6 +25,5 @@ public:
 	void DrawFont(const wchar_t* _pStr, float _fPosX, float _fPosY, float _fFontSize, UINT _Color);
 
 public:
-	CFontMgr();
-	~CFontMgr();
+	SINGLE(CFontMgr)
 };

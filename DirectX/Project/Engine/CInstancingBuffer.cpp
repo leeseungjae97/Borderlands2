@@ -55,7 +55,7 @@ void CInstancingBuffer::SetData()
 	if (m_pBoneBuffer->GetBufferSize() < iBufferSize)
 	{
 		m_pBoneBuffer->Create(m_vecBoneMat[0]->GetElementSize()
-			, m_vecBoneMat[0]->GetElementCount() * (UINT)m_vecBoneMat.size(), SB_TYPE::READ_WRITE, false, "m_vecBoneMat",nullptr);
+			, m_vecBoneMat[0]->GetElementCount() * (UINT)m_vecBoneMat.size(), SB_TYPE::READ_WRITE, false, nullptr);
 	}
 
 	// 복사용 컴퓨트 쉐이더 실행

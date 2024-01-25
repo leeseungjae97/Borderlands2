@@ -23,7 +23,7 @@ private:
     UINT                                m_iRecentRegisterNum;
 
 public:
-    void Create(UINT _iElementSize, UINT _iElementCount, SB_TYPE _Type, bool _bUseSysAccess, string bufName, void* _pSysMem = nullptr);
+    void Create(UINT _iElementSize, UINT _iElementCount, SB_TYPE _Type, bool _bUseSysAccess, void* _pSysMem = nullptr);
     void SetData(void* _pSrc, UINT _iSize = 0);
     void GetData(void* _pDst);
 

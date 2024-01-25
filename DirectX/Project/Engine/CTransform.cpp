@@ -78,6 +78,7 @@ void CTransform::finaltick()
 	if(nullptr != GetOwner()->GetFollowObj())
 	{
 		Vec3 vFollowPos = GetOwner()->GetFollowObj()->Transform()->GetRelativePos();
+		vFollowPos += m_FollowOffset;
 		GetOwner()->Transform()->SetRelativePos(vFollowPos);
 	}
 	m_matWorldInv = XMMatrixInverse(nullptr, m_matWorld);
@@ -103,6 +104,7 @@ void CTransform::SaveToLevelFile(FILE* _File)
 	fwrite(&m_vRelativePos	, sizeof(Vec3), 1, _File);
 	fwrite(&m_vRelativeScale, sizeof(Vec3), 1, _File);
 	fwrite(&m_vRelativeRot	, sizeof(Vec3), 1, _File);
+	fwrite(&m_FollowOffset, sizeof(Vec3), 1, _File);
 	fwrite(&m_bAbsolute, sizeof(bool), 1, _File);	    
 }
 
@@ -111,5 +113,6 @@ void CTransform::LoadFromLevelFile(FILE* _FILE)
 	fread(&m_vRelativePos, sizeof(Vec3), 1, _FILE);
 	fread(&m_vRelativeScale, sizeof(Vec3), 1, _FILE);
 	fread(&m_vRelativeRot, sizeof(Vec3), 1, _FILE);
+	fread(&m_FollowOffset, sizeof(Vec3), 1, _FILE);
 	fread(&m_bAbsolute, sizeof(bool), 1, _FILE);
 }

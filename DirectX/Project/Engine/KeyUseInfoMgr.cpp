@@ -3,6 +3,12 @@
 
 #include "CFontMgr.h"
 
+KeyUseInfoMgr::KeyUseInfoMgr()
+{
+	
+}
+KeyUseInfoMgr::~KeyUseInfoMgr() {  }
+
 void KeyUseInfoMgr::render()
 {
 	//static wchar_t szBuff[256] = {};

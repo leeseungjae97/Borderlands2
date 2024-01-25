@@ -12,6 +12,7 @@
 #include "CResMgr.h"
 
 static int testObjectNumbering = 0;
+static vector<CGameObject*> vecTestObjGC;
 
 void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx)
 {
@@ -51,9 +52,26 @@ void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _L
 
 	CEventMgr::GetInst()->AddEvent(evn);
 }
+
+float RadianToDegree(float radian)
+{
+	return XMConvertToDegrees(radian);
+}
+
+float DegreeToRadian(float degree)	
+{
+	return XMConvertToRadians(degree);
+}
+
+bool areAlmostEqual(float a, float b, float epsilon)
+{
+	return std::abs(a - b) < epsilon;
+}
+
 void TestSpawnGameObject(Vec3 _WorldPos, int _LayerIndex, Ptr<CMesh> _Mesh)
 {
 	CGameObject* testObject = new CGameObject;
+	vecTestObjGC.push_back(testObject);
 	testObject->SetName(L"testObject" + std::to_wstring(testObjectNumbering));
 
 	++testObjectNumbering;
@@ -93,7 +111,7 @@ void TestPreloadGameObject(Vec3 _WorldPos, int _LayerIndex, Ptr<CMesh> _Mesh)
 
 	testObject->AddComponent(new CTransform);
 	testObject->Transform()->SetRelativePos(_WorldPos);
-	testObject->Transform()->SetRelativeScale(Vec3(50.f, 50.f, 50.f));
+	testObject->Transform()->SetRelativeScale(Vec3(10.f, 10.f, 10.f));
 
 	testObject->AddComponent(new CMeshRender);
 	if(nullptr != _Mesh.Get())
@@ -105,9 +123,18 @@ void TestPreloadGameObject(Vec3 _WorldPos, int _LayerIndex, Ptr<CMesh> _Mesh)
 	}
 	
 	testObject->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
-	testObject->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
+	testObject->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\red.png"));
 	testObject->Transform()->SetRelativePos(_WorldPos);
 	CLevelMgr::GetInst()->GetCurLevel()->AddGameObject(testObject, _LayerIndex, false);
+}
+
+void DeleteTestObject()
+{
+	for(CGameObject* obj : vecTestObjGC)
+	{
+		DestroyObject(obj);
+	}
+	vecTestObjGC.clear();
 }
 
 void ChangeCurLevel(CLevel* _ChangeLevel)

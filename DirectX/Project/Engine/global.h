@@ -60,16 +60,13 @@ typedef Vector4 Vec4;
 #pragma comment(lib, "Recast/x64/debug/DetourCrowd.lib")
 #pragma comment(lib, "Recast/x64/debug/DetourTileCache.lib")
 
-//#pragma comment(lib, "PhysX/debug/PhysXVehicle_static_64.lib")
-//#pragma comment(lib, "PhysX/debug/PhysXVehicle2_static_64.lib")
-//#pragma comment(lib, "PhysX/debug/PhysXExtensions_static_64.lib")
-//#pragma comment(lib, "PhysX/debug/PhysXPvdSDK_static_64.lib")
-//#pragma comment(lib, "PhysX/debug/PhysXCharacterKinematic_static_64.lib")
-//#pragma comment(lib, "PhysX/debug/PhysXCooking_static_64.lib")
-//#pragma comment(lib, "PhysX/debug/PVDRuntime_64.lib")
-//#pragma comment(lib, "PhysX/debug/PhysX_static_64.lib")
-//#pragma comment(lib, "PhysX/debug/PhysXCommon_static_64.lib")
-//#pragma comment(lib, "PhysX/debug/PhysXFoundation_static_64.lib")
+#pragma comment(lib, "PhysX/debug/PhysX_64.lib")
+#pragma comment(lib, "PhysX/debug/PhysXCharacterKinematic_static_64.lib")
+#pragma comment(lib, "PhysX/debug/PhysXCommon_64.lib")
+#pragma comment(lib, "PhysX/debug/PhysXCooking_64.lib")
+#pragma comment(lib, "PhysX/debug/PhysXExtensions_static_64.lib")
+#pragma comment(lib, "PhysX/debug/PhysXFoundation_64.lib")
+#pragma comment(lib, "PhysX/debug/PhysXPvdSDK_static_64.lib")
 
 #else
 #pragma comment(lib, "FBXLoader/x64/release/libfbxsdk-md.lib")
@@ -80,16 +77,13 @@ typedef Vector4 Vec4;
 #pragma comment(lib, "Recast/x64/release/DetourCrowd.lib")
 #pragma comment(lib, "Recast/x64/release/DetourTileCache.lib")
 
-//#pragma comment(lib, "PhysX/release/PhysXVehicle_static_64.lib")
-//#pragma comment(lib, "PhysX/release/PhysXVehicle2_static_64.lib")
-//#pragma comment(lib, "PhysX/release/PhysXExtensions_static_64.lib")
-//#pragma comment(lib, "PhysX/release/PhysXPvdSDK_static_64.lib")
-//#pragma comment(lib, "PhysX/release/PhysXCharacterKinematic_static_64.lib")
-//#pragma comment(lib, "PhysX/release/PhysXCooking_static_64.lib")
-//#pragma comment(lib, "PhysX/release/PVDRuntime_64.lib")
-//#pragma comment(lib, "PhysX/release/PhysX_static_64.lib")
-//#pragma comment(lib, "PhysX/release/PhysXCommon_static_64.lib")
-//#pragma comment(lib, "PhysX/release/PhysXFoundation_static_64.lib")
+#pragma comment(lib, "PhysX/release/PhysX_64.lib")
+#pragma comment(lib, "PhysX/release/PhysXCharacterKinematic_static_64.lib")
+#pragma comment(lib, "PhysX/release/PhysXCommon_64.lib")
+#pragma comment(lib, "PhysX/release/PhysXCooking_64.lib")
+#pragma comment(lib, "PhysX/release/PhysXExtensions_static_64.lib")
+#pragma comment(lib, "PhysX/release/PhysXFoundation_64.lib")
+#pragma comment(lib, "PhysX/release/PhysXPvdSDK_static_64.lib")
 #endif
 
 

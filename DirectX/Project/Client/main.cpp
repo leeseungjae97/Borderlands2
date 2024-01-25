@@ -5,9 +5,14 @@
 #include "Client.h"
 
 #include <Engine\CDevice.h>
+#include <Engine\CLevelMgr.h>
+#include <Engine\CLevel.h>
 #include "CEditorObjMgr.h"
 
 // ImGui
+#include <windowsx.h>
+#include <Engine/CKeyMgr.h>
+
 #include "ImGuiMgr.h"
 
 #include "TestLevel.h"
@@ -168,9 +173,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
         return true;
-
     switch (message)
     {
+    //case WM_SETCURSOR:
+    //{
+    //    int a = 0;
+    //}
+    //break;
+    case WM_MOUSEMOVE:
+    {
+        //static bool bMouseShow = false;
+        //static bool bSetMouseCursor = true;
+        //if (CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
+        //{
+        //    if (KEY_TAP(KEY::M))
+        //    {
+        //        bMouseShow = !bMouseShow;
+        //        ShowCursor(bMouseShow);
+        //        //bSetMouseCursor = false;
+        //        SetCursor(bMouseShow == false ? NULL : CEngine::GetInst()->GetDefaultCursor());
+        //    }
+        //}
+    }
+    break;
+    case WM_SYSKEYUP:
+    {
+        // Alt 키 입력 무시
+        return 0;
+    }
     case WM_DPICHANGED:
         if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DpiEnableScaleViewports)
         {

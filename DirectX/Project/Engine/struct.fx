@@ -1,6 +1,13 @@
 #ifndef _STRUCT
 #define _STRUCT
 
+struct tVertex
+{
+    float3 vPosition;
+    float3 vNormal;
+    float3 vTangent;
+    float3 vBinormal;
+};
 
 struct tLightColor
 {

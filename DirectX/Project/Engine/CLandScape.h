@@ -57,10 +57,11 @@ private:
     LANDSCAPE_MOD           m_eMod; 	        // 지형 툴모드에서 상태값
 
     Ptr<CTexture>           m_pTileArrTex;      // 타일 배열 텍스쳐
-    RecastNavi*          m_Recast;
+    RecastNavi*             m_Recast;
+    CStructuredBuffer*      m_pVertexBuffer;
     // ========================================================================
     vector<tNode>           m_vecNode;
-    CStructuredBuffer*      m_pNodesBuffer;
+    //CStructuredBuffer*      m_pNodesBuffer;
 
 
     //Ptr<CLandScapePathShader> m_pCSPathInit;
@@ -105,16 +106,24 @@ public:
 
     int GetWeightIdx() { return m_iWeightIdx; }
 
+    tRaycastOut GetLandScapeRayCastOut();
+
     virtual void finaltick() override;
     virtual void render() override;
     void render(UINT _iSubset) override;
+
+    void Bake();
+
+    void SaveCurMesh();
+
+    void SetLandScapeMesh(Ptr<CMesh> _Mesh);
 
 public:
     void init();
     void CreateMesh();
     void CreateComputeShader();
     void CreateTexture();
-    void CreateNode();
+    void AddHeightMapToMesh();
 
     void CreateHeightMap();
     void CreateColorMap();

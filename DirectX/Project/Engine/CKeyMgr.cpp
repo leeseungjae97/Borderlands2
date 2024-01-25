@@ -6,6 +6,8 @@
 
 #include "CCamera.h"
 #include "CFontMgr.h"
+#include "CLevel.h"
+#include "CLevelMgr.h"
 
 int g_arrVK[(UINT)KEY::END]
 =
@@ -26,31 +28,9 @@ int g_arrVK[(UINT)KEY::END]
 	 VK_LBUTTON,
 	 VK_RBUTTON,
 
-	 'Q',
-	 'W',
-	 'E',
-	 'R',
-
-	 'T',
-	 'Y',
-	 'U',
-	 'I',
-	 'O',
-	 'P',
-
-	 'A',
-	 'S',
-	 'D',
-	 'F',
-	 'L',
-	 'K',
-
-	 'Z',
-	 'X',
-	 'C',
-	 'V',
-	  
-	 	 
+	'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',
+	'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
+	'Z', 'X', 'C', 'V', 'B', 'N', 'M',
 
 	 '0',
 	 '1',
@@ -100,6 +80,7 @@ void CKeyMgr::tick()
 				if (false == m_vecKey[i].bPrev)
 				{
 					m_vecKey[i].state = KEY_STATE::TAP;
+					m_vecKey[i].toggle_state = KEY_STATE::TOGGLE;
 					m_vecKey[i].bPrev = true;
 				}
 				else
@@ -123,16 +104,74 @@ void CKeyMgr::tick()
 			}
 		}
 
-		// Mouse 위치 갱신
-		m_vPrevMousePos = m_vMousePos;
+		
+		static bool bMouseShow = false;
+		static bool bCur = false;
+		if(CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
+		{
+			if (KEY_TAP(KEY::M))
+			{
+				bMouseShow = !bMouseShow;
+				bCur = true;
+			}
+			if(bCur)
+			{
+				SetCursor(bMouseShow == false ? NULL : CEngine::GetInst()->GetDefaultCursor());
+				bCur = false;
+			}
+			ShowCursor(bMouseShow);
+			if(!bMouseShow)
+			{
+				Vec2 m_vResolution = CEngine::GetInst()->GetWindowResolution();
+				HWND m_hWnd = CEngine::GetInst()->GetMainWnd();
 
-		POINT ptMousePos = {};
-		GetCursorPos(&ptMousePos);		
-		ScreenToClient(CEngine::GetInst()->GetMainWnd(), &ptMousePos);
-		m_vMousePos = Vec2((float)ptMousePos.x, (float)ptMousePos.y);
+				POINT pt;
+				GetCursorPos(&pt);
+				m_vMouseDir.x = pt.x - m_vMousePos.x;
+				m_vMouseDir.y = pt.y - m_vMousePos.y;
 
-		m_vMouseDir = m_vMousePos - m_vPrevMousePos;
-		m_vMouseDir.y *= -1;
+				m_vMouseDir.y *= -1;
+
+				RECT rt = { 0, 0, (int)m_vResolution.x, (int)m_vResolution.y };
+				//ClipCursor(&rt);
+				GetClientRect(m_hWnd, &rt);
+
+				pt.x = (rt.right - rt.left) / 2;
+				pt.y = (rt.bottom - rt.top) / 2;
+
+				ClientToScreen(m_hWnd, &pt);
+				SetCursorPos(pt.x, pt.y);
+
+				m_vMousePos.x = pt.x;
+				m_vMousePos.y = pt.y;
+			}else
+			{
+				//ClipCursor(NULL);
+				m_vPrevMousePos = m_vMousePos;
+
+				POINT ptMousePos = {};
+				GetCursorPos(&ptMousePos);
+				ScreenToClient(CEngine::GetInst()->GetMainWnd(), &ptMousePos);
+				m_vMousePos = Vec2((float)ptMousePos.x, (float)ptMousePos.y);
+
+				m_vMouseDir = m_vMousePos - m_vPrevMousePos;
+				m_vMouseDir.y *= -1;
+			}
+	
+
+		}else
+		{
+			// Mouse 위치 갱신
+			m_vPrevMousePos = m_vMousePos;
+
+			POINT ptMousePos = {};
+			GetCursorPos(&ptMousePos);
+			ScreenToClient(CEngine::GetInst()->GetMainWnd(), &ptMousePos);
+			m_vMousePos = Vec2((float)ptMousePos.x, (float)ptMousePos.y);
+
+			m_vMouseDir = m_vMousePos - m_vPrevMousePos;
+			m_vMouseDir.y *= -1;
+		}
 	}
 
 	// Window 가 focus 상태가 아니다

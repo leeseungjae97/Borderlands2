@@ -15,6 +15,8 @@ private:
     Vec3    m_vRelativeDir[3];
     Vec3    m_vWorldDir[3];
 
+    Vec3    m_FollowOffset;
+
     Matrix  m_matWorldScale;    // 월드 크기 행렬
     Matrix  m_matWorld; // 크기, 회전, 이동 정보를 합쳐놓음
     Matrix  m_matWorldInv; // 크기, 회전, 이동 정보를 합쳐놓음
@@ -40,6 +42,9 @@ public:
     Vec3 GetRelativeDir(DIR_TYPE _type) const { return m_vRelativeDir[(UINT)_type]; }
     Vec3 GetWorldDir(DIR_TYPE _type) const { { return m_vWorldDir[(UINT)_type]; } }
     Vec3 GetWorldPos() { return m_matWorld.Translation(); }
+
+    void SetFollowOffset(Vec3 _Offset) { m_FollowOffset = _Offset; }
+    Vec3 GetFollowOffset() { return m_FollowOffset; }
 
     const Matrix& GetWorldScaleMat() { return m_matWorldScale; }
     const Matrix& GetWorldMat() const { return m_matWorld; }

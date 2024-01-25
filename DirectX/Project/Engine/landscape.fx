@@ -25,6 +25,7 @@
 #define TileTexArr      g_arrtex_0
 
 StructuredBuffer<float4> WEIGHT_MAP : register(t17);
+RWStructuredBuffer<tVertex> Vertices : register(u0);
 // ========================
 struct VS_IN
 {
@@ -80,10 +81,10 @@ PatchOutput PatchConstFunc(InputPatch<VS_OUT, 3> _input
     //if (fInside == 0.0f) 
     //    fInside = 8.0f;
 
-    //output.Edges[0] = fEdge;
-    //output.Edges[1] = fEdge;
-    //output.Edges[2] = fEdge;
-    //output.Inside = fInside;
+    //output.Edges[0] = 1;
+    //output.Edges[1] = 1;
+    //output.Edges[2] = 1;
+    //output.Inside = 1;
 
     float3 vUpDown = (_input[1].vWorldPos + _input[2].vWorldPos) / 2.f;
     float3 vLeftRight = (_input[0].vWorldPos + _input[2].vWorldPos) / 2.f;
@@ -155,13 +156,13 @@ DS_OUT DS_LandScape(const OutputPatch<HS_OUT, 3> _origin
         vLocalPos += _origin[i].vLocalPos * _vWeight[i];
         vUV += _origin[i].vUV * _vWeight[i];
     }
+    
 
     // 높이맵 적용
     output.vHeightMapUV = vUV / float2(FaceX, FaceZ);
     vLocalPos.y = HeightMap.SampleLevel(g_sam_0, output.vHeightMapUV, 0).x;
     output.vColorMapColor = ColorMap.SampleLevel(g_sam_0, output.vHeightMapUV, 0);
     // Normal, Tangent, Binormal 재 계산
-
 
     // 도메인 쉐이더 정점의 주변(위, 아래, 좌, 우) 로 접근하기 위한 간격
     float fLocalStep = 1.f / _patchtess.Inside;
@@ -249,9 +250,9 @@ PS_OUT PS_LandScape(DS_OUT _in)
 
     output.vNormal = float4(vViewNormal, 1.f);
     //float4 color = HeightMap.SampleLevel(g_sam_0, _in.vHeightMapUV, 0);
-    output.vColor = float4(0.8f, 0.8f, 0.8f, 1.f);
-    //output.vNormal = float4(_in.vViewNormal, 1.f);
+    //output.vColor = float4(0.8f, 0.8f, 0.8f, 1.f);
     //output.vColor += _in.vColorMapColor;
+    //output.vNormal = float4(_in.vViewNormal, 1.f);
     output.vPosition = float4(_in.vViewPos, 1.f);
     output.vData;
     output.vEmissive;

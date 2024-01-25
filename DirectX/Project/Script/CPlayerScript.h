@@ -7,6 +7,8 @@ class CPlayerScript :
 private:
     float       m_fSpeed;
 
+    float       m_MouseAcces;
+
 public:
     virtual void begin() override;
     virtual void tick() override;

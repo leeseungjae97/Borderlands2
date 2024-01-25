@@ -45,20 +45,32 @@ int MenuUI::render_update()
         {
             if (ImGui::MenuItem("Save Level"))
             {
-                // Level 저장
-                //CLevelSaveLoad::SaveLevel(L"Level\\TestLevel.lv", CLevelMgr::GetInst()->GetCurLevel());
+                CLevel* curLevel =CLevelMgr::GetInst()->GetCurLevel();
+                assert(curLevel);
+                CLevelSaveLoad::SaveLevel(L"Level\\"+ curLevel->GetName() + L".lv", curLevel);
             }
 
-            if (ImGui::MenuItem("Load Level"))
+            if (ImGui::BeginMenu("Load Level"))
             {
-                // Level 불러오기
-                CLevel* pLoadedLevel = CLevelSaveLoad::LoadLevel(L"Level\\TestLevel.lv");
+                char str[100] = {};
+                memset(str, 0, sizeof(char) * 100);
+                wstring levelName;
+                ImGui::Text("Level Name : ");
+                ImGui::SameLine();
+                ImGui::InputText("##Load Level Name", str, 100);
+                if(ImGui::IsKeyPressed(ImGuiKey_Enter))
+                {
+                    string nStr = Strsubstr(str, ".lv");
+                    wstring wstr(nStr.begin(), nStr.end());
+                    CLevel* pLoadedLevel = CLevelSaveLoad::LoadLevel(L"Level\\" + wstr);
 
-                tEvent evn = {};
-                evn.Type = EVENT_TYPE::LEVEL_CHANGE;
-                evn.wParam = (DWORD_PTR)pLoadedLevel;
+                    tEvent evn = {};
+                    evn.Type = EVENT_TYPE::LEVEL_LOAD;
+                    evn.wParam = (DWORD_PTR)pLoadedLevel;
 
-                CEventMgr::GetInst()->AddEvent(evn);
+                    CEventMgr::GetInst()->AddEvent(evn);
+                }
+                ImGui::EndMenu();
             }
 
             ImGui::EndMenu();
@@ -185,13 +197,13 @@ void MenuUI::CreateEmptyObject()
     CGameObject* pNewObject = new CGameObject;
     pNewObject->AddComponent(new CTransform);
     pNewObject->SetName(L"New Object");
-    SpawnGameObject(pNewObject, Vec3(0.f, 0.f, 0.f), L"Default");
+    SpawnGameObject(pNewObject, Vec3(0.f, 0.f, 0.f), 1);
 
     // Outliner 를 가져온다.
     OutlinerUI* outliner = (OutlinerUI*)ImGuiMgr::GetInst()->FindUI("##Outliner");
 
     // 새로추가된 오브젝트를 데이터로 하는 노드가 추가되면, 선택상태로 두게 한다.
-    outliner->SetSelectedNodeData(DWORD_PTR(pNewObject));    
+    outliner->SetSelectedNodeData(DWORD_PTR(pNewObject));   
 }
 
 void MenuUI::CreateEmptyMaterial()
@@ -236,9 +248,11 @@ void MenuUI::AddComponent(COMPONENT_TYPE _type)
     case COMPONENT_TYPE::PARTICLESYSTEM:
         pSelectedObject->AddComponent(new CParticleSystem);
         break;
-    //case COMPONENT_TYPE::TILEMAP:
-    //    pSelectedObject->AddComponent(new CTileMap);
-    //    break;
+
+    case COMPONENT_TYPE::SKYBOX:
+        pSelectedObject->AddComponent(new CSkyBox);
+        break;
+  
     case COMPONENT_TYPE::LANDSCAPE:
         pSelectedObject->AddComponent(new CLandScape);
         break;

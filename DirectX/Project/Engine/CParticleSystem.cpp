@@ -70,11 +70,11 @@ CParticleSystem::CParticleSystem()
 
 	// 파티클 스폰 개수 전달용 버퍼
 	m_RWBuffer = new CStructuredBuffer;
-	m_RWBuffer->Create(sizeof(tRWParticleBuffer), 1, SB_TYPE::READ_WRITE, true, "particleRW Buffer");
+	m_RWBuffer->Create(sizeof(tRWParticleBuffer), 1, SB_TYPE::READ_WRITE, true);
 
 	// 모듈 활성화 및 모듈 설정 정보 버퍼
 	m_ModuleDataBuffer = new CStructuredBuffer;
-	m_ModuleDataBuffer->Create(sizeof(tParticleModule), 1, SB_TYPE::READ_ONLY, true, "particle Module Buffer");
+	m_ModuleDataBuffer->Create(sizeof(tParticleModule), 1, SB_TYPE::READ_ONLY, true);
 }
 
 CParticleSystem::~CParticleSystem()
@@ -95,7 +95,7 @@ void CParticleSystem::SetMaxSpawn(int _MaxSpawn)
 	m_ModuleData.iMaxParticleCount = _MaxSpawn;
 	
 	m_ParticleBuffer = new CStructuredBuffer;
-	m_ParticleBuffer->Create(sizeof(tParticle), m_ModuleData.iMaxParticleCount, SB_TYPE::READ_WRITE, true, "particle Module Buffer");
+	m_ParticleBuffer->Create(sizeof(tParticle), m_ModuleData.iMaxParticleCount, SB_TYPE::READ_WRITE, true);
 }
 
 void CParticleSystem::SetParticleTex(const Ptr<CTexture>& _Tex)
@@ -223,7 +223,7 @@ void CParticleSystem::LoadFromLevelFile(FILE* _File)
 	if(nullptr == m_ParticleBuffer)
 	{
 		m_ParticleBuffer = new CStructuredBuffer;
-		m_ParticleBuffer->Create(sizeof(tParticle), m_ModuleData.iMaxParticleCount, SB_TYPE::READ_WRITE, false, "Particle Module Buffer");
+		m_ParticleBuffer->Create(sizeof(tParticle), m_ModuleData.iMaxParticleCount, SB_TYPE::READ_WRITE, false);
 	}
 
 	int i = 0;

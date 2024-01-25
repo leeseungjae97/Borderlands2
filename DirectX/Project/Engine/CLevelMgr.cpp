@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CLevelMgr.h"
 
+#include "CEngine.h"
 #include "CEventMgr.h"
 #include "CLevel.h"
 #include "CLayer.h"
@@ -29,8 +30,11 @@ void CLevelMgr::tick()
 	static bool initMainLevel = true;
 	if(initMainLevel)
 	{
-		ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"main level"));
-		//LevelRecognize();
+		if(m_mapLevels.size() < 2)
+			LevelRecognize();
+		else
+			ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"main level"));
+
 		initMainLevel = false;
 	}
 	if (nullptr == m_pCurLevel)
@@ -39,7 +43,7 @@ void CLevelMgr::tick()
 	m_pCurLevel->clear();
 
 	if (LEVEL_STATE::PLAY == m_pCurLevel->GetState())
-	{
+	{	
 		m_pCurLevel->tick();		
 	}
 
@@ -97,17 +101,38 @@ void CLevelMgr::ChangeLevel(CLevel* _NextLevel)
 	if (nullptr != m_pCurLevel)
 	{
 		prevState = m_pCurLevel->GetState();
-		//delete m_pCurLevel;
-		//m_pCurLevel = nullptr;
 		m_pCurLevel->ChangeState(LEVEL_STATE::NO_UPDATE_RENDER);
 	}
 	
 	m_pCurLevel = _NextLevel;
 	m_pCurLevel->ChangeState(prevState);
 }
+void CLevelMgr::DeleteLevel(const wstring& name)
+{
+	if (m_pCurLevel->GetName() == name)
+		m_pCurLevel = nullptr;
+
+	map<wstring, CLevel*>::iterator iter = m_mapLevels.begin();
+	while (iter != m_mapLevels.end())
+	{
+		if (iter->first != name)
+			++iter;
+		else
+		{
+
+			delete iter->second;
+			iter->second = nullptr;
+			iter = m_mapLevels.erase(iter);
+			return;
+		}
+	}
+}
 
 void CLevelMgr::DeleteLevel(CLevel* _DeleteLevel)
 {
+	if (m_pCurLevel == _DeleteLevel)
+		m_pCurLevel = nullptr;
+
 	map<wstring, CLevel*>::iterator iter= m_mapLevels.begin();
 	while(iter != m_mapLevels.end())
 	{
@@ -135,4 +160,14 @@ void CLevelMgr::ResetLevel(CLevel* _ResetData)
 void CLevelMgr::InsertLevel(const wstring& _strName, CLevel* _Level)
 {
 	m_mapLevels.insert(make_pair(_strName, _Level));
+}
+
+void CLevelMgr::LoadLevel(CLevel* _Level)
+{
+	_Level->ChangeState(LEVEL_STATE::STOP);
+
+	DeleteLevel(_Level->GetName());
+	InsertLevel(_Level->GetName(), _Level);
+
+	ChangeLevel(_Level);
 }

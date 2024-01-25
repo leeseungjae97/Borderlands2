@@ -28,7 +28,7 @@ int MaterialUI::render_update()
 
     Ptr<CMaterial> pMtrl = (CMaterial*)GetTargetRes().Get();
     string strKey = string(pMtrl->GetKey().begin(), pMtrl->GetKey().end());
-    ImGui::InputText("##MtrlUIName", (char*)strKey.c_str(), ImGuiInputTextFlags_::ImGuiInputTextFlags_ReadOnly);
+    ImGui::InputText("##MtrlUIName", (char*)strKey.c_str(), strKey.length(),ImGuiInputTextFlags_::ImGuiInputTextFlags_ReadOnly);
 
     // GraphicsShader ¿Ã∏ß
     ImGui::Text("Shader  ");

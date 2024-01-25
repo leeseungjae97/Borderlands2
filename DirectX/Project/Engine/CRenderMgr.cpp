@@ -8,7 +8,6 @@
 #include "CCamera.h"
 #include "CLevel.h"
 #include "CLevelMgr.h"
-#include "CLight2D.h"
 #include "CLight3D.h"
 
 #include "CResMgr.h"
@@ -50,10 +49,10 @@ void CRenderMgr::init()
 {
     // Light2DBuffer 구조화 버퍼 생성
     m_Light2DBuffer = new CStructuredBuffer;
-    m_Light2DBuffer->Create(sizeof(tLightInfo), 10, SB_TYPE::READ_ONLY, true, "Light 2D Buffer");
+    m_Light2DBuffer->Create(sizeof(tLightInfo), 10, SB_TYPE::READ_ONLY, true);
 
     m_Light3DBuffer = new CStructuredBuffer;
-    m_Light3DBuffer->Create(sizeof(tLightInfo), 10, SB_TYPE::READ_ONLY, true, "Light 3D Buffer");
+    m_Light3DBuffer->Create(sizeof(tLightInfo), 10, SB_TYPE::READ_ONLY, true);
 
     CreateMRT();
 }
@@ -156,11 +155,11 @@ void CRenderMgr::UpdateData()
     // 구조화버퍼의 크기가 모자라면 더 크게 새로 만든다.
     if (m_Light2DBuffer->GetElementCount() < m_vecLight2DInfo.size())
     {
-        m_Light2DBuffer->Create(sizeof(tLightInfo), m_vecLight2DInfo.size(), SB_TYPE::READ_ONLY, true, "Light 2D Buffer");
+        m_Light2DBuffer->Create(sizeof(tLightInfo), m_vecLight2DInfo.size(), SB_TYPE::READ_ONLY, true);
     }
     if (m_Light3DBuffer->GetElementCount() < m_vecLight3DInfo.size())
     {
-        m_Light3DBuffer->Create(sizeof(tLightInfo), m_vecLight3DInfo.size(), SB_TYPE::READ_ONLY, true, "Light 3D Buffer");
+        m_Light3DBuffer->Create(sizeof(tLightInfo), m_vecLight3DInfo.size(), SB_TYPE::READ_ONLY, true);
     }
 
     // 구조화버퍼로 광원 데이터를 옮긴다.

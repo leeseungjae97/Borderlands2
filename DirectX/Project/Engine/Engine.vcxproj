@@ -73,8 +73,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)External\Library\Engine\</OutDir>
     <TargetName>$(ProjectName)_d</TargetName>
-    <IncludePath>$(SolutionDir)External\Include\;$(SolutionDir)External\Include\FBXLoader\;$(SolutionDir)External\Include\PhysX\;$(SolutionDir)External\Include\Recast\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)External\Library\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)External\Include\;$(SolutionDir)External\Include\FBXLoader\;$(SolutionDir)External\Include\PhysX\;$(SolutionDir)External\Include\Recast\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)External\Library\Engine\</OutDir>
@@ -119,7 +119,6 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -129,6 +128,8 @@
       <MinUnityFiles>1</MinUnityFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>NDBUG;_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -146,7 +147,6 @@ call EngineCopy.bat</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -156,6 +156,8 @@ call EngineCopy.bat</Command>
       <MinUnityFiles>1</MinUnityFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>NDBUG;_DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -170,13 +172,10 @@ call EngineCopy.bat</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CAnim2D.h" />
     <ClInclude Include="CAnimClip.h" />
     <ClInclude Include="CAnimation3DShader.h" />
-    <ClInclude Include="CAnimator2D.h" />
     <ClInclude Include="CAnimator3D.h" />
     <ClInclude Include="CCamera.h" />
-    <ClInclude Include="CCollider2D.h" />
     <ClInclude Include="CCollisionMgr.h" />
     <ClInclude Include="CColorMapShader.h" />
     <ClInclude Include="CComponent.h" />
@@ -194,12 +193,12 @@ call EngineCopy.bat</Command>
     <ClInclude Include="CHeightMapShader.h" />
     <ClInclude Include="CInstancingBuffer.h" />
     <ClInclude Include="CKeyMgr.h" />
+    <ClInclude Include="LandScapeMgr.h" />
     <ClInclude Include="CLandScapePathShader.h" />
     <ClInclude Include="CLandScape.h" />
     <ClInclude Include="CLayer.h" />
     <ClInclude Include="CLevel.h" />
     <ClInclude Include="CLevelMgr.h" />
-    <ClInclude Include="CLight2D.h" />
     <ClInclude Include="CLight3D.h" />
     <ClInclude Include="CMaterial.h" />
     <ClInclude Include="CMesh.h" />
@@ -235,9 +234,8 @@ call EngineCopy.bat</Command>
     <ClInclude Include="LUT_Animation.h" />
     <ClInclude Include="mFBXLoader.h" />
     <ClInclude Include="mMRT.h" />
-    <ClInclude Include="MouseMgr.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="PhysXT.h" />
+    <ClInclude Include="PhysXMgr.h" />
     <ClInclude Include="physx_imm_utils.h" />
     <ClInclude Include="physx_util.h" />
     <ClInclude Include="ptr.h" />
@@ -249,13 +247,10 @@ call EngineCopy.bat</Command>
     <ClInclude Include="struct.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CAnim2D.cpp" />
     <ClCompile Include="CAnimClip.cpp" />
     <ClCompile Include="CAnimation3DShader.cpp" />
-    <ClCompile Include="CAnimator2D.cpp" />
     <ClCompile Include="CAnimator3D.cpp" />
     <ClCompile Include="CCamera.cpp" />
-    <ClCompile Include="CCollider2D.cpp" />
     <ClCompile Include="CCollisionMgr.cpp" />
     <ClCompile Include="CColorMapShader.cpp" />
     <ClCompile Include="CComponent.cpp" />
@@ -276,12 +271,12 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CHeightMapShader.cpp" />
     <ClCompile Include="CInstancingBuffer.cpp" />
     <ClCompile Include="CKeyMgr.cpp" />
+    <ClCompile Include="LandScapeMgr.cpp" />
     <ClCompile Include="CLandScapePathShader.cpp" />
     <ClCompile Include="CLandScape.cpp" />
     <ClCompile Include="CLayer.cpp" />
     <ClCompile Include="CLevel.cpp" />
     <ClCompile Include="CLevelMgr.cpp" />
-    <ClCompile Include="CLight2D.cpp" />
     <ClCompile Include="CLight3D.cpp" />
     <ClCompile Include="CMaterial.cpp" />
     <ClCompile Include="CMesh.cpp" />
@@ -313,14 +308,13 @@ call EngineCopy.bat</Command>
     <ClCompile Include="KeyUseInfoMgr.cpp" />
     <ClCompile Include="mFBXLoader.cpp" />
     <ClCompile Include="mMRT.cpp" />
-    <ClCompile Include="MouseMgr.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="PhysXT.cpp" />
+    <ClCompile Include="PhysXMgr.cpp" />
     <ClCompile Include="physx_imm_utils.cpp" />
     <ClCompile Include="physx_util.cpp" />
     <ClCompile Include="CRayCastShader.cpp" />

@@ -13,6 +13,7 @@
 #include "CFontMgr.h"
 #include "CInstancingBuffer.h"
 #include "KeyUseInfoMgr.h"
+#include "PhysXMgr.h"
 
 CEngine::CEngine()
 	: m_hWnd(nullptr)
@@ -36,6 +37,8 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 	SetWindowPos(m_hWnd, nullptr, 10, 10, rt.right - rt.left, rt.bottom - rt.top, 0);
 	ShowWindow(m_hWnd, true);
 
+	m_DefaultCursor = GetCursor();
+	GetClientRect(m_hWnd, &rt);
 
 	// Device ÃÊ±âÈ­
 	if (FAILED(CDevice::GetInst()->init(m_hWnd, _iWidth, _iHeight)))
@@ -61,6 +64,8 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 	CLevelMgr::GetInst()->init();
 
 	CInstancingBuffer::GetInst()->init();
+
+	PhysXMgr::GetInst()->init();
 
 	return S_OK;
 }

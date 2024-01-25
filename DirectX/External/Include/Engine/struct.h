@@ -18,6 +18,14 @@ struct tVertex
 
 typedef tVertex Vtx;
 
+struct tStructVertex
+{
+	Vec3 vPos;
+	Vec3 vNormal;
+	Vec3 vTangent;
+	Vec3 vBinormal;
+};
+
 // ===========
 // Instancing
 // ===========

@@ -20,25 +20,9 @@ enum class KEY
 	LBTN,
 	RBTN,
 	
-	Q,
-	W,
-	E,
-	R,
-
-	T,Y,U,I,O,P,
-
-	A,
-	S,
-	D,
-	F,
-
-	L,
-	K,
-
-	Z,
-	X,
-	C,
-	V,
+	Q, W, E, R, T, Y, U, I, O, P,
+	A, S, D, F, G, H, J, K, L,
+	Z, X, C, V, B, N, M,
 
 	_0,
 	_1,
@@ -59,6 +43,7 @@ enum class KEY_STATE
 	TAP,
 	PRESSED,
 	RELEASE,
+	TOGGLE,
 	NONE,
 };
 
@@ -67,6 +52,7 @@ struct tKeyInfo
 {
 	KEY			key;
 	KEY_STATE	state;
+	KEY_STATE	toggle_state;
 	bool		bPrev;
 };
 

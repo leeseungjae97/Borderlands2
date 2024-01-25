@@ -14,7 +14,7 @@ CStructuredBuffer::~CStructuredBuffer()
 }
 
 void CStructuredBuffer::Create(UINT _iElementSize, UINT _iElementCount
-	, SB_TYPE _Type, bool _bSysAccess, string bufName, void* _pSysMem)
+	, SB_TYPE _Type, bool _bSysAccess, void* _pSysMem)
 {
 	m_SB = nullptr;
 	m_SRV = nullptr;

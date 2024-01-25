@@ -8,6 +8,7 @@
 
 #include <Engine\CGameObject.h>
 
+#include "ManagerInspectorUI.h"
 #include "UI.h"
 #include "ParamUI.h"
 
@@ -176,6 +177,9 @@ void ImGuiMgr::CreateUI()
     pUI->SetActive(true);
     m_mapUI.insert(make_pair(pUI->GetID(), pUI));
 
+    pUI = new ManagerInspectorUI;
+    pUI->SetActive(true);
+    m_mapUI.insert(make_pair(pUI->GetID(), pUI));
 
     // ListUI
     pUI = new ListUI;

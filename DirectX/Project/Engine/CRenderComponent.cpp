@@ -32,6 +32,8 @@ void CRenderComponent::SetMesh(Ptr<CMesh> _Mesh)
 
 Ptr<CMaterial> CRenderComponent::GetMaterial(UINT _Idx)
 {
+	if (m_vecMtrls.empty()) return nullptr;
+
 	if (nullptr == m_vecMtrls[_Idx].pCurrentMtrl)
 	{
 		m_vecMtrls[_Idx].pCurrentMtrl = m_vecMtrls[_Idx].pSharedMtrl;
@@ -42,6 +44,8 @@ Ptr<CMaterial> CRenderComponent::GetMaterial(UINT _Idx)
 
 Ptr<CMaterial> CRenderComponent::GetSharedMaterial(UINT _Idx)
 {
+	if (m_vecMtrls.empty()) return nullptr;
+
 	if (m_vecMtrls[_Idx].pCurrentMtrl != m_vecMtrls[_Idx].pSharedMtrl)
 	{
 		m_vecMtrls[_Idx].pCurrentMtrl = m_vecMtrls[_Idx].pSharedMtrl;
@@ -53,6 +57,8 @@ Ptr<CMaterial> CRenderComponent::GetSharedMaterial(UINT _Idx)
 
 Ptr<CMaterial> CRenderComponent::GetDynamicMaterial(UINT _Idx)
 {
+	if (m_vecMtrls.empty()) return nullptr;
+
 		// 원본 재질이 없다 -> Nullptr 반환
 	if (nullptr == m_vecMtrls[_Idx].pSharedMtrl)
 	{
@@ -75,6 +81,8 @@ Ptr<CMaterial> CRenderComponent::GetDynamicMaterial(UINT _Idx)
 
 ULONG64 CRenderComponent::GetInstID(UINT _iMtrlIdx)
 {
+	if (m_vecMtrls.empty()) return 0;
+
 	if (m_pMesh == NULL || m_vecMtrls[_iMtrlIdx].pCurrentMtrl == NULL)
 		return 0;
 
@@ -107,6 +115,9 @@ void CRenderComponent::render_shadowmapexp()
 
 void CRenderComponent::SetMaterial(Ptr<CMaterial> _Mtrl, UINT _Idx)
 {
+	if (m_vecMtrls.empty())	
+		assert(nullptr);
+
 	m_vecMtrls[_Idx].pSharedMtrl = _Mtrl;
 	m_vecMtrls[_Idx].pCurrentMtrl = _Mtrl;
 }

@@ -12,13 +12,13 @@ RecastNavi::RecastNavi()
 	, m_cellHeight(0.2f)
 	, m_agentHeight(2.0f)
 	, m_agentRadius(0.6f)
-	, m_agentMaxClimb(0.9f)
-	, m_agentMaxSlope(45.0f)
-	, m_regionMinSize(8)
+	, m_agentMaxClimb(5.0f)
+	, m_agentMaxSlope(90.0f)
+	, m_regionMinSize(20)
 	, m_regionMergeSize(20)
 	, m_edgeMaxLen(12.0f)
 	, m_edgeMaxError(1.3f)
-	, m_vertsPerPoly(6.0f)
+	, m_vertsPerPoly(4.0f)
 	, m_detailSampleDist(6.0f)
 	, m_detailSampleMaxError(1.0f)
 {
@@ -27,12 +27,14 @@ RecastNavi::RecastNavi()
 
 RecastNavi::~RecastNavi()
 {
+	delete m_ctx;
+	clean_up();
 }
 
 
 void RecastNavi::clean_up()
 {
-	delete m_ctx;
+	
 	delete[] m_triareas;
 	m_triareas = 0;
 	rcFreeHeightField(m_solid);
@@ -51,7 +53,8 @@ void RecastNavi::clean_up()
 
 void RecastNavi::HandleBuild(CGameObject* _Obj)
 {
-	//clean_up();
+	clean_up();
+	DeleteTestObject();
 
 	float bmin[3]{};
 	float bmax[3]{};
@@ -74,6 +77,10 @@ void RecastNavi::HandleBuild(CGameObject* _Obj)
 	{
 		Vec3 vPos = vv[i].vPos;
 		vPos = XMVector3TransformCoord(Vec3(vPos), mWorldMat);
+		if(vPos.y < 0)
+		{
+			int a = 0;
+		}
 		vertices.emplace_back(vPos.x);
 		vertices.emplace_back(vPos.y);
 		vertices.emplace_back(vPos.z);
@@ -300,10 +307,10 @@ void RecastNavi::HandleBuild(CGameObject* _Obj)
 
 			const dtPoly* poly = &tile->polys[polyIdx];
 
-			if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
-			{
-				continue;
-			}
+			//if (poly->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+			//{
+			//	continue;
+			//}
 
 			const dtPolyDetail* polydetail = &tile->detailMeshes[polyIdx];
 
@@ -338,7 +345,9 @@ void RecastNavi::HandleBuild(CGameObject* _Obj)
 						worldPos = Vec3(vtxPos[0], vtxPos[1], vtxPos[2]);
 					vecVer.push_back(v);
 				}
-
+				//Vtx tmp = vecVer[1];
+				//vecVer[1] = vecVer[2];
+				//vecVer[2] = tmp;
 				//for (int idxIdx = 0; idxIdx < poly->vertCount; ++idxIdx)
 				//{
 				//	
@@ -347,11 +356,104 @@ void RecastNavi::HandleBuild(CGameObject* _Obj)
 				vecIdx.push_back(1);
 				vecIdx.push_back(2);
 
+				Vec3 pos = Vec3(vecVer[0].vPos.x, vecVer[0].vPos.y, vecVer[0].vPos.z);
+
 				Ptr<CMesh> convertCMesh = new CMesh(true);
 				convertCMesh->Create(vecVer.data(), vecVer.size(), vecIdx.data(), vecIdx.size());
 				//CResMgr::GetInst()->AddRes<CMesh>(L"convertMesh" + std::to_wstring(i), convertCMesh);
-				TestSpawnGameObject(worldPos, 1, convertCMesh);
+				TestSpawnGameObject(pos, 1, convertCMesh);
 			}
 		}
 	}
 }
+
+dtNavMesh* RecastNavi::LoadNavMesh(const wstring& path)
+{
+	FILE* fp = nullptr;
+	_wfopen_s(&fp, path.c_str(), L"rb");
+	if (!fp) return 0;
+
+	// Read header.
+	NavMeshSetHeader header;
+	size_t readLen = fread(&header, sizeof(NavMeshSetHeader), 1, fp);
+	if (readLen != 1)
+	{
+		fclose(fp);
+		return 0;
+	}
+	if (header.magic != NAVMESHSET_MAGIC)
+	{
+		fclose(fp);
+		return 0;
+	}
+	if (header.version != NAVMESHSET_VERSION)
+	{
+		fclose(fp);
+		return 0;
+	}
+
+	dtNavMesh* mesh = dtAllocNavMesh();
+	if (!mesh)
+	{
+		fclose(fp);
+		return 0;
+	}
+	dtStatus status = mesh->init(&header.params);
+	if (dtStatusFailed(status))
+	{
+		fclose(fp);
+		return 0;
+	}
+
+	// Read tiles.
+	for (int i = 0; i < header.numTiles; ++i)
+	{
+		NavMeshTileHeader tileHeader;
+		readLen = fread(&tileHeader, sizeof(tileHeader), 1, fp);
+		if (readLen != 1)
+		{
+			fclose(fp);
+			return 0;
+		}
+
+		if (!tileHeader.tileRef || !tileHeader.dataSize)
+			break;
+
+		unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
+		if (!data) break;
+		memset(data, 0, tileHeader.dataSize);
+		readLen = fread(data, tileHeader.dataSize, 1, fp);
+		if (readLen != 1)
+		{
+			dtFree(data);
+			fclose(fp);
+			return 0;
+		}
+
+		mesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, 0);
+	}
+
+	fclose(fp);
+
+	return mesh;
+}
+
+void RecastNavi::SaveNavMesh(const char* path, const dtNavMesh* _NavMesh)
+{
+}
+
+//void RecastNavi::LoadObj(const char* path)
+//{
+//	//m_geom->load(m_ctx, path);
+//
+//	//const rcMeshLoaderObj* loadedMesh = m_geom->getMesh();
+//	//for(int i = 0 ; i < loadedMesh->getTriCount(); ++i)
+//	//{
+//	//	int tri = loadedMesh->getTris()[i];
+//	//	for(int vertex = 0 ; vertex < 3 ; ++vertex)
+//	//	{
+//	//		
+//	//		loadedMesh->getVerts()[i * vertex];
+//	//	}
+//	//}
+//}

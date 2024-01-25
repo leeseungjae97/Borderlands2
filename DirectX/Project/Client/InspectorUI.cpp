@@ -5,12 +5,12 @@
 #include <Engine\CTransform.h>
 #include <Engine\CLevelMgr.h>
 #include <Engine\CKeyMgr.h>
+#include <Engine\CEventMgr.h>
 
 #include "TransformUI.h"
 #include "MeshRenderUI.h"
 #include "CameraUI.h"
 #include "Animator3DUI.h"
-#include "TileMapUI.h"
 
 #include "MeshDataUI.h"
 #include "TextureUI.h"
@@ -25,8 +25,6 @@
 #include "MaterialUI.h"
 #include "ParticleSystemUI.h"
 #include "ScriptUI.h"
-
-
 
 InspectorUI::InspectorUI()
 	: UI("##Inspector")
@@ -77,10 +75,6 @@ InspectorUI::InspectorUI()
 	m_arrComUI[(UINT)COMPONENT_TYPE::LANDSCAPE]->SetSize(0.f, 500.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::LANDSCAPE]);
 
-	m_arrComUI[(UINT)COMPONENT_TYPE::TILEMAP] = new TileMapUI;
-	m_arrComUI[(UINT)COMPONENT_TYPE::TILEMAP]->SetSize(0.f, 150.f);
-	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::TILEMAP]);
-
 	m_arrComUI[(UINT)COMPONENT_TYPE::PARTICLESYSTEM] = new ParticleSystemUI;
 	m_arrComUI[(UINT)COMPONENT_TYPE::PARTICLESYSTEM]->SetSize(0.f, 150.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::PARTICLESYSTEM]);
@@ -121,7 +115,7 @@ InspectorUI::InspectorUI()
 
 InspectorUI::~InspectorUI()
 {
-	
+	ClearTargetResource();
 }
 
 void InspectorUI::init()
@@ -131,7 +125,11 @@ void InspectorUI::init()
 
 void InspectorUI::tick()
 {
-	
+	if(CEventMgr::GetInst()->IsLevelChanged())
+	{
+		ClearTargetObject();
+		ClearTargetResource();
+	}
 }
 
 int InspectorUI::render_update()

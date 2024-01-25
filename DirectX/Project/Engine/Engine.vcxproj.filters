@@ -109,23 +109,11 @@
     <ClInclude Include="CPrefab.h">
       <Filter>Source\Resource\Prefab</Filter>
     </ClInclude>
-    <ClInclude Include="CCollider2D.h">
-      <Filter>Source\Component\Collider2D</Filter>
-    </ClInclude>
     <ClInclude Include="CCollisionMgr.h">
       <Filter>Source\Manager\CollisionMgr</Filter>
     </ClInclude>
-    <ClInclude Include="CLight2D.h">
-      <Filter>Source\Component\Light2D</Filter>
-    </ClInclude>
     <ClInclude Include="CStructuredBuffer.h">
       <Filter>Source\Device\StructuredBuffer</Filter>
-    </ClInclude>
-    <ClInclude Include="CAnimator2D.h">
-      <Filter>Source\Component\Animator2D</Filter>
-    </ClInclude>
-    <ClInclude Include="CAnim2D.h">
-      <Filter>Source\Component\Animator2D</Filter>
     </ClInclude>
     <ClInclude Include="CComputeShader.h">
       <Filter>Source\Resource\Shader\ComputeShader</Filter>
@@ -144,9 +132,6 @@
     </ClInclude>
     <ClInclude Include="CFontMgr.h">
       <Filter>Source\Manager\FontMgr</Filter>
-    </ClInclude>
-    <ClInclude Include="MouseMgr.h">
-      <Filter>Source\Manager\MouseMgr</Filter>
     </ClInclude>
     <ClInclude Include="CLight3D.h">
       <Filter>Source\Component\Light3D</Filter>
@@ -190,7 +175,7 @@
     <ClInclude Include="CLandScape.h">
       <Filter>Source\Component\RenderComponent\Landscape</Filter>
     </ClInclude>
-    <ClInclude Include="PhysXT.h">
+    <ClInclude Include="PhysXMgr.h">
       <Filter>Source\PhysX</Filter>
     </ClInclude>
     <ClInclude Include="physx_imm_utils.h">
@@ -231,6 +216,9 @@
     </ClInclude>
     <ClInclude Include="CCopyBoneShader.h">
       <Filter>Source\ShaderCode\Compute Shader\CopyBoneShader</Filter>
+    </ClInclude>
+    <ClInclude Include="LandScapeMgr.h">
+      <Filter>Source\Manager\LandScapeMgr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -321,26 +309,14 @@
     <ClCompile Include="CPrefab.cpp">
       <Filter>Source\Resource\Prefab</Filter>
     </ClCompile>
-    <ClCompile Include="CCollider2D.cpp">
-      <Filter>Source\Component\Collider2D</Filter>
-    </ClCompile>
     <ClCompile Include="CCollisionMgr.cpp">
       <Filter>Source\Manager\CollisionMgr</Filter>
     </ClCompile>
     <ClCompile Include="func.cpp">
       <Filter>Source\Header</Filter>
     </ClCompile>
-    <ClCompile Include="CLight2D.cpp">
-      <Filter>Source\Component\Light2D</Filter>
-    </ClCompile>
     <ClCompile Include="CStructuredBuffer.cpp">
       <Filter>Source\Device\StructuredBuffer</Filter>
-    </ClCompile>
-    <ClCompile Include="CAnimator2D.cpp">
-      <Filter>Source\Component\Animator2D</Filter>
-    </ClCompile>
-    <ClCompile Include="CAnim2D.cpp">
-      <Filter>Source\Component\Animator2D</Filter>
     </ClCompile>
     <ClCompile Include="CComputeShader.cpp">
       <Filter>Source\Resource\Shader\ComputeShader</Filter>
@@ -359,9 +335,6 @@
     </ClCompile>
     <ClCompile Include="CFontMgr.cpp">
       <Filter>Source\Manager\FontMgr</Filter>
-    </ClCompile>
-    <ClCompile Include="MouseMgr.cpp">
-      <Filter>Source\Manager\MouseMgr</Filter>
     </ClCompile>
     <ClCompile Include="CLight3D.cpp">
       <Filter>Source\Component\Light3D</Filter>
@@ -402,7 +375,7 @@
     <ClCompile Include="CLandScape.cpp">
       <Filter>Source\Component\RenderComponent\Landscape</Filter>
     </ClCompile>
-    <ClCompile Include="PhysXT.cpp">
+    <ClCompile Include="PhysXMgr.cpp">
       <Filter>Source\PhysX</Filter>
     </ClCompile>
     <ClCompile Include="physx_imm_utils.cpp">
@@ -444,6 +417,9 @@
     <ClCompile Include="CCopyBoneShader.cpp">
       <Filter>Source\ShaderCode\Compute Shader\CopyBoneShader</Filter>
     </ClCompile>
+    <ClCompile Include="LandScapeMgr.cpp">
+      <Filter>Source\Manager\LandScapeMgr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -466,9 +442,6 @@
     </Filter>
     <Filter Include="Source\Manager">
       <UniqueIdentifier>{ff80abf2-a382-43db-9139-bdb15da13dc5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Manager\MouseMgr">
-      <UniqueIdentifier>{c1634c98-f0bd-40b7-83dd-ac4f8c9ca7cd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Manager\PathMgr">
       <UniqueIdentifier>{2aa9b216-f75e-4630-9d44-09e348de8ac2}</UniqueIdentifier>
@@ -515,17 +488,8 @@
     <Filter Include="Source\Component\Transform">
       <UniqueIdentifier>{d0e54e64-2aaa-4fe6-babe-d15fd49d6a77}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Component\Collider2D">
-      <UniqueIdentifier>{95818b5c-89c4-4cb1-a32b-1d06f120f939}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Component\Camera">
       <UniqueIdentifier>{79af7ea9-0e2d-45fe-a008-5042fdc0754c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Component\Light2D">
-      <UniqueIdentifier>{47977f3b-3e69-4e3d-bf03-c87abe9f355c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Component\Animator2D">
-      <UniqueIdentifier>{7d787944-7b75-432b-91a9-8452604ba075}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Component\RenderComponent\MeshRender">
       <UniqueIdentifier>{3dd66862-9fa0-441f-8888-fa938d05bdbb}</UniqueIdentifier>
@@ -652,6 +616,9 @@
     </Filter>
     <Filter Include="Source\ShaderCode\Compute Shader\CopyBoneShader">
       <UniqueIdentifier>{292c633a-ce56-44a1-abac-0122e5a8b64a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Manager\LandScapeMgr">
+      <UniqueIdentifier>{f7003299-1391-4992-82b4-e726ec847b23}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

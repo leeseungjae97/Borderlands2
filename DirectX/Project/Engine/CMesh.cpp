@@ -195,7 +195,7 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 		TransKeyFrame(pMesh);
 
 		pMesh->m_pBoneOffset = new CStructuredBuffer;
-		pMesh->m_pBoneOffset->Create(sizeof(Matrix), (UINT)pMesh->m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false, "Mesh Bone Offset Buffer",pMesh->m_vecBoneOffset.data());
+		pMesh->m_pBoneOffset->Create(sizeof(Matrix), (UINT)pMesh->m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false,pMesh->m_vecBoneOffset.data());
 
 		pMesh->m_pBoneFrameData = new CStructuredBuffer;
 		pMesh->m_pBlendFrameData = new CStructuredBuffer;
@@ -208,7 +208,7 @@ CStructuredBuffer* CMesh::GetBoneFrameDataBuffer(const wstring& _AnimName)
 	//tMTAnimClip clip = m_mapAnimClip[_Idx];
 	tMTAnimClip clip = m_mapAnimClip.at(_AnimName);
 	m_pBoneFrameData->Create(sizeof(tFrameTrans), (UINT)m_vecBoneOffset.size() * clip.iFrameCount
-		, SB_TYPE::READ_ONLY, false, "Mesh Bone Frame Data Buffer",clip.vecTransKeyFrame.data());
+		, SB_TYPE::READ_ONLY, false,clip.vecTransKeyFrame.data());
 	return m_pBoneFrameData;
 }
 
@@ -217,7 +217,7 @@ CStructuredBuffer* CMesh::GetBlendFrameDataBuffer(const wstring& _AnimName)
 	//tMTAnimClip clip = m_mapAnimClip[_Idx];
 	tMTAnimClip clip = m_mapAnimClip.at(_AnimName);
 	m_pBlendFrameData->Create(sizeof(tFrameTrans), (UINT)m_vecBoneOffset.size() * clip.iFrameCount
-		, SB_TYPE::READ_ONLY, false, "Mesh Bone Frame Data Buffer",clip.vecTransKeyFrame.data());
+		, SB_TYPE::READ_ONLY, false,clip.vecTransKeyFrame.data());
 	return m_pBlendFrameData;
 }
 
@@ -428,7 +428,7 @@ int CMesh::Load(const wstring& _strFilePath)
 		TransKeyFrame(this);
 
 		m_pBoneOffset = new CStructuredBuffer;
-		m_pBoneOffset->Create(sizeof(Matrix), (UINT)m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false, "Mesh Bone Offset Buffer",m_vecBoneOffset.data());
+		m_pBoneOffset->Create(sizeof(Matrix), (UINT)m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false,m_vecBoneOffset.data());
 
 		m_pBoneFrameData = new CStructuredBuffer;
 		m_pBlendFrameData = new CStructuredBuffer;

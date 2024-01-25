@@ -3,15 +3,18 @@
 
 #include <Engine\CMeshRender.h>
 #include <Engine\CMaterial.h>
+#include <Engine\CRenderMgr.h>
 
 #include "CMissileScript.h"
 
 
 CPlayerScript::CPlayerScript()
 	: CScript((UINT)SCRIPT_TYPE::PLAYERSCRIPT)
-	, m_fSpeed(500.f)
+	, m_fSpeed(100.f)
+	, m_MouseAcces(1.f)
 {
 	AddScriptParam(SCRIPT_PARAM::FLOAT, &m_fSpeed, "Player Speed");
+	AddScriptParam(SCRIPT_PARAM::FLOAT, &m_MouseAcces, "Mouse Speed");
 }
 
 CPlayerScript::~CPlayerScript()
@@ -27,66 +30,61 @@ void CPlayerScript::begin()
 
 void CPlayerScript::tick()
 {
-	Vec3 vCurPos = Transform()->GetRelativePos();
+	Vec3 vPos = GetOwner()->GetFollowObj()->Transform()->GetRelativePos();
+	Vec3 vCurRot = GetOwner()->GetFollowObj()->Transform()->GetRelativeRot();
 
-	if (KEY_PRESSED(KEY::UP))
+	Vec3 vFront = GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+	Vec3 vUp = GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::UP);
+	Vec3 vRight = GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+
+	Vec2 vMouseDir = CKeyMgr::GetInst()->GetMouseDir();
+	vCurRot.y += DT * vMouseDir.x * m_MouseAcces;
+	vCurRot.x -= DT * vMouseDir.y * m_MouseAcces;
+
+	GetOwner()->Transform()->SetRelativeRot(vCurRot);
+
+	if (KEY_PRESSED(KEY::W))
 	{
-		for (int i = 0; i < 4; ++i)
-		{
-			vCurPos.y += DT * m_fSpeed;
-		}
+		vPos += DT * vFront * m_fSpeed;
+		//vPos.z += DT * m_fSpeed;
 	}
 
-	if (KEY_PRESSED(KEY::DOWN))
+	if (KEY_PRESSED(KEY::S))
 	{
-		for (int i = 0; i < 4; ++i)
-		{
-			vCurPos.y -= DT * m_fSpeed;
-		}
+		vPos -= DT * vFront * m_fSpeed;
+		//vPos.z -= DT * m_fSpeed;
 	}
 
-	if (KEY_PRESSED(KEY::LEFT))
+	if (KEY_PRESSED(KEY::A))
 	{
-		for (int i = 0; i < 4; ++i)
-		{
-			vCurPos.x -= DT * m_fSpeed;
-		}
+		vPos -= DT * vRight * m_fSpeed;
 	}
 
-	if (KEY_PRESSED(KEY::RIGHT))
+	if (KEY_PRESSED(KEY::D))
 	{
-		for (int i = 0; i < 4; ++i)
-		{
-			vCurPos.x += DT * m_fSpeed;
-		}
+		vPos += DT * vRight * m_fSpeed;
 	}
 
-	if (KEY_PRESSED(KEY::Z))
-	{
-		Vec3 vRot = Transform()->GetRelativeRot();
-		vRot.z += DT * XM_PI;
-		Transform()->SetRelativeRot(vRot);
-	}
+	GetOwner()->GetFollowObj()->Transform()->SetRelativePos(vPos);
+	GetOwner()->GetFollowObj()->Transform()->SetRelativeRot(vCurRot);		
 
-	Transform()->SetRelativePos(vCurPos);			
+	//if (KEY_TAP(KEY::SPACE))
+	//{
+	//	DrawDebugCircle(Transform()->GetWorldPos(), 500.f, Vec4(0.f, 0.f, 1.f, 1.f), Vec3(0.f, 0.f, 0.f), 2.f);
 
-	if (KEY_TAP(KEY::SPACE))
-	{
-		DrawDebugCircle(Transform()->GetWorldPos(), 500.f, Vec4(0.f, 0.f, 1.f, 1.f), Vec3(0.f, 0.f, 0.f), 2.f);
-
-		Shoot();
-	}	
+	//	Shoot();
+	//}	
 }
 
 void CPlayerScript::Shoot()
 {
 	// 미사일 프리팹 참조
-	Ptr<CPrefab> pMissilePrefab = CResMgr::GetInst()->FindRes<CPrefab>(L"MissilePrefab");
-	Vec3 vMissilePos = Transform()->GetRelativePos() + Vec3(0.f, 0.5f, 0.f) * Transform()->GetRelativeScale();
-	CGameObject* pCloneMissile = pMissilePrefab->Instantiate();
+	//Ptr<CPrefab> pMissilePrefab = CResMgr::GetInst()->FindRes<CPrefab>(L"MissilePrefab");
+	//Vec3 vMissilePos = Transform()->GetRelativePos() + Vec3(0.f, 0.5f, 0.f) * Transform()->GetRelativeScale();
+	//CGameObject* pCloneMissile = pMissilePrefab->Instantiate();
 
-	// 레벨에 추가
-	SpawnGameObject(pCloneMissile, vMissilePos, L"PlayerProjectile");
+	//// 레벨에 추가
+	//SpawnGameObject(pCloneMissile, vMissilePos, L"PlayerProjectile");
 }
 
 //void CPlayerScript::BeginOverlap(CCollider2D* _Other)

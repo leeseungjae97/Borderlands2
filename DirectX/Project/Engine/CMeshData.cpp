@@ -145,7 +145,7 @@ CGameObject* CMeshData::Instantiate()
 	CGameObject* pNewObj = new CGameObject;
 	pNewObj->AddComponent(new CTransform);
 	pNewObj->AddComponent(new CMeshRender);
-
+	//pNewObj->Transform()->SetRelativeScale(Vec3(40.f, 40.f, 40.f));
 	pNewObj->MeshRender()->SetMesh(m_pMesh);
 
 	for (UINT i = 0; i < m_vecMtrl.size(); ++i)
