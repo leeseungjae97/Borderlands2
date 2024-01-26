@@ -176,6 +176,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="CAnimation3DShader.h" />
     <ClInclude Include="CAnimator3D.h" />
     <ClInclude Include="CCamera.h" />
+    <ClInclude Include="CCollider3D.h" />
     <ClInclude Include="CCollisionMgr.h" />
     <ClInclude Include="CColorMapShader.h" />
     <ClInclude Include="CComponent.h" />
@@ -193,6 +194,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="CHeightMapShader.h" />
     <ClInclude Include="CInstancingBuffer.h" />
     <ClInclude Include="CKeyMgr.h" />
+    <ClInclude Include="CRigidBody.h" />
     <ClInclude Include="LandScapeMgr.h" />
     <ClInclude Include="CLandScapePathShader.h" />
     <ClInclude Include="CLandScape.h" />
@@ -236,7 +238,6 @@ call EngineCopy.bat</Command>
     <ClInclude Include="mMRT.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PhysXMgr.h" />
-    <ClInclude Include="physx_imm_utils.h" />
     <ClInclude Include="physx_util.h" />
     <ClInclude Include="ptr.h" />
     <ClInclude Include="CRayCastShader.h" />
@@ -251,6 +252,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CAnimation3DShader.cpp" />
     <ClCompile Include="CAnimator3D.cpp" />
     <ClCompile Include="CCamera.cpp" />
+    <ClCompile Include="CCollider3D.cpp" />
     <ClCompile Include="CCollisionMgr.cpp" />
     <ClCompile Include="CColorMapShader.cpp" />
     <ClCompile Include="CComponent.cpp" />
@@ -271,6 +273,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CHeightMapShader.cpp" />
     <ClCompile Include="CInstancingBuffer.cpp" />
     <ClCompile Include="CKeyMgr.cpp" />
+    <ClCompile Include="CRigidBody.cpp" />
     <ClCompile Include="LandScapeMgr.cpp" />
     <ClCompile Include="CLandScapePathShader.cpp" />
     <ClCompile Include="CLandScape.cpp" />
@@ -315,7 +318,6 @@ call EngineCopy.bat</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PhysXMgr.cpp" />
-    <ClCompile Include="physx_imm_utils.cpp" />
     <ClCompile Include="physx_util.cpp" />
     <ClCompile Include="CRayCastShader.cpp" />
     <ClCompile Include="RecastBuildContext.cpp" />

@@ -29,9 +29,10 @@ enum class COMPONENT_TYPE
 	// update
 	TRANSFORM,		// 위치, 크기, 회전
 	COLLIDER3D,		// 3차원 충돌
+	RIGIDBODY,
 	ANIMATOR3D,		// Bone Sknning Animation
 	LIGHT3D,		// 3차원 광원
-	PATH_FIND,
+	PATHFIND,
 	CAMERA,			// Camera
 
 	// render

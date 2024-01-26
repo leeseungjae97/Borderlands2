@@ -11,6 +11,7 @@
 #include "MeshRenderUI.h"
 #include "CameraUI.h"
 #include "Animator3DUI.h"
+#include "Collider3DUI.h"
 
 #include "MeshDataUI.h"
 #include "TextureUI.h"
@@ -24,6 +25,7 @@
 #include "Light3DUI.h"
 #include "MaterialUI.h"
 #include "ParticleSystemUI.h"
+#include "RigidBodyUI.h"
 #include "ScriptUI.h"
 
 InspectorUI::InspectorUI()
@@ -50,30 +52,22 @@ InspectorUI::InspectorUI()
 	m_arrComUI[(UINT)COMPONENT_TYPE::DECAL]->SetSize(0.f, 150.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::DECAL]);
 
-	//m_arrComUI[(UINT)COMPONENT_TYPE::COLLIDER2D] = new Collider2DUI;
-	//m_arrComUI[(UINT)COMPONENT_TYPE::COLLIDER2D]->SetSize(0.f, 150.f);
-	//AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::COLLIDER2D]);
-
-	//m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR2D] = new Animator2DUI;
-	//m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR2D]->SetSize(0.f, 150.f);
-	//AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR2D]);
-
-	//m_arrComUI[(UINT)COMPONENT_TYPE::LIGHT2D] = new Light2DUI;
-	//m_arrComUI[(UINT)COMPONENT_TYPE::LIGHT2D]->SetSize(0.f, 150.f);
-	//AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::LIGHT2D]);
-
 	
 	m_arrComUI[(UINT)COMPONENT_TYPE::LIGHT3D] = new Light3DUI;
 	m_arrComUI[(UINT)COMPONENT_TYPE::LIGHT3D]->SetSize(0.f, 150.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::LIGHT3D]);
 
+	m_arrComUI[(UINT)COMPONENT_TYPE::COLLIDER3D] = new Collider3DUI;
+	m_arrComUI[(UINT)COMPONENT_TYPE::COLLIDER3D]->SetSize(0.f, 200.f);
+	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::COLLIDER3D]);
+
+	m_arrComUI[(UINT)COMPONENT_TYPE::RIGIDBODY] = new RigidBodyUI;
+	m_arrComUI[(UINT)COMPONENT_TYPE::RIGIDBODY]->SetSize(0.f, 200.f);
+	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::RIGIDBODY]);
+
 	m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D] = new Animator3DUI;
 	m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D]->SetSize(0.f, 500.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D]);
-
-	m_arrComUI[(UINT)COMPONENT_TYPE::LANDSCAPE] = new LandScapeUI;
-	m_arrComUI[(UINT)COMPONENT_TYPE::LANDSCAPE]->SetSize(0.f, 500.f);
-	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::LANDSCAPE]);
 
 	m_arrComUI[(UINT)COMPONENT_TYPE::PARTICLESYSTEM] = new ParticleSystemUI;
 	m_arrComUI[(UINT)COMPONENT_TYPE::PARTICLESYSTEM]->SetSize(0.f, 150.f);

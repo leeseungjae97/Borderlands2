@@ -11,7 +11,6 @@ private:
     vector<CGameObject*>    m_vecObject;    // 계층에 상관없이 해당 레이어에 속해있는 모든 오브젝트
     int                     m_iLayerIdx;    // 레이어 번호 (0~31)
 
-
 public:    
     void begin();
     void tick();
@@ -31,6 +30,7 @@ private:
     void RegisterObject(CGameObject* _Object){ m_vecObject.push_back(_Object); }    
     void RemoveFromParentList(CGameObject* _Obj);
     void AddParentList(CGameObject* _Obj);
+    void AddCollider3D(CGameObject* _Obj);
 
     CLONE(CLayer)
 public:

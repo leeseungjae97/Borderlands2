@@ -14,6 +14,8 @@ class CScript;
 class CSkyBox;
 class CDecal;
 class CPathFind;
+class CCollider3D;
+class CRigidBody;
 class CLandScape;
 
 #define GET_COMPONENT(Type, TYPE) C##Type* Type() const { return (C##Type*)m_arrCom[(UINT)COMPONENT_TYPE::TYPE]; }
@@ -71,7 +73,9 @@ public:
     GET_COMPONENT(SkyBox, SKYBOX);
     GET_COMPONENT(Decal, DECAL);
     GET_COMPONENT(LandScape, LANDSCAPE);
-    GET_COMPONENT(PathFind, PATH_FIND);
+    GET_COMPONENT(Collider3D, COLLIDER3D);
+    GET_COMPONENT(RigidBody, RIGIDBODY);
+    GET_COMPONENT(PathFind, PATHFIND);
     //Decal* Decal()
     //{
     //    return (Decal*)m_arrCom[(UINT)COMPONENT_TYPE::TRANSFORM];

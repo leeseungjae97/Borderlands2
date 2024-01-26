@@ -25,7 +25,7 @@ int DecalUI::render_update()
 	ImVec4 border_col = ImVec4(1.0f, 1.0f, 1.0f, 0.5f); // 50% opaque white
 
 	Ptr<CTexture> pDecalTex = GetTarget()->Decal()->GetDecalTex();
-	ImGui::Text("Height Map Texture");
+	ImGui::Text("Decal Texture");
 	ImGui::Image((ImTextureID)pDecalTex->GetSRV().Get(), ImVec2(150, 150), uv_min, uv_max, tint_col, border_col);
 
 	return TRUE;

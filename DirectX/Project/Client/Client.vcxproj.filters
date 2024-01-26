@@ -113,6 +113,12 @@
     <Filter Include="UI\ManagerInspectorUI">
       <UniqueIdentifier>{b34a6f09-6ad7-41d1-8187-f2cd713fa524}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\InspectorUI\ComponentUI\Collider3DUI">
+      <UniqueIdentifier>{8cbd88b2-3fac-4f97-9fa2-752e02f10d74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\InspectorUI\ComponentUI\RigidBodyUI">
+      <UniqueIdentifier>{749d58f4-bef0-407d-accd-e74ddee304dd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -245,6 +251,10 @@
     <ClInclude Include="ImGui\imgui_stdlib.h">
       <Filter>ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="Collider3DUI.h">
+      <Filter>UI\InspectorUI\ComponentUI\Collider3DUI</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidBodyUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Client.rc">
@@ -385,5 +395,9 @@
     <ClCompile Include="ImGui\imgui_stdlib.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="Collider3DUI.cpp">
+      <Filter>UI\InspectorUI\ComponentUI\Collider3DUI</Filter>
+    </ClCompile>
+    <ClCompile Include="RigidBodyUI.cpp" />
   </ItemGroup>
 </Project>

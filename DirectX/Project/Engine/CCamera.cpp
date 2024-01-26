@@ -239,7 +239,6 @@ void CCamera::SortObject()
 					switch (eDomain)
 					{
 					case SHADER_DOMAIN::DOMAIN_DEFERRED:
-					case SHADER_DOMAIN::DOMAIN_DEFERRED_DECAL:
 					case SHADER_DOMAIN::DOMAIN_OPAQUE:
 					case SHADER_DOMAIN::DOMAIN_MASK:
 					{
@@ -255,10 +254,11 @@ void CCamera::SortObject()
 							|| pShader->GetDomain() == SHADER_DOMAIN::DOMAIN_MASK)
 						{
 							pMap = &m_mapInstGroup_F;
-						}else if(pShader->GetDomain() == SHADER_DOMAIN::DOMAIN_DEFERRED_DECAL)
-						{
-							pMap = &m_mapInstGroup_D;
 						}
+						//else if(pShader->GetDomain() == SHADER_DOMAIN::DOMAIN_DEFERRED_DECAL)
+						//{
+						//	pMap = &m_mapInstGroup_D;
+						//}
 						else
 						{
 							assert(nullptr);
@@ -283,6 +283,9 @@ void CCamera::SortObject()
 						}
 					}
 					break;
+					case SHADER_DOMAIN::DOMAIN_DEFERRED_DECAL:
+						m_vecDeferredDecal.push_back(vecObject[j]);
+						break;
 					case SHADER_DOMAIN::DOMAIN_DECAL:
 						m_vecDecal.push_back(vecObject[j]);
 						break;
@@ -420,12 +423,6 @@ void CCamera::render_deferred()
 	//	m_vecDeferred[i]->render();
 	//}
 
-	//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED_DECAL)->OMSet();
-
-	//for (size_t i = 0; i < m_vecDeferredDecal.size(); ++i)
-	//{
-	//	m_vecDeferredDecal[i]->render();
-	//}
 	UpdateMatrix();
 
 	for (auto& pair : m_mapSingleObj)
@@ -530,6 +527,13 @@ void CCamera::render_deferred()
 		{
 			pair.second[0].pObj->Animator3D()->ClearData();
 		}
+	}
+
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED_DECAL)->OMSet();
+
+	for (size_t i = 0; i < m_vecDeferredDecal.size(); ++i)
+	{
+		m_vecDeferredDecal[i]->render();
 	}
 }
 

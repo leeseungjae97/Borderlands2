@@ -27,7 +27,9 @@
 // Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 #include "pch.h"
 
+#include "CCollider3D.h"
 #include "global.h"
+#include "PhysXMgr.h"
 
 #include "foundation/Px.h"
 #include "foundation/PxSimpleTypes.h"
@@ -178,5 +180,270 @@ namespace physx
 
 		/* Release the specified mutex so that it may be reused with mutexCreate. */
 		void mutexRelease(Mutex* mutex);
+
+		enum PxTrigger
+		{
+			// Uses built-in triggers (PxShapeFlag::eTRIGGER_SHAPE).
+			REAL_TRIGGERS,
+
+			// Emulates triggers using a filter shader. Needs one reserved value in PxFilterData.
+			FILTER_SHADER,
+
+			// Emulates triggers using a filter callback. Doesn't use PxFilterData but needs user-defined way to mark a shape as a trigger.
+			FILTER_CALLBACK,
+		};
+
+		static bool isTrigger(const physx::PxFilterData& data)
+		{
+			if (data.word0 != 0xffffffff)
+				return false;
+			if (data.word1 != 0xffffffff)
+				return false;
+			if (data.word2 != 0xffffffff)
+				return false;
+			if (data.word3 != 0xffffffff)
+				return false;
+			return true;
+
+		}
+		static bool isTriggerShape(physx::PxShape* shape)
+		{
+			if (shape->getFlags() & physx::PxShapeFlag::eTRIGGER_SHAPE)
+				return true;
+
+			if (isTrigger(shape->getSimulationFilterData()))
+				return true;
+
+			if (shape->userData)
+				return true;
+
+			return false;
+		}
+
+		static PxShape* createTriggerShape(const PxGeometry& geom, PxMaterial& gMaterial, PxTrigger trigger, bool isExclusive)
+		{
+			PxPhysics* gPhysics = PhysXMgr::GetInst()->GPhysics();
+			PxShape* shape = nullptr;
+			if (trigger == REAL_TRIGGERS)
+			{
+				const PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eTRIGGER_SHAPE;
+				shape = gPhysics->createShape(geom, gMaterial, isExclusive, shapeFlags);
+			}
+			else if (trigger == FILTER_SHADER)
+			{
+				PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSIMULATION_SHAPE;
+				shape = gPhysics->createShape(geom, gMaterial, isExclusive, shapeFlags);
+
+				// For this method to work, you need a way to mark shapes as triggers without using PxShapeFlag::eTRIGGER_SHAPE
+				// (so that trigger-trigger pairs are reported), and without calling a PxShape function (so that the data is
+				// available in a filter shader).
+				//
+				// One way is to reserve a special PxFilterData value/mask for triggers. It may not always be possible depending
+				// on how you otherwise use the filter data).
+				const PxFilterData triggerFilterData(0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff);
+				shape->setSimulationFilterData(triggerFilterData);
+			}
+			else if (trigger == FILTER_CALLBACK)
+			{
+				// We will have access to shape pointers in the filter callback so we just mark triggers in an arbitrary way here,
+				// for example using the shape's userData.
+				shape = gPhysics->createShape(geom, gMaterial, isExclusive);
+				shape->userData = shape;	// Arbitrary rule: it's a trigger if non null
+			}
+			return shape;
+		}
+
+		class TriggersFilterCallback : public PxSimulationFilterCallback
+		{
+			virtual		PxFilterFlags	pairFound(PxU64 /*pairID*/,
+				PxFilterObjectAttributes /*attributes0*/, PxFilterData /*filterData0*/, const PxActor* /*a0*/, const PxShape* s0,
+				PxFilterObjectAttributes /*attributes1*/, PxFilterData /*filterData1*/, const PxActor* /*a1*/, const PxShape* s1,
+				PxPairFlags& pairFlags)	PX_OVERRIDE
+			{
+				//		printf("pairFound\n");
+
+				if (s0->userData || s1->userData)	// See createTriggerShape() function
+				{
+					pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+
+				if ()
+					pairFlags |= PxPairFlag::eDETECT_CCD_CONTACT | PxPairFlag::eNOTIFY_TOUCH_CCD;
+				}
+				else
+					pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+
+				return PxFilterFlags();
+			}
+
+			virtual	void pairLost(PxU64 /*pairID*/,
+				PxFilterObjectAttributes /*attributes0*/, PxFilterData /*filterData0*/,
+				PxFilterObjectAttributes /*attributes1*/, PxFilterData /*filterData1*/,
+				bool /*objectRemoved*/)	PX_OVERRIDE
+			{
+				// printf("pairLost\n");
+			}
+
+			virtual	bool statusChange(PxU64& /*pairID*/, PxPairFlags& /*pairFlags*/, PxFilterFlags& /*filterFlags*/)	PX_OVERRIDE
+			{
+				// printf("statusChange\n");
+				return false;
+			}
+		}gTriggersFilterCallback;
+
+		class PxCollisionCallBack : public PxSimulationEventCallback
+		{
+		public:
+			std::map<physx::PxShape*, CCollider3D*> Collisions;
+
+			void onConstraintBreak(PxConstraintInfo* /*constraints*/, PxU32 /*count*/)	PX_OVERRIDE
+			{
+				OutputDebugStringW(L"onConstraintBreak\n");
+			}
+
+			void onWake(PxActor** /*actors*/, PxU32 /*count*/)	PX_OVERRIDE
+			{
+				OutputDebugStringW(L"onWake\n");
+			}
+
+			void onSleep(PxActor** /*actors*/, PxU32 /*count*/)	PX_OVERRIDE
+			{
+				OutputDebugStringW(L"onSleep\n");
+			}
+
+			void onTrigger(PxTriggerPair* pairs, PxU32 count)	PX_OVERRIDE
+			{
+				wchar_t buffer[256];
+				std::swprintf(buffer, sizeof(buffer) / sizeof(*buffer),
+					L"onTrigger: %d trigger pairs\n", count);
+
+				OutputDebugStringW(buffer);
+
+				//while (count--)
+				//{
+				//	const PxTriggerPair& current = *pairs++;
+				//	if (current.status & PxPairFlag::eNOTIFY_TOUCH_FOUND)
+				//		OutputDebugStringW(L"Shape is entering trigger volume\n");
+				//	if (current.status & PxPairFlag::eNOTIFY_TOUCH_LOST)
+				//		OutputDebugStringW(L"Shape is leaving trigger volume\n");
+				//}
+			}
+
+			void onAdvance(const PxRigidBody* const*, const PxTransform*, const PxU32)	PX_OVERRIDE
+			{
+				OutputDebugStringW(L"onAdvance\n");
+			}
+
+			void onContact(const PxContactPairHeader& /*pairHeader*/, const PxContactPair* pairs, PxU32 count)	PX_OVERRIDE
+			{
+				//printf("onContact: %d pairs\n", count);
+
+				wchar_t buffer[256];
+				std::swprintf(buffer, sizeof(buffer) / sizeof(*buffer),
+					L"onContact: %d pairs\n", count);
+
+				OutputDebugStringW(buffer);
+
+				while (count--)
+				{
+					//if (pairs[count].flags & (physx::PxContactPairFlag::eREMOVED_SHAPE_0 | physx::PxContactPairFlag::eREMOVED_SHAPE_1))
+					//{
+					//	continue;
+					//}
+
+					/*auto iter1 = Collisions.find(pairs[count].shapes[0]);
+					auto iter2 = Collisions.find(pairs[count].shapes[1]);
+					if (iter1 != Collisions.end() && iter2 != Collisions.end())
+					{
+						CCollider3D* col1 = (*iter1).second;
+						CCollider3D* col2 = (*iter2).second;
+						if (col1 && col2)
+						{
+							CGameObject* col1Own = col1->GetOwner();
+							CGameObject* col2Own = col2->GetOwner();
+
+							if (!col1Own->IsDead() && !col2Own->IsDead())
+							{
+								if (pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
+								{
+									OutputDebugStringW(L"Begin\n");
+									col1->BeginOverlap(col2);
+									col2->BeginOverlap(col1);
+								}
+								else if (pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS)
+								{
+									OutputDebugStringW(L"On\n");
+									col1->OnOverlap(col2);
+									col2->OnOverlap(col1);
+								}
+							}
+
+							if (pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_LOST)
+							{
+								OutputDebugStringW(L"Exit\n");
+								col1->EndOverlap(col2);
+								col2->EndOverlap(col1);
+							}
+						}
+					}*/
+					//const PxContactPair& current = *pairs++;
+
+					//if (current.events & (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_CCD))
+					//	OutputDebugStringW(L"Shape is entering trigger volume\n");
+					//if (current.events & PxPairFlag::eNOTIFY_TOUCH_LOST)
+					//	OutputDebugStringW(L"Shape is leaving trigger volume\n");
+
+					//if (isTriggerShape(current.shapes[0]) && isTriggerShape(current.shapes[1]))
+					//	OutputDebugStringW(L"Trigger-trigger overlap detected\n");
+				}
+			}
+		};
+
+		static void toRotationMatrix(Quaternion quat, float matrix[3][3])
+		{
+			float x = quat.x;
+			float y = quat.y;
+			float z = quat.z;
+			float w = quat.w;
+
+			matrix[0][0] = 1 - 2 * y * y - 2 * z * z;
+			matrix[0][1] = 2 * x * y - 2 * w * z;
+			matrix[0][2] = 2 * x * z + 2 * w * y;
+
+			matrix[1][0] = 2 * x * y + 2 * w * z;
+			matrix[1][1] = 1 - 2 * x * x - 2 * z * z;
+			matrix[1][2] = 2 * y * z - 2 * w * x;
+
+			matrix[2][0] = 2 * x * z - 2 * w * y;
+			matrix[2][1] = 2 * y * z + 2 * w * x;
+			matrix[2][2] = 1 - 2 * x * x - 2 * y * y;
+		}
+		static void QuaternionToVector3(Quaternion quat, Vec3& vec)
+		{
+			float matrix[3][3];
+			toRotationMatrix(quat, matrix);
+			vec.x = matrix[0][0];
+			vec.y = matrix[1][1];
+			vec.z = matrix[2][2];
+		}
+		static void QuaternionToVector3(Quaternion quat, float& vx, float& vy, float& vz)
+		{
+			float matrix[3][3];
+			toRotationMatrix(quat, matrix);
+			vx = matrix[0][0];
+			vy = matrix[1][1];
+			vz = matrix[2][2];
+		}
+		static Matrix WorldMatFromGlobalPose(physx::PxTransform pos, Vec3 vScale)
+		{
+			Vec3 vPos = Vec3(pos.p.x, pos.p.y, pos.p.z);
+			Matrix matTranslation = XMMatrixTranslation(vPos.x, vPos.y, vPos.z);
+
+			Quaternion rotation(pos.q.x, pos.q.y, pos.q.z, pos.q.w);
+			Matrix m_Rot = Matrix::CreateFromQuaternion(rotation);
+			Matrix matWorldScale = XMMatrixScaling(vScale.x, vScale.y, vScale.z);
+
+			return matWorldScale * m_Rot * matTranslation;
+		}
 	}
+
 }

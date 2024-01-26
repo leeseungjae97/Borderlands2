@@ -50,6 +50,12 @@ void CLevelMgr::tick()
 	m_pCurLevel->finaltick();
 }
 
+void CLevelMgr::begin()
+{
+	if(m_pCurLevel)
+		m_pCurLevel->begin();
+}
+
 
 CGameObject* CLevelMgr::FindObjectByName(const wstring& _strName)
 {

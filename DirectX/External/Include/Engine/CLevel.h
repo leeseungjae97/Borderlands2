@@ -7,13 +7,16 @@
 class CLayer;
 class CGameObject;
 
+using namespace physx;
+
 class CLevel :
     public CEntity
 {
 private:
-    CLayer*         m_arrLayer[MAX_LAYER];
-    LEVEL_STATE     m_State;
+    CLayer*                     m_arrLayer[MAX_LAYER];
+    PxScene*                    m_PxScene;
 
+    LEVEL_STATE                 m_State;
 public:
     void begin();
     void tick();

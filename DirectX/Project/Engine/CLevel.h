@@ -4,21 +4,31 @@
 #define _LEVEL
 #include "CEntity.h"
 
+#include "physx_util.h"
+
 class CLayer;
 class CGameObject;
+
+using namespace physx;
+using namespace physx::Util;
 
 class CLevel :
     public CEntity
 {
 private:
-    CLayer*         m_arrLayer[MAX_LAYER];
-    LEVEL_STATE     m_State;
+    CLayer*                     m_arrLayer[MAX_LAYER];
+    PxScene*                    m_PxScene;
 
+    LEVEL_STATE                 m_State;
+
+    class PxCollisionCallBack*  m_PxCollisionCallBack;
+    PxRigidStatic* box;
 public:
     void begin();
     void tick();
     void finaltick(); 
 
+    void createScene();
 public:
     CLayer* FindLayerByName(const wstring& _strName);
     CLayer* GetLayer(int _iLayerIdx) { assert(!(_iLayerIdx < 0)); return m_arrLayer[_iLayerIdx]; }
@@ -31,6 +41,7 @@ public:
     
     void ChangeState(LEVEL_STATE _State);
     LEVEL_STATE GetState() { return m_State; }
+    PxScene* GetScene() { return m_PxScene; }
 
 private:
     // 등록된 GameObject 제거

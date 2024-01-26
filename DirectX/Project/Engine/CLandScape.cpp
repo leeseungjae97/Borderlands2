@@ -157,7 +157,9 @@ void CLandScape::AddHeightMapToMesh()
 void CLandScape::SetBrush(Ptr<CTexture> _BrushTex)
 {
 	m_pBrushTex = _BrushTex;
-	m_pBrushLineDecal->Decal()->SetDecalTex(_BrushTex);
+
+	if(m_pBrushLineDecal)
+		m_pBrushLineDecal->Decal()->SetDecalTex(_BrushTex);
 }
 
 void CLandScape::SetHeightMapName(const wstring& name)

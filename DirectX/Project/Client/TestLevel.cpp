@@ -8,6 +8,7 @@
 #include <Engine\components.h>
 
 #include <Engine\CResMgr.h>
+#include <Engine\PhysXMgr.h>
 #include <Engine\CRenderMgr.h>
 #include <Engine\CCollisionMgr.h>
 
@@ -178,7 +179,7 @@ void CreateTestLevel()
 	//pObject->AddComponent(new CTransform);
 	//pObject->AddComponent(new CDecal);
 	//pObject->Decal()->SetDeferredDecal(true);
-	//pObject->Decal()->SetEmissiveDecal(true);
+	////pObject->Decal()->SetEmissiveDecal(true);
 
 	//pObject->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
 	//pObject->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
@@ -186,14 +187,14 @@ void CreateTestLevel()
 	////pObject->SetFollowObj(cam->GetOwner());
 
 	////SpawnGameObject(pObject, Vec3(0.f, 0.f, 0.f), L"Default");
-	//PreloadGameObject(pObject, Vec3(0.f, 0.f, 0.f), L"Default");
+	//PreloadGameObject(pObject, Vec3(0.f, 0.f, 0.f), 1);
 
 	// LandScape Object
 	CGameObject* pLandScape = new CGameObject;
 	pLandScape->SetName(L"LandScape");
 
 	pLandScape->AddComponent(new CTransform);
-
+	PhysXMgr::GetInst()->CreateScene(Vec3(0.f, 0.f, 0.f));
 	pLandScape->Transform()->SetRelativeScale(Vec3(200.f, 1000.f, 200.f));
 
 	pLandScape->AddComponent(new CLandScape);
@@ -228,14 +229,16 @@ void CreateTestLevel()
 		pObj = pMeshData->Instantiate();
 		//pObj->AddComponent(new CPathFind);
 		//pObj->AddComponent(new CMonsterScript);
-		pObj->AddComponent(new CPlayerScript);
-		pObj->SetFollowObj(pMainCam);
+		//pObj->AddComponent(new CPlayerScript);
+		pObj->AddComponent(new CCollider3D);
+		pObj->AddComponent(new CRigidBody);
+		//pObj->SetFollowObj(pMainCam);
 
 		//pObj->PathFind()->SetMVecEnd()
 		pObj->SetName(L"soldier hands");
 
 		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
-		PreloadGameObject(pObj, Vec3(20.f, 0.f, 100.f), L"Default");
+		PreloadGameObject(pObj, Vec3(100.f, 1000.f, 100.f), L"Default");
 	}
 	{
 		Ptr<CMeshData> pMeshData = nullptr;
@@ -262,7 +265,7 @@ void CreateTestLevel()
 		pObj->SetName(L"fbx terrain");
 
 		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
-		PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), L"Default");
+		PreloadGameObject(pObj, Vec3(200.f, 100.f, 200.f), L"Default");
 	}
 	{
 		Ptr<CMeshData> pMeshData = nullptr;
@@ -284,12 +287,14 @@ void CreateTestLevel()
 		//pObj->AddComponent(new CMonsterScript);
 		//pObj->AddComponent(new CPlayerScript);
 		//pObj->SetFollowObj(pMainCam);
+		//pObj->Transform()->SetRelativeScale(Vec3(100.f, ));
+		//pObj->AddComponent(new CCollider3D);
 
 		//pObj->PathFind()->SetMVecEnd()
 		pObj->SetName(L"fbx nomad");
 
 		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
-		PreloadGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
+		PreloadGameObject(pObj, Vec3(500.f, 100.f, 500.f), L"Default");
 	}
 	
 	pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"switch level");

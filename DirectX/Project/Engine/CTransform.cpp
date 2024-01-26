@@ -1,8 +1,11 @@
 #include "pch.h"
 #include "CTransform.h"
 
+#include "CCollider3D.h"
 #include "CDevice.h"
 #include "CConstBuffer.h"
+#include "CRigidBody.h"
+#include "physx_util.h"
 
 CTransform::CTransform()
 	: CComponent(COMPONENT_TYPE::TRANSFORM)
@@ -25,29 +28,57 @@ void CTransform::finaltick()
 {
 	m_matWorldScale = XMMatrixIdentity();
 	m_matWorldScale = XMMatrixScaling(m_vRelativeScale.x, m_vRelativeScale.y, m_vRelativeScale.z);
-	
+
 	Matrix m_Rot = XMMatrixIdentity();
-	m_Rot  = XMMatrixRotationX(m_vRelativeRot.x);
-	m_Rot  *= XMMatrixRotationY(m_vRelativeRot.y);
-	m_Rot  *= XMMatrixRotationZ(m_vRelativeRot.z);
-
-	Matrix matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y, m_vRelativePos.z);
-
-	m_noRotWorld = m_matWorldScale * matTranslation;
-	m_matWorld = m_matWorldScale * m_Rot * matTranslation;
+	Matrix matTranslation = XMMatrixIdentity();
 
 	Vec3 vDefaultDir[3] = {
-		  Vec3(1.f, 0.f, 0.f)
-		, Vec3(0.f, 1.f, 0.f)
-		, Vec3(0.f, 0.f, 1.f)
+	  Vec3(1.f, 0.f, 0.f)
+	, Vec3(0.f, 1.f, 0.f)
+	, Vec3(0.f, 0.f, 1.f)
 	};
+
+	if (GetOwner()->RigidBody()
+		&& GetOwner()->RigidBody()->MRigidBody())
+	{
+		//Quaternion quat = Quaternion::CreateFromYawPitchRoll(
+		//	XMConvertToRadians(m_vRelativeRot.y)
+		//	,XMConvertToRadians(m_vRelativeRot.x)
+		//	,XMConvertToRadians(m_vRelativeRot.z)
+		//);
+		//m_Rot = Matrix::CreateFromQuaternion(quat);
+
+		physx::PxTransform pos = GetOwner()->RigidBody()->MRigidBody()->getGlobalPose();
+		Vec3 vPos = Vec3(pos.p.x, pos.p.y, pos.p.z);
+		matTranslation = XMMatrixTranslation(vPos.x, vPos.y, vPos.z);
+
+		Quaternion rotation(pos.q.x, pos.q.y, pos.q.z, pos.q.w);
+		m_Rot = Matrix::CreateFromQuaternion(rotation);
+
+		m_vRelativePos = vPos;
+
+		physx::Util::QuaternionToVector3(rotation , m_vRelativeRot);
+
+		m_matWorld = m_matWorldScale * m_Rot * matTranslation;
+	}else
+	{
+		m_Rot = XMMatrixRotationX(m_vRelativeRot.x);
+		m_Rot *= XMMatrixRotationY(m_vRelativeRot.y);
+		m_Rot *= XMMatrixRotationZ(m_vRelativeRot.z);
+
+		matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y, m_vRelativePos.z);
+
+		m_matWorld = m_matWorldScale * m_Rot * matTranslation;
+	}
+
+	m_noRotWorld = m_matWorldScale * matTranslation;
 
 	for (int i = 0; i < 3; ++i)
 	{
 		m_vWorldDir[i] = m_vRelativeDir[i] = XMVector3TransformNormal(vDefaultDir[i], m_Rot);
 	}
+	
 
-	// 부모 오브젝트 확인
 	CGameObject* pParent = GetOwner()->GetParent();
 	if (pParent)
 	{
@@ -58,7 +89,6 @@ void CTransform::finaltick()
 			Matrix matParentScale = pParent->Transform()->m_matWorldScale;
 			Matrix matParentScaleInv = XMMatrixInverse(nullptr, matParentScale);
 
-			// 월드 = 로컬월드 * 부모크기 역 * 부모 월드(크기/회전/이동)
 			m_matWorld = m_matWorld * matParentScaleInv * matParentWorld;
 		}
 		else
@@ -75,18 +105,18 @@ void CTransform::finaltick()
 		}
 	}
 
-	if(nullptr != GetOwner()->GetFollowObj())
+	if (nullptr != GetOwner()->GetFollowObj())
 	{
 		Vec3 vFollowPos = GetOwner()->GetFollowObj()->Transform()->GetRelativePos();
 		vFollowPos += m_FollowOffset;
-		GetOwner()->Transform()->SetRelativePos(vFollowPos);
+		m_vRelativePos = vFollowPos;
 	}
+
 	m_matWorldInv = XMMatrixInverse(nullptr, m_matWorld);
 }
 
 void CTransform::UpdateData()
 {
-	// 위치값을 상수버퍼에 전달 및 바인딩		
 	CConstBuffer* pTransformBuffer = CDevice::GetInst()->GetConstBuffer(CB_TYPE::TRANSFORM);
 
 	g_transform.matWorld = m_matWorld;

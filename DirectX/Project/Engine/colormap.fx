@@ -34,7 +34,11 @@ void CS_ColorMap(int3 _iThreadID : SV_DispatchThreadID)
     
     int2 vLTPos = vCenterPos - (vScale / 2);
     float2 vUV = float2(_iThreadID.xy - vLTPos) / float2(vScale);
-    float4 vBrushColor = BRUSH_TEX.SampleLevel(g_sam_1, vUV, 0);
+    float4 vBrushColor = BRUSH_TEX.SampleLevel(g_sam_0, vUV, 0);
+
+    if (vBrushColor.a < 0)
+        return;
+
     float4 Color = g_DT * vBrushColor;
     
     COLOR_MAP[_iThreadID.xy] += Color;

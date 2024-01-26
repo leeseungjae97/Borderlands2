@@ -175,14 +175,8 @@
     <ClInclude Include="CLandScape.h">
       <Filter>Source\Component\RenderComponent\Landscape</Filter>
     </ClInclude>
-    <ClInclude Include="PhysXMgr.h">
-      <Filter>Source\PhysX</Filter>
-    </ClInclude>
-    <ClInclude Include="physx_imm_utils.h">
-      <Filter>Source\PhysX</Filter>
-    </ClInclude>
     <ClInclude Include="physx_util.h">
-      <Filter>Source\PhysX</Filter>
+      <Filter>Source\Module\PhysX</Filter>
     </ClInclude>
     <ClInclude Include="CRayCastShader.h">
       <Filter>Source\ShaderCode\Compute Shader\RayCastShader</Filter>
@@ -203,13 +197,13 @@
       <Filter>Source\ShaderCode\Compute Shader\LandScapePathShader</Filter>
     </ClInclude>
     <ClInclude Include="RecastNavi.h">
-      <Filter>Source\Recast\RecastNavi</Filter>
+      <Filter>Source\Module\Recast\RecastNavi</Filter>
     </ClInclude>
     <ClInclude Include="RecastMesh.h">
-      <Filter>Source\Recast</Filter>
+      <Filter>Source\Module\Recast</Filter>
     </ClInclude>
     <ClInclude Include="RecastBuildContext.h">
-      <Filter>Source\Recast</Filter>
+      <Filter>Source\Module\Recast</Filter>
     </ClInclude>
     <ClInclude Include="CInstancingBuffer.h">
       <Filter>Source\Device\InstancingBuffer</Filter>
@@ -219,6 +213,15 @@
     </ClInclude>
     <ClInclude Include="LandScapeMgr.h">
       <Filter>Source\Manager\LandScapeMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="CCollider3D.h">
+      <Filter>Source\Component\Collider3D</Filter>
+    </ClInclude>
+    <ClInclude Include="CRigidBody.h">
+      <Filter>Source\Component\RigidBody</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysXMgr.h">
+      <Filter>Source\Manager\PhysXMgr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -375,14 +378,8 @@
     <ClCompile Include="CLandScape.cpp">
       <Filter>Source\Component\RenderComponent\Landscape</Filter>
     </ClCompile>
-    <ClCompile Include="PhysXMgr.cpp">
-      <Filter>Source\PhysX</Filter>
-    </ClCompile>
-    <ClCompile Include="physx_imm_utils.cpp">
-      <Filter>Source\PhysX</Filter>
-    </ClCompile>
     <ClCompile Include="physx_util.cpp">
-      <Filter>Source\PhysX</Filter>
+      <Filter>Source\Module\PhysX</Filter>
     </ClCompile>
     <ClCompile Include="CRayCastShader.cpp">
       <Filter>Source\ShaderCode\Compute Shader\RayCastShader</Filter>
@@ -403,13 +400,13 @@
       <Filter>Source\ShaderCode\Compute Shader\LandScapePathShader</Filter>
     </ClCompile>
     <ClCompile Include="RecastNavi.cpp">
-      <Filter>Source\Recast\RecastNavi</Filter>
+      <Filter>Source\Module\Recast\RecastNavi</Filter>
     </ClCompile>
     <ClCompile Include="RecastMesh.cpp">
-      <Filter>Source\Recast</Filter>
+      <Filter>Source\Module\Recast</Filter>
     </ClCompile>
     <ClCompile Include="RecastBuildContext.cpp">
-      <Filter>Source\Recast</Filter>
+      <Filter>Source\Module\Recast</Filter>
     </ClCompile>
     <ClCompile Include="CInstancingBuffer.cpp">
       <Filter>Source\Device\InstancingBuffer</Filter>
@@ -419,6 +416,15 @@
     </ClCompile>
     <ClCompile Include="LandScapeMgr.cpp">
       <Filter>Source\Manager\LandScapeMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="CCollider3D.cpp">
+      <Filter>Source\Component\Collider3D</Filter>
+    </ClCompile>
+    <ClCompile Include="CRigidBody.cpp">
+      <Filter>Source\Component\RigidBody</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysXMgr.cpp">
+      <Filter>Source\Manager\PhysXMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -575,9 +581,6 @@
     <Filter Include="Source\Component\PathFind">
       <UniqueIdentifier>{253e45a2-14db-482c-b27f-8aea8b8dc3dd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\PhysX">
-      <UniqueIdentifier>{7e9d8349-0d65-4b7d-a91a-c65bac473573}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\ShaderCode\Compute Shader">
       <UniqueIdentifier>{e7e58685-e989-40bc-92c9-4f79bf523b39}</UniqueIdentifier>
     </Filter>
@@ -605,12 +608,6 @@
     <Filter Include="Source\ShaderCode\Compute Shader\LandScapePathShader">
       <UniqueIdentifier>{6f3947b0-018a-433e-9e77-d7f6046c59ef}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Recast">
-      <UniqueIdentifier>{ced98faf-18b1-46ab-9602-6b3311e0464c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Recast\RecastNavi">
-      <UniqueIdentifier>{7eea664e-6ae6-424c-960b-1783adb3d89a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Device\InstancingBuffer">
       <UniqueIdentifier>{aaab91ed-282d-4333-a90c-334499306df4}</UniqueIdentifier>
     </Filter>
@@ -619,6 +616,24 @@
     </Filter>
     <Filter Include="Source\Manager\LandScapeMgr">
       <UniqueIdentifier>{f7003299-1391-4992-82b4-e726ec847b23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Component\Collider3D">
+      <UniqueIdentifier>{ca161233-3dae-4162-bc13-7e23ca4b9f3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Component\RigidBody">
+      <UniqueIdentifier>{2472bdbf-f70d-49ad-9851-15360ad0ad40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Manager\PhysXMgr">
+      <UniqueIdentifier>{15ccdeae-a9b3-43a4-a3d3-1667206809b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Module\PhysX">
+      <UniqueIdentifier>{7e9d8349-0d65-4b7d-a91a-c65bac473573}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Module\Recast">
+      <UniqueIdentifier>{ced98faf-18b1-46ab-9602-6b3311e0464c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Module\Recast\RecastNavi">
+      <UniqueIdentifier>{7eea664e-6ae6-424c-960b-1783adb3d89a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

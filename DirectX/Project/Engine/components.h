@@ -15,4 +15,5 @@
 
 #include "CPathFind.h"
 
-//#include "CCollider3D.h"
+#include "CCollider3D.h"
+#include "CRigidBody.h"

@@ -251,7 +251,10 @@ PS_OUT PS_LandScape(DS_OUT _in)
     output.vNormal = float4(vViewNormal, 1.f);
     //float4 color = HeightMap.SampleLevel(g_sam_0, _in.vHeightMapUV, 0);
     //output.vColor = float4(0.8f, 0.8f, 0.8f, 1.f);
-    //output.vColor += _in.vColorMapColor;
+    if (_in.vColorMapColor.a > 0)
+    {
+        output.vColor += _in.vColorMapColor;
+    }
     //output.vNormal = float4(_in.vViewNormal, 1.f);
     output.vPosition = float4(_in.vViewPos, 1.f);
     output.vData;

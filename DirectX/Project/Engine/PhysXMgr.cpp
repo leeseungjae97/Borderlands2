@@ -3,6 +3,9 @@
 
 #include "PxPhysicsAPI.h"
 #include <ctype.h>
+
+#include "CLevel.h"
+#include "CLevelMgr.h"
 #include "physx_util.h"
 
 #define PVD_HOST "127.0.0.1"
@@ -11,53 +14,18 @@ PhysXMgr::PhysXMgr()
 	: gFoundation(NULL)
 	, gPhysics(NULL)
 	, gDispatcher(NULL)
-	, gScene(NULL)
-	, gMaterial(NULL)
 	, gPvd(NULL)
+	, gCurScene(NULL)
 	, mFoundation(NULL)
 {
 }
 
 PhysXMgr::~PhysXMgr()
 {
+	cleanupPhysics();
 }
 
-
-// Sphere 오브젝트 생성
-// 	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0, 0, -1)) * 200);	break;
-// t : 현재 카메라
-// geometry : PhysX geometry
-// velocity : 속도
-//PxRigidDynamic* createDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity = PxVec3(0))
-//{
-//	PxRigidDynamic* dynamic = PxCreateDynamic(*gPhysics, t, geometry, *gMaterial, 10.0f);
-//	dynamic->setAngularDamping(0.5f);
-//	dynamic->setLinearVelocity(velocity);
-//	gScene->addActor(*dynamic);
-//	return dynamic;
-//}
-//
-//
-//// 여러 네모로 만들어진 삼각형 생성
-//void createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
-//{
-//	PxShape* shape = gPhysics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *gMaterial);
-//	for (PxU32 i = 0; i < size; i++)
-//	{
-//		for (PxU32 j = 0; j < size - i; j++)
-//		{
-//			PxTransform localTm(PxVec3(PxReal(j * 2) - PxReal(size - i), PxReal(i * 2 + 1), 0) * halfExtent);
-//			PxRigidDynamic* body = gPhysics->createRigidDynamic(t.transform(localTm));
-//			body->attachShape(*shape);
-//			PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-//			gScene->addActor(*body);
-//		}
-//	}
-//	shape->release();
-//
-//}
-
-void PhysXMgr::initPhysics()
+void PhysXMgr::init()
 {
 	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
@@ -66,38 +34,73 @@ void PhysXMgr::initPhysics()
 	gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
 	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
-
-	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
-	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 	gDispatcher = PxDefaultCpuDispatcherCreate(2);
-	sceneDesc.cpuDispatcher = gDispatcher;
-	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-	gScene = gPhysics->createScene(sceneDesc);
-
-	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
-	if (pvdClient)
-	{
-		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
-	}
-
-	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
-
-	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
-	gScene->addActor(*groundPlane);
 }
 
-//void stepPhysics(bool /*interactive*/)
-//{
-//	gScene->simulate(1.0f / 60.0f);
-//	gScene->fetchResults(true);
-//}
-//
-//
+void PhysXMgr::tick()
+{
+	CLevel* level = CLevelMgr::GetInst()->GetCurLevel();
+	if(level)
+	{
+		gCurScene = level->GetScene();
+	}
+
+	if(gCurScene)
+	{
+		gCurScene->simulate(1.0f / 60.0f);
+		gCurScene->fetchResults(true);
+	}
+}
+
+void PhysXMgr::render()
+{
+
+}
+
+void PhysXMgr::InsertScene(CLevel* _Level)
+{
+	gScenes.insert(make_pair(_Level, _Level->GetScene()));
+}
+
+void PhysXMgr::CreateScene(Vec3 vPos)
+{
+	//PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
+	//sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	//sceneDesc.cpuDispatcher = gDispatcher;
+	//sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+	//sceneDesc.simulationEventCallback;
+	//gScene = gPhysics->createScene(sceneDesc);
+	//PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
+	//if (pvdClient)
+	//{
+	//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+	//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+	//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+	//}
+
+
+	//PxMaterial* m_PxMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(0.5f, 0.5f, 0.6f);
+
+	//m_PxMaterial->setFrictionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eAVERAGE));
+	//m_PxMaterial->setRestitutionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eAVERAGE));
+
+	//box = gPhysics->createRigidStatic(PxTransform(PxVec3(-200, 0, -200)));
+	//PxShape* shape = createTriggerShape(physx::PxBoxGeometry(20000.f, 10.f, 20000.f), *m_PxMaterial, Util::FILTER_SHADER, true);
+	////PxShape* shape = gPhysics->createShape(physx::PxBoxGeometry(20000.f, 10.f, 20000.f), *m_PxMaterial, true);
+	////TriggerImpl 
+	//box->attachShape(*shape);
+	////PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, -1, 0, 0), *gMaterial);
+	//gScene->addActor(*box);
+
+}
+
 void PhysXMgr::cleanupPhysics()
 {
-	PX_RELEASE(gScene);
+	for(auto pair : gScenes)
+	{
+		PX_RELEASE(pair.second);
+	}
+	
 	PX_RELEASE(gDispatcher);
 	PX_RELEASE(gPhysics);
 	if (gPvd)
@@ -107,26 +110,4 @@ void PhysXMgr::cleanupPhysics()
 		PX_RELEASE(transport);
 	}
 	PX_RELEASE(gFoundation);
-}
-
-//void keyPress(unsigned char key, const PxTransform& camera)
-//{
-//	switch (toupper(key))
-//	{
-//	case 'B':	createStack(PxTransform(PxVec3(0, 0, stackZ -= 10.0f)), 10, 2.0f); break;
-//	case ' ':	createDynamic(camera, PxSphereGeometry(3.0f), camera.rotate(PxVec3(0, 0, -1)) * 200);	break;
-//	}
-//}
-
-void PhysXMgr::init()
-{
-
-
-	initPhysics();
-}
-
-void PhysXMgr::TestPhysX()
-{
-
-
 }
