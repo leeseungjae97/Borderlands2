@@ -24,6 +24,41 @@ CTransform::~CTransform()
 {
 }
 
+void CTransform::SetRelativePos(Vec3 _vPos)
+{
+	CRigidBody* _db = GetOwner()->RigidBody();
+
+	m_vRelativePos = _vPos;
+
+	if(_db)
+	{
+		PxTransform trans = _db->GetRigidBodyPos();
+		trans.p = PxVec3(_vPos.x, _vPos.y, _vPos.z);
+		_db->SetRigidBodyTrans(trans);
+	}
+}
+
+void CTransform::SetRelativeRot(Vec3 _vRot)
+{
+	CRigidBody* _db = GetOwner()->RigidBody();
+	
+	m_vRelativeRot = _vRot;
+
+	if (_db)
+	{
+		PxTransform trans = _db->GetRigidBodyPos();
+		if (_db->IsCreature())
+		{
+			m_vCreatureRelativeRotX = _vRot.x;
+			//_vRot.x = 0.f;
+		}
+
+		Quat quat; quat = Util::Vector3ToQuaternion(_vRot);
+		trans.q = PxQuat(quat.x, quat.y, quat.z, quat.w);
+		_db->SetRigidBodyTrans(trans);
+	}
+}
+
 void CTransform::finaltick()
 {
 	m_matWorldScale = XMMatrixIdentity();
@@ -38,51 +73,51 @@ void CTransform::finaltick()
 	, Vec3(0.f, 0.f, 1.f)
 	};
 
-	if (GetOwner()->RigidBody()
-		&& GetOwner()->RigidBody()->MRigidBody())
+	CRigidBody* _db = GetOwner()->RigidBody();
+	
+	if (nullptr != _db)
 	{
-		//Quaternion quat = Quaternion::CreateFromYawPitchRoll(
-		//	XMConvertToRadians(m_vRelativeRot.y)
-		//	,XMConvertToRadians(m_vRelativeRot.x)
-		//	,XMConvertToRadians(m_vRelativeRot.z)
-		//);
-		//m_Rot = Matrix::CreateFromQuaternion(quat);
+		physx::PxTransform trans = _db->GetRigidBodyPos();
+		m_vRelativePos = Vec3(trans.p.x, trans.p.y, trans.p.z);
 
-		physx::PxTransform pos = GetOwner()->RigidBody()->MRigidBody()->getGlobalPose();
-		Vec3 vPos = Vec3(pos.p.x, pos.p.y, pos.p.z);
-		matTranslation = XMMatrixTranslation(vPos.x, vPos.y, vPos.z);
+		m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
+		m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
+		m_Rot = Matrix::CreateFromQuaternion(m_qRotation);
 
-		Quaternion rotation(pos.q.x, pos.q.y, pos.q.z, pos.q.w);
-		m_Rot = Matrix::CreateFromQuaternion(rotation);
-
-		m_vRelativePos = vPos;
-
-		physx::Util::QuaternionToVector3(rotation , m_vRelativeRot);
-
-		m_matWorld = m_matWorldScale * m_Rot * matTranslation;
-	}else
+		//if(!_db->IsCreature())
+		//{
+		//	m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
+		//	m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
+		//	m_Rot = Matrix::CreateFromQuaternion(m_qRotation);
+		//}
+		//else
+		//{
+		//	m_Rot = XMMatrixRotationX(m_vRelativeRot.x);
+		//	m_Rot *= XMMatrixRotationY(m_vRelativeRot.y);
+		//	m_Rot *= XMMatrixRotationZ(m_vRelativeRot.z);
+		//}
+	}
+	else
 	{
+		//m_vRelativeRot
 		m_Rot = XMMatrixRotationX(m_vRelativeRot.x);
 		m_Rot *= XMMatrixRotationY(m_vRelativeRot.y);
 		m_Rot *= XMMatrixRotationZ(m_vRelativeRot.z);
-
-		matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y, m_vRelativePos.z);
-
-		m_matWorld = m_matWorldScale * m_Rot * matTranslation;
 	}
 
+	matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y, m_vRelativePos.z);
+
+	m_matWorld = m_matWorldScale * m_Rot * matTranslation;
 	m_noRotWorld = m_matWorldScale * matTranslation;
 
 	for (int i = 0; i < 3; ++i)
 	{
 		m_vWorldDir[i] = m_vRelativeDir[i] = XMVector3TransformNormal(vDefaultDir[i], m_Rot);
 	}
-	
 
 	CGameObject* pParent = GetOwner()->GetParent();
 	if (pParent)
 	{
-		
 		if (m_bAbsolute)
 		{
 			Matrix matParentWorld = pParent->Transform()->m_matWorld;
@@ -95,7 +130,7 @@ void CTransform::finaltick()
 		{
 			m_matWorldScale = pParent->Transform()->m_matWorldScale;
 			m_matWorld *= pParent->Transform()->m_matWorld;
-		}	
+		}
 
 
 		for (int i = 0; i < 3; ++i)
@@ -104,13 +139,12 @@ void CTransform::finaltick()
 			m_vWorldDir[i].Normalize();
 		}
 	}
-
-	if (nullptr != GetOwner()->GetFollowObj())
-	{
-		Vec3 vFollowPos = GetOwner()->GetFollowObj()->Transform()->GetRelativePos();
-		vFollowPos += m_FollowOffset;
-		m_vRelativePos = vFollowPos;
-	}
+	//if (nullptr != GetOwner()->GetFollowObj())
+	//{
+	//	Vec3 vFollowPos = GetOwner()->GetFollowObj()->Transform()->GetRelativePos();
+	//	vFollowPos += m_FollowOffset;
+	//	m_vRelativePos = vFollowPos;
+	//}
 
 	m_matWorldInv = XMMatrixInverse(nullptr, m_matWorld);
 }

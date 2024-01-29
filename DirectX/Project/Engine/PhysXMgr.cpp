@@ -1,8 +1,7 @@
 #include "pch.h"
 #include "PhysXMgr.h"
 
-#include "PxPhysicsAPI.h"
-#include <ctype.h>
+//#include "PxPhysicsAPI.h"
 
 #include "CLevel.h"
 #include "CLevelMgr.h"
@@ -17,6 +16,9 @@ PhysXMgr::PhysXMgr()
 	, gPvd(NULL)
 	, gCurScene(NULL)
 	, mFoundation(NULL)
+	, gCudaContextManager(nullptr)
+	, gSceneDesc(PxSceneDesc(PxTolerancesScale()))
+	, gCookingParams(PxCookingParams(PxTolerancesScale()))
 {
 }
 
@@ -33,18 +35,22 @@ void PhysXMgr::init()
 	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	PxTolerancesScale scale;
+	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
+
+	gCookingParams = PxCookingParams(scale);
+	gSceneDesc = PxSceneDesc(gPhysics->getTolerancesScale());
+	gSceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	gSceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
+
 	gDispatcher = PxDefaultCpuDispatcherCreate(2);
+
+	gSceneDesc.cpuDispatcher = gDispatcher;
 }
 
 void PhysXMgr::tick()
 {
-	CLevel* level = CLevelMgr::GetInst()->GetCurLevel();
-	if(level)
-	{
-		gCurScene = level->GetScene();
-	}
-
+	GCurScene();
 	if(gCurScene)
 	{
 		gCurScene->simulate(1.0f / 60.0f);
@@ -57,6 +63,15 @@ void PhysXMgr::render()
 
 }
 
+PxScene* PhysXMgr::GCurScene()
+{
+	CLevel* level = CLevelMgr::GetInst()->GetCurLevel();
+	auto scene = gScenes.find(level);
+	gCurScene = scene->second;
+
+	return gCurScene;
+}
+
 void PhysXMgr::InsertScene(CLevel* _Level)
 {
 	gScenes.insert(make_pair(_Level, _Level->GetScene()));
@@ -64,33 +79,6 @@ void PhysXMgr::InsertScene(CLevel* _Level)
 
 void PhysXMgr::CreateScene(Vec3 vPos)
 {
-	//PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
-	//sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-	//sceneDesc.cpuDispatcher = gDispatcher;
-	//sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-	//sceneDesc.simulationEventCallback;
-	//gScene = gPhysics->createScene(sceneDesc);
-	//PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
-	//if (pvdClient)
-	//{
-	//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-	//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-	//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
-	//}
-
-
-	//PxMaterial* m_PxMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(0.5f, 0.5f, 0.6f);
-
-	//m_PxMaterial->setFrictionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eAVERAGE));
-	//m_PxMaterial->setRestitutionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eAVERAGE));
-
-	//box = gPhysics->createRigidStatic(PxTransform(PxVec3(-200, 0, -200)));
-	//PxShape* shape = createTriggerShape(physx::PxBoxGeometry(20000.f, 10.f, 20000.f), *m_PxMaterial, Util::FILTER_SHADER, true);
-	////PxShape* shape = gPhysics->createShape(physx::PxBoxGeometry(20000.f, 10.f, 20000.f), *m_PxMaterial, true);
-	////TriggerImpl 
-	//box->attachShape(*shape);
-	////PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, -1, 0, 0), *gMaterial);
-	//gScene->addActor(*box);
 
 }
 

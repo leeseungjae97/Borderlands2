@@ -15,40 +15,36 @@ using std::string;
 #include <typeinfo>
 #include <assert.h>
 
-
 // FileSystem
 #define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #include <experimental/filesystem>
 using namespace std::experimental;
 using namespace std::experimental::filesystem;
 
-
-
 #include <wrl.h>
 using namespace Microsoft::WRL;
 
 #include <d3d11.h>					// DirectX11
 #include <d3dcompiler.h>			// Shader ÄÄÆÄÀÏ
-#include <DirectXMath.h>			// DX Math
-#include <DirectXPackedVector.h>	
-
-using namespace DirectX;
-using namespace DirectX::PackedVector;
+//#include <DirectXMath.h>			// DX Math
+//#include <DirectXPackedVector.h>	
 
 #pragma comment(lib, "d3d11")
 #pragma comment(lib, "d3dcompiler")
 
-
 #include "SimpleMath.h"
-using namespace DirectX::SimpleMath;
 
-typedef Vector2 Vec2;
-typedef Vector3 Vec3;
-typedef Vector4 Vec4;
+using namespace DirectX;
+using namespace DirectX::SimpleMath;
+using namespace DirectX::PackedVector;
+
+typedef DirectX::SimpleMath::Vector2 Vec2;
+typedef DirectX::SimpleMath::Vector3 Vec3;
+typedef DirectX::SimpleMath::Vector4 Vec4;
+typedef DirectX::SimpleMath::Quaternion Quat;
 
 // Fbx Loader
 #include <FBXLoader/fbxsdk.h>
-
 #include <PhysX/PxPhysicsAPI.h>
 
 #ifdef _DEBUG
@@ -85,8 +81,6 @@ typedef Vector4 Vec4;
 #pragma comment(lib, "PhysX/release/PhysXFoundation_64.lib")
 #pragma comment(lib, "PhysX/release/PhysXPvdSDK_static_64.lib")
 #endif
-
-
 
 #include "define.h"
 #include "struct.h"

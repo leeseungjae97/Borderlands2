@@ -7,7 +7,6 @@
 #include "CTimeMgr.h"
 #include "CResMgr.h"
 #include "CLevelMgr.h"
-#include "CCollisionMgr.h"
 #include "CRenderMgr.h"
 #include "CEventMgr.h"
 #include "CFontMgr.h"
@@ -65,10 +64,6 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 
 	CInstancingBuffer::GetInst()->init();
 
-	PhysXMgr::GetInst()->init();
-
-	CLevelMgr::GetInst()->begin();
-
 	return S_OK;
 }
 
@@ -98,8 +93,6 @@ void CEngine::tick()
 	// Level 안에 존재하는 모든 GameObject 들이 Tick 을 호출받음
 	CLevelMgr::GetInst()->tick();
 
-	// Level 내에 GameObject 들의 변경점에 의해서 발생한 충돌을 체크한다.
-	//CCollisionMgr::GetInst()->tick();
 	PhysXMgr::GetInst()->tick();
 
 	//if(KEY_PRESSED(KEY::E))

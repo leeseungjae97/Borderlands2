@@ -33,61 +33,24 @@ void DrawDebugCube(const Matrix& _matWorld, Vec4 _vColor, float _fTime = 0.f, bo
 void DrawDebugSphere(Vec3 _vWorldPos, float _fRadius, Vec4 _vColor, Vec3 _vRotation, float _fTime = 0.f, bool DepthTest = false);
 void DrawDebugSphere(const Matrix& _matWorld, Vec4 _vColor, float _fTime = 0.f, bool DepthTest = false);
 
+void DrawDebugMesh(const Matrix& _matWorld, const wstring& _wsDebugShapeName, Vec4 _vColor, float _fTime = 0.f, bool DepthTest = false);
+
 static void Strtrim(char* s) { char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0; }
 static int  Stricmp(const char* s1, const char* s2) { int d; while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1) { s1++; s2++; } return d; }
 static int  Strnicmp(const char* s1, const char* s2, int n) { int d = 0; while (n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1) { s1++; s2++; n--; } return d; }
-static int Strlen(const char* s)
-{
-	int index = 0;
-	char ch = ' ';
-	while (ch != '\0')
-	{
-		ch = s[index];
-		++index;
-	}
-	return index;
-}
-static int Strlen(char* s)
-{
-	int index = 0;
-	char ch = ' ';
-	while(ch != '\0')
-	{
-		ch = s[index];
-		++index;
-	}
-	return index;
-}
+
 static string Strsubstr(char* s, const char* substr)
 {
-	//int lastIdx = strlen(s);
 	string result = "";
 	result.append(s);
 	result.append(substr);
-	//strncpy(result, s, lastIdx);
-
-	//for (int i = 0; i < strlen(substr); ++i)
-	//{
-	//	result[lastIdx] = substr[i];
-	//	++lastIdx;
-	//}
-	//result[lastIdx] = '\0';
 	return result;
 }
 static string Strsubstr(char* s, char* substr)
 {
-	//int lastIdx = strlen(s);
 	string result = "";
 	result.append(s);
 	result.append(substr);
-	//strncpy(result, s, lastIdx);
-
-	//for (int i = 0; i < strlen(substr); ++i)
-	//{
-	//	result[lastIdx] = substr[i];
-	//	++lastIdx;
-	//}
-	//result[lastIdx] = '\0';
 	return result;
 }
 
@@ -98,15 +61,6 @@ static wstring StringToWString(string& str)
 static string WStringToString(wstring& str)
 {
 	return string(str.begin(), str.end());
-}
-static char* WStringToChar(wstring& _str)
-{
-	const wchar_t* mWchar = _str.c_str();
-	size_t size = (wcslen(mWchar) + 1) * sizeof(wchar_t);
-	char* str = new char[size];
-	std::wcstombs(str, mWchar, size);
-
-	return str;
 }
 static wstring CharToWString(char* _ch)
 {

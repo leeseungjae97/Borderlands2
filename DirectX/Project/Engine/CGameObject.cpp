@@ -201,6 +201,8 @@ void CGameObject::AddComponent(CComponent* _Component)
 			m_RenderCom = pRenderCom;
 		}
 	}
+
+	_Component->initialize();
 }
 
 void CGameObject::AddChild(CGameObject* _Object)

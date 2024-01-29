@@ -11,6 +11,7 @@
 CPlayerScript::CPlayerScript()
 	: CScript((UINT)SCRIPT_TYPE::PLAYERSCRIPT)
 	, m_fSpeed(100.f)
+	, m_fJump(50.f)
 	, m_MouseAcces(1.f)
 {
 	AddScriptParam(SCRIPT_PARAM::FLOAT, &m_fSpeed, "Player Speed");
@@ -25,55 +26,72 @@ CPlayerScript::~CPlayerScript()
 void CPlayerScript::begin()
 {
 	// 동적 재질 생성
-	MeshRender()->GetDynamicMaterial(0);
+	//MeshRender()->GetDynamicMaterial(0);
+
+
 }
 
 void CPlayerScript::tick()
 {
-	Vec3 vPos = GetOwner()->GetFollowObj()->Transform()->GetRelativePos();
-	Vec3 vCurRot = GetOwner()->GetFollowObj()->Transform()->GetRelativeRot();
+	CGameObject* pCamObj = GetOwner()->GetFollowObj();
+	CGameObject* pPlayerObj = GetOwner();
 
-	Vec3 vFront = GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
-	Vec3 vUp = GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::UP);
-	Vec3 vRight = GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+	Vec3 vPlayerPos = pPlayerObj->Transform()->GetRelativePos();
+	Vec3 vCamRot = pCamObj->Transform()->GetRelativeRot();
+
+	Vec3 vPlayerFront = pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+	Vec3 vPlayerUp = pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::UP);
+	Vec3 vPlayerRight = pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+
+	CRigidBody* pPlayerRB = pPlayerObj->RigidBody();
 
 	Vec2 vMouseDir = CKeyMgr::GetInst()->GetMouseDir();
-	vCurRot.y += DT * vMouseDir.x * m_MouseAcces;
-	vCurRot.x -= DT * vMouseDir.y * m_MouseAcces;
 
-	GetOwner()->Transform()->SetRelativeRot(vCurRot);
+	vCamRot.y += (DT * vMouseDir.x * 1.f);
+	vCamRot.x -= (DT * vMouseDir.y * 1.f);
+	vCamRot.z = 0;
 
+	pPlayerObj->Transform()->SetRelativeRot(Vec3(0.f, vCamRot.y, 0.f));
+	pCamObj->Transform()->SetRelativeRot(vCamRot);
+
+	//vPos -= vFront;
+	vPlayerPos += pCamObj->Transform()->GetFollowOffset();
+	pCamObj->Transform()->SetRelativePos(vPlayerPos);
+
+	float fSpeed = m_fSpeed
+	;
+	Vec3 final_velocity = Vec3(0.f, 0.f, 0.f);
+
+	if (KEY_PRESSED(KEY::LSHIFT))
+	{
+		fSpeed *= 2.f;
+	}
 	if (KEY_PRESSED(KEY::W))
 	{
-		vPos += DT * vFront * m_fSpeed;
-		//vPos.z += DT * m_fSpeed;
+		final_velocity += vPlayerFront * DT * fSpeed;
 	}
 
 	if (KEY_PRESSED(KEY::S))
 	{
-		vPos -= DT * vFront * m_fSpeed;
-		//vPos.z -= DT * m_fSpeed;
+		final_velocity += vPlayerFront * DT * -fSpeed;
 	}
 
 	if (KEY_PRESSED(KEY::A))
 	{
-		vPos -= DT * vRight * m_fSpeed;
+		final_velocity += vPlayerRight * DT * -fSpeed;
 	}
 
 	if (KEY_PRESSED(KEY::D))
 	{
-		vPos += DT * vRight * m_fSpeed;
+		final_velocity += vPlayerRight * DT * fSpeed;
 	}
 
-	GetOwner()->GetFollowObj()->Transform()->SetRelativePos(vPos);
-	GetOwner()->GetFollowObj()->Transform()->SetRelativeRot(vCurRot);		
+	if (KEY_PRESSED(KEY::SPACE))
+	{
+		final_velocity += vPlayerUp * DT * m_fJump;
+	}
 
-	//if (KEY_TAP(KEY::SPACE))
-	//{
-	//	DrawDebugCircle(Transform()->GetWorldPos(), 500.f, Vec4(0.f, 0.f, 1.f, 1.f), Vec3(0.f, 0.f, 0.f), 2.f);
-
-	//	Shoot();
-	//}	
+	pPlayerRB->SetVelocity(final_velocity * fSpeed);
 }
 
 void CPlayerScript::Shoot()
@@ -87,19 +105,10 @@ void CPlayerScript::Shoot()
 	//SpawnGameObject(pCloneMissile, vMissilePos, L"PlayerProjectile");
 }
 
-//void CPlayerScript::BeginOverlap(CCollider2D* _Other)
-//{
-//	CGameObject* pOtherObject = _Other->GetOwner();
-//
-//	if (pOtherObject->GetName() == L"Monster")
-//	{
-//		DestroyObject(pOtherObject);		
-//	}
-//}
+void CPlayerScript::BeginOverlap(CCollider3D* _Other)
+{
 
-
-
-
+}
 
 void CPlayerScript::SaveToLevelFile(FILE* _File)
 {

@@ -79,12 +79,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // ImGui 초기화
     ImGuiMgr::GetInst()->init(g_hWnd);
 
+    // PhysX 초기화
+    PhysXMgr::GetInst()->init();
+
     // 테스트 용 레벨 생성
     CreateTestLevel();
 
     // 메세지 루프
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
     MSG msg;
+
+    CLevelMgr::GetInst()->begin();
 
     while (true)
     {

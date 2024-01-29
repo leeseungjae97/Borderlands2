@@ -8,6 +8,9 @@ private:
     Vec3    m_vRelativePos;
     Vec3    m_vRelativeScale;
     Vec3    m_vRelativeRot;
+    float   m_vCreatureRelativeRotX;
+
+    Quat m_qRotation;
 
     bool    m_bAbsolute;    // 상대 이동, 크기를 절대값으로 지정    
     bool    m_bExceptParentRot;
@@ -24,9 +27,9 @@ private:
 
 
 public:
-    void SetRelativePos(Vec3 _vPos) { m_vRelativePos = _vPos; }
+    void SetRelativePos(Vec3 _vPos);
     void SetRelativeScale(Vec3 _vScale) { m_vRelativeScale = _vScale; }
-    void SetRelativeRot(Vec3 _vRot) { m_vRelativeRot = _vRot; }
+    void SetRelativeRot(Vec3 _vRot);
 
     void SetRelativePos(float _x, float _y, float _z) { m_vRelativePos = Vec3(_x, _y, _z); }
     void SetRelativeScale(float _x, float _y, float _z) { m_vRelativeScale = Vec3(_x, _y, _z); }
@@ -38,6 +41,8 @@ public:
     Vec3 GetRelativePos() const { return m_vRelativePos; }
     Vec3 GetRelativeScale() const { return m_vRelativeScale; }
     Vec3 GetRelativeRot() const { return m_vRelativeRot; }
+
+    float GetCreatureRelavtiveX() const{ return m_vCreatureRelativeRotX; }
 
     Vec3 GetRelativeDir(DIR_TYPE _type) const { return m_vRelativeDir[(UINT)_type]; }
     Vec3 GetWorldDir(DIR_TYPE _type) const { { return m_vWorldDir[(UINT)_type]; } }

@@ -2,6 +2,7 @@
 #include "CCameraMoveScript.h"
 
 #include <Engine\CTransform.h>
+#include <Engine\CRigidBody.h>
 #include <Engine\CCamera.h>
 
 CCameraMoveScript::CCameraMoveScript()
@@ -16,63 +17,14 @@ CCameraMoveScript::~CCameraMoveScript()
 
 void CCameraMoveScript::tick()
 {
-	if (PROJ_TYPE::ORTHOGRAPHIC == Camera()->GetProjType())
-		Camera2DMove();
+	if (CLevelMgr::GetInst()->GetCurLevel()->GetState() != LEVEL_STATE::PLAY)
+		cameraDebugMove();
 	else
-		Camera3DMove();
+		cameraFollowMove();
 }
 
-void CCameraMoveScript::Camera2DMove()
-{
-	// 키 입력에 따른 카메라 이동
-	Vec3 vPos = Transform()->GetRelativePos();
 
-	float fSpeed = m_fCamSpeed;
-	if (KEY_PRESSED(KEY::LSHIFT))
-	{
-		fSpeed *= 100.f;
-	}
-		
-
-	if (KEY_PRESSED(KEY::W))
-	{
-		vPos.y += DT * fSpeed;
-	}
-
-	if (KEY_PRESSED(KEY::S))
-	{
-		vPos.y -= DT * fSpeed;
-	}
-
-	if (KEY_PRESSED(KEY::A))
-	{
-		vPos.x -= DT * fSpeed;
-	}
-
-	if (KEY_PRESSED(KEY::D))
-	{
-		vPos.x += DT * fSpeed;
-	}
-
-
-	//if (KEY_PRESSED(KEY::_1))
-	//{
-	//	float fScale = Camera()->GetScale();
-	//	fScale += DT * 1.f;
-	//	Camera()->SetScale(fScale);
-	//}
-
-	//if (KEY_PRESSED(KEY::_2))
-	//{
-	//	float fScale = Camera()->GetScale();
-	//	fScale -= DT * 1.f;
-	//	Camera()->SetScale(fScale);
-	//}
-
-	Transform()->SetRelativePos(vPos);
-}
-
-void CCameraMoveScript::Camera3DMove()
+void CCameraMoveScript::cameraDebugMove()
 {
 	Vec3 vPos = Transform()->GetRelativePos();
 	Vec3 vRot = Transform()->GetRelativeRot();
@@ -120,4 +72,69 @@ void CCameraMoveScript::Camera3DMove()
 	Transform()->SetRelativePos(vPos);
 	Transform()->SetRelativeRot(vRot);
 
+}
+
+void CCameraMoveScript::cameraFollowMove()
+{
+	if (GetOwner()->GetName() == L"EditCam"
+		|| nullptr == GetOwner()->GetFollowObj()) 
+		return;
+
+	//Vec3 vPos = GetOwner()->GetFollowObj()->Transform()->GetRelativePos();
+	//Vec3 vRot = GetOwner()->GetFollowObj()->Transform()->GetRelativeRot();
+
+	//Vec3 vCurRot = GetOwner()->Transform()->GetRelativeRot();
+
+	//Vec3 vFront = GetOwner()->GetFollowObj()->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+	//Vec3 vUp = GetOwner()->GetFollowObj()->Transform()->GetRelativeDir(DIR_TYPE::UP);
+	//Vec3 vRight = GetOwner()->GetFollowObj()->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+
+	//CRigidBody* _db = GetOwner()->GetFollowObj()->RigidBody();
+
+	//Vec2 vMouseDir = CKeyMgr::GetInst()->GetMouseDir();
+
+	//vCurRot.y += (DT * vMouseDir.x * 1.f);
+	//vCurRot.x -= (DT * vMouseDir.y * 1.f);
+	//vCurRot.z = 0;
+
+	//GetOwner()->GetFollowObj()->Transform()->SetRelativeRot(Vec3(0.f, vCurRot.y, 0.f));
+	//GetOwner()->Transform()->SetRelativeRot(vCurRot);
+
+	////vPos -= vFront;
+	//vPos += GetOwner()->Transform()->GetFollowOffset();
+	//GetOwner()->Transform()->SetRelativePos(vPos);
+
+	//float fSpeed = 100.f;
+	//Vec3 final_velocity = Vec3(0.f, 0.f, 0.f);
+
+	//if (KEY_PRESSED(KEY::LSHIFT))
+	//{
+	//	fSpeed *= 2.f;
+	//}
+	//if (KEY_PRESSED(KEY::W))
+	//{
+	//	final_velocity += vFront * DT * fSpeed;
+	//}
+
+	//if (KEY_PRESSED(KEY::S))
+	//{
+	//	final_velocity += vFront * DT * -fSpeed;
+	//}
+
+	//if (KEY_PRESSED(KEY::A))
+	//{
+	//	final_velocity += vRight * DT * -fSpeed;
+	//}
+
+	//if (KEY_PRESSED(KEY::D))
+	//{
+	//	final_velocity += vRight * DT * fSpeed;
+	//}
+
+	//if (KEY_PRESSED(KEY::SPACE))
+	//{
+	//	final_velocity += vUp * DT * 50.f;
+	//}
+
+	//_db->SetVelocity(final_velocity * fSpeed);
 }

@@ -3,13 +3,7 @@
 
 #include "CGameObject.h"
 
-class CTransform;
-class CMeshRender;
-
 #define GET_OTHER_COMPONENT(Type) C##Type* Type() {return m_pOwner->Type();}
-
-
-
 
 class CComponent :
     public CEntity
@@ -23,6 +17,7 @@ public:
     CGameObject* GetOwner() { return m_pOwner ; }
 
 public:
+    virtual void initialize() {}
     virtual void begin() {}
     virtual void tick() {}
     virtual void finaltick() = 0;

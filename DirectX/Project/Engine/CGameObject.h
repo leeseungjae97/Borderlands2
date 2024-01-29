@@ -1,7 +1,6 @@
 #pragma once
 #include "CEntity.h"
 
-
 class CComponent;
 class CTransform;
 class CMeshRender;
@@ -19,8 +18,6 @@ class CRigidBody;
 class CLandScape;
 
 #define GET_COMPONENT(Type, TYPE) C##Type* Type() const { return (C##Type*)m_arrCom[(UINT)COMPONENT_TYPE::TYPE]; }
-
-
 
 class CGameObject :
     public CEntity

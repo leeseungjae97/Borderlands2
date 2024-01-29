@@ -6,7 +6,7 @@ class CPlayerScript :
 {
 private:
     float       m_fSpeed;
-
+    float       m_fJump;
     float       m_MouseAcces;
 
 public:
@@ -19,6 +19,9 @@ private:
 public:
     virtual void SaveToLevelFile(FILE* _File) override;
     virtual void LoadFromLevelFile(FILE* _FILE) override;
+
+    void BeginOverlap(CCollider3D* _Other) override;
+
     CLONE(CPlayerScript);
 public:
     CPlayerScript();

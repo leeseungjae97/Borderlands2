@@ -19,7 +19,6 @@ void CLayer::begin()
 	for (size_t i = 0; i < m_vecParentObj.size(); ++i)
 	{
 		m_vecParentObj[i]->begin();
-		AddCollider3D(m_vecParentObj[i]);
 	}
 }
 
@@ -99,17 +98,6 @@ void CLayer::AddParentList(CGameObject* _Obj)
 {
 	assert(!_Obj->m_Parent);
 	m_vecParentObj.push_back(_Obj);
-}
-
-void CLayer::AddCollider3D(CGameObject* _Obj)
-{
-	if (nullptr == _Obj) return;
-
-	CCollider3D* col = _Obj->Collider3D();
-	if(col)
-	{
-		m_PxCollisionCallBack->Collisions.insert(make_pair(col->MPxColliderShape(), col));
-	}
 }
 
 

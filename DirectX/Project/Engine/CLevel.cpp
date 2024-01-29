@@ -25,15 +25,11 @@ CLevel::~CLevel()
 
 	if(m_PxCollisionCallBack)
 		delete m_PxCollisionCallBack;
-	
-	PX_RELEASE(m_PxScene);
 }
 
 
 void CLevel::begin()
 {
-	if (m_State == LEVEL_STATE::NO_UPDATE_RENDER) return;
-
 	for (UINT i = 0; i < MAX_LAYER; ++i)
 	{
 		m_arrLayer[i]->begin();
@@ -42,9 +38,6 @@ void CLevel::begin()
 
 void CLevel::tick()
 {
-	Matrix worldMat = physx::Util::WorldMatFromGlobalPose(box->getGlobalPose(), Vec3(20000.f, 10.f, 20000.f));
-	DrawDebugCube(worldMat, Vec4(0.f, 1.f, 0.f, 1.f), 0.f, true);
-
 	if (m_State == LEVEL_STATE::NO_UPDATE_RENDER) return;
 
 	for (UINT i = 0; i < MAX_LAYER; ++i)
@@ -67,10 +60,10 @@ void CLevel::createScene()
 {
 	m_PxCollisionCallBack = new PxCollisionCallBack;
 
-	PxSceneDesc sceneDesc(PhysXMgr::GetInst()->GPhysics()->getTolerancesScale());
-	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-	sceneDesc.cpuDispatcher = PhysXMgr::GetInst()->GDispatcher();
-	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+	//PxSceneDesc sceneDesc(PhysXMgr::GetInst()->GPhysics()->getTolerancesScale());
+	PxSceneDesc sceneDesc = PhysXMgr::GetInst()->GSceneDesc();
+	//sceneDesc.cpuDispatcher = PhysXMgr::GetInst()->GDispatcher();
+	sceneDesc.filterShader = triggersUsingFilterShader;
 	sceneDesc.simulationEventCallback = m_PxCollisionCallBack;
 
 	m_PxScene = PhysXMgr::GetInst()->GPhysics()->createScene(sceneDesc);
@@ -82,19 +75,8 @@ void CLevel::createScene()
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
-
-	PxMaterial* m_PxMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(0.5f, 0.5f, 0.6f);
-
-	m_PxMaterial->setFrictionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eAVERAGE));
-	m_PxMaterial->setRestitutionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eAVERAGE));
-
-	box = PhysXMgr::GetInst()->GPhysics()->createRigidStatic(PxTransform(PxVec3(-200, 0, -200)));
-	PxShape* shape = createTriggerShape(physx::PxBoxGeometry(20000.f, 10.f, 20000.f), *m_PxMaterial, Util::FILTER_SHADER, true);
-	//PxShape* shape = gPhysics->createShape(physx::PxBoxGeometry(20000.f, 10.f, 20000.f), *m_PxMaterial, true);
-	//TriggerImpl 
-	box->attachShape(*shape);
-
-	m_PxScene->addActor(*box);
+	PhysXMgr::GetInst()->InsertScene(this);
+	PhysXMgr::GetInst()->SetCurScene(m_PxScene);
 }
 
 CLayer* CLevel::FindLayerByName(const wstring& _strName)
@@ -112,6 +94,7 @@ CLayer* CLevel::FindLayerByName(const wstring& _strName)
 void CLevel::AddGameObject(CGameObject* _Object, int _iLayerIdx, bool _bMove)
 {
 	m_arrLayer[_iLayerIdx]->AddGameObject(_Object, _bMove);
+	AddCollider3D(_Object);
 }
 
 void CLevel::AddGameObject(CGameObject* _Object, const wstring& _LayerName, bool _Move)
@@ -120,6 +103,13 @@ void CLevel::AddGameObject(CGameObject* _Object, const wstring& _LayerName, bool
 	assert(pLayer);
 
 	pLayer->AddGameObject(_Object, _Move);
+	AddCollider3D(_Object);
+}
+
+void CLevel::AddCollider3D(CGameObject* _Object)
+{
+	if(_Object->Collider3D())
+		m_PxCollisionCallBack->Collisions.insert(make_pair(_Object->Collider3D()->MPxColliderShape(), _Object->Collider3D()));
 }
 
 void CLevel::ChangeState(LEVEL_STATE _State)

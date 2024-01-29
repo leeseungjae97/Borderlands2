@@ -5,7 +5,6 @@
 #include "CColorMapShader.h"
 #include "CCopyBoneShader.h"
 #include "CHeightMapShader.h"
-#include "CPathMgr.h"
 #include "CRayCastShader.h"
 #include "CWeightMapShader.h"
 
@@ -655,7 +654,7 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->CreatePixelShader(L"shader\\debugshape.fx", "PS_DebugSphereShape");
 
 	pShader->SetTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	pShader->SetRSType(RS_TYPE::CULL_BACK);
+	pShader->SetRSType(RS_TYPE::CULL_FRONT);
 	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
 	pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
 

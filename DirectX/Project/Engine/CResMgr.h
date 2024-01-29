@@ -10,9 +10,7 @@
 #include "CPrefab.h"
 #include "CSound.h"
 #include "CMeshData.h"
-
 #include "CPathMgr.h"
-
 
 class CResMgr :
     public CSingleton<CResMgr>

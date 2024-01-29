@@ -6,7 +6,7 @@
 #include <Engine\CGameObject.h>
 #include <Engine\components.h>
 #include <Engine\CScript.h>
-#include <Engine/CLevelMgr.h>
+#include <Engine\CLevelMgr.h>
 
 #include <Script\CScriptMgr.h>
 
@@ -251,11 +251,9 @@ void MenuUI::AddComponent(COMPONENT_TYPE _type)
     case COMPONENT_TYPE::PARTICLESYSTEM:
         pSelectedObject->AddComponent(new CParticleSystem);
         break;
-
     case COMPONENT_TYPE::SKYBOX:
         pSelectedObject->AddComponent(new CSkyBox);
         break;
-  
     case COMPONENT_TYPE::LANDSCAPE:
         pSelectedObject->AddComponent(new CLandScape);
         break;

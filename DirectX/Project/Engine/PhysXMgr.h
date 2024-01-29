@@ -1,13 +1,13 @@
 #pragma once
 
-#include "global.h"
+#include "CSingleton.h"
 
 using namespace physx;
 
 class PhysXMgr
 	: public CSingleton<PhysXMgr>
 {
-	
+
 private:
 	PxDefaultAllocator		gAllocator;
 	PxDefaultErrorCallback	gErrorCallback;
@@ -18,7 +18,9 @@ private:
 	PxScene*				gCurScene;
 	PxPvd*					gPvd;
 	PxFoundation*			mFoundation;
-
+	PxCudaContextManager*	gCudaContextManager;
+	PxSceneDesc				gSceneDesc;
+	PxCookingParams			gCookingParams;
 public:
 	void init();
 	void tick();
@@ -29,6 +31,7 @@ private:
 
 public:
 	void CreateScene(Vec3 vPos);
+	void SetCurScene(PxScene* px_scene) { gCurScene = px_scene; }
 
 public:
 	PxDefaultAllocator GAllocator() const { return gAllocator; }
@@ -39,7 +42,9 @@ public:
 	map<CLevel*, PxScene*> GScenes() const { return gScenes; }
 	PxPvd* GPvd() const { return gPvd; }
 	PxFoundation* MFoundation() const { return mFoundation; }
-	PxScene* GCurScene() const { return gCurScene; }
+	PxScene* GCurScene();
+	PxSceneDesc& GSceneDesc() { return gSceneDesc; }
+	PxCookingParams& GCookingParams() { return gCookingParams; }
 
 	void GAllocator(const PxDefaultAllocator& g_allocator) { gAllocator = g_allocator; }
 	void GErrorCallback(const PxDefaultErrorCallback& g_error_callback) { gErrorCallback = g_error_callback; }

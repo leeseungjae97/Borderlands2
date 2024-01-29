@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef PHYSX_UTIL_H
+#define PHYSX_UTIL_H
+
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
 // are met:
@@ -27,12 +30,11 @@
 // Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 #include "pch.h"
 
-#include "CCollider3D.h"
-#include "global.h"
-#include "PhysXMgr.h"
-
 #include "foundation/Px.h"
 #include "foundation/PxSimpleTypes.h"
+
+#include "PhysXMgr.h"
+#include "CCollider3D.h"
 
 namespace physx
 {
@@ -265,10 +267,10 @@ namespace physx
 				if (s0->userData || s1->userData)	// See createTriggerShape() function
 				{
 					pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
-
-				if ()
-					pairFlags |= PxPairFlag::eDETECT_CCD_CONTACT | PxPairFlag::eNOTIFY_TOUCH_CCD;
 				}
+				//if ()
+				//	pairFlags |= PxPairFlag::eDETECT_CCD_CONTACT | PxPairFlag::eNOTIFY_TOUCH_CCD;
+				//}
 				else
 					pairFlags = PxPairFlag::eCONTACT_DEFAULT;
 
@@ -288,8 +290,48 @@ namespace physx
 				// printf("statusChange\n");
 				return false;
 			}
-		}gTriggersFilterCallback;
+		};
 
+		//CGameObject* pCamObj = GetOwner()->GetFollowObj();
+		//tRay ray = pCamObj->Camera()->GetRay();
+		//PxVec3 startPos = PxVec3(ray.vStart.x, ray.vStart.y, ray.vStart.z);
+		//PxVec3 rayDir = PxVec3(ray.vDir.x, ray.vDir.y, ray.vDir.z);
+
+		//PxRaycastHit hitInfo;
+
+		static PxFilterFlags triggersUsingFilterShader(
+			PxFilterObjectAttributes attributes0, 
+			PxFilterData filterData0,
+			PxFilterObjectAttributes attributes1, 
+			PxFilterData filterData1,
+			PxPairFlags& pairFlags, const void* /*constantBlock*/, PxU32 /*constantBlockSize*/)
+		{
+			const bool isTriggerPair = isTrigger(filterData0) || isTrigger(filterData1);
+
+			// If we have a trigger, replicate the trigger codepath from PxDefaultSimulationFilterShader
+			if (isTriggerPair)
+			{
+				// eCONTACT_DEFAULT : 충돌 기본 플래그
+				// eNOTIFY_TOUCH_FOUND : 충돌 시작 콜백, 트리거 호출
+				// eNOTIFY_TOUCH_LOST : 충돌 멈추면 콜백, 트리거 호출
+				// eNOTIFY_TOUCH_PERSISTS : 접촉 중 콜백 호출
+				// eDETECT_CCD_CONTACT : CCD 접점 생성 여부 확인
+				// CCD 퀄리티 높은 출동
+				pairFlags = PxPairFlag::eTRIGGER_DEFAULT;/* | PxPairFlag::eDETECT_CCD_CONTACT*/;
+			}
+			else
+			{
+				pairFlags = PxPairFlag::eCONTACT_DEFAULT
+					| PxPairFlag::eNOTIFY_TOUCH_FOUND
+					| PxPairFlag::eNOTIFY_TOUCH_LOST
+					| PxPairFlag::eNOTIFY_TOUCH_PERSISTS
+					| PxPairFlag::eDETECT_CCD_CONTACT;
+
+				//pairFlags = PxPairFlag::eSOLVE_CONTACT | PxPairFlag::eDETECT_DISCRETE_CONTACT | PxPairFlag::eDETECT_CCD_CONTACT;
+				
+			}
+			return PxFilterFlag::eDEFAULT;
+		}
 		class PxCollisionCallBack : public PxSimulationEventCallback
 		{
 		public:
@@ -350,7 +392,7 @@ namespace physx
 					//	continue;
 					//}
 
-					/*auto iter1 = Collisions.find(pairs[count].shapes[0]);
+					auto iter1 = Collisions.find(pairs[count].shapes[0]);
 					auto iter2 = Collisions.find(pairs[count].shapes[1]);
 					if (iter1 != Collisions.end() && iter2 != Collisions.end())
 					{
@@ -384,7 +426,7 @@ namespace physx
 								col2->EndOverlap(col1);
 							}
 						}
-					}*/
+					}
 					//const PxContactPair& current = *pairs++;
 
 					//if (current.events & (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_CCD))
@@ -397,48 +439,73 @@ namespace physx
 				}
 			}
 		};
-
-		static void toRotationMatrix(Quaternion quat, float matrix[3][3])
+		static Quaternion Vector3ToQuaternion(float yaw, float pitch, float roll)
 		{
+			float rollOver2 = roll * 0.5f;
+			float sinRollOver2 = (float)sin((double)rollOver2);
+			float cosRollOver2 = (float)cos((double)rollOver2);
+			float pitchOver2 = pitch * 0.5f;
+			float sinPitchOver2 = (float)sin((double)pitchOver2);
+			float cosPitchOver2 = (float)cos((double)pitchOver2);
+			float yawOver2 = yaw * 0.5f;
+			float sinYawOver2 = (float)sin((double)yawOver2);
+			float cosYawOver2 = (float)cos((double)yawOver2);
+			Quaternion result;
+			result.w = cosYawOver2 * cosPitchOver2 * cosRollOver2 + sinYawOver2 * sinPitchOver2 * sinRollOver2;
+			result.x = cosYawOver2 * sinPitchOver2 * cosRollOver2 + sinYawOver2 * cosPitchOver2 * sinRollOver2;
+			result.y = sinYawOver2 * cosPitchOver2 * cosRollOver2 - cosYawOver2 * sinPitchOver2 * sinRollOver2;
+			result.z = cosYawOver2 * cosPitchOver2 * sinRollOver2 - sinYawOver2 * sinPitchOver2 * cosRollOver2;
+
+			return result;
+		}
+		static Quaternion Vector3ToQuaternion(Vec3 _vec)
+		{
+			return Vector3ToQuaternion(_vec.y, _vec.x, _vec.z);
+		}
+		static Vector3 QuaternionToVector3(Quat quat)
+		{
+			float w = quat.w;
 			float x = quat.x;
 			float y = quat.y;
 			float z = quat.z;
-			float w = quat.w;
 
-			matrix[0][0] = 1 - 2 * y * y - 2 * z * z;
-			matrix[0][1] = 2 * x * y - 2 * w * z;
-			matrix[0][2] = 2 * x * z + 2 * w * y;
+			float sqW = w * w;
+			float sqX = x * x;
+			float sqY = y * y;
+			float sqZ = z * z;
+			float unit = sqX + sqY + sqZ + sqW;
+			float test = x * w - y * z;
+			Vec3 v;
 
-			matrix[1][0] = 2 * x * y + 2 * w * z;
-			matrix[1][1] = 1 - 2 * x * x - 2 * z * z;
-			matrix[1][2] = 2 * y * z - 2 * w * x;
+			if (test > 0.4955f * unit)
+			{
+				v.y = 2.f * atan2f(y, x);
+				v.x = XM_PI / 2.f;
+				v.z = 0;
+			}
+			else if (test < -0.4995f * unit)
+			{
+				v.x = -2.f * atan2f(y, x);
+				v.x = -XM_PI / 2.f;
+				v.z = 0;
+			}
+			else
+			{
+				Quat quat(w, z, x, y);
+				v.x = (float)asinf(2.f * (quat.x * quat.z - quat.w * quat.y));
+				v.y = (float)atan2(2.f * quat.x * quat.w + 2.f * quat.y * quat.z, 1.f - 2.f * (quat.z * quat.z + quat.w * quat.w));
+				v.z = (float)atan2(2.f * quat.x * quat.y + 2.f * quat.z * quat.w, 1.f - 2.f * (quat.y * quat.y + quat.z * quat.z));
+			}
+			return v;
+		}
 
-			matrix[2][0] = 2 * x * z - 2 * w * y;
-			matrix[2][1] = 2 * y * z + 2 * w * x;
-			matrix[2][2] = 1 - 2 * x * x - 2 * y * y;
-		}
-		static void QuaternionToVector3(Quaternion quat, Vec3& vec)
-		{
-			float matrix[3][3];
-			toRotationMatrix(quat, matrix);
-			vec.x = matrix[0][0];
-			vec.y = matrix[1][1];
-			vec.z = matrix[2][2];
-		}
-		static void QuaternionToVector3(Quaternion quat, float& vx, float& vy, float& vz)
-		{
-			float matrix[3][3];
-			toRotationMatrix(quat, matrix);
-			vx = matrix[0][0];
-			vy = matrix[1][1];
-			vz = matrix[2][2];
-		}
+
 		static Matrix WorldMatFromGlobalPose(physx::PxTransform pos, Vec3 vScale)
 		{
 			Vec3 vPos = Vec3(pos.p.x, pos.p.y, pos.p.z);
 			Matrix matTranslation = XMMatrixTranslation(vPos.x, vPos.y, vPos.z);
 
-			Quaternion rotation(pos.q.x, pos.q.y, pos.q.z, pos.q.w);
+			Quat rotation(pos.q.x, pos.q.y, pos.q.z, pos.q.w);
 			Matrix m_Rot = Matrix::CreateFromQuaternion(rotation);
 			Matrix matWorldScale = XMMatrixScaling(vScale.x, vScale.y, vScale.z);
 
@@ -447,3 +514,6 @@ namespace physx
 	}
 
 }
+
+#endif
+

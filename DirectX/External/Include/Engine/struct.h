@@ -73,6 +73,7 @@ struct tDebugShapeInfo
 	Vec3		vWorldScale;
 	Vec3		vWorldRotation;
 	Vec4		vColor;
+	wstring		wsDebugShapeName;
 	float		fMaxTime;
 	float		fCurTime;
 	bool		bDepthTest;

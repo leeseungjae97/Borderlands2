@@ -37,6 +37,7 @@ void CLevelMgr::tick()
 
 		initMainLevel = false;
 	}
+
 	if (nullptr == m_pCurLevel)
 		return;
 
@@ -52,8 +53,11 @@ void CLevelMgr::tick()
 
 void CLevelMgr::begin()
 {
-	if(m_pCurLevel)
-		m_pCurLevel->begin();
+	for(auto pair:  m_mapLevels)
+	{
+		m_pCurLevel = pair.second;
+		pair.second->begin();
+	}
 }
 
 

@@ -1,65 +1,269 @@
 #include "pch.h"
 #include "CRigidBody.h"
 
+#include "CLevel.h"
+#include "CLevelMgr.h"
+#include "CMeshRender.h"
 #include "CTransform.h"
-#include "PhysXMgr.h"
 #include "physx_util.h"
 
 CRigidBody::CRigidBody()
 	: CComponent(COMPONENT_TYPE::RIGIDBODY)
-	, m_PxColliderShape(nullptr)
-	, m_fColliderX(10.f)
-	, m_fColliderY(10.f)
-	, m_fColliderZ(10.f)
 {
-	m_PxMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(0.5f, 0.5f, 0.6f);
+	//m_tRigidShapeType = RIGID_BODY_SHAPE_TYPE::BOX;
+	//m_tRigidType = RIGID_BODY_TYPE::STATIC;
+}
 
-	m_PxMaterial->setFrictionCombineMode((PxCombineMode::eAVERAGE));
-	m_PxMaterial->setRestitutionCombineMode((PxCombineMode::eAVERAGE));
+CRigidBody::CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2)
+	: CComponent(COMPONENT_TYPE::RIGIDBODY)
+	, m_tRigidShapeType(_Type)
+	, m_tRigidType(_Type2)
+	, m_vRigidScale(Vec3(1.f, 1.f, 1.f))
+	, m_bCreature(false)
+{
+	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(1.0f, 1.0f, 0.1f);
+
+	if (m_tRigidType == RIGID_BODY_TYPE::DYNAMIC)
+	{
+		m_pMaterial->setFrictionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eMAX));
+		m_pMaterial->setRestitutionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eMAX));
+	}
 }
 
 CRigidBody::~CRigidBody()
 {
+
+}
+
+void CRigidBody::initialize()
+{
+
+}
+void CRigidBody::begin()
+{
+	addToScene();
+	setRigidPos();
+}
+
+void CRigidBody::finaltick()
+{
+	static bool init = false;
+	if (!init)
+	{
+
+		init = true;
+	}
+	
+	drawDebugRigid();
+}
+
+PxTransform CRigidBody::GetRigidBodyPos()
+{
+	if (m_pDynamicBody)
+		return m_pDynamicBody->getGlobalPose();
+	if (m_pStaticBody)
+		return m_pStaticBody->getGlobalPose();
+
+	return PxTransform();
+}
+
+void CRigidBody::AttachShape(PxShape* _Attach)
+{
+	if (m_pDynamicBody)
+		m_pDynamicBody->attachShape(*_Attach);
+	if (m_pStaticBody)
+		m_pStaticBody->attachShape(*_Attach);
+}
+
+void CRigidBody::SetRigidBodyTrans(const PxTransform& trans)
+{
+	if (m_pDynamicBody)
+		m_pDynamicBody->setGlobalPose(trans);
+	if (m_pStaticBody)
+		m_pStaticBody->setGlobalPose(trans);
+}
+
+void CRigidBody::SetVelocity(Vec3 _Velocity)
+{
+	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
+
+	PxVec3 prev_velocity = m_pDynamicBody->getLinearVelocity();
+	
+	_Velocity.y = prev_velocity.y < 0 ? _Velocity.y + prev_velocity.y : prev_velocity.y;
+
+	m_pDynamicBody->setLinearVelocity(PxVec3(_Velocity.x, _Velocity.y, _Velocity.z));
+}
+
+void CRigidBody::convertMeshToGeom()
+{
+	Vtx v; PxU32 idx; PxVec3 pV; vector<UINT> inds;
+	Ptr<CMesh> pMesh = GetOwner()->MeshRender()->GetMesh();
+	Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
+	m_debugMeshName = pMesh->GetKey();
+	for (auto indexInfo : pMesh->GetIndexInfo())
+	{
+		inds.clear();
+		vector<UINT>().swap(inds);
+
+		inds.resize(indexInfo.iIdxCount);
+		memcpy(inds.data(), indexInfo.pIdxSysMem, indexInfo.iIdxCount * sizeof(UINT));
+		for (int idxIdx = 0; idxIdx < indexInfo.iIdxCount; ++idxIdx)
+		{
+			idx = inds[idxIdx];
+			m_vecIndis.push_back(idx);
+		}
+	}
+
+	Vtx* vecVtx = pMesh->GetVtxSysMem();
+	for (int vtxIdx = 0; vtxIdx < pMesh->GetVtxCount(); ++vtxIdx)
+	{
+		v = vecVtx[vtxIdx];
+		pV = PxVec3(v.vPos.x * vScale.x, v.vPos.y * vScale.y, v.vPos.z * vScale.z);
+		m_vecVerts.push_back(pV);
+	}
+}
+
+void CRigidBody::setRigidPos()
+{
+	Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
+	Vec3 vRot = GetOwner()->Transform()->GetRelativeRot();
+
+	Quat quat; quat = Util::Vector3ToQuaternion(vRot);
+
+	PxTransform localTm(PxVec3(vPos.x, vPos.y, vPos.z), PxQuat(quat.x, quat.y, quat.z, quat.w));
+
+	if (m_pDynamicBody)
+	{
+		m_pDynamicBody->setGlobalPose(localTm);
+		m_pDynamicBody->setLinearVelocity(PxVec3(0.f, 0.f, 0.f));
+	}
+	if (m_pStaticBody)
+		m_pStaticBody->setGlobalPose(localTm);
+
+	
+}
+
+void CRigidBody::createShape()
+{
+	m_vRigidScale = m_vRigidScale == Vec3(1.f, 1.f, 1.f) ? GetOwner()->Transform()->GetRelativeScale() : m_vRigidScale;
+
+	if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::BOX)
+	{
+		Vec3 vHalfScale = m_vRigidScale / 2.f;
+		m_pShape = PhysXMgr::GetInst()->GPhysics()->createShape(
+			physx::PxBoxGeometry(vHalfScale.x, vHalfScale.y, vHalfScale.z)
+			, *m_pMaterial
+			, true);
+	}
+	else if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::RECT)
+	{
+		Vec3 vHalfScale = m_vRigidScale / 2.f;
+		m_pShape = PhysXMgr::GetInst()->GPhysics()->createShape(
+			physx::PxBoxGeometry(vHalfScale.x, vHalfScale.z, vHalfScale.y)
+			, *m_pMaterial
+			, true);
+	}
+	else if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::SPHERE)
+	{
+		float _fMax = fmax(m_vRigidScale.x, m_vRigidScale.y);
+		_fMax = fmax(_fMax, m_vRigidScale.z);
+		m_pShape = PhysXMgr::GetInst()->GPhysics()->createShape(
+			physx::PxSphereGeometry(_fMax / 2.f)
+			, *m_pMaterial
+			, true);
+	}
+}
+
+void CRigidBody::createTriangleMesh()
+{
+	convertMeshToGeom();
+	PxCookingParams params = PhysXMgr::GetInst()->GCookingParams();
+	params.midphaseDesc.setToDefault(PxMeshMidPhase::eBVH34);
+	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+
+	PxTriangleMeshDesc triDesc;
+	triDesc.points.count = m_vecVerts.size();
+	triDesc.points.stride = sizeof(PxVec3);
+	triDesc.points.data = m_vecVerts.data();
+
+	triDesc.triangles.count = m_vecIndis.size() / 3;
+	triDesc.triangles.stride = sizeof(PxU32) * 3;
+	triDesc.triangles.data = m_vecIndis.data();
+
+	PxTriangleMesh* triMesh = PxCreateTriangleMesh(params, triDesc);
+	m_pShape = PhysXMgr::GetInst()->GPhysics()->createShape(PxTriangleMeshGeometry(triMesh), *m_pMaterial, true);
+
+	PX_RELEASE(triMesh);
 }
 
 void CRigidBody::addToScene()
 {
 	Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
-	Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
-
-	//m_PxColliderShape = createTriggerShape(physx::PxBoxGeometry(vScale.x, vScale.y, vScale.z), *m_PxMaterial, Util::FILTER_SHADER, true);
-	m_PxColliderShape = PhysXMgr::GetInst()->GPhysics()->createShape(physx::PxBoxGeometry(vScale.x, vScale.y, vScale.z), *m_PxMaterial, true);
 	PxTransform localTm(PxVec3(vPos.x, vPos.y, vPos.z));
-	m_RigidBody = PhysXMgr::GetInst()->GPhysics()->createRigidDynamic(localTm);
-	m_RigidBody->attachShape(*m_PxColliderShape);
 
-	PhysXMgr::GetInst()->GScene()->addActor(*m_RigidBody);
-}
-
-void CRigidBody::setOwnerPosToPx()
-{
-}
-
-void CRigidBody::rigidDebugDraw()
-{
-	if (nullptr == m_RigidBody) return;
-
-	Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
-	Matrix worldMat = physx::Util::WorldMatFromGlobalPose(m_RigidBody->getGlobalPose(), vScale);
-	DrawDebugCube(worldMat, Vec4(1.f, 0.f, 0.f, 1.f), 0.f, true);
-}
-
-void CRigidBody::finaltick()
-{
-	static bool m = false;
-	if (!m)
+	if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::MESH)
 	{
-		addToScene();
-		setOwnerPosToPx();
-		m = true;
+		createTriangleMesh();
+	}
+	else
+	{
+		createShape();
 	}
 
-	rigidDebugDraw();
+	if (m_tRigidType == RIGID_BODY_TYPE::DYNAMIC)
+	{
+		if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::MESH)
+		{
+			//TODO : TriangleMesh Ã³¸®
+		}
+		m_pDynamicBody = PhysXMgr::GetInst()->GPhysics()->createRigidDynamic(localTm);
+		m_pDynamicBody->attachShape(*m_pShape);
+		//m_pDynamicBody->setLinearDamping(10.f);
+		PxRigidBodyExt::updateMassAndInertia(*m_pDynamicBody, 10.0f);
+		PhysXMgr::GetInst()->GCurScene()->addActor(*m_pDynamicBody);
+	}
+	else
+	{
+		m_pStaticBody = PhysXMgr::GetInst()->GPhysics()->createRigidStatic(localTm);
+		m_pStaticBody->attachShape(*m_pShape);
+		PhysXMgr::GetInst()->GCurScene()->addActor(*m_pStaticBody);
+	}
+
+}
+
+void CRigidBody::drawDebugRigid()
+{
+	//if (CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
+	//	return;
+
+	Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
+	PxTransform trans;
+	if (m_pDynamicBody)
+		trans = m_pDynamicBody->getGlobalPose();
+	else
+		trans = m_pStaticBody->getGlobalPose();
+
+	Matrix worldMat = physx::Util::WorldMatFromGlobalPose(trans, vScale);
+	switch (m_tRigidShapeType)
+	{
+	case RIGID_BODY_SHAPE_TYPE::BOX:
+	case RIGID_BODY_SHAPE_TYPE::RECT:
+	{
+		DrawDebugCube(worldMat, Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
+	}
+	break;
+	case RIGID_BODY_SHAPE_TYPE::SPHERE:
+	{
+		DrawDebugSphere(worldMat, Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
+	}
+	break;
+	case RIGID_BODY_SHAPE_TYPE::MESH:
+	{
+		DrawDebugMesh(worldMat, m_debugMeshName, Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
+	}
+	break;
+	}
 }
 
 void CRigidBody::LoadFromLevelFile(FILE* _FILE)

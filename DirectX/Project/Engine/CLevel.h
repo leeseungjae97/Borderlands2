@@ -22,7 +22,7 @@ private:
     LEVEL_STATE                 m_State;
 
     class PxCollisionCallBack*  m_PxCollisionCallBack;
-    PxRigidStatic* box;
+    PxRigidStatic*              box;
 public:
     void begin();
     void tick();
@@ -38,7 +38,7 @@ public:
 
     void AddGameObject(CGameObject* _Object, int _iLayerIdx, bool _Move);
     void AddGameObject(CGameObject* _Object, const wstring& _LayerName, bool _Move);
-    
+    void AddCollider3D(CGameObject* _Object);
     void ChangeState(LEVEL_STATE _State);
     LEVEL_STATE GetState() { return m_State; }
     PxScene* GetScene() { return m_PxScene; }

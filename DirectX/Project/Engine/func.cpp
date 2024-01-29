@@ -24,6 +24,7 @@ void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx)
 void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName)
 {
 	_NewObject->Transform()->SetRelativePos(_vWorldPos);
+	_NewObject->SetPreLoadingObject(true);
 	CLevelMgr::GetInst()->GetCurLevel()->AddGameObject(_NewObject, _LayerName, false);
 }
 
@@ -106,7 +107,7 @@ void TestPreloadGameObject(Vec3 _WorldPos, int _LayerIndex, Ptr<CMesh> _Mesh)
 
 	CGameObject* testObject = new CGameObject;
 	testObject->SetName(L"testObject" + std::to_wstring(testObjectNumbering));
-
+	testObject->SetPreLoadingObject(true);
 	++testObjectNumbering;
 
 	testObject->AddComponent(new CTransform);
@@ -286,6 +287,20 @@ void DrawDebugSphere(const Matrix& _matWorld, Vec4 _vColor, float _fTime, bool D
 	info.fMaxTime = _fTime;
 	info.vColor = _vColor;
 	info.bDepthTest = DepthTest;
+
+	CRenderMgr::GetInst()->AddDebugShapeInfo(info);
+}
+
+void DrawDebugMesh(const Matrix& _matWorld, const wstring& _wsDebugShapeName,Vec4 _vColor, float _fTime, bool DepthTest)
+{
+	tDebugShapeInfo info = {};
+
+	info.matWorld = _matWorld;
+	info.eShape = SHAPE_TYPE::MESH;
+	info.fMaxTime = _fTime;
+	info.vColor = _vColor;
+	info.bDepthTest = DepthTest;
+	info.wsDebugShapeName = _wsDebugShapeName;
 
 	CRenderMgr::GetInst()->AddDebugShapeInfo(info);
 }

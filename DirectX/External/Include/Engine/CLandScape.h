@@ -65,6 +65,8 @@ private:
 
 
     //Ptr<CLandScapePathShader> m_pCSPathInit;
+    // ========================================================================
+
 
 public:
     void SetTessEdge(float _Edge) { m_TessEdge = _Edge; }

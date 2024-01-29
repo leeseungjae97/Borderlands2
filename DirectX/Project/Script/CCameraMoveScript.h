@@ -11,9 +11,8 @@ public:
     virtual void tick() override;
 
 private:
-    void Camera2DMove();
-    void Camera3DMove();
-
+    void cameraDebugMove();
+    void cameraFollowMove();
     CLONE(CCameraMoveScript);
 public:
     CCameraMoveScript();

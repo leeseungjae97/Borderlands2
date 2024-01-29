@@ -30,7 +30,6 @@ private:
     void RegisterObject(CGameObject* _Object){ m_vecObject.push_back(_Object); }    
     void RemoveFromParentList(CGameObject* _Obj);
     void AddParentList(CGameObject* _Obj);
-    void AddCollider3D(CGameObject* _Obj);
 
     CLONE(CLayer)
 public:

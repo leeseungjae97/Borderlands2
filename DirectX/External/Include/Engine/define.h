@@ -1,6 +1,5 @@
 #pragma once
 
-
 #define DEVICE  CDevice::GetInst()->GetDevice()
 #define CONTEXT CDevice::GetInst()->GetDeviceContext()
 
@@ -17,12 +16,6 @@
 #define MAX_MIP		8
 
 #define SINGLE(type) private: type(); ~type(); friend class CSingleton<type>;
-
-#define PI 3.1415926535f
-
-
-
-
 
 enum class COMPONENT_TYPE
 {
@@ -247,6 +240,7 @@ enum class SHAPE_TYPE
 	CIRCLE,
 	CUBE,
 	SPHERE,
+	MESH,
 	END,
 };
 

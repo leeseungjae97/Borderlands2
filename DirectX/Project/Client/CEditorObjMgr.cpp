@@ -50,12 +50,19 @@ void CEditorObjMgr::init()
 	m_DebugShape[(UINT)SHAPE_TYPE::SPHERE]->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
 	m_DebugShape[(UINT)SHAPE_TYPE::SPHERE]->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugSphereShapeMtrl"), 0);
 
+	m_DebugShape[(UINT)SHAPE_TYPE::MESH] = new CGameObjectEx;
+	m_DebugShape[(UINT)SHAPE_TYPE::MESH]->AddComponent(new CTransform);
+	m_DebugShape[(UINT)SHAPE_TYPE::MESH]->AddComponent(new CMeshRender);
+	//m_DebugShape[(UINT)SHAPE_TYPE::MESH]->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CubeMesh_Debug"));
+	//m_DebugShape[(UINT)SHAPE_TYPE::MESH]->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugShapeMtrl"), 0);
+
 	// EditorObject »ý¼º
 	CGameObjectEx* pEditorCamObj = new CGameObjectEx;
 	pEditorCamObj->AddComponent(new CTransform);
 	pEditorCamObj->AddComponent(new CCamera);
 	pEditorCamObj->AddComponent(new CCameraMoveScript);
 	pEditorCamObj->Transform()->SetRelativePos(Vec3(0.f, 0.f, 0.f));
+	pEditorCamObj->SetName(L"EditCam");
 
 	pEditorCamObj->Camera()->SetFarZ(1000000.f);
 	pEditorCamObj->Camera()->SetLayerMaskAll(true);
@@ -123,7 +130,15 @@ void CEditorObjMgr::render()
 			break;
 		case SHAPE_TYPE::SPHERE:
 			pShapeObj = m_DebugShape[(UINT)SHAPE_TYPE::SPHERE];
-			break;		
+			break;
+		case SHAPE_TYPE::MESH:
+			pShapeObj = m_DebugShape[(UINT)SHAPE_TYPE::MESH];
+			break;
+		}
+		if(iter->eShape == SHAPE_TYPE::MESH)
+		{
+			pShapeObj->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(iter->wsDebugShapeName));
+			pShapeObj->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugShapeMtrl"), 0);
 		}
 
 		if (iter->matWorld != XMMatrixIdentity())

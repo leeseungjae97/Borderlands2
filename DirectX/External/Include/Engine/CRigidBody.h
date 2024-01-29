@@ -1,51 +1,106 @@
 #pragma once
 #include "CComponent.h"
+
 using namespace physx;
+
+enum class RIGID_BODY_SHAPE_TYPE
+{
+    BOX,
+    SPHERE,
+    RECT,
+    MESH,
+};
+
+enum class RIGID_BODY_TYPE
+{
+	STATIC,
+    DYNAMIC,
+};
 
 class CRigidBody :
     public CComponent
 {
 private:
-	PxShape*        m_PxColliderShape;
-    PxMaterial*     m_PxMaterial;
+	PxRigidDynamic*         m_pDynamicBody;
+	PxRigidStatic*          m_pStaticBody;
 
-    PxRigidActor*   m_RigidBody;
+    PxShape*                m_pShape;
+	PxMaterial*             m_pMaterial;
 
-    PxReal          m_fColliderX;
-    PxReal          m_fColliderY;
-    PxReal          m_fColliderZ;
+    vector<PxVec3>          m_vecVerts;
+    vector<PxU32>           m_vecIndis;
+
+    wstring                 m_debugMeshName;
+
+    RIGID_BODY_SHAPE_TYPE   m_tRigidShapeType;
+    RIGID_BODY_TYPE         m_tRigidType;
+    Vec3                    m_vRigidScale;
+
+    bool                    m_bCreature;
+
+public:
+	PxRigidDynamic*         GetDynamicBody()        const { return m_pDynamicBody; }
+	PxRigidStatic*          GetStaticBody()         const { return m_pStaticBody; }
+
+	PxShape*                GetShape()              const { return m_pShape; }
+	PxMaterial*             GetMaterial()           const { return m_pMaterial; }
+
+	vector<PxVec3>          GetVecVerts()           const { return m_vecVerts; }
+	vector<PxU32>           GetVecIndis()           const { return m_vecIndis; }
+
+	wstring                 GetebugMeshName()       const { return m_debugMeshName; }
+
+	RIGID_BODY_SHAPE_TYPE   GetRigidShapeType()     const { return m_tRigidShapeType; }
+	RIGID_BODY_TYPE         GetRigidType()          const { return m_tRigidType; }
+	Vec3                    GetRigidScale()         const { return m_vRigidScale; }
+
+    bool                    IsCreature()            const { return m_bCreature; }
+
+    PxTransform             GetRigidBodyPos();
+
+	void SetDynamicBody     (PxRigidDynamic* m_p_dynamic_body)              { m_pDynamicBody = m_p_dynamic_body; }
+	void SetStaticBody      (PxRigidStatic* m_p_static_body)                { m_pStaticBody = m_p_static_body; }
+
+	void SetShape           (PxShape* m_p_shape)                            { m_pShape = m_p_shape; }
+	void SetMaterial        (PxMaterial* m_p_material)                      { m_pMaterial = m_p_material; }
+
+	void SetVecVerts        (const vector<PxVec3>& m_vec_verts)             { m_vecVerts = m_vec_verts; }
+	void SetVecIndis        (const vector<PxU32>& m_vec_indis)              { m_vecIndis = m_vec_indis; }
+
+	void SetDebugMeshName   (const wstring& m_debug_mesh_name)              { m_debugMeshName = m_debug_mesh_name; }
+
+	void SetRigidShapeType  (RIGID_BODY_SHAPE_TYPE m_t_rigid_shape_type)    { m_tRigidShapeType = m_t_rigid_shape_type; }
+	void SetRigidType       (RIGID_BODY_TYPE m_t_rigid_type)                { m_tRigidType = m_t_rigid_type; }
+	void SetRigidScale      (const Vec3& m_v_rigid_scale)                   { m_vRigidScale = m_v_rigid_scale; }
+
+    void SetCreature        (bool _bCreature)                               { m_bCreature = _bCreature; }
+
+    void AttachShape(PxShape* _Attach);
+	void SetRigidBodyTrans(const PxTransform& trans);
+
+    void SetVelocity(Vec3 _Velocity);
 
 private:
+    void convertMeshToGeom();
+    void setRigidPos();
+    void createShape();
+    void createTriangleMesh();
     void addToScene();
-
-    void setOwnerPosToPx();
-    void rigidDebugDraw();
+    void drawDebugRigid();
 
 public:
-    PxShape* MPxColliderShape() const { return m_PxColliderShape; }
-    PxMaterial* MPxMaterial() const { return m_PxMaterial; }
-    PxRigidActor* MRigidBody() const { return m_RigidBody; }
-    PxReal MFColliderX() const { return m_fColliderX; }
-    PxReal MFColliderY() const { return m_fColliderY; }
-    PxReal MFColliderZ() const { return m_fColliderZ; }
-
-    void MPxColliderShape(PxShape* m_px_collider_shape) { m_PxColliderShape = m_px_collider_shape; }
-    void MPxMaterial(PxMaterial* m_px_material) { m_PxMaterial = m_px_material; }
-    void MRigidBody(PxRigidActor* m_rigid_body) { m_RigidBody = m_rigid_body; }
-    void MFColliderX(PxReal m_f_collider_x) { m_fColliderX = m_f_collider_x; }
-    void MFColliderY(PxReal m_f_collider_y) { m_fColliderY = m_f_collider_y; }
-    void MFColliderZ(PxReal m_f_collider_z) { m_fColliderZ = m_f_collider_z; }
-public:
+    void initialize() override;
+    void begin() override;
     void finaltick() override;
 
     void LoadFromLevelFile(FILE* _FILE) override;
     void SaveToLevelFile(FILE* _File) override;
 
+    CLONE(CRigidBody)
 public:
-    CLONE(CRigidBody);
-public:
+    // CLONE ABLE용 생성자, ImGui사용할 때 기본 생성자
     CRigidBody();
+    CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2 = RIGID_BODY_TYPE::STATIC);
     virtual ~CRigidBody();
-
 };
 
