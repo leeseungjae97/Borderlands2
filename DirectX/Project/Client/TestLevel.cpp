@@ -20,7 +20,8 @@
 #include "CLevelSaveLoad.h"
 
 
-#include <Engine/CSetColorShader.h>
+#include <Engine\CSetColorShader.h>
+#include <Engine\PlayerMgr.h>
 
 //#include <Engine/PhysXT.h>
 
@@ -121,14 +122,16 @@ void CreateTestLevel()
 	//
 	{
 		CGameObject* pCube = new CGameObject;
-		pCube->SetName(L"Sphere");
+		pCube->SetName(L"Monster1");
 		pCube->AddComponent(new CTransform);
 		pCube->AddComponent(new CMeshRender);
+		pCube->AddComponent(new CMonsterScript);
 		pCube->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
 		pCube->AddComponent(new CCollider3D);
+		pCube->AddComponent(new CGizmo);
 		pCube->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
 
-		pCube->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+		pCube->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CubeMesh"));
 		pCube->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
 
 		pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
@@ -241,6 +244,7 @@ void CreateTestLevel()
 		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
 		pObj->RigidBody()->SetCreature(true);
 		pObj->AddComponent(new CCollider3D);
+		pObj->AddComponent(new CGizmo);
 
 		//pObj->AddChild(pMainCam);
 		pObj->SetFollowObj(pMainCam);
@@ -248,6 +252,8 @@ void CreateTestLevel()
 		pMainCam->Transform()->SetFollowOffset(Vec3(0.f, 90.f, 0.f));
 
 		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
+
+		PlayerMgr::GetInst()->SetPlayer(pObj);
 		PreloadGameObject(pObj, Vec3(50.f, 50.f, 50.f), L"Player");
 	}
 	{

@@ -291,6 +291,48 @@ void DrawDebugSphere(const Matrix& _matWorld, Vec4 _vColor, float _fTime, bool D
 	CRenderMgr::GetInst()->AddDebugShapeInfo(info);
 }
 
+void DrawDebugLine(DIR_TYPE _dirType, Vec3 _vWorldPos, float _fRadius, Vec4 _vColor, Vec3 _vRotation, float _fTime, bool DepthTest)
+{
+	tDebugShapeInfo info = {};
+
+	info.matWorld = XMMatrixIdentity();
+
+	if (_dirType == DIR_TYPE::UP)
+		info.eShape = SHAPE_TYPE::UP_LINE;
+	else if (_dirType == DIR_TYPE::FRONT)
+		info.eShape = SHAPE_TYPE::FRONT_LINE;
+	else
+		info.eShape = SHAPE_TYPE::RIGHT_LINE;
+
+	info.vWorldScale = Vec3(_fRadius, _fRadius, _fRadius);
+	info.fMaxTime = _fTime;
+	info.vWorldPos = _vWorldPos;
+	info.vWorldRotation = _vRotation;
+	info.vColor = _vColor;
+	info.bDepthTest = DepthTest;
+
+	CRenderMgr::GetInst()->AddDebugShapeInfo(info);
+}
+
+void DrawDebugLine(DIR_TYPE _dirType, const Matrix& _matWorld, Vec4 _vColor, float _fTime, bool DepthTest)
+{
+	tDebugShapeInfo info = {};
+
+	info.matWorld = _matWorld;
+	if(_dirType == DIR_TYPE::UP)
+		info.eShape = SHAPE_TYPE::UP_LINE;
+	else if (_dirType == DIR_TYPE::FRONT)
+		info.eShape = SHAPE_TYPE::FRONT_LINE;
+	else
+		info.eShape = SHAPE_TYPE::RIGHT_LINE;
+
+	info.fMaxTime = _fTime;
+	info.vColor = _vColor;
+	info.bDepthTest = DepthTest;
+
+	CRenderMgr::GetInst()->AddDebugShapeInfo(info);
+}
+
 void DrawDebugMesh(const Matrix& _matWorld, const wstring& _wsDebugShapeName,Vec4 _vColor, float _fTime, bool DepthTest)
 {
 	tDebugShapeInfo info = {};

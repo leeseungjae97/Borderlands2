@@ -80,8 +80,12 @@ public:
     void AttachShape(PxShape* _Attach);
 	void SetRigidBodyTrans(const PxTransform& trans);
 
-    void SetVelocity(Vec3 _Velocity);
-    void SetVelocityZero();
+    void SetLinearVelocity(Vec3 _Velocity);
+    void SetLinearVelocityZero();
+
+    void SetAngularVelocity(Vec3 _Angular);
+    void SetAngularVelocityZero();
+
 	bool IsRigidBodyCreate();
 
 private:

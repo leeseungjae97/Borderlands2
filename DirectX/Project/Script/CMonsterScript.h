@@ -4,8 +4,12 @@
 class CMonsterScript :
     public CScript
 {
+private:
+    float fMonsterSpeed;
+
 public:
     void Move();
+    bool Rotate();
 
 public:
     virtual void tick() override;

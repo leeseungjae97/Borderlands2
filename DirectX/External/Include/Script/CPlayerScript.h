@@ -17,6 +17,7 @@ public:
 
 private:
     void Shoot();
+    void Move();
 
 public:
     virtual void SaveToLevelFile(FILE* _File) override;

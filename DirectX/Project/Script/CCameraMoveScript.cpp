@@ -136,5 +136,5 @@ void CCameraMoveScript::cameraFollowMove()
 	//	final_velocity += vUp * DT * 50.f;
 	//}
 
-	//_db->SetVelocity(final_velocity * fSpeed);
+	//_db->SetLinearVelocity(final_velocity * fSpeed);
 }

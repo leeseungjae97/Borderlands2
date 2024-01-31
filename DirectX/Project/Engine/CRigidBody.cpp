@@ -86,7 +86,7 @@ void CRigidBody::SetRigidBodyTrans(const PxTransform& trans)
 		m_pStaticBody->setGlobalPose(trans);
 }
 
-void CRigidBody::SetVelocity(Vec3 _Velocity)
+void CRigidBody::SetLinearVelocity(Vec3 _Velocity)
 {
 	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
 
@@ -97,10 +97,22 @@ void CRigidBody::SetVelocity(Vec3 _Velocity)
 	m_pDynamicBody->setLinearVelocity(PxVec3(_Velocity.x, _Velocity.y, _Velocity.z));
 }
 
-void CRigidBody::SetVelocityZero()
+
+void CRigidBody::SetLinearVelocityZero()
 {
 	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
 	m_pDynamicBody->setLinearVelocity(PxVec3(0.f, 0.f, 0.f));
+}
+
+void CRigidBody::SetAngularVelocity(Vec3 _Angular)
+{
+	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
+
+	m_pDynamicBody->setAngularVelocity(PxVec3(_Angular.x, _Angular.y, _Angular.z));
+}
+
+void CRigidBody::SetAngularVelocityZero()
+{
 }
 
 bool CRigidBody::IsRigidBodyCreate()

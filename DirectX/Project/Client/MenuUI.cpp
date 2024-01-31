@@ -242,6 +242,9 @@ void MenuUI::AddComponent(COMPONENT_TYPE _type)
     case COMPONENT_TYPE::LIGHT3D:
         pSelectedObject->AddComponent(new CLight3D);
         break;
+    case COMPONENT_TYPE::GIZMO:
+        pSelectedObject->AddComponent(new CGizmo);
+        break;
     case COMPONENT_TYPE::CAMERA:
         pSelectedObject->AddComponent(new CCamera);
         break;

@@ -72,6 +72,67 @@ void CResMgr::CreateDefaultMesh()
 	AddRes(L"PointMesh", pMesh);
 
 
+	// ==============
+	// LineMesh 持失
+	// ==============
+	v.vPos = Vec3(0.0f, 0.0f, 0.0f);
+	v.vUV = Vec2(0.f, 0.f);
+	v.vColor = Vec4(1.f, 1.f, 1.f, 1.f);
+	vecVtx.push_back(v);
+
+	v.vPos = Vec3(0.0f, 1.0f, 0.0f);
+	v.vUV = Vec2(1.f, 1.f);
+	v.vColor = Vec4(1.f, 1.f, 1.f, 1.f);
+	vecVtx.push_back(v);
+
+	vecIdx.push_back(0);
+	vecIdx.push_back(1);
+	pMesh = new CMesh(true);
+	pMesh->Create(vecVtx.data(), (UINT)vecVtx.size(), vecIdx.data(), (UINT)vecIdx.size());
+	AddRes(L"UpLineMesh", pMesh);
+
+	vecVtx.clear();
+	vecIdx.clear();
+
+	v.vPos = Vec3(0.f, 0.0f, 0.0f);
+	v.vUV = Vec2(0.f, 0.f);
+	v.vColor = Vec4(1.f, 1.f, 1.f, 1.f);
+	vecVtx.push_back(v);
+
+	v.vPos = Vec3(0.0f, 0.0f, 1.0f);
+	v.vUV = Vec2(1.f, 1.f);
+	v.vColor = Vec4(1.f, 1.f, 1.f, 1.f);
+	vecVtx.push_back(v);
+
+	vecIdx.push_back(0);
+	vecIdx.push_back(1);
+	pMesh = new CMesh(true);
+	pMesh->Create(vecVtx.data(), (UINT)vecVtx.size(), vecIdx.data(), (UINT)vecIdx.size());
+	AddRes(L"FrontLineMesh", pMesh);
+
+	vecVtx.clear();
+	vecIdx.clear();
+
+	v.vPos = Vec3(0.f, 0.0f, 0.0f);
+	v.vUV = Vec2(0.f, 0.f);
+	v.vColor = Vec4(1.f, 1.f, 1.f, 1.f);
+	vecVtx.push_back(v);
+
+	v.vPos = Vec3(1.0f, 0.0f, 0.0f);
+	v.vUV = Vec2(1.f, 1.f);
+	v.vColor = Vec4(1.f, 1.f, 1.f, 1.f);
+	vecVtx.push_back(v);
+
+	vecIdx.push_back(0);
+	vecIdx.push_back(1);
+	pMesh = new CMesh(true);
+	pMesh->Create(vecVtx.data(), (UINT)vecVtx.size(), vecIdx.data(), (UINT)vecIdx.size());
+	AddRes(L"RightLineMesh", pMesh);
+
+	vecVtx.clear();
+	vecIdx.clear();
+
+
 	// =============
 	// RectMesh 持失
 	// =============

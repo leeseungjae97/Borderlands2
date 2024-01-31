@@ -36,6 +36,28 @@ void CPlayerScript::begin()
 
 void CPlayerScript::tick()
 {
+	Move();
+}
+
+void CPlayerScript::Shoot()
+{
+	CCamera* MainCam = CRenderMgr::GetInst()->GetMainCam();
+
+	tRay Ray = MainCam->GetRay();
+	Vec3 vStart = Ray.vStart;
+
+	CGameObject* pBullet = new CGameObject;
+	pBullet->SetName(L"Player Bullet");
+	pBullet->AddComponent(new CTransform);
+	pBullet->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
+	pBullet->AddComponent(new CCollider3D(false));
+	pBullet->AddComponent(new CBulletScript);
+
+	SpawnGameObject(pBullet, vStart, L"Bullet");
+}
+
+void CPlayerScript::Move()
+{
 	m_fRateOfFireAcc += DT;
 
 	CGameObject* pCamObj = GetOwner()->GetFollowObj();
@@ -63,8 +85,8 @@ void CPlayerScript::tick()
 	vPlayerPos += pCamObj->Transform()->GetFollowOffset();
 	pCamObj->Transform()->SetRelativePos(vPlayerPos);
 
-	float fSpeed = m_fSpeed
-	;
+	float fSpeed = m_fSpeed;
+
 	Vec3 final_velocity = Vec3(0.f, 0.f, 0.f);
 
 	if (KEY_PRESSED(KEY::LSHIFT))
@@ -95,9 +117,9 @@ void CPlayerScript::tick()
 	{
 		final_velocity += vPlayerUp * DT * m_fJump;
 	}
-	if(KEY_PRESSED(KEY::V))
+	if (KEY_PRESSED(KEY::V))
 	{
-		if(m_fRateOfFireAcc >= m_fRateOfFire)
+		if (m_fRateOfFireAcc >= m_fRateOfFire)
 		{
 			m_fRateOfFireAcc = 0.0f;
 			Shoot();
@@ -106,27 +128,10 @@ void CPlayerScript::tick()
 	if (KEY_PRESSED(KEY::F))
 	{
 		final_velocity = Vec3(0.f, 0.f, 0.f);
-		pPlayerRB->SetVelocityZero();
+		pPlayerRB->SetLinearVelocityZero();
 	}
 
-	pPlayerRB->SetVelocity(final_velocity * fSpeed);
-}
-
-void CPlayerScript::Shoot()
-{
-	CCamera* MainCam = CRenderMgr::GetInst()->GetMainCam();
-
-	tRay Ray = MainCam->GetRay();
-	Vec3 vStart = Ray.vStart;
-
-	CGameObject* pBullet = new CGameObject;
-	pBullet->SetName(L"Player Bullet");
-	pBullet->AddComponent(new CTransform);
-	pBullet->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
-	pBullet->AddComponent(new CCollider3D(false));
-	pBullet->AddComponent(new CBulletScript);
-
-	SpawnGameObject(pBullet, vStart, L"Bullet");
+	pPlayerRB->SetLinearVelocity(final_velocity * fSpeed);
 }
 
 void CPlayerScript::BeginOverlap(CCollider3D* _Other)

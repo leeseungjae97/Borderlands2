@@ -50,6 +50,24 @@ void CEditorObjMgr::init()
 	m_DebugShape[(UINT)SHAPE_TYPE::SPHERE]->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
 	m_DebugShape[(UINT)SHAPE_TYPE::SPHERE]->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugSphereShapeMtrl"), 0);
 
+	m_DebugShape[(UINT)SHAPE_TYPE::UP_LINE] = new CGameObjectEx;
+	m_DebugShape[(UINT)SHAPE_TYPE::UP_LINE]->AddComponent(new CTransform);
+	m_DebugShape[(UINT)SHAPE_TYPE::UP_LINE]->AddComponent(new CMeshRender);
+	m_DebugShape[(UINT)SHAPE_TYPE::UP_LINE]->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"UpLineMesh"));
+	m_DebugShape[(UINT)SHAPE_TYPE::UP_LINE]->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugShapeMtrl"), 0);
+
+	m_DebugShape[(UINT)SHAPE_TYPE::FRONT_LINE] = new CGameObjectEx;
+	m_DebugShape[(UINT)SHAPE_TYPE::FRONT_LINE]->AddComponent(new CTransform);
+	m_DebugShape[(UINT)SHAPE_TYPE::FRONT_LINE]->AddComponent(new CMeshRender);
+	m_DebugShape[(UINT)SHAPE_TYPE::FRONT_LINE]->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"FrontLineMesh"));
+	m_DebugShape[(UINT)SHAPE_TYPE::FRONT_LINE]->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugShapeMtrl"), 0);
+
+	m_DebugShape[(UINT)SHAPE_TYPE::RIGHT_LINE] = new CGameObjectEx;
+	m_DebugShape[(UINT)SHAPE_TYPE::RIGHT_LINE]->AddComponent(new CTransform);
+	m_DebugShape[(UINT)SHAPE_TYPE::RIGHT_LINE]->AddComponent(new CMeshRender);
+	m_DebugShape[(UINT)SHAPE_TYPE::RIGHT_LINE]->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RightLineMesh"));
+	m_DebugShape[(UINT)SHAPE_TYPE::RIGHT_LINE]->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugShapeMtrl"), 0);
+
 	m_DebugShape[(UINT)SHAPE_TYPE::MESH] = new CGameObjectEx;
 	m_DebugShape[(UINT)SHAPE_TYPE::MESH]->AddComponent(new CTransform);
 	m_DebugShape[(UINT)SHAPE_TYPE::MESH]->AddComponent(new CMeshRender);
@@ -130,6 +148,15 @@ void CEditorObjMgr::render()
 			break;
 		case SHAPE_TYPE::SPHERE:
 			pShapeObj = m_DebugShape[(UINT)SHAPE_TYPE::SPHERE];
+			break;
+		case SHAPE_TYPE::UP_LINE:
+			pShapeObj = m_DebugShape[(UINT)SHAPE_TYPE::UP_LINE];
+			break;
+		case SHAPE_TYPE::FRONT_LINE:
+			pShapeObj = m_DebugShape[(UINT)SHAPE_TYPE::FRONT_LINE];
+			break;
+		case SHAPE_TYPE::RIGHT_LINE:
+			pShapeObj = m_DebugShape[(UINT)SHAPE_TYPE::RIGHT_LINE];
 			break;
 		case SHAPE_TYPE::MESH:
 			pShapeObj = m_DebugShape[(UINT)SHAPE_TYPE::MESH];

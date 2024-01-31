@@ -35,6 +35,7 @@ public:
     GET_OTHER_COMPONENT(Animator3D);
     GET_OTHER_COMPONENT(RigidBody);
     GET_OTHER_COMPONENT(Collider3D);
+    GET_OTHER_COMPONENT(Gizmo);
     GET_OTHER_COMPONENT(Decal);
     GET_OTHER_COMPONENT(LandScape);
 

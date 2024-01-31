@@ -26,6 +26,7 @@ enum class COMPONENT_TYPE
 	ANIMATOR3D,		// Bone Sknning Animation
 	LIGHT3D,		// 3Â÷¿ø ±¤¿ø
 	PATHFIND,
+	GIZMO,
 	CAMERA,			// Camera
 
 	// render
@@ -240,6 +241,9 @@ enum class SHAPE_TYPE
 	CIRCLE,
 	CUBE,
 	SPHERE,
+	UP_LINE,
+	FRONT_LINE,
+	RIGHT_LINE,
 	MESH,
 	END,
 };
