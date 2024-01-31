@@ -356,6 +356,8 @@ namespace physx
 				}
 			}
 		};
+		static float DegToRad() { return XM_PI / 180.f; }
+		static float RadToDeg() { return 180.f / XM_PI; }
 		static Quaternion Vector3ToQuaternion(float yaw, float pitch, float roll)
 		{
 			float rollOver2 = roll * 0.5f;

@@ -81,7 +81,6 @@ void CPlayerScript::Move()
 	pPlayerObj->Transform()->SetRelativeRot(Vec3(0.f, vCamRot.y, 0.f));
 	pCamObj->Transform()->SetRelativeRot(vCamRot);
 
-	//vPos -= vFront;
 	vPlayerPos += pCamObj->Transform()->GetFollowOffset();
 	pCamObj->Transform()->SetRelativePos(vPlayerPos);
 

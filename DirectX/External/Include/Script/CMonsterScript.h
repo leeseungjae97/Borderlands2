@@ -6,6 +6,7 @@ class CMonsterScript :
 {
 private:
     float fMonsterSpeed;
+    float fRotateSpeed;
 
 public:
     void Move();

@@ -1,14 +1,17 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "CMonsterScript.h"
 #include <Engine\LandScapeMgr.h>
 
 #include <Engine\func.h>
 #include <Engine\PlayerMgr.h>
+#include <Engine\physx_util.h>
 
 
 CMonsterScript::CMonsterScript()
 	: CScript((UINT)SCRIPT_TYPE::MONSTERSCRIPT)
 	, fMonsterSpeed(100.f)
+	, fRotateSpeed(100.f)
+
 {
 }
 
@@ -47,13 +50,16 @@ bool CMonsterScript::Rotate()
 	Vec3 vPlayerPos = pPlayer->Transform()->GetRelativePos();
 	Vec3 vMonsterPos = pMonster->Transform()->GetRelativePos();
 
-	Vec3 vMonsterFront = pMonster->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+	Vec3 vMonsterRight = pMonster->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
 
 	Vec3 vDir = vPlayerPos - vMonsterPos;
 	vDir.Normalize();
+	vMonsterRight.Normalize();
 
-	float fIncludeAngle = vDir.Dot(vMonsterFront);
-	pMonster->RigidBody()->SetAngularVelocity(Vec3(0.f, fIncludeAngle, 0.f));
+	// 벡터의 내적은 90도 일때 0 Dot(A,B)=∣A∣⋅∣B∣⋅cos(θ)
+	float includeAngle = vDir.Dot(vMonsterRight);
+
+	pMonster->RigidBody()->SetAngularVelocity(Vec3(0.f, includeAngle * fRotateSpeed, 0.f));
 
 	return true;
 }
