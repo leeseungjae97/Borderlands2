@@ -35,6 +35,7 @@
 
 #include "PhysXMgr.h"
 #include "CCollider3D.h"
+#include "CollisionMgr.h"
 
 namespace physx
 {
@@ -82,14 +83,6 @@ namespace physx
 		private:
 			PxU32		mRnd;
 		};
-
-		/////
-
-		PxU32			Bunny_getNbVerts();
-		PxU32			Bunny_getNbFaces();
-		const PxVec3* Bunny_getVerts();
-		const PxU32* Bunny_getFaces();
-
 		/////
 
 		/* Increment the specified location. Return the incremented value. */
@@ -190,22 +183,20 @@ namespace physx
 
 			// Emulates triggers using a filter shader. Needs one reserved value in PxFilterData.
 			FILTER_SHADER,
-
-			// Emulates triggers using a filter callback. Doesn't use PxFilterData but needs user-defined way to mark a shape as a trigger.
-			FILTER_CALLBACK,
 		};
 
 		static bool isTrigger(const physx::PxFilterData& data)
 		{
-			if (data.word0 != 0xffffffff)
-				return false;
-			if (data.word1 != 0xffffffff)
-				return false;
-			if (data.word2 != 0xffffffff)
-				return false;
-			if (data.word3 != 0xffffffff)
-				return false;
-			return true;
+			if (data.word0 == 0xffffffff)
+				return true;
+			if (data.word1 == 0xffffffff)
+				return true;
+			if (data.word2 == 0xffffffff)
+				return true;
+			if (data.word3 == 0xffffffff)
+				return true;
+
+			return false;
 
 		}
 		static bool isTriggerShape(physx::PxShape* shape)
@@ -222,120 +213,43 @@ namespace physx
 			return false;
 		}
 
-		static PxShape* createTriggerShape(const PxGeometry& geom, PxMaterial& gMaterial, PxTrigger trigger, bool isExclusive)
+		static PxShape* createTriggerShape(const PxGeometry& geom, PxMaterial& gMaterial, bool isExclusive)
 		{
-			PxPhysics* gPhysics = PhysXMgr::GetInst()->GPhysics();
-			PxShape* shape = nullptr;
-			if (trigger == REAL_TRIGGERS)
-			{
-				const PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eTRIGGER_SHAPE;
-				shape = gPhysics->createShape(geom, gMaterial, isExclusive, shapeFlags);
-			}
-			else if (trigger == FILTER_SHADER)
-			{
-				PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSIMULATION_SHAPE;
-				shape = gPhysics->createShape(geom, gMaterial, isExclusive, shapeFlags);
+			PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eTRIGGER_SHAPE;
 
-				// For this method to work, you need a way to mark shapes as triggers without using PxShapeFlag::eTRIGGER_SHAPE
-				// (so that trigger-trigger pairs are reported), and without calling a PxShape function (so that the data is
-				// available in a filter shader).
-				//
-				// One way is to reserve a special PxFilterData value/mask for triggers. It may not always be possible depending
-				// on how you otherwise use the filter data).
-				const PxFilterData triggerFilterData(0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff);
-				shape->setSimulationFilterData(triggerFilterData);
-			}
-			else if (trigger == FILTER_CALLBACK)
-			{
-				// We will have access to shape pointers in the filter callback so we just mark triggers in an arbitrary way here,
-				// for example using the shape's userData.
-				shape = gPhysics->createShape(geom, gMaterial, isExclusive);
-				shape->userData = shape;	// Arbitrary rule: it's a trigger if non null
-			}
-			return shape;
+			return PhysXMgr::GetInst()->GPhysics()->createShape(geom, gMaterial, isExclusive, shapeFlags);
 		}
 
-		class TriggersFilterCallback : public PxSimulationFilterCallback
-		{
-			virtual		PxFilterFlags	pairFound(PxU64 /*pairID*/,
-				PxFilterObjectAttributes /*attributes0*/, PxFilterData /*filterData0*/, const PxActor* /*a0*/, const PxShape* s0,
-				PxFilterObjectAttributes /*attributes1*/, PxFilterData /*filterData1*/, const PxActor* /*a1*/, const PxShape* s1,
-				PxPairFlags& pairFlags)	PX_OVERRIDE
-			{
-				//		printf("pairFound\n");
-
-				if (s0->userData || s1->userData)	// See createTriggerShape() function
-				{
-					pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
-				}
-				//if ()
-				//	pairFlags |= PxPairFlag::eDETECT_CCD_CONTACT | PxPairFlag::eNOTIFY_TOUCH_CCD;
-				//}
-				else
-					pairFlags = PxPairFlag::eCONTACT_DEFAULT;
-
-				return PxFilterFlags();
-			}
-
-			virtual	void pairLost(PxU64 /*pairID*/,
-				PxFilterObjectAttributes /*attributes0*/, PxFilterData /*filterData0*/,
-				PxFilterObjectAttributes /*attributes1*/, PxFilterData /*filterData1*/,
-				bool /*objectRemoved*/)	PX_OVERRIDE
-			{
-				// printf("pairLost\n");
-			}
-
-			virtual	bool statusChange(PxU64& /*pairID*/, PxPairFlags& /*pairFlags*/, PxFilterFlags& /*filterFlags*/)	PX_OVERRIDE
-			{
-				// printf("statusChange\n");
-				return false;
-			}
-		};
-
-		//CGameObject* pCamObj = GetOwner()->GetFollowObj();
-		//tRay ray = pCamObj->Camera()->GetRay();
-		//PxVec3 startPos = PxVec3(ray.vStart.x, ray.vStart.y, ray.vStart.z);
-		//PxVec3 rayDir = PxVec3(ray.vDir.x, ray.vDir.y, ray.vDir.z);
-
-		//PxRaycastHit hitInfo;
-
-		static PxFilterFlags triggersUsingFilterShader(
+		static PxFilterFlags SimulationFilterShader(
 			PxFilterObjectAttributes attributes0, 
 			PxFilterData filterData0,
 			PxFilterObjectAttributes attributes1, 
 			PxFilterData filterData1,
 			PxPairFlags& pairFlags, const void* /*constantBlock*/, PxU32 /*constantBlockSize*/)
 		{
-			const bool isTriggerPair = isTrigger(filterData0) || isTrigger(filterData1);
+			//if(!CollisionMgr::GetInst()->IsLayerIntersect(filterData0.word0, filterData1.word0))
+			//{
+			//	//pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+			//	return physx::PxFilterFlag::eSUPPRESS;
+			//}
 
-			// If we have a trigger, replicate the trigger codepath from PxDefaultSimulationFilterShader
-			if (isTriggerPair)
+			// 충돌레이어 인데 하나가 trigger인 경우
+			if (isTrigger(filterData0) || isTrigger(filterData1))
 			{
-				// eCONTACT_DEFAULT : 충돌 기본 플래그
-				// eNOTIFY_TOUCH_FOUND : 충돌 시작 콜백, 트리거 호출
-				// eNOTIFY_TOUCH_LOST : 충돌 멈추면 콜백, 트리거 호출
-				// eNOTIFY_TOUCH_PERSISTS : 접촉 중 콜백 호출
-				// eDETECT_CCD_CONTACT : CCD 접점 생성 여부 확인
-				// CCD 퀄리티 높은 출동
-				pairFlags = PxPairFlag::eTRIGGER_DEFAULT;/* | PxPairFlag::eDETECT_CCD_CONTACT*/;
-			}
-			else
-			{
-				pairFlags = PxPairFlag::eCONTACT_DEFAULT
-					| PxPairFlag::eNOTIFY_TOUCH_FOUND
-					| PxPairFlag::eNOTIFY_TOUCH_LOST
-					| PxPairFlag::eNOTIFY_TOUCH_PERSISTS
-					| PxPairFlag::eDETECT_CCD_CONTACT;
+				pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
 
-				//pairFlags = PxPairFlag::eSOLVE_CONTACT | PxPairFlag::eDETECT_DISCRETE_CONTACT | PxPairFlag::eDETECT_CCD_CONTACT;
-				
+				return PxFilterFlag::eDEFAULT;
 			}
+			// 충돌레이어 인데 둘다 rigid인 경우
+
+			pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT | physx::PxPairFlag::eDETECT_CCD_CONTACT;
+
 			return PxFilterFlag::eDEFAULT;
 		}
 		class PxCollisionCallBack : public PxSimulationEventCallback
 		{
 		public:
-			std::map<physx::PxShape*, CCollider3D*> Collisions;
+			//std::map<physx::PxShape*, CCollider3D*> Collisions;
 
 			void onConstraintBreak(PxConstraintInfo* /*constraints*/, PxU32 /*count*/)	PX_OVERRIDE
 			{
@@ -354,20 +268,42 @@ namespace physx
 
 			void onTrigger(PxTriggerPair* pairs, PxU32 count)	PX_OVERRIDE
 			{
-				wchar_t buffer[256];
-				std::swprintf(buffer, sizeof(buffer) / sizeof(*buffer),
-					L"onTrigger: %d trigger pairs\n", count);
+				OutputDebugStringW(L"onTrigger\n");
 
-				OutputDebugStringW(buffer);
+				while (count--)
+				{
+				
+					if (pairs[count].triggerActor->userData
+						&& pairs[count].otherActor->userData)
+					{
+						CCollider3D* col1 = static_cast<CCollider3D*>(pairs[count].triggerActor->userData);
+						CCollider3D* col2 = static_cast<CCollider3D*>(pairs[count].otherActor->userData);
 
-				//while (count--)
-				//{
-				//	const PxTriggerPair& current = *pairs++;
-				//	if (current.status & PxPairFlag::eNOTIFY_TOUCH_FOUND)
-				//		OutputDebugStringW(L"Shape is entering trigger volume\n");
-				//	if (current.status & PxPairFlag::eNOTIFY_TOUCH_LOST)
-				//		OutputDebugStringW(L"Shape is leaving trigger volume\n");
-				//}
+						if (nullptr != col1 && nullptr != col2)
+						{
+							UINT col1LayerIdx = col1->GetOwner()->GetLayerIndex();
+							UINT col2LayerIdx = col2->GetOwner()->GetLayerIndex();
+							if (!CollisionMgr::GetInst()->IsLayerIntersect(col1LayerIdx, col2LayerIdx))
+							{
+								continue;
+							}
+
+							if (pairs[count].status == physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
+							{
+								OutputDebugStringW(L"Trigger Begin\n");
+								col1->BeginOverlap(col2);
+								col2->BeginOverlap(col1);
+							}
+
+							else // pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_LOST
+							{
+								OutputDebugStringW(L"Trigger Exit\n");
+								col1->EndOverlap(col2);
+								col2->EndOverlap(col1);
+							}
+						}
+					}
+				}
 			}
 
 			void onAdvance(const PxRigidBody* const*, const PxTransform*, const PxU32)	PX_OVERRIDE
@@ -375,67 +311,48 @@ namespace physx
 				OutputDebugStringW(L"onAdvance\n");
 			}
 
-			void onContact(const PxContactPairHeader& /*pairHeader*/, const PxContactPair* pairs, PxU32 count)	PX_OVERRIDE
+			void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 count)	PX_OVERRIDE
 			{
-				//printf("onContact: %d pairs\n", count);
-
-				wchar_t buffer[256];
-				std::swprintf(buffer, sizeof(buffer) / sizeof(*buffer),
-					L"onContact: %d pairs\n", count);
-
-				OutputDebugStringW(buffer);
-
+				OutputDebugStringW(L"onContact\n");
 				while (count--)
 				{
-					//if (pairs[count].flags & (physx::PxContactPairFlag::eREMOVED_SHAPE_0 | physx::PxContactPairFlag::eREMOVED_SHAPE_1))
-					//{
-					//	continue;
-					//}
-
-					auto iter1 = Collisions.find(pairs[count].shapes[0]);
-					auto iter2 = Collisions.find(pairs[count].shapes[1]);
-					if (iter1 != Collisions.end() && iter2 != Collisions.end())
+					if (pairHeader.actors[0]->userData 
+						&& pairHeader.actors[1]->userData)
 					{
-						CCollider3D* col1 = (*iter1).second;
-						CCollider3D* col2 = (*iter2).second;
-						if (col1 && col2)
-						{
-							CGameObject* col1Own = col1->GetOwner();
-							CGameObject* col2Own = col2->GetOwner();
+					
+						CCollider3D* col1 = static_cast<CCollider3D*>(pairHeader.actors[0]->userData);
+						CCollider3D* col2 = static_cast<CCollider3D*>(pairHeader.actors[1]->userData);
 
-							if (!col1Own->IsDead() && !col2Own->IsDead())
+						if(nullptr != col1 && nullptr != col2)
+						{
+							UINT col1LayerIdx = col1->GetOwner()->GetLayerIndex();
+							UINT col2LayerIdx = col2->GetOwner()->GetLayerIndex();
+							if (!CollisionMgr::GetInst()->IsLayerIntersect(col1LayerIdx, col2LayerIdx))
 							{
-								if (pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
-								{
-									OutputDebugStringW(L"Begin\n");
-									col1->BeginOverlap(col2);
-									col2->BeginOverlap(col1);
-								}
-								else if (pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS)
-								{
-									OutputDebugStringW(L"On\n");
-									col1->OnOverlap(col2);
-									col2->OnOverlap(col1);
-								}
+								continue;
 							}
 
-							if (pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_LOST)
+							if (pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
 							{
-								OutputDebugStringW(L"Exit\n");
+								OutputDebugStringW(L"Contact Begin\n");
+								col1->BeginOverlap(col2);
+								col2->BeginOverlap(col1);
+							}
+							else if (pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS)
+							{
+								OutputDebugStringW(L"Contact On\n");
+								col1->OnOverlap(col2);
+								col2->OnOverlap(col1);
+							}
+
+							else // pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_LOST
+							{
+								OutputDebugStringW(L"Contact Exit\n");
 								col1->EndOverlap(col2);
 								col2->EndOverlap(col1);
 							}
 						}
 					}
-					//const PxContactPair& current = *pairs++;
-
-					//if (current.events & (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_CCD))
-					//	OutputDebugStringW(L"Shape is entering trigger volume\n");
-					//if (current.events & PxPairFlag::eNOTIFY_TOUCH_LOST)
-					//	OutputDebugStringW(L"Shape is leaving trigger volume\n");
-
-					//if (isTriggerShape(current.shapes[0]) && isTriggerShape(current.shapes[1]))
-					//	OutputDebugStringW(L"Trigger-trigger overlap detected\n");
 				}
 			}
 		};

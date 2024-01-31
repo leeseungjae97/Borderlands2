@@ -38,6 +38,8 @@ private:
 
     bool                    m_bCreature;
 
+    bool                    m_bInit;
+
 public:
 	PxRigidDynamic*         GetDynamicBody()        const { return m_pDynamicBody; }
 	PxRigidStatic*          GetStaticBody()         const { return m_pStaticBody; }
@@ -79,6 +81,8 @@ public:
 	void SetRigidBodyTrans(const PxTransform& trans);
 
     void SetVelocity(Vec3 _Velocity);
+    void SetVelocityZero();
+	bool IsRigidBodyCreate();
 
 private:
     void convertMeshToGeom();
@@ -89,8 +93,6 @@ private:
     void drawDebugRigid();
 
 public:
-    void initialize() override;
-    void begin() override;
     void finaltick() override;
 
     void LoadFromLevelFile(FILE* _FILE) override;

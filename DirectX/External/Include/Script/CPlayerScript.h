@@ -7,6 +7,8 @@ class CPlayerScript :
 private:
     float       m_fSpeed;
     float       m_fJump;
+    float       m_fRateOfFire;
+    float       m_fRateOfFireAcc;
     float       m_MouseAcces;
 
 public:

@@ -223,6 +223,10 @@
     <ClInclude Include="ObjPickerMgr.h">
       <Filter>Source\_Manager\ObjPickerMgr</Filter>
     </ClInclude>
+    <ClInclude Include="BulletMgr.h">
+      <Filter>Source\_Manager\BulletMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -426,6 +430,10 @@
     <ClCompile Include="ObjPickerMgr.cpp">
       <Filter>Source\_Manager\ObjPickerMgr</Filter>
     </ClCompile>
+    <ClCompile Include="BulletMgr.cpp">
+      <Filter>Source\_Manager\BulletMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -634,6 +642,12 @@
     </Filter>
     <Filter Include="Source\_Manager\ObjPickerMgr">
       <UniqueIdentifier>{0da9b8a0-cde4-480f-813f-d3f5a643697a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\BulletMgr">
+      <UniqueIdentifier>{8a9370d6-0e71-44fe-94ef-a2622d6a43b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\CollisionMgr">
+      <UniqueIdentifier>{0062e379-6c93-4a57-bd16-335ad1305a5c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

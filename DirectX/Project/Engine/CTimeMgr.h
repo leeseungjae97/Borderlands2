@@ -19,6 +19,8 @@ public:
 	void tick();
 	void render();
 
+	UINT CallCount() { return m_iCallCount; }
+
 public:
 	float GetDeltaTime() { return m_fDeltaTime; }
 };

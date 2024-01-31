@@ -8,7 +8,6 @@ private:
     Vec3    m_vRelativePos;
     Vec3    m_vRelativeScale;
     Vec3    m_vRelativeRot;
-    float   m_vCreatureRelativeRotX;
 
     Quat m_qRotation;
 
@@ -41,8 +40,6 @@ public:
     Vec3 GetRelativePos() const { return m_vRelativePos; }
     Vec3 GetRelativeScale() const { return m_vRelativeScale; }
     Vec3 GetRelativeRot() const { return m_vRelativeRot; }
-
-    float GetCreatureRelavtiveX() const{ return m_vCreatureRelativeRotX; }
 
     Vec3 GetRelativeDir(DIR_TYPE _type) const { return m_vRelativeDir[(UINT)_type]; }
     Vec3 GetWorldDir(DIR_TYPE _type) const { { return m_vWorldDir[(UINT)_type]; } }

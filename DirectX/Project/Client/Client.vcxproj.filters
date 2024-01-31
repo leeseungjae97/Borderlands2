@@ -119,8 +119,14 @@
     <Filter Include="_UI\_InspectorUI\_ComponentUI\_RigidBodyUI">
       <UniqueIdentifier>{749d58f4-bef0-407d-accd-e74ddee304dd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="_UI\ObjectPicker">
+    <Filter Include="_UI\LayerInspectorUI">
+      <UniqueIdentifier>{d20429b3-5c62-47f0-9704-22680a1a23ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_UI\ObjectPickerUI">
       <UniqueIdentifier>{db3da841-3e30-4e1f-8c2b-460146d1478e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_UI\CollisionUI">
+      <UniqueIdentifier>{13cab8a3-bfbc-4552-9cc5-82bbcdea1815}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -261,7 +267,13 @@
       <Filter>_UI\_InspectorUI\_ComponentUI\_RigidBodyUI</Filter>
     </ClInclude>
     <ClInclude Include="ObjectPickerUI.h">
-      <Filter>_UI\ObjectPicker</Filter>
+      <Filter>_UI\ObjectPickerUI</Filter>
+    </ClInclude>
+    <ClInclude Include="LayerInspectorUI.h">
+      <Filter>_UI\LayerInspectorUI</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionUI.h">
+      <Filter>_UI\CollisionUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -410,7 +422,13 @@
       <Filter>_UI\_InspectorUI\_ComponentUI\_RigidBodyUI</Filter>
     </ClCompile>
     <ClCompile Include="ObjectPickerUI.cpp">
-      <Filter>_UI\ObjectPicker</Filter>
+      <Filter>_UI\ObjectPickerUI</Filter>
+    </ClCompile>
+    <ClCompile Include="LayerInspectorUI.cpp">
+      <Filter>_UI\LayerInspectorUI</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionUI.cpp">
+      <Filter>_UI\CollisionUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

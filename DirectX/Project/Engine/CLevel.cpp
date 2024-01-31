@@ -59,12 +59,13 @@ void CLevel::finaltick()
 void CLevel::createScene()
 {
 	m_PxCollisionCallBack = new PxCollisionCallBack;
-
-	//PxSceneDesc sceneDesc(PhysXMgr::GetInst()->GPhysics()->getTolerancesScale());
-	PxSceneDesc sceneDesc = PhysXMgr::GetInst()->GSceneDesc();
-	//sceneDesc.cpuDispatcher = PhysXMgr::GetInst()->GDispatcher();
-	sceneDesc.filterShader = triggersUsingFilterShader;
+	PxSceneDesc sceneDesc(PhysXMgr::GetInst()->GPhysics()->getTolerancesScale());
+	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	sceneDesc.cpuDispatcher = PhysXMgr::GetInst()->GDispatcher();
+	sceneDesc.filterShader = SimulationFilterShader;
 	sceneDesc.simulationEventCallback = m_PxCollisionCallBack;
+	//sceneDesc.filterCallback = m_PxTriggerCallBack;
+	sceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
 
 	m_PxScene = PhysXMgr::GetInst()->GPhysics()->createScene(sceneDesc);
 
@@ -94,7 +95,7 @@ CLayer* CLevel::FindLayerByName(const wstring& _strName)
 void CLevel::AddGameObject(CGameObject* _Object, int _iLayerIdx, bool _bMove)
 {
 	m_arrLayer[_iLayerIdx]->AddGameObject(_Object, _bMove);
-	AddCollider3D(_Object);
+	//AddCollider3D(_Object);
 }
 
 void CLevel::AddGameObject(CGameObject* _Object, const wstring& _LayerName, bool _Move)
@@ -103,13 +104,13 @@ void CLevel::AddGameObject(CGameObject* _Object, const wstring& _LayerName, bool
 	assert(pLayer);
 
 	pLayer->AddGameObject(_Object, _Move);
-	AddCollider3D(_Object);
+	//AddCollider3D(_Object);
 }
 
 void CLevel::AddCollider3D(CGameObject* _Object)
 {
-	if(_Object->Collider3D())
-		m_PxCollisionCallBack->Collisions.insert(make_pair(_Object->Collider3D()->MPxColliderShape(), _Object->Collider3D()));
+	//if(_Object->Collider3D())
+		//m_PxCollisionCallBack->Collisions.insert(make_pair(_Object->Collider3D()->MPxColliderShape(), _Object->Collider3D()));
 }
 
 void CLevel::ChangeState(LEVEL_STATE _State)

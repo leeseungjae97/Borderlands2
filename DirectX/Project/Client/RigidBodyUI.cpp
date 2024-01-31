@@ -4,6 +4,7 @@
 #include <Engine/CRigidBody.h>
 
 #include <Engine/CGameObject.h>
+#include <Engine/CCollider3D.h>
 
 RigidBodyUI::RigidBodyUI()
 	: ComponentUI("##RigidBody", COMPONENT_TYPE::RIGIDBODY)
@@ -23,10 +24,26 @@ int RigidBodyUI::render_update()
 	RIGID_BODY_TYPE _tby = GetTarget()->RigidBody()->GetRigidType();
 	RIGID_BODY_SHAPE_TYPE _tbsy = GetTarget()->RigidBody()->GetRigidShapeType();
 
+	ImGui::Text("%s : %s", _tby == RIGID_BODY_TYPE::STATIC ? "STATIC" : "DYNAMIC", _tbsy == RIGID_BODY_SHAPE_TYPE::BOX ? "BOX" : _tbsy == RIGID_BODY_SHAPE_TYPE::SPHERE ? "SPHERE" : "MESH");
 
-	ImGui::Text("%s", _tby == RIGID_BODY_TYPE::STATIC ? "STATIC" : "DYNAMIC");
+	CCollider3D* col = nullptr;
 
-	ImGui::Text("%s", _tbsy == RIGID_BODY_SHAPE_TYPE::BOX ? "BOX" : _tbsy == RIGID_BODY_SHAPE_TYPE::SPHERE ? "SPHERE" : "MESH");
+	if (_tby == RIGID_BODY_TYPE::STATIC)
+	{
+		PxRigidStatic* _rs = GetTarget()->RigidBody()->GetStaticBody();
+		col = static_cast<CCollider3D*>(_rs->userData);
+		
+	}else
+	{
+		PxRigidDynamic* _rd = GetTarget()->RigidBody()->GetDynamicBody();
+		col = static_cast<CCollider3D*>(_rd->userData);
+	}
+
+	if (col)
+	{
+		UINT colLayerIdx = col->GetOwner()->GetLayerIndex();
+		ImGui::Text("Rigid userData Layer index : %d", colLayerIdx);
+	}
 
 	return TRUE;
 }

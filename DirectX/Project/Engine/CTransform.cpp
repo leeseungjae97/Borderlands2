@@ -26,36 +26,53 @@ CTransform::~CTransform()
 
 void CTransform::SetRelativePos(Vec3 _vPos)
 {
-	CRigidBody* _db = GetOwner()->RigidBody();
-
+	CRigidBody* _rb = GetOwner()->RigidBody();
+	CCollider3D* col =GetOwner()->Collider3D();
+	
 	m_vRelativePos = _vPos;
 
-	if(_db)
+	if(_rb)
 	{
-		PxTransform trans = _db->GetRigidBodyPos();
+		PxTransform trans = _rb->GetRigidBodyPos();
 		trans.p = PxVec3(_vPos.x, _vPos.y, _vPos.z);
-		_db->SetRigidBodyTrans(trans);
+		_rb->SetRigidBodyTrans(trans);
+	}
+	if(col)
+	{
+		PxRigidStatic* _rs = GetOwner()->Collider3D()->MPxColliderRigid();
+		if(_rs)
+		{
+			PxTransform trans = _rs->getGlobalPose();
+			trans.p = PxVec3(_vPos.x, _vPos.y, _vPos.z);
+			_rs->setGlobalPose(trans);
+		}
 	}
 }
 
 void CTransform::SetRelativeRot(Vec3 _vRot)
 {
-	CRigidBody* _db = GetOwner()->RigidBody();
-	
+	CRigidBody* _rb = GetOwner()->RigidBody();
+	CCollider3D* col = GetOwner()->Collider3D();
+
 	m_vRelativeRot = _vRot;
 
-	if (_db)
+	if (_rb)
 	{
-		PxTransform trans = _db->GetRigidBodyPos();
-		if (_db->IsCreature())
-		{
-			m_vCreatureRelativeRotX = _vRot.x;
-			//_vRot.x = 0.f;
-		}
-
+		PxTransform trans = _rb->GetRigidBodyPos();
 		Quat quat; quat = Util::Vector3ToQuaternion(_vRot);
 		trans.q = PxQuat(quat.x, quat.y, quat.z, quat.w);
-		_db->SetRigidBodyTrans(trans);
+		_rb->SetRigidBodyTrans(trans);
+	}
+	if (col)
+	{
+		PxRigidStatic* _rs = GetOwner()->Collider3D()->MPxColliderRigid();
+		if (_rs)
+		{
+			PxTransform trans = _rs->getGlobalPose();
+			Quat quat; quat = Util::Vector3ToQuaternion(_vRot);
+			trans.q = PxQuat(quat.x, quat.y, quat.z, quat.w);
+			_rs->setGlobalPose(trans);
+		}
 	}
 }
 
@@ -73,11 +90,11 @@ void CTransform::finaltick()
 	, Vec3(0.f, 0.f, 1.f)
 	};
 
-	CRigidBody* _db = GetOwner()->RigidBody();
-	
-	if (nullptr != _db)
+	CRigidBody* _rb = GetOwner()->RigidBody();
+
+	if (_rb && _rb->IsRigidBodyCreate())
 	{
-		physx::PxTransform trans = _db->GetRigidBodyPos();
+		physx::PxTransform trans = _rb->GetRigidBodyPos();
 		m_vRelativePos = Vec3(trans.p.x, trans.p.y, trans.p.z);
 
 		m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);

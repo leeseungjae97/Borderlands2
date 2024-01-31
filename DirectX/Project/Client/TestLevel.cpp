@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TestLevel.h"
 
+#include <Engine/CollisionMgr.h>
 #include <Engine\CLevelMgr.h>
 #include <Engine\CLevel.h>
 #include <Engine\CLayer.h>
@@ -49,7 +50,9 @@ void CreateTestLevel()
 
 	// Layer 이름설정
 	pCurLevel->GetLayer(0)->SetName(L"Default");
-	pCurLevel->GetLayer(1)->SetName(L"Objects");
+	pCurLevel->GetLayer(1)->SetName(L"Monster");
+	pCurLevel->GetLayer(2)->SetName(L"Player");
+	pCurLevel->GetLayer(3)->SetName(L"Bullet");
 	pCurLevel->GetLayer(10)->SetName(L"Light");
 	pCurLevel->GetLayer(31)->SetName(L"ViewPort UI");
 
@@ -121,7 +124,7 @@ void CreateTestLevel()
 		pCube->SetName(L"Sphere");
 		pCube->AddComponent(new CTransform);
 		pCube->AddComponent(new CMeshRender);
-		pCube->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
+		pCube->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
 		pCube->AddComponent(new CCollider3D);
 		pCube->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
 
@@ -130,8 +133,8 @@ void CreateTestLevel()
 
 		pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 		pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
-
-		PreloadGameObject(pCube, Vec3(0.f, -500.f, 0.f), L"Objects");
+		ObjPickerMgr::GetInst()->SetPickObj(pCube);
+		PreloadGameObject(pCube, Vec3(-500.f, 90.f, -500.f), L"Monster");
 	}
 
 	CGameObject* pPlane = new CGameObject;
@@ -150,7 +153,7 @@ void CreateTestLevel()
 	pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
 	ObjPickerMgr::GetInst()->SetPickObj(pPlane);
-	PreloadGameObject(pPlane, Vec3(0.f, -1000.f, 0.f), L"Objects");
+	PreloadGameObject(pPlane, Vec3(0.f, -10.f, 0.f), 0);
 
 	//CGameObject* pObject = new CGameObject;
 	//pObject->SetName(L"Tess Object");
@@ -210,7 +213,7 @@ void CreateTestLevel()
 	pLandScape->LandScape()->SetFrustumCheck(false);
 	//pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
 
-	PreloadGameObject(pLandScape, Vec3(-100.f, 0.f, 0.f), L"Objects");
+	PreloadGameObject(pLandScape, Vec3(-100.f, 0.f, 0.f), 0);
 
 	// ============
 	// FBX Loading
@@ -243,10 +246,9 @@ void CreateTestLevel()
 		pObj->SetFollowObj(pMainCam);
 		//pMainCam->SetFollowObj(pObj);
 		pMainCam->Transform()->SetFollowOffset(Vec3(0.f, 90.f, 0.f));
-		ObjPickerMgr::GetInst()->SetPickObj(pObj);
 
 		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
-		PreloadGameObject(pObj, Vec3(0.f, 0.f, 0.f), L"Default");
+		PreloadGameObject(pObj, Vec3(50.f, 50.f, 50.f), L"Player");
 	}
 	{
 		//Ptr<CMeshData> pMeshData = nullptr;
@@ -277,7 +279,9 @@ void CreateTestLevel()
 	pCurLevel->ChangeState(LEVEL_STATE::STOP);
 
 	pCurLevel->GetLayer(0)->SetName(L"Default");
-	pCurLevel->GetLayer(1)->SetName(L"Objects");
+	pCurLevel->GetLayer(1)->SetName(L"Monster");
+	pCurLevel->GetLayer(2)->SetName(L"Player");
+	pCurLevel->GetLayer(3)->SetName(L"Bullet");
 	pCurLevel->GetLayer(10)->SetName(L"Light");
 	pCurLevel->GetLayer(31)->SetName(L"ViewPort UI");
 
@@ -336,4 +340,10 @@ void CreateTestLevel()
 	pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\2k_stars_milky_way.jpg"));
 
 	PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 1);
+
+	CollisionMgr::GetInst()->SetLayerIntersect(L"Monster", L"Bullet", true);
+	CollisionMgr::GetInst()->SetLayerIntersect(L"Default", L"Bullet", true);
+	CollisionMgr::GetInst()->SetLayerIntersect(L"Monster", L"Player", true);
+	CollisionMgr::GetInst()->SetLayerIntersect(L"Monster", L"Default", true);
+	CollisionMgr::GetInst()->SetLayerIntersect(L"Player", L"Default", true);
 }

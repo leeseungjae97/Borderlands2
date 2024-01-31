@@ -73,6 +73,16 @@ int ObjectPickerUI::render_update()
 
 			ImGui::Text(str.c_str());
 
+			PxShape* pp = nullptr;
+			_dy->getShapes(&pp, sizeof(PxShape));
+
+			if(nullptr != pp)
+			{
+				pp->getSimulationFilterData();
+				pp->getQueryFilterData();
+			}
+
+
 			PxVec3 _angular_velocity = _dy->getAngularVelocity();
 			str = "Angular Velocity\nx :"
 				+ std::to_string(_angular_velocity.x)

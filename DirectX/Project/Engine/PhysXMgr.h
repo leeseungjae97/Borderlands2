@@ -19,11 +19,9 @@ private:
 	PxPvd*					gPvd;
 	PxFoundation*			mFoundation;
 	PxCudaContextManager*	gCudaContextManager;
-	PxSceneDesc				gSceneDesc;
-	PxCookingParams			gCookingParams;
 public:
 	void init();
-	void tick();
+	void fixedTick();
 	void render();
 
 private:
@@ -43,8 +41,6 @@ public:
 	PxPvd* GPvd() const { return gPvd; }
 	PxFoundation* MFoundation() const { return mFoundation; }
 	PxScene* GCurScene();
-	PxSceneDesc& GSceneDesc() { return gSceneDesc; }
-	PxCookingParams& GCookingParams() { return gCookingParams; }
 
 	void GAllocator(const PxDefaultAllocator& g_allocator) { gAllocator = g_allocator; }
 	void GErrorCallback(const PxDefaultErrorCallback& g_error_callback) { gErrorCallback = g_error_callback; }

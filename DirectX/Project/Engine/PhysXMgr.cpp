@@ -5,6 +5,7 @@
 
 #include "CLevel.h"
 #include "CLevelMgr.h"
+#include "CTimeMgr.h"
 #include "physx_util.h"
 
 #define PVD_HOST "127.0.0.1"
@@ -17,8 +18,6 @@ PhysXMgr::PhysXMgr()
 	, gCurScene(NULL)
 	, mFoundation(NULL)
 	, gCudaContextManager(nullptr)
-	, gSceneDesc(PxSceneDesc(PxTolerancesScale()))
-	, gCookingParams(PxCookingParams(PxTolerancesScale()))
 {
 }
 
@@ -38,17 +37,10 @@ void PhysXMgr::init()
 	PxTolerancesScale scale;
 	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
 
-	gCookingParams = PxCookingParams(scale);
-	gSceneDesc = PxSceneDesc(gPhysics->getTolerancesScale());
-	gSceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-	gSceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
-
 	gDispatcher = PxDefaultCpuDispatcherCreate(2);
-
-	gSceneDesc.cpuDispatcher = gDispatcher;
 }
 
-void PhysXMgr::tick()
+void PhysXMgr::fixedTick()
 {
 	GCurScene();
 	if(gCurScene)

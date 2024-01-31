@@ -20,40 +20,43 @@ CRigidBody::CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2)
 	, m_tRigidType(_Type2)
 	, m_vRigidScale(Vec3(1.f, 1.f, 1.f))
 	, m_bCreature(false)
+	, m_bInit(false)
 {
 	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(1.0f, 1.0f, 0.1f);
 
 	if (m_tRigidType == RIGID_BODY_TYPE::DYNAMIC)
 	{
-		m_pMaterial->setFrictionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eMAX));
-		m_pMaterial->setRestitutionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eMAX));
+		//m_pMaterial->setFrictionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eMAX));
+		//m_pMaterial->setRestitutionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eMAX));
 	}
 }
 
 CRigidBody::~CRigidBody()
 {
-
-}
-
-void CRigidBody::initialize()
-{
-
-}
-void CRigidBody::begin()
-{
-	addToScene();
-	setRigidPos();
+	if(m_pDynamicBody)
+	{
+		m_pDynamicBody->userData = nullptr;
+		PX_RELEASE(m_pDynamicBody);
+	}
+	
+	if(m_pStaticBody)
+	{
+		m_pStaticBody->userData = nullptr;
+		PX_RELEASE(m_pStaticBody);
+	}
+		
 }
 
 void CRigidBody::finaltick()
 {
-	static bool init = false;
-	if (!init)
+	if(!m_bInit)
 	{
-
-		init = true;
+		addToScene();
+		//setRigidPos();
+		m_bInit = true;
 	}
 	
+
 	drawDebugRigid();
 }
 
@@ -92,6 +95,22 @@ void CRigidBody::SetVelocity(Vec3 _Velocity)
 	_Velocity.y = prev_velocity.y < 0 ? _Velocity.y + prev_velocity.y : prev_velocity.y;
 
 	m_pDynamicBody->setLinearVelocity(PxVec3(_Velocity.x, _Velocity.y, _Velocity.z));
+}
+
+void CRigidBody::SetVelocityZero()
+{
+	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
+	m_pDynamicBody->setLinearVelocity(PxVec3(0.f, 0.f, 0.f));
+}
+
+bool CRigidBody::IsRigidBodyCreate()
+{
+	if (m_pDynamicBody)
+		return true;
+	if (m_pStaticBody)
+		return true;
+
+	return false;
 }
 
 void CRigidBody::convertMeshToGeom()
@@ -177,7 +196,7 @@ void CRigidBody::createShape()
 void CRigidBody::createTriangleMesh()
 {
 	convertMeshToGeom();
-	PxCookingParams params = PhysXMgr::GetInst()->GCookingParams();
+	PxCookingParams params(PhysXMgr::GetInst()->GPhysics()->getTolerancesScale());
 	params.midphaseDesc.setToDefault(PxMeshMidPhase::eBVH34);
 	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
 	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
@@ -200,7 +219,11 @@ void CRigidBody::createTriangleMesh()
 void CRigidBody::addToScene()
 {
 	Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
-	PxTransform localTm(PxVec3(vPos.x, vPos.y, vPos.z));
+	Vec3 vRot = GetOwner()->Transform()->GetRelativeRot();
+
+	Quat quat; quat = Util::Vector3ToQuaternion(vRot);
+
+	PxTransform localTm(PxVec3(vPos.x, vPos.y, vPos.z), PxQuat(quat.x, quat.y, quat.z, quat.w));
 
 	if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::MESH)
 	{
@@ -211,6 +234,9 @@ void CRigidBody::addToScene()
 		createShape();
 	}
 
+	//PxFilterData triggerFilterData(GetOwner()->GetLayerIndex(), 0, 0, 0);
+	//m_pShape->setSimulationFilterData(triggerFilterData);
+
 	if (m_tRigidType == RIGID_BODY_TYPE::DYNAMIC)
 	{
 		if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::MESH)
@@ -218,7 +244,9 @@ void CRigidBody::addToScene()
 			//TODO : TriangleMesh Ã³¸®
 		}
 		m_pDynamicBody = PhysXMgr::GetInst()->GPhysics()->createRigidDynamic(localTm);
+		m_pDynamicBody->userData = GetOwner()->Collider3D();
 		m_pDynamicBody->attachShape(*m_pShape);
+		m_pDynamicBody->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
 		//m_pDynamicBody->setLinearDamping(10.f);
 		PxRigidBodyExt::updateMassAndInertia(*m_pDynamicBody, 10.0f);
 		PhysXMgr::GetInst()->GCurScene()->addActor(*m_pDynamicBody);
@@ -226,6 +254,7 @@ void CRigidBody::addToScene()
 	else
 	{
 		m_pStaticBody = PhysXMgr::GetInst()->GPhysics()->createRigidStatic(localTm);
+		m_pStaticBody->userData = GetOwner()->Collider3D();
 		m_pStaticBody->attachShape(*m_pShape);
 		PhysXMgr::GetInst()->GCurScene()->addActor(*m_pStaticBody);
 	}

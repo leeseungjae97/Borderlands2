@@ -172,6 +172,7 @@ call EngineCopy.bat</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BulletMgr.h" />
     <ClInclude Include="CAnimClip.h" />
     <ClInclude Include="CAnimation3DShader.h" />
     <ClInclude Include="CAnimator3D.h" />
@@ -193,6 +194,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="CHeightMapShader.h" />
     <ClInclude Include="CInstancingBuffer.h" />
     <ClInclude Include="CKeyMgr.h" />
+    <ClInclude Include="CollisionMgr.h" />
     <ClInclude Include="LandScapeMgr.h" />
     <ClInclude Include="CLandScapePathShader.h" />
     <ClInclude Include="CLandScape.h" />
@@ -248,6 +250,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="struct.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BulletMgr.cpp" />
     <ClCompile Include="CAnimClip.cpp" />
     <ClCompile Include="CAnimation3DShader.cpp" />
     <ClCompile Include="CAnimator3D.cpp" />
@@ -272,6 +275,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CHeightMapShader.cpp" />
     <ClCompile Include="CInstancingBuffer.cpp" />
     <ClCompile Include="CKeyMgr.cpp" />
+    <ClCompile Include="CollisionMgr.cpp" />
     <ClCompile Include="LandScapeMgr.cpp" />
     <ClCompile Include="CLandScapePathShader.cpp" />
     <ClCompile Include="CLandScape.cpp" />

@@ -77,6 +77,8 @@ void CEngine::progress()
 
 	// Event 처리, tick 에서 바로 처리가 불가능한것들을 모아서 지연처리
 	CEventMgr::GetInst()->tick();
+
+	PhysXMgr::GetInst()->fixedTick();
 }
 
 void CEngine::tick()
@@ -92,17 +94,6 @@ void CEngine::tick()
 	// Level Update
 	// Level 안에 존재하는 모든 GameObject 들이 Tick 을 호출받음
 	CLevelMgr::GetInst()->tick();
-
-	PhysXMgr::GetInst()->tick();
-
-	//if(KEY_PRESSED(KEY::E))
-	//{
-	//	ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"switch level"));
-	//}
-	//if (KEY_PRESSED(KEY::R))
-	//{
-	//	ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"main level"));
-	//}
 }
 
 void CEngine::render()

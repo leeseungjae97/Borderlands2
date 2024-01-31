@@ -89,7 +89,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
     MSG msg;
 
-    CLevelMgr::GetInst()->begin();
+    //CLevelMgr::GetInst()->begin();
 
     while (true)
     {

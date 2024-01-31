@@ -8,6 +8,8 @@
 
 #include <Engine\CGameObject.h>
 
+#include "CollisionUI.h"
+#include "LayerInspectorUI.h"
 #include "ManagerInspectorUI.h"
 #include "ObjectPickerUI.h"
 #include "UI.h"
@@ -183,6 +185,14 @@ void ImGuiMgr::CreateUI()
     m_mapUI.insert(make_pair(pUI->GetID(), pUI));
 
     pUI = new ObjectPickerUI;
+    pUI->SetActive(true);
+    m_mapUI.insert(make_pair(pUI->GetID(), pUI));
+
+    //pUI = new LayerInspectorUI;
+    //pUI->SetActive(true);
+    //m_mapUI.insert(make_pair(pUI->GetID(), pUI));
+
+    pUI = new CollisionUI;
     pUI->SetActive(true);
     m_mapUI.insert(make_pair(pUI->GetID(), pUI));
 

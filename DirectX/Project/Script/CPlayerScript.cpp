@@ -5,6 +5,7 @@
 #include <Engine\CMaterial.h>
 #include <Engine\CRenderMgr.h>
 
+#include "CBulletScript.h"
 #include "CMissileScript.h"
 
 
@@ -12,6 +13,8 @@ CPlayerScript::CPlayerScript()
 	: CScript((UINT)SCRIPT_TYPE::PLAYERSCRIPT)
 	, m_fSpeed(100.f)
 	, m_fJump(50.f)
+	, m_fRateOfFire(0.2f)
+	, m_fRateOfFireAcc(0.0f)
 	, m_MouseAcces(1.f)
 {
 	AddScriptParam(SCRIPT_PARAM::FLOAT, &m_fSpeed, "Player Speed");
@@ -33,6 +36,8 @@ void CPlayerScript::begin()
 
 void CPlayerScript::tick()
 {
+	m_fRateOfFireAcc += DT;
+
 	CGameObject* pCamObj = GetOwner()->GetFollowObj();
 	CGameObject* pPlayerObj = GetOwner();
 
@@ -90,19 +95,38 @@ void CPlayerScript::tick()
 	{
 		final_velocity += vPlayerUp * DT * m_fJump;
 	}
+	if(KEY_PRESSED(KEY::V))
+	{
+		if(m_fRateOfFireAcc >= m_fRateOfFire)
+		{
+			m_fRateOfFireAcc = 0.0f;
+			Shoot();
+		}
+	}
+	if (KEY_PRESSED(KEY::F))
+	{
+		final_velocity = Vec3(0.f, 0.f, 0.f);
+		pPlayerRB->SetVelocityZero();
+	}
 
 	pPlayerRB->SetVelocity(final_velocity * fSpeed);
 }
 
 void CPlayerScript::Shoot()
 {
-	// 미사일 프리팹 참조
-	//Ptr<CPrefab> pMissilePrefab = CResMgr::GetInst()->FindRes<CPrefab>(L"MissilePrefab");
-	//Vec3 vMissilePos = Transform()->GetRelativePos() + Vec3(0.f, 0.5f, 0.f) * Transform()->GetRelativeScale();
-	//CGameObject* pCloneMissile = pMissilePrefab->Instantiate();
+	CCamera* MainCam = CRenderMgr::GetInst()->GetMainCam();
 
-	//// 레벨에 추가
-	//SpawnGameObject(pCloneMissile, vMissilePos, L"PlayerProjectile");
+	tRay Ray = MainCam->GetRay();
+	Vec3 vStart = Ray.vStart;
+
+	CGameObject* pBullet = new CGameObject;
+	pBullet->SetName(L"Player Bullet");
+	pBullet->AddComponent(new CTransform);
+	pBullet->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
+	pBullet->AddComponent(new CCollider3D(false));
+	pBullet->AddComponent(new CBulletScript);
+
+	SpawnGameObject(pBullet, vStart, L"Bullet");
 }
 
 void CPlayerScript::BeginOverlap(CCollider3D* _Other)
