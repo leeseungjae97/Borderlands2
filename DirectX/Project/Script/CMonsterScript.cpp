@@ -10,9 +10,10 @@
 CMonsterScript::CMonsterScript()
 	: CScript((UINT)SCRIPT_TYPE::MONSTERSCRIPT)
 	, fMonsterSpeed(100.f)
-	, fRotateSpeed(100.f)
+	, fRotateSpeed(2.f)
 
 {
+	AddScriptParam(SCRIPT_PARAM::FLOAT, &fRotateSpeed, "Rotate Speed");
 }
 
 CMonsterScript::~CMonsterScript()
@@ -49,6 +50,7 @@ bool CMonsterScript::Rotate()
 
 	Vec3 vPlayerPos = pPlayer->Transform()->GetRelativePos();
 	Vec3 vMonsterPos = pMonster->Transform()->GetRelativePos();
+
 
 	Vec3 vMonsterRight = pMonster->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
 

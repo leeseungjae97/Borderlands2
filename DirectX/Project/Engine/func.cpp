@@ -377,6 +377,10 @@ const char* ToString(COMPONENT_TYPE type)
 	return COMPONENT_TYPE_STR[(UINT)type];
 }
 
+const char* ToString(ANIMATION_TYPE type)
+{
+	return ANIMATION_TYPE_STR[(UINT)type];
+}
 wstring GetRelativePath(const wstring& _strBase, const wstring& _strPath)
 {
 	wstring strRelativePath;

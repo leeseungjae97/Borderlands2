@@ -10,9 +10,10 @@ StructuredBuffer<matrix> g_arrOffset : register(t17);
 RWStructuredBuffer<matrix> g_arrFinelMat : register(u0);
 
 #define BoneCount       g_int_0
-#define CurFrame        g_int_1
-#define IsBlend         g_int_2
-#define NextIdx         g_int_3
+#define CurIdx          g_int_1
+#define NextIdx         g_int_2
+#define IsBlend         g_int_3
+#define NextClipIdx     g_int_4
 #define Ratio           g_float_0
 #define NextClipRatio   g_float_1
 
@@ -25,8 +26,8 @@ void CS_Animation3D(int3 _iThreadIdx : SV_DispatchThreadID)
     float4 vQZero = float4(0.f, 0.f, 0.f, 1.f);
     matrix matBone = (matrix) 0.f;
     
-    const uint iFrameDataIndex      = BoneCount * CurFrame + _iThreadIdx.x;
-    const uint iNextFrameDataIdx    = BoneCount * (CurFrame + 1) + _iThreadIdx.x;
+    const uint iFrameDataIndex      = BoneCount * CurIdx + _iThreadIdx.x;
+    const uint iNextFrameDataIdx    = BoneCount * NextIdx + _iThreadIdx.x;
 
     float4 vScale   = lerp(g_arrFrameTrans[iFrameDataIndex].vScale, g_arrFrameTrans[iNextFrameDataIdx].vScale, Ratio);
 	float4 vTrans   = lerp(g_arrFrameTrans[iFrameDataIndex].vTranslate, g_arrFrameTrans[iNextFrameDataIdx].vTranslate, Ratio);
@@ -34,7 +35,7 @@ void CS_Animation3D(int3 _iThreadIdx : SV_DispatchThreadID)
     
     if (IsBlend)
     {
-        const uint nextClipFrameDataIndex = BoneCount * NextIdx + _iThreadIdx.x;
+        const uint nextClipFrameDataIndex = BoneCount * NextClipIdx + _iThreadIdx.x;
 
         vScale  = lerp(vScale, g_blendFrameTrans[nextClipFrameDataIndex].vScale, NextClipRatio);
         vTrans  = lerp(vTrans, g_blendFrameTrans[nextClipFrameDataIndex].vTranslate, NextClipRatio);

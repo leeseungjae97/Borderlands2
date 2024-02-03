@@ -11,6 +11,9 @@ private:
 	CGameObject* m_pPickObj;
 
 public:
+	void tick();
+
+public:
 	CGameObject* GetPickObj() { return m_pPickObj; }
 	void SetPickObj(CGameObject* _PickObj) { m_pPickObj = _PickObj; }
 };

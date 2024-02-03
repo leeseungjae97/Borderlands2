@@ -196,6 +196,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResUI.h" />
     <ClInclude Include="RigidBodyUI.h" />
+    <ClInclude Include="SamplerFilterUI.h" />
     <ClInclude Include="ScriptUI.h" />
     <ClInclude Include="SoundUI.h" />
     <ClInclude Include="targetver.h" />
@@ -250,6 +251,7 @@
     <ClCompile Include="PrefabUI.cpp" />
     <ClCompile Include="ResUI.cpp" />
     <ClCompile Include="RigidBodyUI.cpp" />
+    <ClCompile Include="SamplerFilterUI.cpp" />
     <ClCompile Include="ScriptUI.cpp" />
     <ClCompile Include="SoundUI.cpp" />
     <ClCompile Include="TestLevel.cpp" />

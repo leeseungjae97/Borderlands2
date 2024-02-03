@@ -22,7 +22,7 @@ CMeshData* CMeshData::LoadFromFBX(const wstring& _strFilePath)
 {
 	wstring strFullPath = CPathMgr::GetInst()->GetContentPath();
 	strFullPath += _strFilePath;
-
+	
 	FBXLoader loader;
 	loader.init();
 	loader.LoadFbx(strFullPath);
@@ -30,6 +30,8 @@ CMeshData* CMeshData::LoadFromFBX(const wstring& _strFilePath)
 	// 메쉬 가져오기
 	CMesh* pMesh = nullptr;
 	pMesh = CMesh::CreateFromContainer(loader);
+
+	//pMesh->SetName(_strFilePath);
 
 	// ResMgr 에 메쉬 등록
 	if (nullptr != pMesh)
@@ -42,7 +44,6 @@ CMeshData* CMeshData::LoadFromFBX(const wstring& _strFilePath)
 		// 메시를 실제 파일로 저장
 		pMesh->Save(strMeshKey);
 	}
-
 
 	vector<Ptr<CMaterial>> vecMtrl;
 
@@ -145,7 +146,7 @@ CGameObject* CMeshData::Instantiate()
 	CGameObject* pNewObj = new CGameObject;
 	pNewObj->AddComponent(new CTransform);
 	pNewObj->AddComponent(new CMeshRender);
-	pNewObj->Transform()->SetRelativeScale(Vec3(40.f, 40.f, 40.f));
+	pNewObj->Transform()->SetRelativeScale(Vec3(1000.f, 1000.f, 1000.f));
 	pNewObj->MeshRender()->SetMesh(m_pMesh);
 
 	for (UINT i = 0; i < m_vecMtrl.size(); ++i)

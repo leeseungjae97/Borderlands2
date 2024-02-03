@@ -161,10 +161,10 @@ void CGameObject::render_shadowmap()
 {
 	if (nullptr != m_RenderCom)
 	{
-		if(m_bESM)
-			m_RenderCom->render_shadowmapexp();
-		else
-			m_RenderCom->render_shadowmap();
+		//if(m_bESM)
+		//	m_RenderCom->render_shadowmapexp();
+		//else
+		m_RenderCom->render_shadowmap();
 	}
 		
 }

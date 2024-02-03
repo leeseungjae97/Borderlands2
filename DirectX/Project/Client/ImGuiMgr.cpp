@@ -14,6 +14,7 @@
 #include "ObjectPickerUI.h"
 #include "UI.h"
 #include "ParamUI.h"
+#include "SamplerFilterUI.h"
 
 
 ImGuiMgr::ImGuiMgr()
@@ -193,6 +194,10 @@ void ImGuiMgr::CreateUI()
     //m_mapUI.insert(make_pair(pUI->GetID(), pUI));
 
     pUI = new CollisionUI;
+    pUI->SetActive(true);
+    m_mapUI.insert(make_pair(pUI->GetID(), pUI));
+
+    pUI = new SamplerFilterUI;
     pUI->SetActive(true);
     m_mapUI.insert(make_pair(pUI->GetID(), pUI));
 

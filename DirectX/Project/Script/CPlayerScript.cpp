@@ -4,6 +4,7 @@
 #include <Engine\CMeshRender.h>
 #include <Engine\CMaterial.h>
 #include <Engine\CRenderMgr.h>
+#include <Engine\CameraMgr.h>
 
 #include "CBulletScript.h"
 #include "CMissileScript.h"
@@ -61,6 +62,9 @@ void CPlayerScript::Move()
 	m_fRateOfFireAcc += DT;
 
 	CGameObject* pCamObj = GetOwner()->GetFollowObj();
+	if (nullptr == pCamObj) 
+		pCamObj = CameraMgr::GetInst()->GetCamObj(L"MainCamera");
+
 	CGameObject* pPlayerObj = GetOwner();
 
 	Vec3 vPlayerPos = pPlayerObj->Transform()->GetRelativePos();
@@ -85,7 +89,7 @@ void CPlayerScript::Move()
 	pCamObj->Transform()->SetRelativePos(vPlayerPos);
 
 	float fSpeed = m_fSpeed;
-
+	bool bKeyPressed = false;
 	Vec3 final_velocity = Vec3(0.f, 0.f, 0.f);
 
 	if (KEY_PRESSED(KEY::LSHIFT))
@@ -94,27 +98,54 @@ void CPlayerScript::Move()
 	}
 	if (KEY_PRESSED(KEY::W))
 	{
+		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::WALK_FORWARD, true);
 		final_velocity += vPlayerFront * DT * fSpeed;
+		bKeyPressed = true;
 	}
 
 	if (KEY_PRESSED(KEY::S))
 	{
+		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::WALK_BACK, true);
 		final_velocity += vPlayerFront * DT * -fSpeed;
+		bKeyPressed = true;
 	}
 
 	if (KEY_PRESSED(KEY::A))
 	{
+		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::WALK_LEFT, true);
 		final_velocity += vPlayerRight * DT * -fSpeed;
+		bKeyPressed = true;
 	}
 
 	if (KEY_PRESSED(KEY::D))
 	{
+		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::WALK_RIGHT, true);
 		final_velocity += vPlayerRight * DT * fSpeed;
+		bKeyPressed = true;
+	}
+
+	if (KEY_PRESSED(KEY::D) && KEY_PRESSED(KEY::W))
+	{
+		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::WALK_FORWARD, true);
+	}
+	if (KEY_PRESSED(KEY::A) && KEY_PRESSED(KEY::W))
+	{
+		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::WALK_FORWARD, true);
+	}
+	if (KEY_PRESSED(KEY::A) && KEY_PRESSED(KEY::S))
+	{
+		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::WALK_BACK, true);
+	}
+	if (KEY_PRESSED(KEY::D) && KEY_PRESSED(KEY::S))
+	{
+		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::WALK_BACK, true);
 	}
 
 	if (KEY_PRESSED(KEY::SPACE))
 	{
+		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::JUMP, false);
 		final_velocity += vPlayerUp * DT * m_fJump;
+		bKeyPressed = true;
 	}
 	if (KEY_PRESSED(KEY::V))
 	{
@@ -123,6 +154,10 @@ void CPlayerScript::Move()
 			m_fRateOfFireAcc = 0.0f;
 			Shoot();
 		}
+	}
+	if(!bKeyPressed)
+	{
+		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::IDLE, true);
 	}
 	if (KEY_PRESSED(KEY::F))
 	{

@@ -16,7 +16,7 @@ CAnimClip::CAnimClip()
 	, m_bFinish(false)
 	, m_bLoop(false)
 	, m_fRatio(0.f)
-	, m_iFramePerSecond(30)
+	, m_iFramePerSecond(24)
 {
 }
 
@@ -27,34 +27,53 @@ CAnimClip::~CAnimClip()
 
 void CAnimClip::finlatick()
 {
-	if (m_bFinish)
-		return;
+	//if (m_bFinish)
+	//	return;
 
 	m_fTime += DT;
 
-	if (m_Clip.dTimeLength < m_fTime)
+	//if (m_bLoop && m_iCurIdx == 0)
+	//{
+	//	m_iCurIdx = m_Clip.iStartFrame;
+	//}
+	//else
+	//{
+	//	m_iCurIdx = m_iNextIdx;
+	//}
+
+
+	if ((float)m_Clip.dTimeLength < m_fTime)
 	{
-		m_fTime = 0.01f;
+		m_iCurIdx = m_Clip.iStartFrame;
+		m_iNextIdx = m_iCurIdx;
+		m_fTime = 0.0f;
+		m_fRatio = 0.0f;
+		m_bFinish = true;
+		m_fTime = 0.0f;
 	}
 
-	if (m_Clip.iEndFrame - 1 <= m_iCurIdx)
+	if (m_Clip.iFrameLength - 1 <= m_iCurIdx)
 	{
-		if (m_bLoop)
-		{
-			m_iCurIdx = m_Clip.iStartFrame + 1;
-			m_iNextIdx = m_iCurIdx;
-			m_fTime = 0.01f;
-		}
-		else
-		{
-			m_iCurIdx = m_Clip.iEndFrame;
-			m_iNextIdx = m_iCurIdx;
-			m_fTime = 0.01f;
-			m_bFinish = true;
-		}
+		//if (m_bLoop)
+		//{
+		//	m_iCurIdx = m_Clip.iStartFrame;
+		//	m_iNextIdx = m_iCurIdx + 1;
+		//	m_fTime = m_Clip.dStartTime;
+		//	m_fRatio = 1.0f;
+		//}
+		//else
+		//{
+		//
+		//}
+		m_iCurIdx = m_Clip.iStartFrame;
+		m_iNextIdx = m_iCurIdx - 1;
+		m_fTime = 0.0f;
+		m_fRatio = 0.0f;
+		m_bFinish = true;
 	}
 	else
 		m_iNextIdx = m_iCurIdx + 1;
+
 
 	double dCurtime = m_Clip.dStartTime + m_fTime;
 	double dFrameIdx = dCurtime * (double)m_iFramePerSecond;
@@ -82,6 +101,15 @@ void CAnimClip::Create(const std::wstring& name, const vector<tMTAnimClip>* _Ani
 
 	m_bLoop = _bLoop;
 }
+
+void CAnimClip::SetManualIdx(int idx)
+{
+	double dCurtime = m_Clip.dStartTime + DT * idx;
+	double dFrameIdx = dCurtime * (double)m_iFramePerSecond;
+	idx = (int)dFrameIdx;
+	m_fRatio = (float)(dFrameIdx - (double)idx);
+}
+
 void CAnimClip::SaveToLevelFile(FILE* _File)
 {
 	fwrite(&m_pOwner, sizeof(CAnimator3D), 1, _File);

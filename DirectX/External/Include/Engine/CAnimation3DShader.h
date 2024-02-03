@@ -14,8 +14,9 @@ class CAnimation3DShader :
 public:
 	void SetBoneCount(int _iBoneCount) { m_Const.arrInt[0] = _iBoneCount; }
 	void SetFrameIndex(int _iFrameIdx) { m_Const.arrInt[1] = _iFrameIdx; }
-	void SetIsBlend(bool _bIsBlend) { m_Const.arrInt[2] = _bIsBlend; }
-	void SetNextFrame(int _iLastFrame) { m_Const.arrInt[3] = _iLastFrame; }
+	void SetFrameNextIndex(int _iNextIdx) { m_Const.arrInt[2] = _iNextIdx; }
+	void SetIsBlend(bool _bIsBlend) { m_Const.arrInt[3] = _bIsBlend; }
+	void SetNextClipFrameIndex(int _iLastFrame) { m_Const.arrInt[4] = _iLastFrame; }
 
 	void SetFrameRatio(float _fFrameRatio) { m_Const.arrFloat[0] = _fFrameRatio; }
 	void SetBlendRatio(float _fFrameRatio) { m_Const.arrFloat[1] = _fFrameRatio; }

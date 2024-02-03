@@ -290,7 +290,8 @@ void CRenderMgr::CreateMRT()
     {
         m_MRT[(UINT)MRT_TYPE::SHADOWMAP] = new MRT;
     
-        Vec2 vResol = Vec2(8192, 8192);
+        //Vec2 vResol = Vec2(8192, 8192);
+        Vec2 vResol = Vec2(4096, 4096);
 
         Ptr<CTexture> arrRTTex[8] = {};
         arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"DynamicShadowMapTex", vResol.x, vResol.y

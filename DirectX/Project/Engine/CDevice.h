@@ -3,6 +3,7 @@
 #include "ptr.h"
 #include "CTexture.h"
 
+
 class CConstBuffer;
 class CDevice
 	: public CSingleton<CDevice>
@@ -34,9 +35,21 @@ private:
 	Vec2							m_vRenderResolution;							
 	CConstBuffer*					m_arrConstBuffer[(UINT)CB_TYPE::END];
 
+	D3D11_FILTER sampleFilters[9] =
+	{
+		D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT,
+		D3D11_FILTER_COMPARISON_MIN_MAG_POINT_MIP_LINEAR,
+		D3D11_FILTER_COMPARISON_MIN_POINT_MAG_LINEAR_MIP_POINT,
+		D3D11_FILTER_COMPARISON_MIN_POINT_MAG_MIP_LINEAR,
+		D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_MIP_POINT,
+		D3D11_FILTER_COMPARISON_MIN_LINEAR_MAG_POINT_MIP_LINEAR,
+		D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT,
+		D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR,
+		D3D11_FILTER_COMPARISON_ANISOTROPIC,
+	};
 
-
-
+	int m_iFilterIdx;
+	int m_iAdsIdx;
 
 public:
 	int init(HWND _hWnd, UINT _iWidth, UINT _iHeight);
@@ -63,7 +76,11 @@ public:
 	ComPtr<ID3D11DepthStencilState> GetDSState(DS_TYPE _Type) { return m_DSState[(UINT)_Type]; }
 	ComPtr<ID3D11BlendState> GetBSState(BS_TYPE _Type) { return m_BSState[(UINT)_Type]; }
 
+	int GetShadowFilterIdx() { return m_iFilterIdx; }
+	int GetAdsIdx() { return m_iAdsIdx; }
 
+	void SetShadowSamplerFilter(int _FilterIdx);
+	void SetSamplerAddress(int _AdsIdx);
 
 public:
 	CDevice();

@@ -3,6 +3,7 @@
 
 #include <Engine/CGameObject.h>
 #include <Engine/CAnimator3D.h>
+#include <Engine/AnimationMgr.h>
 
 
 Animator3DUI::Animator3DUI()
@@ -28,6 +29,49 @@ int Animator3DUI::render_update()
 	ImGui::SameLine();
 	ImGui::InputFloat("##BlendRatio", &ratio, 0.1f);
 
+	if(ImGui::Button("STOP##AnimstopBtn"))
+	{
+		GetTarget()->Animator3D()->StopAutoPlay();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("PLAY##AnimplayBtn"))
+	{
+		GetTarget()->Animator3D()->PlayAuto();
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Manual Ratio##ManualRatioBtn"))
+	{
+		GetTarget()->Animator3D()->ManualRatio();
+	}
+	if (ImGui::Button("Auto Ratio##AutoRatioBtn"))
+	{
+		GetTarget()->Animator3D()->AutoRatio();
+	}
+
+	if(GetTarget()->Animator3D()->IsPlayManual())
+	{
+		ImGui::Text("Manual idx : ");
+		ImGui::SameLine();
+		if(ImGui::Button("+##mupbtn"))
+		{
+			GetTarget()->Animator3D()->ManualIdxUp();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("-##mdownbtn"))
+		{
+			GetTarget()->Animator3D()->ManualIdxDown();
+		}
+		if(GetTarget()->Animator3D()->IsManualRatio())
+		{
+			ImGui::Text("Manual Ratio : ");
+			ImGui::SameLine();
+			float mRatio = GetTarget()->Animator3D()->GetManualRatio();
+			ImGui::InputFloat("##manualRatio", &mRatio);
+			GetTarget()->Animator3D()->SetManualRatio(mRatio);
+		}
+	}
+
+
 	GetTarget()->Animator3D()->SetBlendRatio(ratio);
 
 	if(curAnimClip)
@@ -36,10 +80,10 @@ int Animator3DUI::render_update()
 		string animName = string(wanimName.begin(), wanimName.end());
 		ImGui::Text("cur anim : %s", animName.c_str());
 
-		sprintf_s(str, "Anim Idx : %d", GetTarget()->Animator3D()->GetClipIdx());
-		ImGui::Text(str);
-
-		sprintf_s(str, "Anim Frame : %d", GetTarget()->Animator3D()->GetCurAnimClip()->GetClipNextFrame());
+		if (!GetTarget()->Animator3D()->IsPlayManual())
+			sprintf_s(str, "Anim Frame : %d", GetTarget()->Animator3D()->GetCurAnimClip()->GetClipIdx());
+		else
+			sprintf_s(str, "Anim Frame : %d", GetTarget()->Animator3D()->GetManualIdx());
 		ImGui::Text(str);
 
 		sprintf_s(str, "Blend Time : %d", GetTarget()->Animator3D()->GetBlendAcc());
@@ -53,8 +97,18 @@ int Animator3DUI::render_update()
 	}
 
 	wstring mChosen = L"";
-	int idx = 0;
+	string comboLabel = "";
 	int count = 0;
+
+	int strMaxLen = 0;
+	ImVec2 strSize;
+	ImGuiComboFlags flags = 0;
+	for(const string str : ANIMATION_TYPE_STR)
+	{
+		strSize = ImGui::CalcTextSize(str.c_str());
+		strMaxLen = strMaxLen < strSize.x ? strSize.x : strMaxLen;
+	}
+
 	for (const auto& pair : clips)
 	{
 		wstring wanimName = pair.first;
@@ -62,15 +116,49 @@ int Animator3DUI::render_update()
 		if(ImGui::Button(animName.c_str()))
 		{
 			mChosen = pair.first;
-			idx = count;
+		}
+		{
+			ANIMATION_TYPE setType = GetTarget()->Animator3D()->FindDefineAnimation(wanimName);
+			ImGui::Text("^ Define anim : ");
+			int currentItem = (int)setType;
+			ImGui::SameLine();
+			comboLabel = "##atc" + std::to_string(count);
+			ImGui::SetNextItemWidth(strMaxLen * 2.f);
+			if (ImGui::BeginCombo(comboLabel.c_str(), ANIMATION_TYPE_STR[currentItem], flags))
+			{
+				for (int n = 0; n < IM_ARRAYSIZE(ANIMATION_TYPE_STR); n++)
+				{
+					const bool is_selected = (currentItem == n);
+
+					if (ImGui::Selectable(ANIMATION_TYPE_STR[n], is_selected))
+					{
+						currentItem = n;
+						GetTarget()->Animator3D()->SetDefineAnimation(wanimName, (ANIMATION_TYPE)currentItem);
+					}
+					if (is_selected)
+						ImGui::SetItemDefaultFocus();
+				}
+				ImGui::EndCombo();
+			}
 		}
 		++count;
 	}
 	if(L"" != mChosen)
 	{
-		GetTarget()->Animator3D()->SetCurAnimClip(clips.at(mChosen));
-		GetTarget()->Animator3D()->SetClipIdx(idx);
+		GetTarget()->Animator3D()->Play(mChosen, true);
+		//GetTarget()->Animator3D()->SetCurAnimClip(clips.at(mChosen));
+		//GetTarget()->Animator3D()->SetClipIdx(idx);
 	}
+	ImGui::Text("Adapt Animation");
+	if (ImGui::Button("Target Layer Only##AnimationAdaptBtn"))
+	{
+		AnimationMgr::GetInst()->AdaptAnimation(GetTarget());
+	}
+	if (ImGui::Button("All Layer##AnimationAdaptBtn"))
+	{
+		AnimationMgr::GetInst()->AdaptAnimation(GetTarget(), true);
+	}
+	
 
 	return TRUE;
 }

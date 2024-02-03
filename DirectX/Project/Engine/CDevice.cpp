@@ -406,24 +406,27 @@ int CDevice::CreateSampler()
     tSamDesc.MaxLOD = D3D11_FLOAT32_MAX;
     DEVICE->CreateSamplerState(&tSamDesc, m_Sampler[1].GetAddressOf());
 
-    tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
-    tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
-    tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+    tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+
+    tSamDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    //tSamDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+    DEVICE->CreateSamplerState(&tSamDesc, m_Sampler[2].GetAddressOf());
+
+    tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+    tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+    tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
 
     tSamDesc.BorderColor[0] = (FLOAT)0.f;
     tSamDesc.BorderColor[1] = (FLOAT)0.f;
     tSamDesc.BorderColor[2] = (FLOAT)0.f;
     tSamDesc.BorderColor[3] = (FLOAT)0.f;
 
-    tSamDesc.Filter = D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT;
-    DEVICE->CreateSamplerState(&tSamDesc, m_Sampler[2].GetAddressOf());
-
-    tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
-    tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
-    tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
-
-    tSamDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-    tSamDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+    //tSamDesc.Filter = D3D11_FILTER_COMPARISON_ANISOTROPIC;
+    m_iFilterIdx = 6;
+    tSamDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;;
+    tSamDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
     DEVICE->CreateSamplerState(&tSamDesc, m_Sampler[3].GetAddressOf());
 
     CONTEXT->VSSetSamplers(0, 1, m_Sampler[0].GetAddressOf());
@@ -455,6 +458,84 @@ int CDevice::CreateSampler()
     CONTEXT->CSSetSamplers(3, 1, m_Sampler[3].GetAddressOf());
     
     return S_OK;
+}
+
+void CDevice::SetShadowSamplerFilter(int _FilterIdx)
+{
+    if (m_iFilterIdx == _FilterIdx) return;
+    m_iFilterIdx = _FilterIdx;
+
+    ID3D11SamplerState* pBackupSamplerState;
+    CONTEXT->VSGetSamplers(3, 1, &pBackupSamplerState);
+
+    ComPtr<ID3D11SamplerState> pNewSamplerState;
+    D3D11_SAMPLER_DESC tSamDesc = {};
+    pBackupSamplerState->GetDesc(&tSamDesc);
+    tSamDesc.Filter = sampleFilters[m_iFilterIdx];
+
+    DEVICE->CreateSamplerState(&tSamDesc, &pNewSamplerState);
+
+    CONTEXT->VSSetSamplers(3, 1, pNewSamplerState.GetAddressOf());
+    CONTEXT->HSSetSamplers(3, 1, pNewSamplerState.GetAddressOf());
+    CONTEXT->DSSetSamplers(3, 1, pNewSamplerState.GetAddressOf());
+    CONTEXT->GSSetSamplers(3, 1, pNewSamplerState.GetAddressOf());
+    CONTEXT->PSSetSamplers(3, 1, pNewSamplerState.GetAddressOf());
+    CONTEXT->CSSetSamplers(3, 1, pNewSamplerState.GetAddressOf());
+
+    m_Sampler[3] = pNewSamplerState;
+
+    pBackupSamplerState->Release();
+}
+
+void CDevice::SetSamplerAddress(int _AdsIdx)
+{
+    if (m_iAdsIdx == _AdsIdx) return;
+    m_iAdsIdx = _AdsIdx;
+
+    ID3D11SamplerState* pBackupSamplerState;
+    CONTEXT->VSGetSamplers(3, 1, &pBackupSamplerState);
+
+    ComPtr<ID3D11SamplerState> pNewSamplerState;
+    D3D11_SAMPLER_DESC tSamDesc = {};
+    pBackupSamplerState->GetDesc(&tSamDesc);
+
+    if(_AdsIdx == 0)
+    {
+        tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+        tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+        tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+    }
+    if(_AdsIdx == 1)
+    {
+        tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    }
+    if (_AdsIdx == 2)
+    {
+        tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+        tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+        tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+    }
+    if (_AdsIdx == 3)
+    {
+        tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+        tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+        tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+    }
+
+    DEVICE->CreateSamplerState(&tSamDesc, &pNewSamplerState);
+
+    CONTEXT->VSSetSamplers(3, 1, pNewSamplerState.GetAddressOf());
+    CONTEXT->HSSetSamplers(3, 1, pNewSamplerState.GetAddressOf());
+    CONTEXT->DSSetSamplers(3, 1, pNewSamplerState.GetAddressOf());
+    CONTEXT->GSSetSamplers(3, 1, pNewSamplerState.GetAddressOf());
+    CONTEXT->PSSetSamplers(3, 1, pNewSamplerState.GetAddressOf());
+    CONTEXT->CSSetSamplers(3, 1, pNewSamplerState.GetAddressOf());
+
+    m_Sampler[3] = pNewSamplerState;
+
+    pBackupSamplerState->Release();
 }
 
 void CDevice::CreateConstBuffer()

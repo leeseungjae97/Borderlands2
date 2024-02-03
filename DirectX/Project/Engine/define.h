@@ -17,6 +17,31 @@
 
 #define SINGLE(type) private: type(); ~type(); friend class CSingleton<type>;
 
+enum class ANIMATION_TYPE
+{
+	WALK_FORWARD,
+	WALK_BACK,
+	WALK_RIGHT,
+	WALK_LEFT,
+	RUN_FORWARD,
+	RUN_BACK,
+	RUN_RIGHT,
+	RUN_LEFT,
+	JUMP,
+	IDLE,
+	ATTACK1,
+	ATTACK2,
+	ATTACK3,
+	ATTACK4,
+	DIE,
+	DEAD,
+	EXTRA1,
+	EXTRA2,
+	EXTRA3,
+	EXTRA4,
+	END,
+};
+
 enum class COMPONENT_TYPE
 {
 	// update
@@ -65,8 +90,8 @@ enum class RES_TYPE
 extern const char* RES_TYPE_STR[(UINT)RES_TYPE::END];
 extern const wchar_t* RES_TYPE_WSTR[(UINT)RES_TYPE::END];
 
-
-
+extern const char* ANIMATION_TYPE_STR[(UINT)ANIMATION_TYPE::END + 1];
+extern const wchar_t* ANIMATION_TYPE_WSTR[(UINT)ANIMATION_TYPE::END + 1];
 
 enum class CB_TYPE
 {
@@ -268,6 +293,7 @@ enum class LEVEL_STATE
 	PLAY,
 	PAUSE,
 	STOP,
+	LOAD,
 	NO_UPDATE_RENDER,
 };
 

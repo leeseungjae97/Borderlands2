@@ -186,14 +186,20 @@ CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File)
 		case COMPONENT_TYPE::TRANSFORM:
 			Component = new CTransform;
 			break;
-		case COMPONENT_TYPE::COLLIDER3D:
-			//Component = new CCollider2D;
-			break;
 		case COMPONENT_TYPE::ANIMATOR3D:
 			Component = new CAnimator3D;
 			break;
 		case COMPONENT_TYPE::LIGHT3D:
 			Component = new CLight3D;
+			break;
+		case COMPONENT_TYPE::RIGIDBODY:
+			Component = new CRigidBody;
+			break;
+		case COMPONENT_TYPE::COLLIDER3D:
+			Component = new CCollider3D;
+			break;
+		case COMPONENT_TYPE::GIZMO:
+			Component = new CGizmo;
 			break;
 		case COMPONENT_TYPE::CAMERA:
 			Component = new CCamera;

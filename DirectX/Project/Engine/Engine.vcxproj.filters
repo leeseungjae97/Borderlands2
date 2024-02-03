@@ -163,8 +163,8 @@
     <ClInclude Include="CAnimClip.h">
       <Filter>Source\_Component\_Animator3D</Filter>
     </ClInclude>
-    <ClInclude Include="LUT_Animation.h">
-      <Filter>LookUpTables</Filter>
+    <ClInclude Include="LT_Animation.h">
+      <Filter>LookUpTable</Filter>
     </ClInclude>
     <ClInclude Include="CLayer.h">
       <Filter>Source\_Level\Layer</Filter>
@@ -232,7 +232,15 @@
     <ClInclude Include="MonsterMgr.h">
       <Filter>Source\_Manager\MonsterMgr</Filter>
     </ClInclude>
-    <ClInclude Include="CGizmo.h" />
+    <ClInclude Include="CGizmo.h">
+      <Filter>Source\_Component\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationMgr.h">
+      <Filter>Source\_Manager\AnimationMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraMgr.h">
+      <Filter>Source\_Manager\CameraMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -445,7 +453,15 @@
     <ClCompile Include="MonsterMgr.cpp">
       <Filter>Source\_Manager\MonsterMgr</Filter>
     </ClCompile>
-    <ClCompile Include="CGizmo.cpp" />
+    <ClCompile Include="CGizmo.cpp">
+      <Filter>Source\_Component\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationMgr.cpp">
+      <Filter>Source\_Manager\AnimationMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraMgr.cpp">
+      <Filter>Source\_Manager\CameraMgr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -462,9 +478,6 @@
     </Filter>
     <Filter Include="Source\GameObject">
       <UniqueIdentifier>{c8caa982-e753-4824-b0f1-dc97ebec0e80}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="LookUpTables">
-      <UniqueIdentifier>{ff74bcc9-a3b3-4efc-95b0-17c28faa0925}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\_Manager">
       <UniqueIdentifier>{ff80abf2-a382-43db-9139-bdb15da13dc5}</UniqueIdentifier>
@@ -666,6 +679,15 @@
     </Filter>
     <Filter Include="Source\_Component\Gizmo">
       <UniqueIdentifier>{ec5339a9-b08b-459d-8477-39ea7f94afa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LookUpTable">
+      <UniqueIdentifier>{ff74bcc9-a3b3-4efc-95b0-17c28faa0925}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\AnimationMgr">
+      <UniqueIdentifier>{bdd3471a-81a4-4fc4-9392-18fdb974aa64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\CameraMgr">
+      <UniqueIdentifier>{8bca7917-c633-4725-971d-b3207f9a91b5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -977,6 +977,7 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	pShader->SetRSType(RS_TYPE::CULL_BACK);
 	pShader->SetDSType(DS_TYPE::LESS);
+	//pShader->SetBSType(BS_TYPE::MASK);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_LIGHT);
 
 	AddRes(pShader->GetKey(), pShader);
@@ -1253,6 +1254,10 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DirLightShader"));
 	AddRes(L"DirLightMtrl", pMtrl);
 
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"SpotLightShader"));
+	AddRes(L"SpotLightMtrl", pMtrl);
+
 	// PointLightMtrl
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"PointLightShader"));
@@ -1348,8 +1353,10 @@ Ptr<CMeshData> CResMgr::LoadFBX(const wstring& _strPath)
 	wstring strName = L"meshdata\\";
 	strName += strFileName + L".mdat";
 
+	//m_wsFbxName += _strFilePath;
 	//Ptr<CMeshData> pMeshData;
 
+	//Ptr<CMeshData> pMeshData = nullptr;
 	Ptr<CMeshData> pMeshData = FindRes<CMeshData>(strName);
 
 	if (nullptr != pMeshData)

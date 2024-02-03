@@ -135,6 +135,12 @@ void CLight3D::render()
 		m_Mtrl->SetScalarParam(FLOAT_3, &m_f[2]);
 
 	}
+	else if(m_LightInfo.LightType == (UINT)LIGHT_TYPE::SPOT)
+	{
+		Matrix matVP = m_pCamObj->Camera()->GetViewMat() * m_pCamObj->Camera()->GetProjMat();
+		m_Mtrl->SetScalarParam(MAT_0, &matVP);
+		m_Mtrl->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"DynamicShadowMapTex"));
+	}
 
 	m_Mtrl->UpdateData();
 

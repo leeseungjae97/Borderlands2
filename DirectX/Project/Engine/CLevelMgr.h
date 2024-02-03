@@ -12,6 +12,7 @@ private:
     map<wstring, CLevel*> m_mapLevels;
 
     CLevel*     m_pCurLevel;
+
 public:
     map<wstring, CLevel*> GetLevels() { return m_mapLevels; }
     CLevel* GetCurLevel() { return m_pCurLevel; }

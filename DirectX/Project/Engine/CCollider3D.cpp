@@ -10,8 +10,9 @@ CCollider3D::CCollider3D(bool _AttachRigid)
 	: CComponent(COMPONENT_TYPE::COLLIDER3D)
 	, m_PxColliderShape(nullptr)
 	, m_bFirstInit(false)
+	, m_tColliderShapeType(COLLIDER_SHAPE_TYPE::BOX)
 	, m_bAttachToRigidBody(_AttachRigid)
-	, vScale(Vec3(100.f, 100.f, 100.f))
+	, m_vScale(Vec3(1.f, 1.f, 1.f))
 {
 	m_PxMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(0.0f, 0.0f, 0.0f);
 
@@ -65,9 +66,6 @@ void CCollider3D::BeginOverlap(CCollider3D* _OhterCol)
 
 void CCollider3D::setShapeToRigidBody()
 {
-	
-	//if (nullptr == _rb) return;
-
 	CRigidBody* _rb = GetOwner()->RigidBody();
 
 	if (!m_bAttachToRigidBody && nullptr == _rb
@@ -101,20 +99,22 @@ void CCollider3D::setShapeToRigidBody()
 	{
 		_rb->AttachShape(m_PxColliderShape);
 	}
+
+	//m_PxColliderShape->release();
 		
 }
 
 void CCollider3D::createColliderShape()
 {
-	CRigidBody* _rb = GetOwner()->RigidBody();
+	//CRigidBody* _rb = GetOwner()->RigidBody();
 
-	if(vScale == Vec3(1.f, 1.f, 1.f))
-	{
-		if (_rb)
-			vScale = GetOwner()->RigidBody()->GetRigidScale();
-	}
+	//if(m_vScale == Vec3(1.f, 1.f, 1.f))
+	//{
+	//	if (_rb)
+	//		m_vScale = GetOwner()->RigidBody()->GetRigidScale();
+	//}
 	
-	m_PxColliderShape = createTriggerShape(PxBoxGeometry(vScale.x, vScale.y, vScale.z), *m_PxMaterial, true);
+	m_PxColliderShape = createTriggerShape(PxBoxGeometry(m_vScale.x, m_vScale.y, m_vScale.z), *m_PxMaterial, true);
 	PxFilterData triggerFilterData(0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff);
 	m_PxColliderShape->setSimulationFilterData(triggerFilterData);
 }
@@ -132,17 +132,21 @@ void CCollider3D::colliderDebugDraw()
 		pos = m_PxColliderRigid->getGlobalPose();
 
 	Matrix worldMat = physx::Util::WorldMatFromGlobalPose(pos
-		, Vec3(vScale.x
-					, vScale.y
-					, vScale.z)
+		, Vec3(m_vScale.x
+					, m_vScale.y
+					, m_vScale.z)
 	);
 	DrawDebugCube(worldMat, Vec4(0.f, 1.f, 0.f, 1.f), 0.f, true);
 }
 
 void CCollider3D::LoadFromLevelFile(FILE* _FILE)
 {
+	fread(&m_vScale, sizeof(Vec3), 1, _FILE);
+	fread(&m_bAttachToRigidBody, sizeof(bool), 1, _FILE);
 }
 
 void CCollider3D::SaveToLevelFile(FILE* _File)
 {
+	fwrite(&m_vScale, sizeof(Vec3), 1, _File);
+	fwrite(&m_bAttachToRigidBody, sizeof(bool), 1, _File);
 }

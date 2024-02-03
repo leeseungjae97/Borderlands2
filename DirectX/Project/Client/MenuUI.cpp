@@ -63,6 +63,7 @@ int MenuUI::render_update()
                     string nStr = Strsubstr(str, ".lv");
                     wstring wstr(nStr.begin(), nStr.end());
                     CLevel* pLoadedLevel = CLevelSaveLoad::LoadLevel(L"Level\\" + wstr);
+                    pLoadedLevel->ChangeState(LEVEL_STATE::LOAD);
 
                     tEvent evn = {};
                     evn.Type = EVENT_TYPE::LEVEL_LOAD;

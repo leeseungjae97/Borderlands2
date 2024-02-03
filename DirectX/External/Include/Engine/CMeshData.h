@@ -12,6 +12,8 @@ private:
     Ptr<CMesh>              m_pMesh;
     vector<Ptr<CMaterial>>  m_vecMtrl;
 
+    wstring                 m_wsFbxName;
+
 public:
     static CMeshData* LoadFromFBX(const wstring& _strFilePath);
 

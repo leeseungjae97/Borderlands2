@@ -69,7 +69,7 @@ VS_OUT VS_Std3D_Deferred(VS_IN _in)
                
     output.vPosition = mul(float4(_in.vPos, 1.f), g_matWVP);
     output.vUV = _in.vUV;
-      
+
     return output;
 }
 

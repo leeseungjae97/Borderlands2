@@ -73,8 +73,6 @@ private:
 
 	bool						m_bLoop;
 	bool						m_bMultipleClip;
-	int							m_iClipIdx;
-	int							m_iNextClipIdx;
 
 	bool						m_bBlendMode;
 	bool						m_bBlend;
@@ -83,8 +81,14 @@ private:
 
 	float						m_fBRatio;
 
-	std::map<std::wstring, CAnimClip*> mClips;
-	std::map<std::wstring, Events*> mEvents;
+	bool						m_bStop;
+	bool						m_bMaRatio;
+	int							m_iManualIdx;
+	float						m_iManualRatio;
+
+	std::map<wstring, CAnimClip*> mClips;
+	std::map<wstring, Events*> mEvents;
+	std::map<ANIMATION_TYPE, wstring> m_mapPreDefineAnim;
 
 private:
     void check_mesh(Ptr<CMesh> _pMesh);
@@ -99,14 +103,28 @@ public:
     //void SetAnimClip(const vector<tMTAnimClip>* _vecAnimClip);
 	void SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip);
 
-	const std::map<std::wstring, CAnimClip*>& GetAnimClips() { return mClips; }
-	const std::map<std::wstring, Events*>& GetEvents() { return mEvents; }
-
+	const std::map<wstring, CAnimClip*>& GetAnimClips() { return mClips; }
+	const std::map<wstring, Events*>& GetEvents() { return mEvents; }
+	const std::map<ANIMATION_TYPE, wstring>& GetPrefDefineAnimation() { return m_mapPreDefineAnim; }
 	void SetCurAnimClip(CAnimClip* _Clip);
 	CAnimClip* GetCurAnimClip() { return m_pCurClip; }
 
-	void SetClipIdx(int _idx);
-	int GetClipIdx() { return m_iClipIdx; }
+	void ManualIdxUp();
+	void ManualIdxDown();
+
+	void StopAutoPlay() { m_bStop = true; }
+	void PlayAuto() { m_bStop = false; }
+	bool IsPlayManual() { return m_bStop; }
+
+	void ManualRatio() { m_bMaRatio = true; }
+	void AutoRatio() { m_bMaRatio = false; }
+	bool IsManualRatio() { return m_bMaRatio; }
+
+	int GetManualIdx() { return m_iManualIdx; }
+
+	void SetManualRatio(float _Ratio) { m_iManualRatio = _Ratio; }
+	float GetManualRatio() { return m_iManualRatio; }
+	//void SetClipIdx(int _idx);
 
     CStructuredBuffer* GetFinalBoneMat() { return m_pBoneFinalMatBuffer; }
     UINT GetBoneCount() { return (UINT)m_pVecBones.size(); }
@@ -119,15 +137,24 @@ public:
 
 	float GetBlendAcc() { return m_fBlendAcc; }
 
-public:
-	void Play(const std::wstring& _Name, bool repeat);
-	CAnimator3D::Events* FindEvents(const std::wstring& name);
-	CAnimClip* FindClip(const std::wstring& name);
+	void SetDefineAnimation(wstring animName, ANIMATION_TYPE _Type);
+	ANIMATION_TYPE FindDefineAnimation(wstring animName);
+	const wstring& GetDefineAnimationName(ANIMATION_TYPE _Type);
+	bool DeleteDefineAnimation(wstring animName);
+	void DeleteDefine(ANIMATION_TYPE _Type);
 
-    std::shared_ptr<std::function<void()>>& StartEvent(const std::wstring key);
-	std::shared_ptr<std::function<void()>>& CompleteEvent(const std::wstring key);
-	std::shared_ptr<std::function<void()>>& EndEvent(const std::wstring key);
-	std::shared_ptr<std::function<void()>>& ProgressEvent(const std::wstring key);
+	void SetPreDefineAnimation(const std::map<ANIMATION_TYPE, wstring>& _mapAnim) { m_mapPreDefineAnim = _mapAnim; }
+
+public:
+	void Play(const wstring& _Name, bool _Loop);
+	void Play(ANIMATION_TYPE _type, bool _Loop);
+	CAnimator3D::Events* FindEvents(const wstring& name);
+	CAnimClip* FindClip(const wstring& name);
+
+    std::shared_ptr<std::function<void()>>& StartEvent(const wstring key);
+	std::shared_ptr<std::function<void()>>& CompleteEvent(const wstring key);
+	std::shared_ptr<std::function<void()>>& EndEvent(const wstring key);
+	std::shared_ptr<std::function<void()>>& ProgressEvent(const wstring key);
 
 public:
     virtual void SaveToLevelFile(FILE* _pFile) override;

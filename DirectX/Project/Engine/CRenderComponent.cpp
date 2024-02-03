@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CRenderComponent.h"
 
+#include "CAnimator3D.h"
 #include "CResMgr.h"
 #include "CTransform.h"
 
@@ -94,12 +95,34 @@ void CRenderComponent::render_shadowmap()
 {
 	Ptr<CMaterial> pShadowMapMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"ShadowMapMtrl");
 
+	if (Animator3D())
+	{
+		Animator3D()->UpdateData();
+
+		pShadowMapMtrl->SetAnim3D(true); // Animation Mesh 알리기
+		pShadowMapMtrl->SetBoneCount(Animator3D()->GetBoneCount());
+	}else
+	{
+		pShadowMapMtrl->SetAnim3D(false);
+	}
+
 	Transform()->UpdateData();
 
-	//pShadowMapMtrl->GetShader()->SetStencilRef(0);
-	pShadowMapMtrl->UpdateData();
+	for (int i = 0; i < GetMesh()->GetSubsetCount(); ++i)
+	{
+		// 재질 업데이트
+		pShadowMapMtrl->UpdateData();
 
-	GetMesh()->render(0);
+		// 렌더
+		GetMesh()->render(i);
+	}
+	if(GetMesh()->GetSubsetCount() == 0)
+	{
+		GetMesh()->render(0);
+	}
+
+	if (Animator3D())
+		Animator3D()->ClearData();
 }
 
 void CRenderComponent::render_shadowmapexp()

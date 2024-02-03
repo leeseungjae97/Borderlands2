@@ -290,10 +290,10 @@ void CLandScape::Bake()
 	//m_vecNode.clear();
 
 	//Vec3 vPos = Transform()->GetRelativePos();
-	//Vec3 vScale = Transform()->GetRelativeScale();
+	//Vec3 m_vScale = Transform()->GetRelativeScale();
 
-	//float _x = vScale.x / 2.f;
-	//float _z = vScale.z / 2.f;
+	//float _x = m_vScale.x / 2.f;
+	//float _z = m_vScale.z / 2.f;
 	//for (int i = 0; i < m_iFaceZ; ++i)
 	//{
 	//	for (int j = 0; j < m_iFaceX; ++j)
@@ -302,9 +302,9 @@ void CLandScape::Bake()
 	//		node.iCoordX = j;
 	//		node.iCoordY = i;
 	//		node.vLandPos = vPos;
-	//		node.vPos.x = j * vScale.x;
+	//		node.vPos.x = j * m_vScale.x;
 	//		node.vPos.y = 0.f;
-	//		node.vPos.z = _z + i * vScale.z;
+	//		node.vPos.z = _z + i * m_vScale.z;
 
 	//		TestPreloadGameObject(node.vPos, 0, nullptr);
 

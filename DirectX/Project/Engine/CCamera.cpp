@@ -2,6 +2,7 @@
 #include "CCamera.h"
 
 
+#include "CameraMgr.h"
 #include "CAnimator3D.h"
 #include "CDevice.h"
 #include "CRenderMgr.h"
@@ -70,6 +71,7 @@ void CCamera::begin()
 {
 	if (-1 != m_iCamIdx)
 	{
+		CameraMgr::GetInst()->AddCamObj(GetOwner()->GetName(), GetOwner());
 		CRenderMgr::GetInst()->RegisterCamera(this, m_iCamIdx);
 	}
 }
@@ -653,7 +655,7 @@ void CCamera::render_shadowmap()
 
 	for (size_t i = 0; i < m_vecShadow.size(); ++i)
 	{
-		m_vecShadow[i]->SetESM(m_bESM);
+		//m_vecShadow[i]->SetESM(m_bESM);
 		m_vecShadow[i]->render_shadowmap();
 	}
 }

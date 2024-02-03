@@ -105,8 +105,9 @@ public:
     CLONE(CRigidBody)
 public:
     // CLONE ABLE용 생성자, ImGui사용할 때 기본 생성자
-    CRigidBody();
-    CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2 = RIGID_BODY_TYPE::STATIC);
+    //CRigidBody();
+    CRigidBody(RIGID_BODY_SHAPE_TYPE _Type = RIGID_BODY_SHAPE_TYPE::BOX
+        , RIGID_BODY_TYPE _Type2 = RIGID_BODY_TYPE::STATIC);
     virtual ~CRigidBody();
 };
 

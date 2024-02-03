@@ -207,25 +207,24 @@ static float GaussianFilter[5][5] =
     0.003f,  0.0133f, 0.0219f, 0.0133f, 0.003f,
 };
 
-float2 texOffset(int u, int v, float2 shadowMapSize)
+float2 texOffset(int x, int y, float2 shadowMapSize)
 {
-    return float2(u * 1.0f / shadowMapSize.x, v * 1.0f / shadowMapSize.y);
+    return float2(x / shadowMapSize.x, y / shadowMapSize.y);
 }
-
 
 float PCF(Texture2D _Tex, float2 texCoords, float compareDepth, float coeff, float2 shadowMapSize)
 {
     float shadow = 0.0;
-
     float x, y;
-    for (y = -1.5f; y <= 1.5f; y += 1.0)
+    //for (y = -1.5f; y <= 1.5f; y += 1.0)
+    for (y = -0.5f; y <= 0.5f; y += 0.1)
     {
-        for (x = -1.5f; x <= 1.5f; x += 1.0)
+        //for (x = -1.5f; x <= 1.5f; x += 1.0)
+        for (x = -0.5f; x <= 0.5f; x += 0.1)
         {
             shadow += _Tex.SampleCmpLevelZero(g_shadow_sampler, texCoords + texOffset(x, y, shadowMapSize), compareDepth).r;
         }
     }
-
     return shadow / coeff;
 }
 
@@ -347,6 +346,26 @@ void Skinning(inout float3 _vPos, inout float3 _vTangent, inout float3 _vBinorma
     _vTangent = normalize(info.vTangent);
     _vBinormal = normalize(info.vBinormal);
     _vNormal = normalize(info.vNormal);
+}
+
+void ShadowSkinning(inout float3 _vPos, inout float4 _vWeight, inout float4 _vIndices, int _iRowIdx)
+{
+    tSkinningInfo info = (tSkinningInfo) 0.f;
+
+    if (_iRowIdx == -1)
+        return;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        if (0.f == _vWeight[i])
+            continue;
+
+        matrix matBone = GetBoneMat((int) _vIndices[i], _iRowIdx);
+
+        info.vPos += (mul(float4(_vPos, 1.f), matBone) * _vWeight[i]).xyz;
+    }
+
+    _vPos = info.vPos;
 }
 
 float4 VectorLess(float4 _vQ1, float4 _vQ2)

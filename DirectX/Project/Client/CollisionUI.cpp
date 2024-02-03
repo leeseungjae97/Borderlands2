@@ -107,7 +107,10 @@ int CollisionUI::render_update()
 						t = true;
 					}
 
-					ImGui::Checkbox(m.c_str(), &t);
+					if(ImGui::Checkbox(m.c_str(), &t))
+					{
+						CollisionMgr::GetInst()->SetLayerIntersect(layerName, ohterLayerName, t);
+					}
 				}
 			}
 		}

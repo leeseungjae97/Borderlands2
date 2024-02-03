@@ -7,12 +7,14 @@
 #include "CTransform.h"
 #include "physx_util.h"
 
-CRigidBody::CRigidBody()
-	: CComponent(COMPONENT_TYPE::RIGIDBODY)
-{
-	//m_tRigidShapeType = RIGID_BODY_SHAPE_TYPE::BOX;
-	//m_tRigidType = RIGID_BODY_TYPE::STATIC;
-}
+//CRigidBody::CRigidBody()
+//	: CComponent(COMPONENT_TYPE::RIGIDBODY)
+//{
+//	//m_tRigidShapeType = RIGID_BODY_SHAPE_TYPE::BOX;
+//	//m_tRigidType = RIGID_BODY_TYPE::STATIC;
+//	if(nullptr == m_pMaterial)
+//		m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(1.0f, 1.0f, 0.1f);
+//}
 
 CRigidBody::CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2)
 	: CComponent(COMPONENT_TYPE::RIGIDBODY)
@@ -21,6 +23,7 @@ CRigidBody::CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2)
 	, m_vRigidScale(Vec3(1.f, 1.f, 1.f))
 	, m_bCreature(false)
 	, m_bInit(false)
+	, m_debugMeshName(L"")
 {
 	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(1.0f, 1.0f, 0.1f);
 
@@ -52,7 +55,6 @@ void CRigidBody::finaltick()
 	if(!m_bInit)
 	{
 		addToScene();
-		//setRigidPos();
 		m_bInit = true;
 	}
 	
@@ -309,8 +311,30 @@ void CRigidBody::drawDebugRigid()
 
 void CRigidBody::LoadFromLevelFile(FILE* _FILE)
 {
+	fread(&m_tRigidShapeType, sizeof(UINT), 1, _FILE);
+
+	if(m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::MESH)
+		LoadWString(m_debugMeshName, _FILE);
+	
+	fread(&m_tRigidType, sizeof(UINT), 1, _FILE);
+
+	fread(&m_vRigidScale, sizeof(Vec3), 1, _FILE);
+
+	fread(&m_bCreature, sizeof(bool), 1, _FILE);
 }
 
 void CRigidBody::SaveToLevelFile(FILE* _File)
 {
+	UINT shapeType =(UINT)m_tRigidShapeType;
+	fwrite(&shapeType, sizeof(UINT), 1, _File);
+
+	if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::MESH)
+		SaveWString(m_debugMeshName, _File);
+
+	UINT rigidType = (UINT)m_tRigidType;
+	fwrite(&rigidType, sizeof(UINT), 1, _File);
+
+	fwrite(&m_vRigidScale, sizeof(Vec3), 1, _File);
+
+	fwrite(&m_bCreature, sizeof(bool), 1, _File);
 }

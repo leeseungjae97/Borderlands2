@@ -30,12 +30,16 @@ public:
 	const tMTAnimClip GetCurClip() { return m_Clip; }
 
 	const wstring& GetAnimName() { return m_Clip.strAnimName; }
-	int GetClipFrame() { return m_iCurIdx; }
-	int GetClipNextFrame() { return m_iNextIdx; }
+	int GetClipIdx() { return m_iCurIdx; }
+	int GetClipNextIdx() { return m_iNextIdx; }
 
 	int GetClipLength() { return m_Clip.iFrameLength; }
 	int GetStartFrame() { return m_Clip.iStartFrame; }
 	int GetEndFrame() { return m_Clip.iEndFrame; }
+
+	void SetManualIdx(int idx);
+
+	double GetAnimTimeLength() { return m_Clip.dTimeLength; }
 
 	float GetClipTime() { return m_fTime; }
 
@@ -47,10 +51,12 @@ public:
 
 	float GetRatio() { return m_fRatio; }
 	void SetRatio(float _Ratio) { m_fRatio = _Ratio; }
+
 	void Reset()
 	{
 		m_iCurIdx = 0;
-		m_fTime = 0.f;
+		m_fTime = 0.0f;
+		m_fRatio = 0.0f;
 		m_bFinish = false;
 	}
 

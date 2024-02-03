@@ -88,21 +88,68 @@ void CreateTestLevel()
 	//SpawnGameObject(pUICam, Vec3(0.f, 0.f, 0.f), 0);
 
 	CGameObject* pSunLight = new CGameObject;
-	pSunLight->SetName(L"SunLight");
+	pSunLight->SetName(L"Sun Light");
 	pSunLight->AddComponent(new CTransform);
 	pSunLight->AddComponent(new CLight3D);
 
 	pSunLight->Transform()->SetRelativeRot(Vec3(XM_PI / 4.f, XM_PI / 4.f, 0.f));
 	pSunLight->Light3D()->SetRadius(500.f);
 	pSunLight->Light3D()->SetShadow(true);
-	pSunLight->Light3D()->SetFloatConstant(0, 5);
-	pSunLight->Light3D()->SetFloatConstant(1, 0.005);
-	pSunLight->Light3D()->SetLightDepthCoeff(0.005);
+	pSunLight->Light3D()->SetLightDepthCoeff(0.0003f);
+	pSunLight->Light3D()->SetFloatConstant(0, 8192.f);
+	pSunLight->Light3D()->SetFloatConstant(1, 9.0f);
 	pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
 	pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
 	pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
 
 	PreloadGameObject(pSunLight, Vec3(-2000.f, 20000.f, -2000.f), 0);
+
+	//{
+	//	CGameObject* Light = new CGameObject;
+	//	Light->SetName(L"Spot Light");
+	//	Light->AddComponent(new CTransform);
+	//	Light->AddComponent(new CLight3D);
+
+	//	Light->Transform()->SetRelativeRot(Vec3(XM_PI / 4.f, XM_PI / 4.f, 0.f));
+	//	Light->Light3D()->SetRadius(500.f);
+	//	Light->Light3D()->SetShadow(true);
+	//	Light->Light3D()->SetFloatConstant(0, 5);
+	//	Light->Light3D()->SetFloatConstant(1, 0.0004);
+	//	Light->Light3D()->SetLightType(LIGHT_TYPE::SPOT);
+	//	Light->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
+	//	Light->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
+
+	//	PreloadGameObject(Light, Vec3(100.f, 100.f, 100.f), 0);
+	//}
+	//{
+	//	CGameObject* Light = new CGameObject;
+	//	Light->SetName(L"Point Light");
+	//	Light->AddComponent(new CTransform);
+	//	Light->AddComponent(new CLight3D);
+
+	//	Light->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
+	//	Light->Light3D()->SetRadius(500.f);
+	//	Light->Light3D()->SetShadow(true);
+	//	Light->Light3D()->SetFloatConstant(0, 5);
+	//	Light->Light3D()->SetFloatConstant(1, 0.0004);
+	//	Light->Light3D()->SetLightType(LIGHT_TYPE::POINT);
+	//	Light->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
+	//	Light->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
+
+	//	PreloadGameObject(Light, Vec3(100.f, 100.f, 100.f), 0);
+	//}
+
+	//CGameObject* pDistortion = new CGameObject;
+	//pDistortion->SetName(L"Distortion");
+	//pDistortion->AddComponent(new CTransform);
+	//pDistortion->AddComponent(new CMeshRender);
+	//pDistortion->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
+
+	//pDistortion->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//pDistortion->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl"), 0);
+	//pDistortion->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\noise\\noise_04.jpg"));
+
+	//SpawnGameObject(pDistortion, Vec3(0.f, 0.f, 0.f), 0);
 
 	//CGameObject* pCube = new CGameObject;
 	//pCube->SetName(L"Cube1");
@@ -125,7 +172,7 @@ void CreateTestLevel()
 		pCube->SetName(L"Monster1");
 		pCube->AddComponent(new CTransform);
 		pCube->AddComponent(new CMeshRender);
-		pCube->AddComponent(new CMonsterScript);
+		//pCube->AddComponent(new CMonsterScript);
 		pCube->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
 		pCube->AddComponent(new CCollider3D);
 		pCube->AddComponent(new CGizmo);
@@ -139,6 +186,25 @@ void CreateTestLevel()
 		ObjPickerMgr::GetInst()->SetPickObj(pCube);
 		PreloadGameObject(pCube, Vec3(-500.f, 90.f, -500.f), L"Monster");
 	}
+	//{
+	//	CGameObject* pCube = new CGameObject;
+	//	pCube->SetName(L"Monster1");
+	//	pCube->AddComponent(new CTransform);
+	//	pCube->AddComponent(new CMeshRender);
+	//	pCube->AddComponent(new CMonsterScript);
+	//	pCube->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
+	//	pCube->AddComponent(new CCollider3D);
+	//	pCube->AddComponent(new CGizmo);
+	//	pCube->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
+
+	//	pCube->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//	pCube->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
+
+	//	pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
+	//	pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
+	//	ObjPickerMgr::GetInst()->SetPickObj(pCube);
+	//	PreloadGameObject(pCube, Vec3(-500.f, 90.f, -500.f), L"Monster");
+	//}
 
 	CGameObject* pPlane = new CGameObject;
 	pPlane->SetName(L"Plane");
@@ -200,23 +266,23 @@ void CreateTestLevel()
 	//PreloadGameObject(pObject, Vec3(0.f, 0.f, 0.f), 1);
 
 	// LandScape Object
-	CGameObject* pLandScape = new CGameObject;
-	pLandScape->SetName(L"LandScape");
+	//CGameObject* pLandScape = new CGameObject;
+	//pLandScape->SetName(L"LandScape");
 
-	pLandScape->AddComponent(new CTransform);
-	PhysXMgr::GetInst()->CreateScene(Vec3(0.f, 0.f, 0.f));
-	pLandScape->Transform()->SetRelativeScale(Vec3(200.f, 1000.f, 200.f));
+	//pLandScape->AddComponent(new CTransform);
+	//PhysXMgr::GetInst()->CreateScene(Vec3(0.f, 0.f, 0.f));
+	//pLandScape->Transform()->SetRelativeScale(Vec3(200.f, 1000.f, 200.f));
 
-	pLandScape->AddComponent(new CLandScape);
+	//pLandScape->AddComponent(new CLandScape);
 
-	//pLandScape->LandScape()->SetBrushGuideLine(pObject);
-	pLandScape->LandScape()->SetHeightMapName(L"HeightMap2");
-	pLandScape->LandScape()->SetColorMapName(L"ColorMap2");
-	//pLandScape->LandScape()->SetFace(32, 32);
-	pLandScape->LandScape()->SetFrustumCheck(false);
-	//pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
+	////pLandScape->LandScape()->SetBrushGuideLine(pObject);
+	//pLandScape->LandScape()->SetHeightMapName(L"HeightMap2");
+	//pLandScape->LandScape()->SetColorMapName(L"ColorMap2");
+	////pLandScape->LandScape()->SetFace(32, 32);
+	//pLandScape->LandScape()->SetFrustumCheck(false);
+	////pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
 
-	PreloadGameObject(pLandScape, Vec3(-100.f, 0.f, 0.f), 0);
+	//PreloadGameObject(pLandScape, Vec3(-100.f, 0.f, 0.f), 0);
 
 	// ============
 	// FBX Loading
@@ -249,25 +315,50 @@ void CreateTestLevel()
 		//pObj->AddChild(pMainCam);
 		pObj->SetFollowObj(pMainCam);
 		//pMainCam->SetFollowObj(pObj);
-		pMainCam->Transform()->SetFollowOffset(Vec3(0.f, 90.f, 0.f));
+		pMainCam->Transform()->SetFollowOffset(Vec3(0.f, 50.f, 0.f));
 
 		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
 
 		PlayerMgr::GetInst()->SetPlayer(pObj);
-		PreloadGameObject(pObj, Vec3(50.f, 50.f, 50.f), L"Player");
+		PreloadGameObject(pObj, Vec3(50.f, 100.f, 50.f), L"Player");
 	}
-	{
-		//Ptr<CMeshData> pMeshData = nullptr;
-		//CGameObject* pObj = nullptr;
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+	//	pObj = pMeshData->Instantiate();
+	//	pObj->SetName(L"tangent fbx 1");
+	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::STATIC));
+	//	pObj->RigidBody()->SetCreature(true);
+	//	pObj->AddComponent(new CCollider3D());
+	//	pObj->AddComponent(new CGizmo);
+	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Monster");
+	//}
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+	//	pObj = pMeshData->Instantiate();
+	//	pObj->SetName(L"tangent fbx 2");
+	//	pObj->AddComponent(new CMonsterScript);
+	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
+	//	pObj->RigidBody()->SetCreature(true);
+	//	pObj->AddComponent(new CCollider3D);
+	//	pObj->AddComponent(new CGizmo);
+	//	PreloadGameObject(pObj, Vec3(50.f, 90.f, 500.f), L"Monster");
+	//}
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
 
-		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\terrain.fbx");
-		//pObj = pMeshData->Instantiate();
-		//pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
-		//pObj->AddComponent(new CCollider3D);
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\terrain.fbx");
+	//	pObj = pMeshData->Instantiate();
+	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
+	//	//pObj->AddComponent(new CCollider3D);
 
-		//pObj->SetName(L"fbx terrain");
-		//PreloadGameObject(pObj, Vec3(200.f, 100.f, 200.f), L"Default");
-	}
+	//	pObj->SetName(L"fbx terrain");
+	//	PreloadGameObject(pObj, Vec3(200.f, 100.f, 200.f), L"Default");
+	//}
 	//{
 	//	Ptr<CMeshData> pMeshData = nullptr;
 	//	CGameObject* pObj = nullptr;
@@ -305,21 +396,41 @@ void CreateTestLevel()
 	pMainCam->Camera()->SetLayerMask(31, false);// UI Layer 는 렌더링하지 않는다.
 	
 	PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
+	{
+		CGameObject* pSunLight = new CGameObject;
+		pSunLight->SetName(L"Sun Light");
+		pSunLight->AddComponent(new CTransform);
+		pSunLight->AddComponent(new CLight3D);
 
-	/*CGameObject**/ pLandScape = new CGameObject;
-	pLandScape->SetName(L"LandScape");
+		pSunLight->Transform()->SetRelativeRot(Vec3(XM_PI / 4.f, XM_PI / 4.f, 0.f));
+		pSunLight->Light3D()->SetRadius(500.f);
+		pSunLight->Light3D()->SetShadow(true);
+		pSunLight->Light3D()->SetLightDepthCoeff(0.0003f);
+		pSunLight->Light3D()->SetFloatConstant(0, 8192.f);
+		pSunLight->Light3D()->SetFloatConstant(1, 9.0f);
+		pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
+		pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
+		pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
 
-	pLandScape->AddComponent(new CTransform);
-	pLandScape->AddComponent(new CLandScape);
+		PreloadGameObject(pSunLight, Vec3(-2000.f, 20000.f, -2000.f), 0);
+	}
+	{
+		CGameObject* pLandScape = new CGameObject;
+		pLandScape->SetName(L"LandScape");
 
-	pLandScape->Transform()->SetRelativeScale(Vec3(200.f, 1000.f, 200.f));
-	//pLandScape->LandScape()->SetBrushGuideLine(pObject);
-	pLandScape->LandScape()->SetHeightMapName(L"HeightMap1");
-	pLandScape->LandScape()->SetColorMapName(L"ColorMap1");
-	pLandScape->LandScape()->SetFace(32, 32);
-	pLandScape->LandScape()->SetFrustumCheck(false);
-	//pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
-	PreloadGameObject(pLandScape, Vec3(0.f, 0.f, 0.f), 1);
+		pLandScape->AddComponent(new CTransform);
+		pLandScape->AddComponent(new CLandScape);
+
+		pLandScape->Transform()->SetRelativeScale(Vec3(200.f, 1000.f, 200.f));
+		//pLandScape->LandScape()->SetBrushGuideLine(pObject);
+		pLandScape->LandScape()->SetHeightMapName(L"HeightMap1");
+		pLandScape->LandScape()->SetColorMapName(L"ColorMap1");
+		pLandScape->LandScape()->SetFace(32, 32);
+		pLandScape->LandScape()->SetFrustumCheck(false);
+		//pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
+		PreloadGameObject(pLandScape, Vec3(0.f, 0.f, 0.f), 1);
+	}
+	
 
 	///*CGameObject* */pSunLight = new CGameObject;
 	//pSunLight->SetName(L"SunLight");
@@ -334,18 +445,20 @@ void CreateTestLevel()
 
 	//////SpawnGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 0);
 	//PreloadGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 1);
+	{
+		CGameObject* pSkyBox = new CGameObject;
+		pSkyBox->SetName(L"SkyBox");
 
-	/*CGameObject* */pSkyBox = new CGameObject;
-	pSkyBox->SetName(L"SkyBox");
+		pSkyBox->AddComponent(new CTransform);
+		pSkyBox->AddComponent(new CSkyBox);
 
-	pSkyBox->AddComponent(new CTransform);
-	pSkyBox->AddComponent(new CSkyBox);
+		pSkyBox->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100));
+		pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
+		pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\2k_stars_milky_way.jpg"));
 
-	pSkyBox->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100));
-	pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
-	pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\2k_stars_milky_way.jpg"));
+		PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 1);
 
-	PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 1);
+	}
 
 	CollisionMgr::GetInst()->SetLayerIntersect(L"Monster", L"Bullet", true);
 	CollisionMgr::GetInst()->SetLayerIntersect(L"Default", L"Bullet", true);

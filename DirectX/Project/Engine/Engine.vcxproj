@@ -172,6 +172,8 @@ call EngineCopy.bat</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationMgr.h" />
+    <ClInclude Include="CameraMgr.h" />
     <ClInclude Include="CAnimClip.h" />
     <ClInclude Include="CAnimation3DShader.h" />
     <ClInclude Include="CAnimator3D.h" />
@@ -235,7 +237,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="global.h" />
     <ClInclude Include="CDecal.h" />
     <ClInclude Include="KeyUseInfoMgr.h" />
-    <ClInclude Include="LUT_Animation.h" />
+    <ClInclude Include="LT_Animation.h" />
     <ClInclude Include="mFBXLoader.h" />
     <ClInclude Include="mMRT.h" />
     <ClInclude Include="ObjPickerMgr.h" />
@@ -252,6 +254,8 @@ call EngineCopy.bat</Command>
     <ClInclude Include="struct.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationMgr.cpp" />
+    <ClCompile Include="CameraMgr.cpp" />
     <ClCompile Include="CAnimClip.cpp" />
     <ClCompile Include="CAnimation3DShader.cpp" />
     <ClCompile Include="CAnimator3D.cpp" />

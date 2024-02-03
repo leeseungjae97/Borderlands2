@@ -16,8 +16,8 @@ CAnimator3D::CAnimator3D()
 	, m_iFrameCount(30)
 	, m_pBoneFinalMatBuffer(nullptr)
 	, m_bFinalMatUpdate(false)
-	, m_iClipIdx(0)
-	, m_iNextClipIdx(0)
+	//, m_iClipIdx(0)
+	//, m_iNextClipIdx(0)
 	, m_bLoop(false)
 	, m_bMultipleClip(false)
 	, m_pCurClip(nullptr)
@@ -25,6 +25,9 @@ CAnimator3D::CAnimator3D()
 	, m_fBlendTime(0.f)
 	, m_fBRatio(0.0f)
 	, m_fBlendAcc(0.0f)
+	, m_iManualIdx(0)
+	, m_bMaRatio(false)
+	, m_bStop(false)
 	, m_bBlendMode(true)
 	, mClips{}
 	, mEvents{}
@@ -43,8 +46,8 @@ CAnimator3D::CAnimator3D(const CAnimator3D& _origin)
 	  , m_bMultipleClip(_origin.m_bMultipleClip)
 	  , m_pCurClip(_origin.m_pCurClip)
 	  , m_pNextClip(_origin.m_pNextClip)
-	  , m_iClipIdx(_origin.m_iClipIdx)
-	  , m_iNextClipIdx(_origin.m_iNextClipIdx)
+	  //, m_iClipIdx(_origin.m_iClipIdx)
+	  //, m_iNextClipIdx(_origin.m_iNextClipIdx)
 	  , m_bBlendMode(_origin.m_bBlendMode)
       , m_bBlend(_origin.m_bBlend)
 	  , m_fBlendTime(_origin.m_fBlendTime)
@@ -85,6 +88,12 @@ void CAnimator3D::finaltick()
 {
 	Events* events = nullptr;
 
+	if (m_bStop)
+	{
+		m_bFinalMatUpdate = false;
+		return;
+	}
+
 	if (m_bBlend)
 	{
 		if(m_pNextClip)
@@ -98,9 +107,8 @@ void CAnimator3D::finaltick()
 			m_bBlend = false;
 			m_fBlendAcc = 0.f;
 
-			m_pCurClip->Reset();
+			//m_pCurClip->Reset();
 			m_pCurClip = m_pNextClip;
-			m_iClipIdx = m_iNextClipIdx;
 			m_pNextClip = nullptr;
 		}
 	}
@@ -110,8 +118,13 @@ void CAnimator3D::finaltick()
 		{
 			m_pCurClip->finlatick();
 
-			if (m_bLoop)
+			if (m_pCurClip->IsFinish() && m_bLoop)
 			{
+				m_pNextClip = m_pCurClip;
+				m_pNextClip->Reset();
+
+				SetBlend(true, 0.001f);
+
 				events = FindEvents(m_pCurClip->GetName());
 				if (events)
 					events->startEvent();
@@ -145,17 +158,28 @@ void CAnimator3D::UpdateData()
 
 		pUpdateShader->SetIsBlend(m_bBlend);
 
-		if(m_bBlend)
+		if(m_bBlend && m_pNextClip)
 		{
 			pUpdateShader->SetBlendFrameDataBuffer(pMesh->GetBlendFrameDataBuffer(m_pNextClip->GetAnimName()));
-			pUpdateShader->SetNextFrame(m_pNextClip->GetClipFrame());
+			pUpdateShader->SetNextClipFrameIndex(m_pNextClip->GetClipIdx());
 			pUpdateShader->SetBlendRatio(m_fBRatio);
 		}
 
 		UINT iBoneCount = (UINT)m_pVecBones.size();
 		pUpdateShader->SetBoneCount(iBoneCount);
-		pUpdateShader->SetFrameIndex(m_pCurClip->GetClipFrame());
-		pUpdateShader->SetFrameRatio(m_pCurClip->GetRatio());
+		if(m_bStop)
+		{
+			pUpdateShader->SetFrameIndex(m_iManualIdx);
+
+			pUpdateShader->SetFrameRatio(m_bMaRatio ? m_iManualRatio : m_pCurClip->GetRatio());
+			pUpdateShader->SetFrameNextIndex(m_iManualIdx + 1 > m_pCurClip->GetClipLength() ? 0 : m_iManualIdx +1);
+		}else
+		{
+			pUpdateShader->SetFrameIndex(m_pCurClip->GetClipIdx());
+			pUpdateShader->SetFrameRatio(m_pCurClip->GetRatio());
+			pUpdateShader->SetFrameNextIndex(m_pCurClip->GetClipNextIdx());
+		}
+		
 		
 		pUpdateShader->Execute();
 
@@ -182,22 +206,42 @@ void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 
 void CAnimator3D::SetCurAnimClip(CAnimClip* _Clip)
 {
-	if (m_bBlendMode)
-	{
-		m_pNextClip = _Clip;
-		SetBlend(true, 1.0f);
-	}
-	else
-		m_pCurClip = _Clip;
+	//if (m_bBlendMode)
+	//{
+	//	m_pNextClip = _Clip;
+	//	SetBlend(true, 1.0f);
+	//}
+	//else
+	//	m_pCurClip = _Clip;
 }
 
-void CAnimator3D::SetClipIdx(int _idx)
+void CAnimator3D::ManualIdxUp()
 {
-	if (m_bBlendMode)
-		m_iNextClipIdx = _idx;
-	else
-		m_iClipIdx = _idx;
+	++m_iManualIdx;
+
+	if (m_pCurClip->GetClipLength() < m_iManualIdx)
+		m_iManualIdx = 0;
+
+	m_pCurClip->SetManualIdx(m_iManualIdx);
 }
+
+void CAnimator3D::ManualIdxDown()
+{
+	--m_iManualIdx;
+
+	if (m_iManualIdx < 0)
+		m_iManualIdx = m_pCurClip->GetClipLength();
+
+	m_pCurClip->SetManualIdx(m_iManualIdx);
+}
+
+//void CAnimator3D::SetClipIdx(int _idx)
+//{
+//	if (m_bBlendMode)
+//		m_iNextClipIdx = _idx;
+//	else
+//		m_iClipIdx = _idx;
+//}
 
 void CAnimator3D::ClearData()
 {
@@ -222,10 +266,82 @@ void CAnimator3D::SetBlend(bool _bBlend, float _fBlendTime)
 	m_fBlendTime = _fBlendTime;
 }
 
-void CAnimator3D::Play(const std::wstring& _Name, bool _Loop)
+void CAnimator3D::SetDefineAnimation(wstring animName, ANIMATION_TYPE _Type)
+{
+	CAnimClip* clip = FindClip(animName);
+
+	if (nullptr == clip)
+		assert(NULL);
+
+	//Events* events = FindEvents(animName);
+
+	DeleteDefine(_Type);
+	m_mapPreDefineAnim.insert(make_pair(_Type, animName));
+}
+
+ANIMATION_TYPE CAnimator3D::FindDefineAnimation(wstring animName)
+{
+	auto iter = m_mapPreDefineAnim.begin();
+	while (iter != m_mapPreDefineAnim.end())
+	{
+		if (iter->second == animName)
+		{
+			return iter->first;
+		}
+		else ++iter;
+
+	}
+	return ANIMATION_TYPE::END;
+}
+
+const wstring& CAnimator3D::GetDefineAnimationName(ANIMATION_TYPE _Type)
+{
+	auto iter = m_mapPreDefineAnim.find(_Type);
+	if (iter != m_mapPreDefineAnim.end())
+		return iter->second;
+
+	return L"NO_ANIM_SET";	
+}
+
+bool CAnimator3D::DeleteDefineAnimation(wstring animName)
+{
+	if (animName == L"") return false;
+
+	auto iter = m_mapPreDefineAnim.begin();
+	while (iter != m_mapPreDefineAnim.end())
+	{
+		if (iter->second == animName)
+		{
+			iter->second = L"";
+			return true;
+		}
+		else ++iter;
+	}
+	return false;
+}
+
+void CAnimator3D::DeleteDefine(ANIMATION_TYPE _Type)
+{
+	if (_Type == ANIMATION_TYPE::END) return;
+
+	auto iter = m_mapPreDefineAnim.find(_Type);
+	if (iter != m_mapPreDefineAnim.end())
+	{
+		iter = m_mapPreDefineAnim.erase(iter);
+	};
+}
+
+void CAnimator3D::Play(const wstring& _Name, bool _Loop)
 {
 	CAnimClip* pCheckClip = FindClip(_Name);
 	Events* events;
+
+	if (pCheckClip == m_pCurClip)
+	{
+		return;
+	}
+
+	m_bBlend = true;
 
 	if (m_pCurClip)
 	{
@@ -237,43 +353,108 @@ void CAnimator3D::Play(const std::wstring& _Name, bool _Loop)
 
 	if (nullptr != pCheckClip)
 	{
-		m_pCurClip = pCheckClip;
-		m_pCurClip->Reset();
-		events = FindEvents(m_pCurClip->GetName() + L"startEvent");
-		if (events)
-			events->startEvent();
+		if (m_bBlendMode)
+		{
+			m_pNextClip = pCheckClip;
+			m_pNextClip->Reset();
+
+			SetBlend(true, 0.1f);
+
+			events = FindEvents(m_pNextClip->GetName() + L"startEvent");
+			if (events)
+				events->startEvent();
+		}
+		else
+		{
+			m_pCurClip = pCheckClip;
+			m_pCurClip->Reset();
+
+			events = FindEvents(m_pCurClip->GetName() + L"startEvent");
+			if (events)
+				events->startEvent();
+		}
 	}
 
 	m_bLoop = _Loop;
 }
 
-std::shared_ptr<std::function<void()>>& CAnimator3D::StartEvent(const std::wstring key)
+void CAnimator3D::Play(ANIMATION_TYPE _type, bool _Loop)
+{
+	wstring animName = GetDefineAnimationName(_type);
+
+	if (animName == L"NO_ANIM_SET") return;
+
+	CAnimClip* pCheckClip = FindClip(animName);
+	Events* events;
+
+	if (pCheckClip == m_pCurClip)
+	{
+		return;
+	}
+
+	m_bBlend = true;
+
+	if (m_pCurClip)
+	{
+		m_pCurClip->Reset();
+		events = FindEvents(m_pCurClip->GetName() + L"endEvent");
+		if (events)
+			events->endEvent();
+	}
+
+	if (nullptr != pCheckClip)
+	{
+		if (m_bBlendMode)
+		{
+			m_pNextClip = pCheckClip;
+			m_pNextClip->Reset();
+
+			SetBlend(true, 0.1f);
+
+			events = FindEvents(m_pNextClip->GetName() + L"startEvent");
+			if (events)
+				events->startEvent();
+		}
+		else{
+			m_pCurClip = pCheckClip;
+			m_pCurClip->Reset();
+
+			events = FindEvents(m_pCurClip->GetName() + L"startEvent");
+			if (events)
+				events->startEvent();
+		}
+	}
+
+	m_bLoop = _Loop;
+}
+
+std::shared_ptr<std::function<void()>>& CAnimator3D::StartEvent(const wstring key)
 {
 	Events* events = FindEvents(key + L"startEvent");
 	return events->startEvent.mEvent;
 }
 
-std::shared_ptr<std::function<void()>>& CAnimator3D::CompleteEvent(const std::wstring key)
+std::shared_ptr<std::function<void()>>& CAnimator3D::CompleteEvent(const wstring key)
 {
 	Events* events = FindEvents(key + L"completeEvent");
 	return events->completeEvent.mEvent;
 }
 
-std::shared_ptr<std::function<void()>>& CAnimator3D::EndEvent(const std::wstring key)
+std::shared_ptr<std::function<void()>>& CAnimator3D::EndEvent(const wstring key)
 {
 	Events* events = FindEvents(key + L"endEvent");
 	return events->endEvent.mEvent;
 }
 
-std::shared_ptr<std::function<void()>>& CAnimator3D::ProgressEvent(const std::wstring key)
+std::shared_ptr<std::function<void()>>& CAnimator3D::ProgressEvent(const wstring key)
 {
 	Events* events = FindEvents(key + L"progressEvent");
 	return events->progressEvent.mEvent;
 }
 
-CAnimator3D::Events* CAnimator3D::FindEvents(const std::wstring& name)
+CAnimator3D::Events* CAnimator3D::FindEvents(const wstring& name)
 {
-	std::map<std::wstring, Events*>::iterator iter
+	std::map<wstring, Events*>::iterator iter
 		= mEvents.find(name);
 
 	if (iter == mEvents.end())
@@ -282,9 +463,9 @@ CAnimator3D::Events* CAnimator3D::FindEvents(const std::wstring& name)
 	return iter->second;
 }
 
-CAnimClip* CAnimator3D::FindClip(const std::wstring& name)
+CAnimClip* CAnimator3D::FindClip(const wstring& name)
 {
-	std::map<std::wstring, CAnimClip*>::iterator iter
+	std::map<wstring, CAnimClip*>::iterator iter
 		= mClips.find(name);
 
 	if (iter == mClips.end())
@@ -354,11 +535,20 @@ void CAnimator3D::SaveToLevelFile(FILE* _pFile)
 	}
 
 	fwrite(&m_iFrameCount, sizeof(int), 1, _pFile);
-	fwrite(&m_iClipIdx, sizeof(int), 1, _pFile);
+	//fwrite(&m_iClipIdx, sizeof(int), 1, _pFile);
 	fwrite(&m_bFinalMatUpdate, sizeof(bool), 1, _pFile);
 	fwrite(&m_bLoop, sizeof(bool), 1, _pFile);
 	fwrite(&m_bMultipleClip, sizeof(bool), 1, _pFile);
 
+	mapSize = m_mapPreDefineAnim.size();
+	fwrite(&mapSize, sizeof(UINT), 1, _pFile);
+	auto iter = m_mapPreDefineAnim.begin();
+	while(iter != m_mapPreDefineAnim.end())
+	{
+		SaveWString(iter->second, _pFile);
+		fwrite(&iter->first, sizeof(UINT), 1, _pFile);
+		++iter;
+	}
 	//size_t count = mClips.size();
 
 	//fwrite(&count, sizeof(size_t), 1, _pFile);
@@ -443,26 +633,21 @@ void CAnimator3D::LoadFromLevelFile(FILE* _pFile)
 	}
 
 	fread(&m_iFrameCount, sizeof(int), 1, _pFile);
-	fread(&m_iClipIdx, sizeof(int), 1, _pFile);
+	//fread(&m_iClipIdx, sizeof(int), 1, _pFile);
 	fread(&m_bFinalMatUpdate, sizeof(bool), 1, _pFile);
 	fread(&m_bLoop, sizeof(bool), 1, _pFile);
 	fread(&m_bMultipleClip, sizeof(bool), 1, _pFile);
 
-	//size_t count = 0;
-	//fread(&count, sizeof(size_t), 1, _pFile);
-	//for (size_t i = 0; i < count; ++i)
-	//{
-	//	wstring strCurAnimName;
-	//	LoadWString(strCurAnimName, _pFile);
-	//	CAnimClip* clip = new CAnimClip();
-	//	clip->LoadFromLevelFile(_pFile);
-
-	//	mClips.insert(make_pair(strCurAnimName, clip));
-
-	//	Events* events = new Events();
-	//	events->LoadFromLevelFile(_pFile);
-	//	mEvents.insert(make_pair(strCurAnimName, events));
-	//}
+	mapSize = m_mapPreDefineAnim.size();
+	fread(&mapSize, sizeof(UINT), 1, _pFile);
+	wstring animName = L"";
+	UINT _type = (UINT)ANIMATION_TYPE::END;
+	for(int i = 0; i < mapSize; ++i)
+	{
+		LoadWString(animName, _pFile);
+		fread(&_type, sizeof(UINT), 1, _pFile);
+		m_mapPreDefineAnim.insert(make_pair((ANIMATION_TYPE)_type, animName));
+	}
 
 	create_clip();
 }
@@ -480,15 +665,16 @@ void CAnimator3D::create_clip()
 {
 	if (mClips.size() != 0 || mEvents.size() != 0) return;
 
-	wstring testClip = L"";
+	wstring tempClipName = L"";
 	//for (size_t i = 0; i < m_pMapClip->size(); ++i)
 	for (auto& pair : m_pMapClip)
 	{
 		tMTAnimClip clip = pair.second;
 
 		CAnimClip* pAnimClip = new CAnimClip();
-		if (L"" == testClip)
-			testClip = clip.strAnimName;
+
+		if (L"" == tempClipName)
+			tempClipName = clip.strAnimName;
 
 		pAnimClip->Create(clip.strAnimName, clip
 			, clip.iStartFrame, clip.iEndFrame, true);
@@ -502,7 +688,8 @@ void CAnimator3D::create_clip()
 			events = new Events();
 
 		mEvents.insert(make_pair(clip.strAnimName, events));
+		//m_mapPreDefineAnim.insert(make_pair(ANIMATION_TYPE::END, clip.strAnimName));
 	}
 
-	m_pCurClip = mClips.at(testClip);
+	m_pCurClip = mClips.at(tempClipName);
 }

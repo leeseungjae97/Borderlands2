@@ -11,8 +11,8 @@ private:
 public:
     void finaltick() override;
 
-    void LoadFromLevelFile(FILE* _FILE) override;
-    void SaveToLevelFile(FILE* _File) override;
+    void LoadFromLevelFile(FILE* _FILE) override {};
+    void SaveToLevelFile(FILE* _File) override {};
 
     CLONE(CGizmo)
 public:

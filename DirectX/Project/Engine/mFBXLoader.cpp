@@ -54,6 +54,9 @@ void FBXLoader::init()
 	m_pManager->SetIOSettings(pIOSettings);
 
 	m_pScene = FbxScene::Create(m_pManager, "");
+
+	//m_pScene->GetGlobalSettings().SetAxisSystem(FbxAxisSystem(FbxAxisSystem::eDirectX));
+
 	if (NULL == m_pScene)
 		assert(NULL);
 }
@@ -521,8 +524,11 @@ void FBXLoader::CreateMaterial()
 void FBXLoader::LoadSkeleton(FbxNode* _pNode)
 {
 	int iChildCount = _pNode->GetChildCount();
-
-	LoadSkeleton_Re(_pNode, 0, 0, -1);
+	for (int i = 0; i < iChildCount; ++i)
+	{
+		LoadSkeleton_Re(_pNode->GetChild(i), 0, 0, -1);
+	}
+	//LoadSkeleton_Re(_pNode, 0, 0, -1);
 }
 
 void FBXLoader::LoadSkeleton_Re(FbxNode* _pNode, int _iDepth, int _iIdx, int _iParentIdx)
@@ -572,8 +578,6 @@ void FBXLoader::LoadAnimationClip()
 		pAnimClip->eMode = m_pScene->GetGlobalSettings().GetTimeMode();
 		pAnimClip->llTimeLength = pAnimClip->tEndTime.GetFrameCount(pAnimClip->eMode) - pAnimClip->tStartTime.GetFrameCount(pAnimClip->eMode);
 
-
-
 		m_vecAnimClip.push_back(pAnimClip);
 	}
 }
@@ -620,7 +624,7 @@ void FBXLoader::LoadAnimationData(FbxMesh* _pMesh, tContainer* _pContainer)
 		if (pSkin)
 		{
 			FbxSkin::EType eType = pSkin->GetSkinningType();
-			if (FbxSkin::eRigid == eType || FbxSkin::eLinear)
+			if (FbxSkin::eRigid == eType || FbxSkin::eLinear /*|| FbxSkin::eBlend*/)
 			{
 				int iClusterCount = pSkin->GetClusterCount();
 
@@ -714,9 +718,8 @@ void FBXLoader::LoadKeyframeTransform(FbxNode* _pNode, FbxCluster* _pCluster
 	matReflect.mData[1] = v2;
 	matReflect.mData[2] = v3;
 	matReflect.mData[3] = v4;
-	
-	FbxTime::EMode eTimeMode = m_pScene->GetGlobalSettings().GetTimeMode();
 
+	FbxTime::EMode eTimeMode = m_pScene->GetGlobalSettings().GetTimeMode();
 	for(int i = 0 ; i < m_vecAnimClip.size(); ++i)
 	{
 		FbxAnimStack* pAnimStack = m_pScene->FindMember<FbxAnimStack>(m_arrAnimName[i]->Buffer());
@@ -816,9 +819,21 @@ int FBXLoader::FindBoneIndex(string _strBoneName)
 
 FbxAMatrix FBXLoader::GetTransform(FbxNode* _pNode)
 {
-	const FbxVector4 vT = _pNode->GetGeometricTranslation(FbxNode::eSourcePivot);
-	const FbxVector4 vR = _pNode->GetGeometricRotation(FbxNode::eSourcePivot);
-	const FbxVector4 vS = _pNode->GetGeometricScaling(FbxNode::eSourcePivot);
+	FbxVector4 vT = _pNode->GetGeometricTranslation(FbxNode::eSourcePivot);
+	FbxVector4 vR = _pNode->GetGeometricRotation(FbxNode::eSourcePivot);
+	FbxVector4 vS = _pNode->GetGeometricScaling(FbxNode::eSourcePivot);
+
+	//FbxVector4 vT;
+	//FbxVector4 vR;
+	//FbxVector4 vS;
+
+	//vT.Set(vT.mData[0], vT.mData[1], -vT.mData[2]);
+	//vR.Set(-vR.mData[0], -vR.mData[1], -vR.mData[2]);
+
+	// This negate X,Y of Rotation Component of the matrix 
+	// These 2 lines finally set "input" to the eventual converted result 
+	//input.SetT(translation);
+	//input.SetR(rotation);
 
 	return FbxAMatrix(vT, vR, vS);
 }

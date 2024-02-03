@@ -12,7 +12,9 @@
 #include "CFontMgr.h"
 #include "CInstancingBuffer.h"
 #include "KeyUseInfoMgr.h"
+#include "ObjPickerMgr.h"
 #include "PhysXMgr.h"
+#include "PlayerMgr.h"
 
 CEngine::CEngine()
 	: m_hWnd(nullptr)
@@ -77,7 +79,7 @@ void CEngine::progress()
 
 	// Event 처리, tick 에서 바로 처리가 불가능한것들을 모아서 지연처리
 	CEventMgr::GetInst()->tick();
-
+	ObjPickerMgr::GetInst()->tick();
 	PhysXMgr::GetInst()->fixedTick();
 }
 
@@ -94,6 +96,7 @@ void CEngine::tick()
 	// Level Update
 	// Level 안에 존재하는 모든 GameObject 들이 Tick 을 호출받음
 	CLevelMgr::GetInst()->tick();
+	PlayerMgr::GetInst()->tick();
 }
 
 void CEngine::render()

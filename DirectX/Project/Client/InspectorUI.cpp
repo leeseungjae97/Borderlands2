@@ -54,7 +54,7 @@ InspectorUI::InspectorUI()
 
 	
 	m_arrComUI[(UINT)COMPONENT_TYPE::LIGHT3D] = new Light3DUI;
-	m_arrComUI[(UINT)COMPONENT_TYPE::LIGHT3D]->SetSize(0.f, 150.f);
+	m_arrComUI[(UINT)COMPONENT_TYPE::LIGHT3D]->SetSize(0.f, 300.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::LIGHT3D]);
 
 	m_arrComUI[(UINT)COMPONENT_TYPE::COLLIDER3D] = new Collider3DUI;

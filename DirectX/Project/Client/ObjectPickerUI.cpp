@@ -30,6 +30,7 @@ int ObjectPickerUI::render_update()
 {
 	CGameObject* _obj = ObjPickerMgr::GetInst()->GetPickObj();
 	if (nullptr == _obj) return FALSE;
+
 	string str(_obj->GetName().begin(), _obj->GetName().end());
 	ImGui::Text(str.c_str());
 	Vec3 vPos = _obj->Transform()->GetRelativePos();
