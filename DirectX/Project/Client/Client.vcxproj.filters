@@ -272,7 +272,7 @@
     <ClInclude Include="ObjectPickerUI.h">
       <Filter>_UI\ObjectPickerUI</Filter>
     </ClInclude>
-    <ClInclude Include="LayerInspectorUI.h">
+    <ClInclude Include="LayerUI.h">
       <Filter>_UI\LayerInspectorUI</Filter>
     </ClInclude>
     <ClInclude Include="CollisionUI.h">
@@ -430,7 +430,7 @@
     <ClCompile Include="ObjectPickerUI.cpp">
       <Filter>_UI\ObjectPickerUI</Filter>
     </ClCompile>
-    <ClCompile Include="LayerInspectorUI.cpp">
+    <ClCompile Include="LayerUI.cpp">
       <Filter>_UI\LayerInspectorUI</Filter>
     </ClCompile>
     <ClCompile Include="CollisionUI.cpp">

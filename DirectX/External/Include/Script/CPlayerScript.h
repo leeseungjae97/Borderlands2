@@ -5,26 +5,30 @@ class CPlayerScript :
     public CScript
 {
 private:
-    float       m_fSpeed;
-    float       m_fJump;
-    float       m_fRateOfFire;
-    float       m_fRateOfFireAcc;
-    float       m_MouseAcces;
+    float       fSpeed;
+    float       fJump;
+    float       fRateOfFire;
+    float       fRateOfFireAcc;
+    float       fMouseAcces;
+    int         iPlayerHp;
 
 public:
     virtual void begin() override;
     virtual void tick() override;
 
 private:
-    void Shoot();
+    void Look();
+    void ShootBullet();
+    void ShootMissile();
     void Move();
+    virtual void CatchRaycast() override;
 
 public:
     virtual void SaveToLevelFile(FILE* _File) override;
     virtual void LoadFromLevelFile(FILE* _FILE) override;
 
     void BeginOverlap(CCollider3D* _Other) override;
-
+    void Raycast(tRayInfo _RaycastInfo) override;
     CLONE(CPlayerScript);
 public:
     CPlayerScript();

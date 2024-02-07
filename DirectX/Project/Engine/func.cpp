@@ -290,7 +290,24 @@ void DrawDebugSphere(const Matrix& _matWorld, Vec4 _vColor, float _fTime, bool D
 
 	CRenderMgr::GetInst()->AddDebugShapeInfo(info);
 }
+void DrawDebugLine(const Matrix& matWorld, Vec3 _vWorldPos, float _fRadius, Vec4 _vColor, float _fTime, bool DepthTest)
+{
+	tDebugShapeInfo info = {};
 
+	info.matWorld = matWorld;
+
+	info.eShape = SHAPE_TYPE::FRONT_LINE;
+	;
+	info.vWorldScale = Vec3(_fRadius, _fRadius, _fRadius);
+	info.fMaxTime = _fTime;
+	info.vWorldPos = _vWorldPos;
+	//info.vWorldRotation = Vec3(cosf(angle), sinf(-angle), 0.f);
+	//info.vDir = _vDir;
+	info.vColor = _vColor;
+	info.bDepthTest = DepthTest;
+
+	CRenderMgr::GetInst()->AddDebugShapeInfo(info);
+}
 void DrawDebugLine(DIR_TYPE _dirType, Vec3 _vWorldPos, float _fRadius, Vec4 _vColor, Vec3 _vRotation, float _fTime, bool DepthTest)
 {
 	tDebugShapeInfo info = {};

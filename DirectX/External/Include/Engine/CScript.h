@@ -49,6 +49,8 @@ public:
     virtual void BeginOverlap(CCollider3D* _Other) {}
     virtual void OnOverlap(CCollider3D* _Other) {}
     virtual void EndOverlap(CCollider3D* _Other) {}
+    virtual void Raycast(tRayInfo _RaycastInfo){}
+    virtual void CatchRaycast(){}
 
 public:
     virtual void SaveToLevelFile(FILE* _File) override {}

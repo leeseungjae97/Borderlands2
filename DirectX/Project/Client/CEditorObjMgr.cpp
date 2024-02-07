@@ -128,8 +128,6 @@ void CEditorObjMgr::render()
 		m_vecEditorObj[i]->render();
 	}
 
-
-
 	// DebugShape Render
 	CGameObjectEx* pShapeObj = nullptr;
 

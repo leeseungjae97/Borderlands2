@@ -29,6 +29,8 @@ CAnimator3D::CAnimator3D()
 	, m_bMaRatio(false)
 	, m_bStop(false)
 	, m_bBlendMode(true)
+	, m_iHeadIdx(0)
+	, m_iCameraIdx(0)
 	, mClips{}
 	, mEvents{}
 	, m_pVecBones{}
@@ -97,8 +99,14 @@ void CAnimator3D::finaltick()
 	if (m_bBlend)
 	{
 		if(m_pNextClip)
+		{
 			m_pNextClip->finlatick();
 
+			m_vHeadPos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
+			m_vCameraPos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iCameraIdx].vTranslate;
+			m_vWeaponHandPos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iWeaponHandIdx].vTranslate;
+		}
+		
 		m_fBlendAcc += DT;
 		m_fBRatio = m_fBlendAcc / m_fBlendTime;
 
@@ -117,6 +125,10 @@ void CAnimator3D::finaltick()
 		if (m_pCurClip)
 		{
 			m_pCurClip->finlatick();
+
+			m_vHeadPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
+			m_vCameraPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iCameraIdx].vTranslate;
+			m_vWeaponHandPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponHandIdx].vTranslate;
 
 			if (m_pCurClip->IsFinish() && m_bLoop)
 			{
@@ -193,6 +205,7 @@ void CAnimator3D::UpdateData()
 void CAnimator3D::SetBones(const vector<tMTBone>* _vecBones)
 {
 	m_pVecBones = *_vecBones;
+
 	m_vecFinalBoneMat.resize(m_pVecBones.size());
 }
 
@@ -202,6 +215,36 @@ void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 	m_vecClipUpdateTime.resize(m_pMapClip.size());
 
 	create_clip();
+
+	for (int i = 0; i < m_pVecBones.size(); ++i)
+	{
+		if (m_iCameraIdx != 0 && m_iHeadIdx != 0 && m_iWeaponHandIdx !=0)
+			break;
+
+		tMTBone bone = m_pVecBones[i];
+		if (bone.strBoneName == L"Head")
+		{
+			m_iHeadIdx = i;
+		}
+		if (bone.strBoneName == L"Camera")
+		{
+			m_iCameraIdx = i;
+		}
+		if (bone.strBoneName == L"R_Weapon_Bone")
+		{
+			m_iWeaponHandIdx = i;
+		}
+		
+	}
+	m_vHeadPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
+	m_vCameraPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iCameraIdx].vTranslate;
+	m_vWeaponHandPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponHandIdx].vTranslate;
+}
+
+void CAnimator3D::BoneSkinning()
+{
+	if (!m_pCurClip->GetCurClip().vecTransKeyFrame.empty())
+		return;
 }
 
 void CAnimator3D::SetCurAnimClip(CAnimClip* _Clip)
@@ -338,6 +381,8 @@ void CAnimator3D::Play(const wstring& _Name, bool _Loop)
 
 	if (pCheckClip == m_pCurClip)
 	{
+		if (m_pNextClip && pCheckClip == m_pNextClip)
+			return;
 		return;
 	}
 
@@ -387,8 +432,13 @@ void CAnimator3D::Play(ANIMATION_TYPE _type, bool _Loop)
 	CAnimClip* pCheckClip = FindClip(animName);
 	Events* events;
 
+	if (nullptr == pCheckClip) 
+		return;
+
 	if (pCheckClip == m_pCurClip)
 	{
+		if (m_pNextClip && pCheckClip == m_pNextClip)
+			return;
 		return;
 	}
 

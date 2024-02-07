@@ -77,7 +77,10 @@ cbuffer MATERIAL : register(b1)
 
     int g_iAnim;
     int g_iBoneCount;
-    int2 padding;
+
+    int g_iTexAnim;
+
+    int padding;
 };
 
 cbuffer GLOBAL : register(b2)

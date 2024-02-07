@@ -74,7 +74,6 @@ class PxVec3T
 	explicit PX_CUDA_CALLABLE PX_FORCE_INLINE PxVec3T(Type a) : x(a), y(a), z(a)
 	{
 	}
-
 	/**
 	\brief Initializes from 3 scalar parameters.
 
@@ -105,7 +104,6 @@ class PxVec3T
 		z = p.z;
 		return *this;
 	}
-
 	/**
 	\brief element access
 	*/

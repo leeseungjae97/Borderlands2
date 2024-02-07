@@ -72,6 +72,7 @@ struct tDebugShapeInfo
 	Vec3		vWorldPos;
 	Vec3		vWorldScale;
 	Vec3		vWorldRotation;
+	Vec3		vDir;
 	Vec4		vColor;
 	wstring		wsDebugShapeName;
 	float		fMaxTime;
@@ -333,4 +334,14 @@ struct tNode
 	int		iCoordY;
 	Vec3	vPos;
 	Vec3	vLandPos;
+};
+
+struct tRayInfo
+{
+	int		iLayerIdx;
+	float	fDamage;
+	Vec3	vStart;
+	Vec3	vDir;
+	Matrix  matWorld;
+	UINT	tRayType;
 };

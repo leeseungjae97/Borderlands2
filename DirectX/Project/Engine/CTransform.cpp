@@ -6,12 +6,15 @@
 #include "CConstBuffer.h"
 #include "CRigidBody.h"
 #include "physx_util.h"
+#include "RaycastMgr.h"
 
 CTransform::CTransform()
 	: CComponent(COMPONENT_TYPE::TRANSFORM)
 	, m_vRelativeScale(Vec3(1.f, 1.f, 1.f))
 	, m_bAbsolute(false)
 	, m_bExceptParentRot(false)
+	, m_vRelativeRot(Vec3::Zero)
+	, m_qRotation(Quat(0.f, 0.f, 0.f, 0.f))
 	, m_vRelativeDir{
 		  Vec3(1.f, 0.f, 0.f)
 		, Vec3(0.f, 1.f, 0.f)
@@ -39,7 +42,7 @@ void CTransform::SetRelativePos(Vec3 _vPos)
 	}
 	if(col)
 	{
-		PxRigidStatic* _rs = GetOwner()->Collider3D()->MPxColliderRigid();
+		PxRigidStatic* _rs = GetOwner()->Collider3D()->GetColliderRigid();
 		if(_rs)
 		{
 			PxTransform trans = _rs->getGlobalPose();
@@ -65,7 +68,7 @@ void CTransform::SetRelativeRot(Vec3 _vRot)
 	}
 	if (col)
 	{
-		PxRigidStatic* _rs = GetOwner()->Collider3D()->MPxColliderRigid();
+		PxRigidStatic* _rs = GetOwner()->Collider3D()->GetColliderRigid();
 		if (_rs)
 		{
 			PxTransform trans = _rs->getGlobalPose();
@@ -95,8 +98,11 @@ void CTransform::finaltick()
 	if (_rb && _rb->IsRigidBodyCreate())
 	{
 		physx::PxTransform trans = _rb->GetRigidBodyPos();
-		m_vRelativePos = Vec3(trans.p.x, trans.p.y, trans.p.z);
 
+		//if (GetOwner()->Animator3D())
+		//	m_vRelativePos = Vec3(trans.p.x, trans.p.y - (m_vRelativeScale.y / 2.f), trans.p.z);
+		//else
+		m_vRelativePos = Vec3(trans.p.x, trans.p.y, trans.p.z);
 		m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
 		m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
 		m_Rot = Matrix::CreateFromQuaternion(m_qRotation);
@@ -121,12 +127,15 @@ void CTransform::finaltick()
 		m_Rot *= XMMatrixRotationY(m_vRelativeRot.y);
 		m_Rot *= XMMatrixRotationZ(m_vRelativeRot.z);
 	}
-
-	matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y, m_vRelativePos.z);
-
+	if (GetOwner()->Animator3D())
+		matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y - m_vRelativeScale.y / 2.f, m_vRelativePos.z);
+	else
+		matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y, m_vRelativePos.z);
 	m_matWorld = m_matWorldScale * m_Rot * matTranslation;
 	m_noRotWorld = m_matWorldScale * matTranslation;
-
+	float dist = RaycastMgr::GetInst()->GetDrawRayDistance();
+	Matrix rayScale = XMMatrixScaling(dist, dist, dist);
+	m_DrawRayWorld = rayScale * m_Rot * matTranslation;
 	for (int i = 0; i < 3; ++i)
 	{
 		m_vWorldDir[i] = m_vRelativeDir[i] = XMVector3TransformNormal(vDefaultDir[i], m_Rot);

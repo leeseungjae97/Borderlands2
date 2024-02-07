@@ -7,6 +7,7 @@
 class CGameObject;
 class CLevel;
 class CMesh;
+class CRigidBody;
 //class Ptr;
 void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
 void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName);
@@ -33,6 +34,7 @@ void DrawDebugCube(const Matrix& _matWorld, Vec4 _vColor, float _fTime = 0.f, bo
 void DrawDebugSphere(Vec3 _vWorldPos, float _fRadius, Vec4 _vColor, Vec3 _vRotation, float _fTime = 0.f, bool DepthTest = false);
 void DrawDebugSphere(const Matrix& _matWorld, Vec4 _vColor, float _fTime = 0.f, bool DepthTest = false);
 
+void DrawDebugLine(const Matrix& matWorld, Vec3 _vWorldPos, float _fRadius, Vec4 _vColor, float _fTime = 0.f, bool DepthTest = false);
 void DrawDebugLine(DIR_TYPE _dirType, Vec3 _vWorldPos, float _fRadius, Vec4 _vColor, Vec3 _vRotation, float _fTime = 0.f, bool DepthTest = false);
 void DrawDebugLine(DIR_TYPE _dirType, const Matrix& _matWorld, Vec4 _vColor, float _fTime = 0.f, bool DepthTest = false);
 

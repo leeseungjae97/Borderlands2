@@ -10,8 +10,7 @@ private:
 
     UI*                     m_SelectInst;
     UI_DELEGATE_1           m_SelectDelegate;
-
-
+    UI_DELEGATE_2           m_SelectDelegate2;
 
 public:
     virtual void finaltick() override;
@@ -26,6 +25,11 @@ public:
     {
         m_SelectInst = _Inst;
         m_SelectDelegate = _Func;
+    }
+    void AddDynamic_Select(UI* _Inst, UI_DELEGATE_2 _Func)
+    {
+        m_SelectInst = _Inst;
+        m_SelectDelegate2 = _Func;
     }
 
 

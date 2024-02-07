@@ -36,6 +36,12 @@
     <ClInclude Include="CBulletScript.h">
       <Filter>Script</Filter>
     </ClInclude>
+    <ClInclude Include="CCrossHairScript.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="CGunScript.h">
+      <Filter>Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CCameraMoveScript.cpp">
@@ -60,6 +66,12 @@
       <Filter>ScriptMgr</Filter>
     </ClCompile>
     <ClCompile Include="CBulletScript.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="CCrossHairScript.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="CGunScript.cpp">
       <Filter>Script</Filter>
     </ClCompile>
   </ItemGroup>

@@ -13,6 +13,7 @@ public:
     void SelectMesh(DWORD_PTR _Key);
     void SelectMaterial(DWORD_PTR _Key);
 
+    void SelectTexture(DWORD_PTR _Key, DWORD_PTR _Key2);
 
 public:
     MeshRenderUI();

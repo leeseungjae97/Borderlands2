@@ -318,6 +318,9 @@ void CCamera::SortObject_Shadow()
 	for (UINT i = 0; i < MAX_LAYER; ++i)
 	{
 		// 레이어 마스크 확인
+		if (i == 31) continue; // UI
+		if (i == 0) continue;  // Default
+
 		if (m_iLayerMask & (1 << i))
 		{
 			CLayer* pLayer = pCurLevel->GetLayer(i);
@@ -326,6 +329,9 @@ void CCamera::SortObject_Shadow()
 			for (size_t j = 0; j < vecObject.size(); ++j)
 			{
 				CRenderComponent* pRenderCom = vecObject[j]->GetRenderComponent();
+
+				//if (vecObject[j]->Camera()) 
+				//	continue;
 
 				// 렌더링 기능이 없는 오브젝트는 제외
 				if (   nullptr == pRenderCom 
@@ -344,54 +350,70 @@ void CCamera::render()
 	CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
 	if (pCurLevel->GetState() == LEVEL_STATE::NO_UPDATE_RENDER) return;
 
-	// Deferred MRT
-	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED)->OMSet(true);
-	render_deferred();
-
-	// Deferred Light
-	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LIGHT)->OMSet(false);
-	const vector<CLight3D*>& vecLight3D = CRenderMgr::GetInst()->GetLight3D();
-	for (size_t i = 0; i < vecLight3D.size(); ++i)
+	if (CRenderMgr::GetInst()->GetMainCam() == this)
 	{
-		vecLight3D[i]->render();
+		// Deferred MRT
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED)->OMSet(true);
+		render_deferred();
+
+		// Deferred Light
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LIGHT)->OMSet(false);
+		const vector<CLight3D*>& vecLight3D = CRenderMgr::GetInst()->GetLight3D();
+		for (size_t i = 0; i < vecLight3D.size(); ++i)
+		{
+			vecLight3D[i]->render();
+		}
+
+		// SwapChain MRT 로 변경
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+
+		static Ptr<CMesh> pRectMesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
+		static Ptr<CMaterial> pMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
+
+		static bool bSet = false;
+
+		// Main camera가 아니면 그림자를 그리지 않음.
+		// 다른 RenderTarget에도 문제가 생기면 아예 Merge못하게
+		// 다른 camera에서 deffered를 쓸 일이 있을까
+		if (!bSet)
+		{
+			bSet = true;
+
+			{
+				pMtrl->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ColorTargetTex"));
+				pMtrl->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
+				pMtrl->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
+				pMtrl->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+				pMtrl->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
+			}
+		}
+
+		pMtrl->UpdateData();
+		pRectMesh->render(0);
+
+
+		// Deferred MRT 에 그린 물체들을 다시 SwapChain 으로 옮기기
+
+		// 쉐이더 도메인에 따라서 순차적으로 그리기
+		//render_opaque();
+		//render_mask();
+		render_forward();
+		render_decal();
+		render_transparent();
+
+		// PostProcess - 후처리
+		render_postprocess();
 	}
-
-	// SwapChain MRT 로 변경
-	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
-
-	static Ptr<CMesh> pRectMesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
-	static Ptr<CMaterial> pMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
-
-	static bool bSet = false;
-	if (!bSet)
+	else
 	{
-		bSet = true;
-		pMtrl->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ColorTargetTex"));
-		pMtrl->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
-		pMtrl->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
-		pMtrl->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-		pMtrl->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
-		pMtrl->SetScalarParam(FLOAT_0, &m_fT[0]);
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+
+		render_forward();
+		render_decal();
+		render_transparent();
+		// UI
+		render_ui();
 	}
-
-	pMtrl->UpdateData();
-	pRectMesh->render(0);
-
-
-	// Deferred MRT 에 그린 물체들을 다시 SwapChain 으로 옮기기
-
-	// 쉐이더 도메인에 따라서 순차적으로 그리기
-	//render_opaque();
-	//render_mask();
-	render_forward();
-	render_decal();
-	render_transparent();
-
-	// PostProcess - 후처리
-	render_postprocess();
-
-	// UI
-	render_ui();
 }
 
 
@@ -715,6 +737,11 @@ void CCamera::render_ui()
 	{
 		m_vecUI[i]->render();
 	}
+}
+
+void CCamera::FixedTransform()
+{
+	UpdateMatrix();
 }
 
 void CCamera::SaveToLevelFile(FILE* _File)

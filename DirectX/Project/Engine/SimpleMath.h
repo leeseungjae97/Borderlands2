@@ -24,6 +24,7 @@
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXCollision.h>
+#include <foundation/PxVec3.h>
 
 #ifndef XM_CONSTEXPR
 #define XM_CONSTEXPR
@@ -37,6 +38,7 @@ namespace DirectX
     namespace SimpleMath
     {
         struct Vector2;
+        struct Vector3;
         struct Vector4;
         struct Matrix;
         struct Quaternion;

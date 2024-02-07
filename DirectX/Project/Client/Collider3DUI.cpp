@@ -44,6 +44,7 @@ int Collider3DUI::render_update()
 	fScale[1] = vScale.y;
 	fScale[2] = vScale.z;
 
+	ImGui::Text("Collider Scale ");
 	ImGui::InputFloat3("##Collider3dScale",fScale);
 
 	vScale.x = fScale[0];

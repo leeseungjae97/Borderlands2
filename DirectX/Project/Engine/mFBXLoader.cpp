@@ -176,7 +176,10 @@ void FBXLoader::LoadMesh(FbxMesh* _pFbxMesh)
 
 			GetTangent(_pFbxMesh, &Container, iIdx, iVtxOrder);
 			GetBinormal(_pFbxMesh, &Container, iIdx, iVtxOrder);
+			//if (1 == _pFbxMesh->GetElementTangentCount())
 			GetNormal(_pFbxMesh, &Container, iIdx, iVtxOrder);
+				
+				
 			GetUV(_pFbxMesh, &Container, iIdx, _pFbxMesh->GetTextureUVIndex(i, j));
 
 			++iVtxOrder;
@@ -234,7 +237,39 @@ void FBXLoader::GetTangent(FbxMesh* _pMesh
 {
 	int iTangentCnt = _pMesh->GetElementTangentCount();
 	if (1 < iTangentCnt)
-		assert(NULL);
+	{
+		//assert(NULL);
+		_pMesh->InitNormals(0);
+		_pMesh->GenerateNormals();
+		_pMesh->InitTangents(0);
+		_pMesh->GenerateTangentsData(0, true);
+		_pMesh->InitBinormals(0);
+		_pMesh->CreateElementBinormal();
+
+		FbxGeometryElementTangent* pTangent = _pMesh->GetElementTangent();
+		UINT iTangentIdx = 0;
+		if (pTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+		{
+			if (pTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
+				iTangentIdx = _iVtxOrder;
+			else
+				iTangentIdx = pTangent->GetIndexArray().GetAt(_iVtxOrder);
+		}
+		else if (pTangent->GetMappingMode() == FbxGeometryElement::eByControlPoint)
+		{
+			if (pTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
+				iTangentIdx = _iIdx;
+			else
+				iTangentIdx = pTangent->GetIndexArray().GetAt(_iIdx);
+		}
+
+		FbxVector4 vTangent = pTangent->GetDirectArray().GetAt(iTangentIdx);
+
+		_pContainer->vecTangent[_iIdx].x = (float)vTangent.mData[0];
+		_pContainer->vecTangent[_iIdx].y = (float)vTangent.mData[2];
+		_pContainer->vecTangent[_iIdx].z = (float)vTangent.mData[1];
+	}
+		
 
 	if (1 == iTangentCnt)
 	{
@@ -263,19 +298,52 @@ void FBXLoader::GetTangent(FbxMesh* _pMesh
 		_pContainer->vecTangent[_iIdx].y = (float)vTangent.mData[2];
 		_pContainer->vecTangent[_iIdx].z = (float)vTangent.mData[1];
 	}
-	else
-	{
-		_pContainer->vecTangent[_iIdx].x = 0.f;
-		_pContainer->vecTangent[_iIdx].y = 0.f;
-		_pContainer->vecTangent[_iIdx].z = 0.f;
-	}
+	//else
+	//{
+	//	_pContainer->vecTangent[_iIdx].x = 0.f;
+	//	_pContainer->vecTangent[_iIdx].y = 0.f;
+	//	_pContainer->vecTangent[_iIdx].z = 0.f;
+	//}
 }
 
 void FBXLoader::GetBinormal(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx, int _iVtxOrder)
 {
 	int iBinormalCnt = _pMesh->GetElementBinormalCount();
 	if (1 < iBinormalCnt)
-		assert(NULL); // 정점 1개가 포함하는 종법선 정보가 2개 이상이다.
+	{
+		assert(NULL); 
+		//_pMesh->InitBinormals();
+		//_pMesh->CreateElementBinormal();
+
+		//FbxGeometryElementBinormal* pBinormal = _pMesh->GetElementBinormal();
+		//UINT iBinormalIdx = 0;
+
+		//if (pBinormal->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+		//{
+		//	if (pBinormal->GetReferenceMode() == FbxGeometryElement::eDirect)
+		//		iBinormalIdx = _iVtxOrder;
+		//	else
+		//		iBinormalIdx = pBinormal->GetIndexArray().GetAt(_iVtxOrder);
+		//}
+		//else if (pBinormal->GetMappingMode() == FbxGeometryElement::eByControlPoint)
+		//{
+		//	if (pBinormal->GetReferenceMode() == FbxGeometryElement::eDirect)
+		//		iBinormalIdx = _iIdx;
+		//	else
+		//		iBinormalIdx = pBinormal->GetIndexArray().GetAt(_iIdx);
+		//}
+
+		//FbxVector4 vBinormal = pBinormal->GetDirectArray().GetAt(iBinormalIdx);
+
+		//_pContainer->vecBinormal[_iIdx].x = (float)vBinormal.mData[0];
+		//_pContainer->vecBinormal[_iIdx].y = (float)vBinormal.mData[2];
+		//_pContainer->vecBinormal[_iIdx].z = (float)vBinormal.mData[1];
+
+		//
+
+		//_pMesh->InitNormals();
+		//_pMesh->GenerateNormals();
+	}
 
 	if (1 == iBinormalCnt)
 	{
@@ -304,19 +372,22 @@ void FBXLoader::GetBinormal(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx,
 		_pContainer->vecBinormal[_iIdx].y = (float)vBinormal.mData[2];
 		_pContainer->vecBinormal[_iIdx].z = (float)vBinormal.mData[1];
 	}
-	else
-	{
-		_pContainer->vecBinormal[_iIdx].x = 0.f;
-		_pContainer->vecBinormal[_iIdx].y = 0.f;
-		_pContainer->vecBinormal[_iIdx].z = 0.f;
-	}
+	//else
+	//{
+	//	_pContainer->vecBinormal[_iIdx].x = 0.f;
+	//	_pContainer->vecBinormal[_iIdx].y = 0.f;
+	//	_pContainer->vecBinormal[_iIdx].z = 0.f;
+	//}
 }
 
 void FBXLoader::GetNormal(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx, int _iVtxOrder)
 {
 	int iNormalCnt = _pMesh->GetElementNormalCount();
 	if (1 != iNormalCnt)
-		assert(NULL); // 정점 1개가 포함하는 종법선 정보가 2개 이상이다.
+	{
+		assert(NULL);
+	}
+		
 
 	// 종법선 data 의 시작 주소
 	FbxGeometryElementNormal* pNormal = _pMesh->GetElementNormal();

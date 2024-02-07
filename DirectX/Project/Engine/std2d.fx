@@ -54,8 +54,8 @@ float4 PS_Std2D(VS_OUT _in) : SV_Target
         vOutColor = float4(1.f, 0.f, 1.f, 1.f);
     }    
 
-    //if (0.f == vOutColor.a)
-    //    discard; // «»ºø Ω¶¿Ã¥ı ¡ﬂ¥‹
+    if (0.f == vOutColor.a)
+        discard;
     
     if(g_int_2 == 1)
         vOutColor = float4(1.f, 0.f, 0.f, 1.f);

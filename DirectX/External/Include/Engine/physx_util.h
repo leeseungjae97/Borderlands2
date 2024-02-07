@@ -246,6 +246,32 @@ namespace physx
 
 			return PxFilterFlag::eDEFAULT;
 		}
+		//class PxCustomRaycastCallBack :public PxRaycastCallback
+		//{
+		//public:
+		//	PxCustomRaycastCallBack()
+		//		: PxHitCallback<PxRaycastHit>(nullptr, 1)
+		//	{}
+		//	PxAgain processTouches(const PxRaycastHit* buffer, PxU32 nbHits) PX_OVERRIDE
+		//	{
+		//		maxNbTouches = nbHits;
+		//		touches = const_cast<physx::PxRaycastHit*>(buffer);
+		//		//for (physx::PxU32 i = 0; i < nbHits; i++)
+		//		//{
+		//		//	
+		//		//}
+		//		return true;
+		//	}
+		//	void finalizeQuery() PX_OVERRIDE
+		//	{
+		//		if (touches)
+		//		{
+		//			maxNbTouches = 1;
+		//			touches = nullptr;
+		//		}
+		//	}
+		//	~PxCustomRaycastCallBack() PX_OVERRIDE {}
+		//};
 		class PxCollisionCallBack : public PxSimulationEventCallback
 		{
 		public:
@@ -377,6 +403,10 @@ namespace physx
 
 			return result;
 		}
+		static Quaternion Vector3ToQuaternion(PxVec3 _vec)
+		{
+			return Vector3ToQuaternion(_vec.y, _vec.x, _vec.z);
+		}
 		static Quaternion Vector3ToQuaternion(Vec3 _vec)
 		{
 			return Vector3ToQuaternion(_vec.y, _vec.x, _vec.z);
@@ -417,8 +447,17 @@ namespace physx
 			}
 			return v;
 		}
+		static PxTransform PxTransformFromVec3PosRot(PxVec3 _vPos, PxVec3 _vRot)
+		{
+			Quat quat; quat = Util::Vector3ToQuaternion(_vRot);
+			return PxTransform(_vPos, PxQuat(quat.x, quat.y, quat.z, quat.w));
 
-
+		}
+		static PxTransform PxTransformFromVec3PosRot(Vec3 _vPos, Vec3 _vRot)
+		{
+			Quat quat; quat = Util::Vector3ToQuaternion(_vRot);
+			return PxTransform(PxVec3(_vPos.x, _vPos.y, _vPos.z), PxQuat(quat.x, quat.y, quat.z, quat.w));
+		}
 		static Matrix WorldMatFromGlobalPose(physx::PxTransform pos, Vec3 vScale)
 		{
 			Vec3 vPos = Vec3(pos.p.x, pos.p.y, pos.p.z);

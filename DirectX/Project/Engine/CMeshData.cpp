@@ -146,7 +146,7 @@ CGameObject* CMeshData::Instantiate()
 	CGameObject* pNewObj = new CGameObject;
 	pNewObj->AddComponent(new CTransform);
 	pNewObj->AddComponent(new CMeshRender);
-	pNewObj->Transform()->SetRelativeScale(Vec3(1000.f, 1000.f, 1000.f));
+	pNewObj->Transform()->SetRelativeScale(Vec3(300.f, 300.f, 300.f));
 	pNewObj->MeshRender()->SetMesh(m_pMesh);
 
 	for (UINT i = 0; i < m_vecMtrl.size(); ++i)
@@ -154,7 +154,7 @@ CGameObject* CMeshData::Instantiate()
 		pNewObj->MeshRender()->SetMaterial(m_vecMtrl[i], i);
 	}
 
-		// Animation 파트 추가
+	// Animation 파트 추가
 	if (false == m_pMesh->IsAnimMesh())
 		return pNewObj;
 

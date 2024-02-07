@@ -26,7 +26,7 @@ CRigidBody::CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2)
 	, m_debugMeshName(L"")
 {
 	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(1.0f, 1.0f, 0.1f);
-
+	m_pMaterial->setDamping(0.f);
 	if (m_tRigidType == RIGID_BODY_TYPE::DYNAMIC)
 	{
 		//m_pMaterial->setFrictionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eMAX));
@@ -159,6 +159,7 @@ void CRigidBody::convertMeshToGeom()
 void CRigidBody::setRigidPos()
 {
 	Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
+	Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
 	Vec3 vRot = GetOwner()->Transform()->GetRelativeRot();
 
 	Quat quat; quat = Util::Vector3ToQuaternion(vRot);
@@ -253,20 +254,23 @@ void CRigidBody::addToScene()
 
 	if (m_tRigidType == RIGID_BODY_TYPE::DYNAMIC)
 	{
-		if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::MESH)
-		{
-			//TODO : TriangleMesh 처리
-		}
+		// RigidBody로 TriangleMesh를 쓸 수 없음
 		m_pDynamicBody = PhysXMgr::GetInst()->GPhysics()->createRigidDynamic(localTm);
 		m_pDynamicBody->userData = GetOwner()->Collider3D();
 		m_pDynamicBody->attachShape(*m_pShape);
-		m_pDynamicBody->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
+
+		//m_pDynamicBody->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
 		//m_pDynamicBody->setLinearDamping(10.f);
-		PxRigidBodyExt::updateMassAndInertia(*m_pDynamicBody, 10.0f);
+		PxRigidBodyExt::updateMassAndInertia(*m_pDynamicBody, 0.1f);
 		PhysXMgr::GetInst()->GCurScene()->addActor(*m_pDynamicBody);
 	}
 	else
 	{
+		if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::MESH)
+		{
+			//TODO : TriangleMesh 처리
+		}
+		
 		m_pStaticBody = PhysXMgr::GetInst()->GPhysics()->createRigidStatic(localTm);
 		m_pStaticBody->userData = GetOwner()->Collider3D();
 		m_pStaticBody->attachShape(*m_pShape);
@@ -325,8 +329,7 @@ void CRigidBody::LoadFromLevelFile(FILE* _FILE)
 
 void CRigidBody::SaveToLevelFile(FILE* _File)
 {
-	UINT shapeType =(UINT)m_tRigidShapeType;
-	fwrite(&shapeType, sizeof(UINT), 1, _File);
+	fwrite(&m_tRigidShapeType, sizeof(UINT), 1, _File);
 
 	if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::MESH)
 		SaveWString(m_debugMeshName, _File);

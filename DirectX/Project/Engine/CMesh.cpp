@@ -38,6 +38,25 @@ CMesh::~CMesh()
 		delete m_pBlendFrameData;
 }
 
+Vec3 CMesh::BonePosSkinning(int idx, Vec3 _vPos)
+{
+	Vtx* vv  = (Vtx*)m_pVtxSys;
+	Vtx v = vv[idx];
+
+	Vec4 vPos;
+	for (int i = 0; i < 4; ++i)
+	{
+		if (0.f == v.vWeights[i])
+			continue;
+
+		Matrix matBone = m_vecBones[v.vIndices[i], 1].matBone;
+		//vPos += XMVector4TransformCoord() * v.vWeights[i];
+		vPos += XMVector4Transform(Vec4(_vPos.x, _vPos.y, _vPos.z, 1.f), matBone)* v.vWeights[i];
+	}
+
+	return vPos;
+}
+
 CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 {
 	const tContainer* container = &_loader.GetContainer(0);
@@ -189,7 +208,7 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 		}
 		pMesh->m_vecBones.push_back(bone);
 	}
-
+	pMesh->GetVtxSysMem()[SMG_MUZZLE_IDX];
 	// Animation 이 있는 Mesh 경우 structuredbuffer 만들어두기
 	if (pMesh->IsAnimMesh())
 	{

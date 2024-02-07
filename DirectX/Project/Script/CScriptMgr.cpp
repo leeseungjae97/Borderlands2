@@ -3,6 +3,8 @@
 
 #include "CBulletScript.h"
 #include "CCameraMoveScript.h"
+#include "CCrossHairScript.h"
+#include "CGunScript.h"
 #include "CMissileScript.h"
 #include "CMonsterScript.h"
 #include "CPlayerScript.h"
@@ -11,9 +13,11 @@ void CScriptMgr::GetScriptInfo(vector<wstring>& _vec)
 {
 	_vec.push_back(L"CBulletScript");
 	_vec.push_back(L"CCameraMoveScript");
+	_vec.push_back(L"CCrossHairScript");
 	_vec.push_back(L"CMissileScript");
 	_vec.push_back(L"CMonsterScript");
 	_vec.push_back(L"CPlayerScript");
+	_vec.push_back(L"CGunScript");
 }
 
 CScript * CScriptMgr::GetScript(const wstring& _strScriptName)
@@ -22,12 +26,16 @@ CScript * CScriptMgr::GetScript(const wstring& _strScriptName)
 		return new CBulletScript;
 	if (L"CCameraMoveScript" == _strScriptName)
 		return new CCameraMoveScript;
+	if (L"CCrossHairScript" == _strScriptName)
+		return new CCrossHairScript;
 	if (L"CMissileScript" == _strScriptName)
 		return new CMissileScript;
 	if (L"CMonsterScript" == _strScriptName)
 		return new CMonsterScript;
 	if (L"CPlayerScript" == _strScriptName)
 		return new CPlayerScript;
+	if (L"CGunScript" == _strScriptName)
+		return new CGunScript;
 	return nullptr;
 }
 
@@ -41,6 +49,9 @@ CScript * CScriptMgr::GetScript(UINT _iScriptType)
 	case (UINT)SCRIPT_TYPE::CAMERAMOVESCRIPT:
 		return new CCameraMoveScript;
 		break;
+	case (UINT)SCRIPT_TYPE::CROSSHAIRSCRIPT:
+		return new CCrossHairScript;
+		break;
 	case (UINT)SCRIPT_TYPE::MISSILESCRIPT:
 		return new CMissileScript;
 		break;
@@ -49,6 +60,9 @@ CScript * CScriptMgr::GetScript(UINT _iScriptType)
 		break;
 	case (UINT)SCRIPT_TYPE::PLAYERSCRIPT:
 		return new CPlayerScript;
+		break;
+	case (UINT)SCRIPT_TYPE::GUNSCRIPT:
+		return new CGunScript;
 		break;
 	}
 	return nullptr;
@@ -66,6 +80,10 @@ const wchar_t * CScriptMgr::GetScriptName(CScript * _pScript)
 		return L"CCameraMoveScript";
 		break;
 
+	case SCRIPT_TYPE::CROSSHAIRSCRIPT:
+		return L"CCrossHairScript";
+		break;
+
 	case SCRIPT_TYPE::MISSILESCRIPT:
 		return L"CMissileScript";
 		break;
@@ -76,6 +94,10 @@ const wchar_t * CScriptMgr::GetScriptName(CScript * _pScript)
 
 	case SCRIPT_TYPE::PLAYERSCRIPT:
 		return L"CPlayerScript";
+		break;
+
+	case SCRIPT_TYPE::GUNSCRIPT:
+		return L"CGunScript";
 		break;
 
 	}

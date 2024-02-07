@@ -89,6 +89,9 @@ void CRenderMgr::render_play()
 
         m_vecCam[i]->render();
     }
+
+    // Debug GameObject 그려질 때 쓸 Matrix 갱신
+    m_vecCam[0]->FixedTransform();
 }
 
 void CRenderMgr::render_editor()

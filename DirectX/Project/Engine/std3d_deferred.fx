@@ -112,6 +112,10 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
     
     if (g_btex_0)
     {
+        if (g_iTexAnim)
+        {
+            _in.vUV.x -= g_AccTime * 0.05f;
+        }
         output.vColor = g_tex_0.Sample(g_sam_0, _in.vUV);
         output.vColor.a = 1.f;
     }

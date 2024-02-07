@@ -173,6 +173,7 @@ call EngineCopy.bat</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AnimationMgr.h" />
+    <ClInclude Include="BoneSkinningShader.h" />
     <ClInclude Include="CameraMgr.h" />
     <ClInclude Include="CAnimClip.h" />
     <ClInclude Include="CAnimation3DShader.h" />
@@ -246,15 +247,18 @@ call EngineCopy.bat</Command>
     <ClInclude Include="physx_util.h" />
     <ClInclude Include="ptr.h" />
     <ClInclude Include="CRayCastShader.h" />
+    <ClInclude Include="RaycastMgr.h" />
     <ClInclude Include="RecastBuildContext.h" />
     <ClInclude Include="RecastMesh.h" />
     <ClInclude Include="RecastNavi.h" />
     <ClInclude Include="CRigidBody.h" />
     <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="struct.h" />
+    <ClInclude Include="WeaponMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationMgr.cpp" />
+    <ClCompile Include="BoneSkinningShader.cpp" />
     <ClCompile Include="CameraMgr.cpp" />
     <ClCompile Include="CAnimClip.cpp" />
     <ClCompile Include="CAnimation3DShader.cpp" />
@@ -331,16 +335,25 @@ call EngineCopy.bat</Command>
     <ClCompile Include="PhysXMgr.cpp" />
     <ClCompile Include="physx_util.cpp" />
     <ClCompile Include="CRayCastShader.cpp" />
+    <ClCompile Include="RaycastMgr.cpp" />
     <ClCompile Include="RecastBuildContext.cpp" />
     <ClCompile Include="RecastMesh.cpp" />
     <ClCompile Include="RecastNavi.cpp" />
     <ClCompile Include="CRigidBody.cpp" />
+    <ClCompile Include="SimpleMath.cpp" />
+    <ClCompile Include="WeaponMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="SimpleMath.inl" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="animation2d.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="animation3d.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
@@ -376,6 +389,12 @@ call EngineCopy.bat</Command>
       </ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="decal.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="dissolve.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>

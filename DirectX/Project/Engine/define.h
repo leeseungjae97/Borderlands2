@@ -17,6 +17,21 @@
 
 #define SINGLE(type) private: type(); ~type(); friend class CSingleton<type>;
 
+#define SMG_MUZZLE_IDX 918
+#define PISTOL_MUZZLE_IDX 918
+#define SNIPER_MUZZLE_IDX 918
+
+#define SMG_IDX 0
+#define SNIPER_IDX 1
+#define PISTOL_IDX 2
+
+enum class GUN_ANIMATION_TYPE
+{
+	FIRE,
+	RELOAD,
+	END,
+};
+
 enum class ANIMATION_TYPE
 {
 	WALK_FORWARD,
@@ -41,29 +56,31 @@ enum class ANIMATION_TYPE
 	EXTRA4,
 	END,
 };
-
+enum class RAYCAST_TYPE
+{
+	SHOOT,
+	LOOK,
+	END,
+};
 enum class COMPONENT_TYPE
 {
-	// update
-	TRANSFORM,		// 위치, 크기, 회전
-	COLLIDER3D,		// 3차원 충돌
+	TRANSFORM,
+	COLLIDER3D,
 	RIGIDBODY,
-	ANIMATOR3D,		// Bone Sknning Animation
-	LIGHT3D,		// 3차원 광원
+	ANIMATOR3D,
+	LIGHT3D,
 	PATHFIND,
 	GIZMO,
-	CAMERA,			// Camera
+	CAMERA,
 
-	// render
-	MESHRENDER,		// 기본적인 렌더링
-	PARTICLESYSTEM, // 입자 렌더링
-	LANDSCAPE,		// 3차원 지형
+	MESHRENDER,
+	PARTICLESYSTEM,
+	LANDSCAPE,
 	SKYBOX,
-	DECAL,			// 내부 렌더링
+	DECAL,
 		
 	END,
 
-	// custom
 	SCRIPT,
 };
 
@@ -77,8 +94,8 @@ enum class RES_TYPE
 	MATERIAL,
 	PREFAB,
 
-	MESH,			// 형태
-	TEXTURE,		// 이미지
+	MESH,			
+	TEXTURE,		
 	SOUND,
 
 	GRAPHICS_SHADER,

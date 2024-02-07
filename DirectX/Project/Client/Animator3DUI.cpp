@@ -24,6 +24,19 @@ int Animator3DUI::render_update()
 	const map<wstring, CAnimClip*> clips = GetTarget()->Animator3D()->GetAnimClips();
 	CAnimClip* curAnimClip = GetTarget()->Animator3D()->GetCurAnimClip();
 
+	vector<tMTBone> bones = GetTarget()->Animator3D()->GetBone();
+
+	if(ImGui::BeginMenu("Bone Names##ttt"))
+	{
+		for (int i = 0; i < bones.size(); ++i)
+		{
+			tMTBone bone = bones[i];
+			string str = std::to_string(i) + " : " + string(bone.strBoneName.begin(), bone.strBoneName.end());
+			ImGui::Text(str.c_str());
+		}
+		ImGui::EndMenu();
+	}
+
 	float ratio = GetTarget()->Animator3D()->GetBlendRatio();
 	ImGui::Text("Blend Ratio");
 	ImGui::SameLine();

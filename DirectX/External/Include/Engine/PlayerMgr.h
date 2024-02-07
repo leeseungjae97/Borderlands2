@@ -6,7 +6,9 @@ class PlayerMgr
 	: public CSingleton<PlayerMgr>
 {
 private:
-	CGameObject* m_pPlayer;
+	CGameObject*	m_pPlayer;
+	Vec3			m_vCameraPos;
+	int				m_iCameraBoneIdx;
 
 public:
 	CGameObject* GetPlayer() { return m_pPlayer; }
@@ -15,7 +17,10 @@ public:
 public:
 	void init();
 	void tick();
-	
+
+public:
+	Vec3 GetPlayerCameraPos();
+	Vec3 GetPlayerWeaponPos();
 public:
 	PlayerMgr();
 	virtual ~PlayerMgr();

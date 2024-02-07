@@ -20,7 +20,7 @@ public:
     void SetTexParam(TEX_PARAM _Param, const Ptr<CTexture>& _Tex);
 
     void GetScalarParam(SCALAR_PARAM _param, void* _pData);
-    Ptr<CTexture> GetTexParam(TEX_PARAM _param) { return m_arrTex[(UINT)_param]; }
+    Ptr<CTexture> GetTexParam(TEX_PARAM _param);
 
 	void SetMaterialCoefficient(Vec4 _vDiff, Vec4 _vSpec, Vec4 _vAmb, Vec4 _vEmis)
     {
@@ -35,6 +35,7 @@ public:
     Ptr<CGraphicsShader> GetShader() { return m_pShader; }
 
     void SetAnim3D(bool _bTrue) { m_Const.arrAnimData[0] = (int)_bTrue; }
+    void SetAnim2D(bool _bTrue) { m_Const.arrAnimData[2] = (int)_bTrue; }
     void SetBoneCount(int _iBoneCount) { m_Const.arrAnimData[1] = _iBoneCount; }
 
     virtual void UpdateData() override;

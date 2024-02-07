@@ -3,6 +3,14 @@
 
 #include <Engine\CKeyMgr.h>
 
+#ifndef EXTERN_INST
+#define EXTERN_INST
+extern int iInst0 = 0;
+extern int iInst1 = 0;
+extern int iInst2 = 0;
+extern int iInst3 = 0;
+#endif
+
 ListUI::ListUI()
     : UI("##List")
     , m_iSelectedIdx(0)
@@ -57,6 +65,10 @@ int ListUI::render_update()
                 if (m_SelectInst && m_SelectDelegate)
                 {
                     (m_SelectInst->*m_SelectDelegate)((DWORD_PTR)m_vecStrData[i].c_str());
+                }
+                if (m_SelectInst && m_SelectDelegate2)
+                {
+                    (m_SelectInst->*m_SelectDelegate2)((DWORD_PTR)m_vecStrData[i].c_str(), (DWORD_PTR)iInst0);
                 }
             }
 

@@ -22,8 +22,7 @@ private:
     LEVEL_STATE                 m_State;
 
     class PxCollisionCallBack*  m_PxCollisionCallBack;
-    //class TriggersFilterCallback* m_PxTriggerCallBack;
-    PxRigidStatic*              box;
+
 public:
     void begin();
     void tick();

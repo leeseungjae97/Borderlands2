@@ -212,6 +212,14 @@ void CMaterial::GetScalarParam(SCALAR_PARAM _param, void* _pData)
 	}
 }
 
+Ptr<CTexture> CMaterial::GetTexParam(TEX_PARAM _param)
+{
+	if (nullptr != m_arrTex[(UINT)_param])
+		return m_arrTex[(UINT)_param];
+
+	return nullptr;
+}
+
 // ================
 // File Save / Load
 // ================

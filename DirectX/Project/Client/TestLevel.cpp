@@ -12,6 +12,7 @@
 #include <Engine\PhysXMgr.h>
 #include <Engine\CRenderMgr.h>
 #include <Engine\ObjPickerMgr.h>
+#include <Engine\WeaponMgr.h>
 
 #include <Script\CPlayerScript.h>
 #include <Script\CMonsterScript.h>
@@ -22,6 +23,8 @@
 
 #include <Engine\CSetColorShader.h>
 #include <Engine\PlayerMgr.h>
+
+#include "../Script/CGunScript.h"
 
 //#include <Engine/PhysXT.h>
 
@@ -50,12 +53,13 @@ void CreateTestLevel()
 	pCurLevel->ChangeState(LEVEL_STATE::STOP);
 
 	// Layer 이름설정
-	pCurLevel->GetLayer(0)->SetName(L"Default");
-	pCurLevel->GetLayer(1)->SetName(L"Monster");
-	pCurLevel->GetLayer(2)->SetName(L"Player");
-	pCurLevel->GetLayer(3)->SetName(L"Bullet");
-	pCurLevel->GetLayer(10)->SetName(L"Light");
-	pCurLevel->GetLayer(31)->SetName(L"ViewPort UI");
+	//pCurLevel->GetLayer(0)->SetName(L"Default");
+	//pCurLevel->GetLayer(1)->SetName(L"Monster");
+	//pCurLevel->GetLayer(2)->SetName(L"Player");
+	//pCurLevel->GetLayer(3)->SetName(L"Bullet");
+	//pCurLevel->GetLayer(4)->SetName(L"Missile");
+	//pCurLevel->GetLayer(10)->SetName(L"Light");
+	//pCurLevel->GetLayer(31)->SetName(L"ViewPort UI");
 
 	// Main Camera Object 생성
 	CGameObject* pMainCam = new CGameObject;
@@ -64,28 +68,48 @@ void CreateTestLevel()
 	pMainCam->AddComponent(new CTransform);
 	pMainCam->AddComponent(new CCamera);
 	pMainCam->AddComponent(new CCameraMoveScript);
+	//pMainCam->AddComponent(new CMeshRender);
+
+	//pMainCam->AddComponent(new CGizmo);
 
 	pMainCam->Camera()->SetFarZ(1000000.f);
 	pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
-	pMainCam->Camera()->SetCameraIndex(0);		// MainCamera 로 설정
-	pMainCam->Camera()->SetLayerMaskAll(true);	// 모든 레이어 체크
-	pMainCam->Camera()->SetLayerMask(31, false);// UI Layer 는 렌더링하지 않는다.
-
+	pMainCam->Camera()->SetCameraIndex(0);
+	pMainCam->Camera()->SetLayerMaskAll(true);
+	pMainCam->Camera()->SetLayerMask(31, false);
+	//pMainCam->Transform()->SetRelativeScale(Vec3(10000.f, 10000.f, 10000.f));
 	//SpawnGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
-	PreloadGameObject(pMainCam, Vec3(10.f, 10.f, 0.f), 0);
+	PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
 
 	// UI cameara
-	//CGameObject* pUICam = new CGameObject;
-	//pUICam->SetName(L"UICamera");
+	CGameObject* pUICam = new CGameObject;
+	pUICam->SetName(L"UICamera");
 
-	//pUICam->AddComponent(new CTransform);
-	//pUICam->AddComponent(new CCamera);
+	pUICam->AddComponent(new CTransform);
+	pUICam->AddComponent(new CCamera);
 
-	//pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
-	//pUICam->Camera()->SetCameraIndex(1);		// Sub 카메라로 지정
-	//pUICam->Camera()->SetLayerMask(31, true);	// 31번 레이어만 체크
+	pUICam->Camera()->SetFarZ(1000000.f);
+	pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
+	pUICam->Camera()->SetCameraIndex(1);		// Sub 카메라로 지정
+	pUICam->Camera()->SetLayerMaskAll(false);
+	pUICam->Camera()->SetLayerMask(31, true);	// 31번 레이어만 체크
 
-	//SpawnGameObject(pUICam, Vec3(0.f, 0.f, 0.f), 0);
+	PreloadGameObject(pUICam, Vec3(0.f, 0.f, 0.f), 0);
+	
+	{
+		CGameObject* pCrossHair = new CGameObject;
+
+		pCrossHair->SetName(L"UI Cross Hair");
+		pCrossHair->AddComponent(new CTransform);
+		pCrossHair->AddComponent(new CMeshRender);
+
+		pCrossHair->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		pCrossHair->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UI2DShaderMtrl"), 0);
+		pCrossHair->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\crosshair\\Crosshair.png"));
+		pCrossHair->Transform()->SetRelativeScale(Vec3(80.f, 80.f, 1.f));
+		PreloadGameObject(pCrossHair, Vec3(0.f, 0.f, 0.f), 31);
+	}
+	
 
 	CGameObject* pSunLight = new CGameObject;
 	pSunLight->SetName(L"Sun Light");
@@ -139,17 +163,17 @@ void CreateTestLevel()
 	//	PreloadGameObject(Light, Vec3(100.f, 100.f, 100.f), 0);
 	//}
 
-	//CGameObject* pDistortion = new CGameObject;
-	//pDistortion->SetName(L"Distortion");
-	//pDistortion->AddComponent(new CTransform);
-	//pDistortion->AddComponent(new CMeshRender);
-	//pDistortion->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
+	CGameObject* pDistortion = new CGameObject;
+	pDistortion->SetName(L"Distortion");
+	pDistortion->AddComponent(new CTransform);
+	pDistortion->AddComponent(new CMeshRender);
+	pDistortion->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
 
-	//pDistortion->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	//pDistortion->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl"), 0);
-	//pDistortion->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\noise\\noise_04.jpg"));
+	pDistortion->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	pDistortion->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl"), 0);
+	pDistortion->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\noise\\noise_04.jpg"));
 
-	//SpawnGameObject(pDistortion, Vec3(0.f, 0.f, 0.f), 0);
+	PreloadGameObject(pDistortion, Vec3(0.f, 0.f, 0.f), 0);
 
 	//CGameObject* pCube = new CGameObject;
 	//pCube->SetName(L"Cube1");
@@ -172,7 +196,7 @@ void CreateTestLevel()
 		pCube->SetName(L"Monster1");
 		pCube->AddComponent(new CTransform);
 		pCube->AddComponent(new CMeshRender);
-		//pCube->AddComponent(new CMonsterScript);
+		pCube->AddComponent(new CMonsterScript);
 		pCube->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
 		pCube->AddComponent(new CCollider3D);
 		pCube->AddComponent(new CGizmo);
@@ -183,16 +207,15 @@ void CreateTestLevel()
 
 		pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 		pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
-		ObjPickerMgr::GetInst()->SetPickObj(pCube);
-		PreloadGameObject(pCube, Vec3(-500.f, 90.f, -500.f), L"Monster");
+		PreloadGameObject(pCube, Vec3(500.f, 90.f, 500.f), L"Monster");
 	}
 	//{
 	//	CGameObject* pCube = new CGameObject;
-	//	pCube->SetName(L"Monster1");
+	//	pCube->SetName(L"Monster2");
 	//	pCube->AddComponent(new CTransform);
 	//	pCube->AddComponent(new CMeshRender);
 	//	pCube->AddComponent(new CMonsterScript);
-	//	pCube->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
+	//	pCube->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::STATIC));
 	//	pCube->AddComponent(new CCollider3D);
 	//	pCube->AddComponent(new CGizmo);
 	//	pCube->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
@@ -202,7 +225,9 @@ void CreateTestLevel()
 
 	//	pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	//	pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
-	//	ObjPickerMgr::GetInst()->SetPickObj(pCube);
+	//	//pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
+	//	//pCube->MeshRender()->GetMaterial(0)->SetAnim2D(true);
+
 	//	PreloadGameObject(pCube, Vec3(-500.f, 90.f, -500.f), L"Monster");
 	//}
 
@@ -211,7 +236,7 @@ void CreateTestLevel()
 	pPlane->AddComponent(new CTransform);
 	pPlane->AddComponent(new CMeshRender);
 	pPlane->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
-	pPlane->AddComponent(new CCollider3D);
+	//pPlane->AddComponent(new CCollider3D);
 
 	pPlane->Transform()->SetRelativeScale(Vec3(10000.f, 10000.f, 1.f));
 	pPlane->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
@@ -221,7 +246,6 @@ void CreateTestLevel()
 
 	pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
-	ObjPickerMgr::GetInst()->SetPickObj(pPlane);
 	PreloadGameObject(pPlane, Vec3(0.f, -10.f, 0.f), 0);
 
 	//CGameObject* pObject = new CGameObject;
@@ -293,7 +317,7 @@ void CreateTestLevel()
 
 		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\Monster.fbx");
 		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\soldier_fps.fbx");
 		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\anim_NLA.fbx");
 		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\house.mdat");
 		//pObj = pMeshData->Instantiate();
@@ -315,25 +339,27 @@ void CreateTestLevel()
 		//pObj->AddChild(pMainCam);
 		pObj->SetFollowObj(pMainCam);
 		//pMainCam->SetFollowObj(pObj);
-		pMainCam->Transform()->SetFollowOffset(Vec3(0.f, 50.f, 0.f));
+		pMainCam->Transform()->SetFollowOffset(Vec3(50.f, 350.f, 0.f));
 
 		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
 
 		PlayerMgr::GetInst()->SetPlayer(pObj);
-		PreloadGameObject(pObj, Vec3(50.f, 100.f, 50.f), L"Player");
+		PreloadGameObject(pObj, Vec3(50.f, 1000.f, 50.f), L"Player");
 	}
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
-	//	pObj = pMeshData->Instantiate();
-	//	pObj->SetName(L"tangent fbx 1");
-	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::STATIC));
-	//	pObj->RigidBody()->SetCreature(true);
-	//	pObj->AddComponent(new CCollider3D());
-	//	pObj->AddComponent(new CGizmo);
-	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Monster");
-	//}
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\smg.fbx");
+		pObj = pMeshData->Instantiate();
+		pObj->SetName(L"smg");
+
+		pObj->AddComponent(new CGunScript);
+		pObj->AddComponent(new CGizmo);
+
+		WeaponMgr::GetInst()->AddWeapon(pObj);
+		ObjPickerMgr::GetInst()->SetPickObj(pObj);
+		PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
+	}
 	//{
 	//	Ptr<CMeshData> pMeshData = nullptr;
 	//	CGameObject* pObj = nullptr;
@@ -375,12 +401,13 @@ void CreateTestLevel()
 	//CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
 	pCurLevel->ChangeState(LEVEL_STATE::STOP);
 
-	pCurLevel->GetLayer(0)->SetName(L"Default");
-	pCurLevel->GetLayer(1)->SetName(L"Monster");
-	pCurLevel->GetLayer(2)->SetName(L"Player");
-	pCurLevel->GetLayer(3)->SetName(L"Bullet");
-	pCurLevel->GetLayer(10)->SetName(L"Light");
-	pCurLevel->GetLayer(31)->SetName(L"ViewPort UI");
+	//pCurLevel->GetLayer(0)->SetName(L"Default");
+	//pCurLevel->GetLayer(1)->SetName(L"Monster");
+	//pCurLevel->GetLayer(2)->SetName(L"Player");
+	//pCurLevel->GetLayer(3)->SetName(L"Bullet");
+	//pCurLevel->GetLayer(4)->SetName(L"Missile");
+	//pCurLevel->GetLayer(10)->SetName(L"Light");
+	//pCurLevel->GetLayer(31)->SetName(L"ViewPort UI");
 
 	pMainCam = new CGameObject;
 	pMainCam->SetName(L"MainCamera");
@@ -461,7 +488,7 @@ void CreateTestLevel()
 	}
 
 	CollisionMgr::GetInst()->SetLayerIntersect(L"Monster", L"Bullet", true);
-	CollisionMgr::GetInst()->SetLayerIntersect(L"Default", L"Bullet", true);
+	//CollisionMgr::GetInst()->SetLayerIntersect(L"Default", L"Bullet", true);
 	CollisionMgr::GetInst()->SetLayerIntersect(L"Monster", L"Player", true);
 	CollisionMgr::GetInst()->SetLayerIntersect(L"Monster", L"Default", true);
 	CollisionMgr::GetInst()->SetLayerIntersect(L"Player", L"Default", true);

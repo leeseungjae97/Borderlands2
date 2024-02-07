@@ -24,20 +24,12 @@ private:
 private:
 	// Animation3D 정보
 	map<wstring ,tMTAnimClip>	m_mapAnimClip;
-	//vector<tMTAnimClip>		m_mapAnimClip;
 	vector<tMTBone>			m_vecBones;
 	vector<Matrix>			m_vecBoneOffset;
 
-	//vector<tFrameTrans>		m_vecKeyFrameTrans;
-
-	//vector<int>					m_veciFrameCount;
-
-	CStructuredBuffer*		m_pBoneFrameData;   //
-	CStructuredBuffer*		m_pBlendFrameData;   //
-	CStructuredBuffer*		m_pBoneOffset;	    //
-
-
-	// 하나의 버텍스버퍼에 여러개의 인덱스버퍼가 연결
+	CStructuredBuffer*		m_pBoneFrameData;
+	CStructuredBuffer*		m_pBlendFrameData;
+	CStructuredBuffer*		m_pBoneOffset;
 	vector<tIndexInfo>		m_vecIdxInfo;
 	
 	void*					m_pVtxSys;
@@ -56,9 +48,11 @@ public:
 	UINT GetVtxCount() { return m_VtxCount; }
 	void SetVtxCount(UINT m_vtx_count) { m_VtxCount = m_vtx_count; }
 
-	CStructuredBuffer* GetBoneFrameDataBuffer(const wstring& _AnimName); // 전체 본 프레임 정보
-	CStructuredBuffer* GetBlendFrameDataBuffer(const wstring& _AnimName); // 전체 본 프레임 정보
-	CStructuredBuffer* GetBoneOffsetBuffer() { return  m_pBoneOffset; }	   // 각 뼈의 offset 행렬
+	CStructuredBuffer* GetBoneFrameDataBuffer(const wstring& _AnimName);
+	CStructuredBuffer* GetBlendFrameDataBuffer(const wstring& _AnimName);
+	CStructuredBuffer* GetBoneOffsetBuffer() { return  m_pBoneOffset; }
+
+	Vec3 BonePosSkinning(int idx, Vec3 _vPos);
 
 public:
 	static CMesh* CreateFromContainer(FBXLoader& _loader);

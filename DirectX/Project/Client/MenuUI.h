@@ -16,7 +16,11 @@ public:
 private:
     void CreateEmptyObject();
     void CreateEmptyMaterial();
+
     void AddComponent(COMPONENT_TYPE _type);
+    void AddCollider();
+    void AddRigidBody();
+
     void AddScript(const wstring& _strScriptName);
 
 public:

@@ -17,6 +17,18 @@ CLevel::CLevel()
 		m_arrLayer[i] = new CLayer;
 		m_arrLayer[i]->m_iLayerIdx = i;
 	}
+
+	m_arrLayer[0]->SetName(L"Default");
+	m_arrLayer[1]->SetName(L"Environment");
+	m_arrLayer[2]->SetName(L"Monster");
+	m_arrLayer[3]->SetName(L"Player");
+	m_arrLayer[4]->SetName(L"Item");
+	m_arrLayer[5]->SetName(L"Bullet");
+	m_arrLayer[6]->SetName(L"Missile");
+	m_arrLayer[10]->SetName(L"Light");
+	m_arrLayer[31]->SetName(L"ViewPort UI");
+
+	CollisionMgr::GetInst()->SetBulletLayerIdx(3);
 }
 
 CLevel::~CLevel()
@@ -60,7 +72,7 @@ void CLevel::createScene()
 {
 	m_PxCollisionCallBack = new PxCollisionCallBack;
 	PxSceneDesc sceneDesc(PhysXMgr::GetInst()->GPhysics()->getTolerancesScale());
-	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	sceneDesc.gravity = PxVec3(0.0f, -100.f, 0.0f);
 	sceneDesc.cpuDispatcher = PhysXMgr::GetInst()->GDispatcher();
 	sceneDesc.filterShader = SimulationFilterShader;
 	sceneDesc.simulationEventCallback = m_PxCollisionCallBack;
@@ -110,7 +122,7 @@ void CLevel::AddGameObject(CGameObject* _Object, const wstring& _LayerName, bool
 void CLevel::AddCollider3D(CGameObject* _Object)
 {
 	//if(_Object->Collider3D())
-		//m_PxCollisionCallBack->Collisions.insert(make_pair(_Object->Collider3D()->MPxColliderShape(), _Object->Collider3D()));
+		//m_PxCollisionCallBack->Collisions.insert(make_pair(_Object->Collider3D()->GetShape(), _Object->Collider3D()));
 }
 
 void CLevel::ChangeState(LEVEL_STATE _State)

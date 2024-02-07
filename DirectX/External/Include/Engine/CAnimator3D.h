@@ -90,6 +90,13 @@ private:
 	std::map<wstring, Events*> mEvents;
 	std::map<ANIMATION_TYPE, wstring> m_mapPreDefineAnim;
 
+	int							m_iHeadIdx;
+	Vec4						m_vHeadPos;
+	int							m_iCameraIdx;
+	Vec4						m_vCameraPos;
+	int							m_iWeaponHandIdx;
+	Vec4						m_vWeaponHandPos;
+
 private:
     void check_mesh(Ptr<CMesh> _pMesh);
 	void create_clip();
@@ -100,8 +107,9 @@ public:
 
 public:
 	void SetBones(const vector<tMTBone>* _vecBones);
-    //void SetAnimClip(const vector<tMTAnimClip>* _vecAnimClip);
 	void SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip);
+
+	void BoneSkinning();
 
 	const std::map<wstring, CAnimClip*>& GetAnimClips() { return mClips; }
 	const std::map<wstring, Events*>& GetEvents() { return mEvents; }
@@ -124,10 +132,11 @@ public:
 
 	void SetManualRatio(float _Ratio) { m_iManualRatio = _Ratio; }
 	float GetManualRatio() { return m_iManualRatio; }
-	//void SetClipIdx(int _idx);
 
     CStructuredBuffer* GetFinalBoneMat() { return m_pBoneFinalMatBuffer; }
     UINT GetBoneCount() { return (UINT)m_pVecBones.size(); }
+	vector<tMTBone> GetBone() { return m_pVecBones; }
+
     void ClearData();
 
 	void SetBlend(bool _bBlend, float _fBlendTime);
@@ -144,6 +153,14 @@ public:
 	void DeleteDefine(ANIMATION_TYPE _Type);
 
 	void SetPreDefineAnimation(const std::map<ANIMATION_TYPE, wstring>& _mapAnim) { m_mapPreDefineAnim = _mapAnim; }
+
+	int GetHeadIdx() { return m_iHeadIdx; }
+	int GetCameraIdx() { return m_iCameraIdx; }
+	int GetWeaponHandIdx() { return m_iWeaponHandIdx; }
+
+	Vec4 GetHeadPos() { return m_vHeadPos; }
+	Vec4 GetCameraPos() { return m_vCameraPos; }
+	Vec4 GetWeaponHandPos() { return m_vWeaponHandPos; }
 
 public:
 	void Play(const wstring& _Name, bool _Loop);

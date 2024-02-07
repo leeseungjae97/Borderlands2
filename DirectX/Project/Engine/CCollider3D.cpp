@@ -64,6 +64,14 @@ void CCollider3D::BeginOverlap(CCollider3D* _OhterCol)
 	}
 }
 
+void CCollider3D::Raycast(tRayInfo _RaycastInfo)
+{
+	for (auto script : GetOwner()->GetScripts())
+	{
+		script->Raycast(_RaycastInfo);
+	}
+}
+
 void CCollider3D::setShapeToRigidBody()
 {
 	CRigidBody* _rb = GetOwner()->RigidBody();
@@ -106,15 +114,22 @@ void CCollider3D::setShapeToRigidBody()
 
 void CCollider3D::createColliderShape()
 {
-	//CRigidBody* _rb = GetOwner()->RigidBody();
+	CRigidBody* _rb = GetOwner()->RigidBody();
 
-	//if(m_vScale == Vec3(1.f, 1.f, 1.f))
-	//{
-	//	if (_rb)
-	//		m_vScale = GetOwner()->RigidBody()->GetRigidScale();
-	//}
+	if(m_vScale == Vec3(1.f, 1.f, 1.f))
+	{	if(GetOwner()->Animator3D())
+		{
+			m_vScale = GetOwner()->Transform()->GetRelativeScale();
+			//Matrix matWorld = GetOwner()->Transform()->GetWorldMat();
+			//Vec4 headPos = XMVector3TransformCoord(GetOwner()->Animator3D()->GetMeshHeadPosition(), matWorld);
+			m_vScale.y = 100.f / 2.f;
+		}
+			
+		else if (_rb && m_bAttachToRigidBody)
+			m_vScale = GetOwner()->RigidBody()->GetRigidScale();
+	}
 	
-	m_PxColliderShape = createTriggerShape(PxBoxGeometry(m_vScale.x, m_vScale.y, m_vScale.z), *m_PxMaterial, true);
+	m_PxColliderShape = createTriggerShape(PxBoxGeometry(m_vScale.x + 2, m_vScale.y + 2, m_vScale.z + 2), *m_PxMaterial, true);
 	PxFilterData triggerFilterData(0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff);
 	m_PxColliderShape->setSimulationFilterData(triggerFilterData);
 }

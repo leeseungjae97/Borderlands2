@@ -105,6 +105,8 @@ public:
     void render();
     void render_shadowmap();
 
+    void FixedTransform();
+
 public:
     virtual void begin() override;
     virtual void finaltick() override;
@@ -116,7 +118,6 @@ private:
 
     void render_deferred();
     void render_forward();
-
     //void render_opaque();
     //void render_mask();
     void render_decal();

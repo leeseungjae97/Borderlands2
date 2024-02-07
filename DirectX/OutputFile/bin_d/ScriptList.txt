@@ -1,5 +1,6 @@
 CBulletScript
 CCameraMoveScript
+CCrossHairScript
 CGravityScript
 CMissileScript
 CMonsterScript

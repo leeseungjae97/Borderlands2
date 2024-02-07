@@ -9,7 +9,10 @@
 
 #include "TreeUI.h"
 
-
+extern int iInst0;
+extern int iInst1;
+extern int iInst2;
+extern int iInst3;
 
 MeshRenderUI::MeshRenderUI()
 	: ComponentUI("##MeshRender", COMPONENT_TYPE::MESHRENDER)	
@@ -112,9 +115,47 @@ int MeshRenderUI::render_update()
 		pListUI->AddDynamic_Select(this, (UI_DELEGATE_1)&MeshRenderUI::SelectMaterial);
 	}
 
+	ImGui::Text("RenderComponent Material");
+	for(int i = 0 ; i < GetTarget()->MeshRender()->GetMtrlCount(); ++i)
+	{
+		Ptr<CMaterial> mtrl = GetTarget()->MeshRender()->GetMaterial(i);
+		if (nullptr == mtrl)
+			continue;
+
+		for(int j = 0 ; j < TEX_PARAM::TEX_7; ++j)
+		{
+			Ptr<CTexture> tex = mtrl->GetTexParam((TEX_PARAM)j);
+			if(nullptr != tex)
+			{
+				ImGui::Text("%d Material, %d Texture", i, j);
+				string str = "SET##" + std::to_string(i) + "mtrl" + std::to_string(j) + "tex";
+				if(ImGui::Button(str.c_str()))
+				{
+					const map<wstring, Ptr<CRes>>& pTexture = CResMgr::GetInst()->GetResources(RES_TYPE::TEXTURE);
+
+					ListUI* pListUI = (ListUI*)ImGuiMgr::GetInst()->FindUI("##List");
+					pListUI->Reset("Texture List", ImVec2(300.f, 500.f));
+					for (const auto& pair : pTexture)
+					{
+						pListUI->AddItem(string(pair.first.begin(), pair.first.end()));
+					}
+					iInst1 = i;
+					iInst0 = j;
+					pListUI->AddDynamic_Select(this, (UI_DELEGATE_2)&MeshRenderUI::SelectTexture);
+					//mtrl->SetTexParam((TEX_PARAM)j, );
+				}
+				ImVec2 uv_min = ImVec2(0.0f, 0.0f);						// Top-left
+				ImVec2 uv_max = ImVec2(1.0f, 1.0f);						// Lower-right
+				ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);   // No tint
+				ImVec4 border_col = ImVec4(1.0f, 1.0f, 1.0f, 0.5f); // 50% opaque white
+
+				ImGui::Image((ImTextureID)tex->GetSRV().Get(), ImVec2(150, 150), uv_min, uv_max, tint_col, border_col);
+			}
+		}
+	}
+
 	return TRUE;
 }
-
 void MeshRenderUI::SelectMesh(DWORD_PTR _Key)
 {
 	string strKey = (char*)_Key;
@@ -127,4 +168,12 @@ void MeshRenderUI::SelectMaterial(DWORD_PTR _Key)
 	string strKey = (char*)_Key;
 	Ptr<CMaterial> pMtrl = CResMgr::GetInst()->FindRes<CMaterial>(wstring(strKey.begin(), strKey.end()));
 	GetTarget()->MeshRender()->SetMaterial(pMtrl, 0);
+}
+
+void MeshRenderUI::SelectTexture(DWORD_PTR _Key, DWORD_PTR _Key2)
+{
+	string strKey = (char*)_Key;
+	int texParamIdx = (int)_Key2;
+	Ptr<CTexture> pTex= CResMgr::GetInst()->FindRes<CTexture>(wstring(strKey.begin(), strKey.end()));
+	GetTarget()->MeshRender()->GetMaterial(iInst1)->SetTexParam((TEX_PARAM)texParamIdx, pTex);
 }

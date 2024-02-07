@@ -23,6 +23,7 @@ private:
     Matrix  m_matWorld; // 크기, 회전, 이동 정보를 합쳐놓음
     Matrix  m_matWorldInv; // 크기, 회전, 이동 정보를 합쳐놓음
     Matrix  m_noRotWorld;
+    Matrix  m_DrawRayWorld;
 
 
 public:
@@ -51,6 +52,7 @@ public:
     const Matrix& GetWorldScaleMat() { return m_matWorldScale; }
     const Matrix& GetWorldMat() const { return m_matWorld; }
     const Matrix& GetWorldInvMat() const { return m_matWorldInv; }
+    const Matrix& GetDrawRayMat() const { return m_DrawRayWorld; }
 
     void SetWorldMat(const Matrix& _mat) { m_matWorld = _mat; }
 

@@ -9,12 +9,28 @@ enum class RIGID_BODY_SHAPE_TYPE
     SPHERE,
     RECT,
     MESH,
+    END,
 };
 
 enum class RIGID_BODY_TYPE
 {
 	STATIC,
     DYNAMIC,
+    END,
+};
+
+static const char* RIGID_BODY_STR[(UINT)RIGID_BODY_TYPE::END]
+{
+    "STATIC",
+    "DYNAMIC"
+};
+
+static const char* RIGID_BODY_SHAPE_STR[(UINT)RIGID_BODY_SHAPE_TYPE::END]
+{
+    "BOX",
+    "SPHERE",
+    "RECT",
+    "MESH",
 };
 
 class CRigidBody :

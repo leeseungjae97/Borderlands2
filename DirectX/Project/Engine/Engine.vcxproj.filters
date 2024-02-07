@@ -241,6 +241,15 @@
     <ClInclude Include="CameraMgr.h">
       <Filter>Source\_Manager\CameraMgr</Filter>
     </ClInclude>
+    <ClInclude Include="RaycastMgr.h">
+      <Filter>Source\_Manager\RaycastMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponMgr.h">
+      <Filter>Source\_Manager\WeaponMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="BoneSkinningShader.h">
+      <Filter>Source\_ShaderCode\Compute Shader\BoneSkinningShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -461,6 +470,18 @@
     </ClCompile>
     <ClCompile Include="CameraMgr.cpp">
       <Filter>Source\_Manager\CameraMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="RaycastMgr.cpp">
+      <Filter>Source\_Manager\RaycastMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleMath.cpp">
+      <Filter>Source\_Module\SimpleMath</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponMgr.cpp">
+      <Filter>Source\_Manager\WeaponMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="BoneSkinningShader.cpp">
+      <Filter>Source\_ShaderCode\Compute Shader\BoneSkinningShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -689,6 +710,15 @@
     <Filter Include="Source\_Manager\CameraMgr">
       <UniqueIdentifier>{8bca7917-c633-4725-971d-b3207f9a91b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\_Manager\RaycastMgr">
+      <UniqueIdentifier>{d094ebe8-e6ae-45c5-a0e6-a8ea20146944}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\WeaponMgr">
+      <UniqueIdentifier>{2b14e5ca-3a5d-4e10-a26f-f20b6acb5734}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_ShaderCode\Compute Shader\BoneSkinningShader">
+      <UniqueIdentifier>{9d7c998b-a838-4821-ad26-7952694d5c81}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -770,6 +800,12 @@
       <Filter>Source\_ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="copybone.fx">
+      <Filter>Source\_ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="animation2d.fx">
+      <Filter>Source\_ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="dissolve.fx">
       <Filter>Source\_ShaderCode</Filter>
     </FxCompile>
   </ItemGroup>

@@ -16,6 +16,6 @@ void ObjPickerMgr::tick()
 {
 	if(CEventMgr::GetInst()->IsLevelChanged())
 	{
-		m_pPickObj = nullptr;
+		//m_pPickObj = nullptr;
 	}
 }
