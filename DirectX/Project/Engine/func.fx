@@ -319,7 +319,6 @@ matrix GetBoneMat(int _iBoneIdx, int _iRowIdx)
 {
     return g_arrBoneMat[(g_iBoneCount * _iRowIdx) + _iBoneIdx];
 }
-
 void Skinning(inout float3 _vPos, inout float3 _vTangent, inout float3 _vBinormal, inout float3 _vNormal
     , inout float4 _vWeight, inout float4 _vIndices
     , int _iRowIdx)
@@ -347,10 +346,31 @@ void Skinning(inout float3 _vPos, inout float3 _vTangent, inout float3 _vBinorma
     _vBinormal = normalize(info.vBinormal);
     _vNormal = normalize(info.vNormal);
 }
+void BoneSkinning(inout float4 _vPos, in matrix matBone)
+{
+    _vPos = mul(_vPos, matBone);
+}
+
+void VertexSkinning(inout float4 _vPos, inout float4 _vWeight, inout float4 _vIndices, in RWStructuredBuffer<matrix> mats)
+{
+    float4 vPos = (float4) 0.f;
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        if (0.f == _vWeight[i])
+            continue;
+
+        matrix matBone = mats[(int) _vIndices[i]];
+
+        vPos += (mul(_vPos, matBone) * _vWeight[i]);
+    }
+
+    _vPos = vPos;
+}
 
 void ShadowSkinning(inout float3 _vPos, inout float4 _vWeight, inout float4 _vIndices, int _iRowIdx)
 {
-    tSkinningInfo info = (tSkinningInfo) 0.f;
+    float3 vPos = (float3)0.f;
 
     if (_iRowIdx == -1)
         return;
@@ -362,10 +382,10 @@ void ShadowSkinning(inout float3 _vPos, inout float4 _vWeight, inout float4 _vIn
 
         matrix matBone = GetBoneMat((int) _vIndices[i], _iRowIdx);
 
-        info.vPos += (mul(float4(_vPos, 1.f), matBone) * _vWeight[i]).xyz;
+        vPos += (mul(float4(_vPos, 1.f), matBone) * _vWeight[i]).xyz;
     }
 
-    _vPos = info.vPos;
+    _vPos = vPos;
 }
 
 float4 VectorLess(float4 _vQ1, float4 _vQ2)
@@ -510,6 +530,35 @@ void MatrixAffineTransformation(in float4 Scaling
     M = mul(M, MRotation);
     M._41_42_43_44 = M._41_42_43_44 + VRotationOrigin;
     M._41_42_43_44 = M._41_42_43_44 + VTranslation;
+    _outMat = M;
+}
+
+void MatrixAffineRotate(in float4 Scaling, in float4 RotationOrigin, in float4 RotationQuaternion
+	, out matrix _outMat)
+{
+    matrix MScaling = (matrix) 0.f;
+    MScaling._11_22_33 = Scaling.xyz;
+
+    float4 VRotationOrigin = float4(RotationOrigin.xyz, 0.f);
+
+    matrix MRotation = (matrix) 0.f;
+    MatrixRotationQuaternion(RotationQuaternion, MRotation);
+
+    matrix M = MScaling;
+    //matrix M = (matrix) 1.f;
+    M._41_42_43_44 = M._41_42_43_44 - VRotationOrigin;
+    M = mul(M, MRotation);
+    M._41_42_43_44 = M._41_42_43_44 + VRotationOrigin;
+    _outMat = M;
+}
+
+void MatrixAffineTranslate(in float4 Translation, out matrix _outMat)
+{
+    float4 VTranslation = float4(Translation.xyz, 0.f);
+    
+    matrix M = (matrix) 0.f;
+    M._41_42_43_44 = M._41_42_43_44 + VTranslation;
+
     _outMat = M;
 }
 

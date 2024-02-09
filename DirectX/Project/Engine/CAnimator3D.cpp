@@ -16,8 +16,6 @@ CAnimator3D::CAnimator3D()
 	, m_iFrameCount(30)
 	, m_pBoneFinalMatBuffer(nullptr)
 	, m_bFinalMatUpdate(false)
-	//, m_iClipIdx(0)
-	//, m_iNextClipIdx(0)
 	, m_bLoop(false)
 	, m_bMultipleClip(false)
 	, m_pCurClip(nullptr)
@@ -40,20 +38,20 @@ CAnimator3D::CAnimator3D()
 
 CAnimator3D::CAnimator3D(const CAnimator3D& _origin)
 	: m_pVecBones(_origin.m_pVecBones)
-	  , m_pMapClip(_origin.m_pMapClip)
-	  , m_iFrameCount(_origin.m_iFrameCount)
-	  , m_pBoneFinalMatBuffer(nullptr)
-	  , m_bFinalMatUpdate(false)
-	  , m_bLoop(_origin.m_bLoop)
-	  , m_bMultipleClip(_origin.m_bMultipleClip)
-	  , m_pCurClip(_origin.m_pCurClip)
-	  , m_pNextClip(_origin.m_pNextClip)
-	  //, m_iClipIdx(_origin.m_iClipIdx)
-	  //, m_iNextClipIdx(_origin.m_iNextClipIdx)
-	  , m_bBlendMode(_origin.m_bBlendMode)
-      , m_bBlend(_origin.m_bBlend)
-	  , m_fBlendTime(_origin.m_fBlendTime)
-	  , CComponent(COMPONENT_TYPE::ANIMATOR3D)
+	, m_pMapClip(_origin.m_pMapClip)
+	, m_iFrameCount(_origin.m_iFrameCount)
+	, m_pBoneFinalMatBuffer(nullptr)
+	, m_bFinalMatUpdate(false)
+	, m_bLoop(_origin.m_bLoop)
+	, m_bMultipleClip(_origin.m_bMultipleClip)
+	, m_pCurClip(_origin.m_pCurClip)
+	, m_pNextClip(_origin.m_pNextClip)
+	//, m_iClipIdx(_origin.m_iClipIdx)
+	//, m_iNextClipIdx(_origin.m_iNextClipIdx)
+	, m_bBlendMode(_origin.m_bBlendMode)
+	, m_bBlend(_origin.m_bBlend)
+	, m_fBlendTime(_origin.m_fBlendTime)
+	, CComponent(COMPONENT_TYPE::ANIMATOR3D)
 {
 	Copy_Map(_origin.mClips, mClips);
 	Copy_Map(_origin.mEvents, mEvents);
@@ -69,13 +67,13 @@ CAnimator3D::~CAnimator3D()
 	Safe_Del_Map(mEvents);
 	Safe_Del_Map(mClips);
 
-	for(tMTBone& bone : m_pVecBones)
+	for (tMTBone& bone : m_pVecBones)
 	{
 		for (auto& pair : bone.vecKeyFrame)
 		{
 			pair.second.clear();
 		}
-		
+
 		bone.vecKeyFrame.clear();
 	}
 	m_pVecBones.clear();
@@ -98,15 +96,13 @@ void CAnimator3D::finaltick()
 
 	if (m_bBlend)
 	{
-		if(m_pNextClip)
+		if (m_pNextClip)
 		{
 			m_pNextClip->finlatick();
-
+			
 			m_vHeadPos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
-			m_vCameraPos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iCameraIdx].vTranslate;
-			m_vWeaponHandPos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iWeaponHandIdx].vTranslate;
 		}
-		
+
 		m_fBlendAcc += DT;
 		m_fBRatio = m_fBlendAcc / m_fBlendTime;
 
@@ -125,10 +121,8 @@ void CAnimator3D::finaltick()
 		if (m_pCurClip)
 		{
 			m_pCurClip->finlatick();
-
+			
 			m_vHeadPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
-			m_vCameraPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iCameraIdx].vTranslate;
-			m_vWeaponHandPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponHandIdx].vTranslate;
 
 			if (m_pCurClip->IsFinish() && m_bLoop)
 			{
@@ -166,11 +160,12 @@ void CAnimator3D::UpdateData()
 
 		pUpdateShader->SetFrameDataBuffer(pMesh->GetBoneFrameDataBuffer(m_pCurClip->GetAnimName()));
 		pUpdateShader->SetOffsetMatBuffer(pMesh->GetBoneOffsetBuffer());
+		pUpdateShader->SetIsTransOnly(false);
+		pUpdateShader->SetIsRotateOnly(false);
 		pUpdateShader->SetOutputBuffer(m_pBoneFinalMatBuffer);
-
 		pUpdateShader->SetIsBlend(m_bBlend);
 
-		if(m_bBlend && m_pNextClip)
+		if (m_bBlend && m_pNextClip)
 		{
 			pUpdateShader->SetBlendFrameDataBuffer(pMesh->GetBlendFrameDataBuffer(m_pNextClip->GetAnimName()));
 			pUpdateShader->SetNextClipFrameIndex(m_pNextClip->GetClipIdx());
@@ -179,27 +174,65 @@ void CAnimator3D::UpdateData()
 
 		UINT iBoneCount = (UINT)m_pVecBones.size();
 		pUpdateShader->SetBoneCount(iBoneCount);
-		if(m_bStop)
+		if (m_bStop)
 		{
 			pUpdateShader->SetFrameIndex(m_iManualIdx);
-
 			pUpdateShader->SetFrameRatio(m_bMaRatio ? m_iManualRatio : m_pCurClip->GetRatio());
-			pUpdateShader->SetFrameNextIndex(m_iManualIdx + 1 > m_pCurClip->GetClipLength() ? 0 : m_iManualIdx +1);
-		}else
+			pUpdateShader->SetFrameNextIndex(m_iManualIdx + 1 > m_pCurClip->GetClipLength() ? 0 : m_iManualIdx + 1);
+		}
+		else
 		{
 			pUpdateShader->SetFrameIndex(m_pCurClip->GetClipIdx());
 			pUpdateShader->SetFrameRatio(m_pCurClip->GetRatio());
 			pUpdateShader->SetFrameNextIndex(m_pCurClip->GetClipNextIdx());
 		}
-		
-		
-		pUpdateShader->Execute();
 
+		pUpdateShader->Execute();
 		m_bFinalMatUpdate = true;
 	}
 
-	// t30 레지스터에 최종행렬 데이터(구조버퍼) 바인딩		
 	m_pBoneFinalMatBuffer->UpdateData(30, PIPELINE_STAGE::PS_VERTEX);
+}
+
+void CAnimator3D::UpdateData(CStructuredBuffer* structuredBuffer, bool IsRotate, bool IsTrans)
+{
+	CAnimation3DShader* pUpdateShader = (CAnimation3DShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"Animation3DUpdateCS").Get();
+
+	Ptr<CMesh> pMesh = MeshRender()->GetMesh();
+	check_mesh(pMesh, structuredBuffer);
+
+	pUpdateShader->SetFrameDataBuffer(pMesh->GetBoneFrameDataBuffer(m_pCurClip->GetAnimName()));
+	pUpdateShader->SetOffsetMatBuffer(pMesh->GetBoneOffsetBuffer());
+	pUpdateShader->SetIsTransOnly(IsTrans);
+	pUpdateShader->SetIsRotateOnly(IsRotate);
+
+	pUpdateShader->SetOutputBuffer(structuredBuffer);
+
+	pUpdateShader->SetIsBlend(m_bBlend);
+
+	if (m_bBlend && m_pNextClip)
+	{
+		pUpdateShader->SetBlendFrameDataBuffer(pMesh->GetBlendFrameDataBuffer(m_pNextClip->GetAnimName()));
+		pUpdateShader->SetNextClipFrameIndex(m_pNextClip->GetClipIdx());
+		pUpdateShader->SetBlendRatio(m_fBRatio);
+	}
+
+	UINT iBoneCount = (UINT)m_pVecBones.size();
+	pUpdateShader->SetBoneCount(iBoneCount);
+	if (m_bStop)
+	{
+		pUpdateShader->SetFrameIndex(m_iManualIdx);
+		pUpdateShader->SetFrameRatio(m_bMaRatio ? m_iManualRatio : m_pCurClip->GetRatio());
+		pUpdateShader->SetFrameNextIndex(m_iManualIdx + 1 > m_pCurClip->GetClipLength() ? 0 : m_iManualIdx + 1);
+	}
+	else
+	{
+		pUpdateShader->SetFrameIndex(m_pCurClip->GetClipIdx());
+		pUpdateShader->SetFrameRatio(m_pCurClip->GetRatio());
+		pUpdateShader->SetFrameNextIndex(m_pCurClip->GetClipNextIdx());
+	}
+
+	pUpdateShader->Execute();
 }
 
 void CAnimator3D::SetBones(const vector<tMTBone>* _vecBones)
@@ -218,7 +251,7 @@ void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 
 	for (int i = 0; i < m_pVecBones.size(); ++i)
 	{
-		if (m_iCameraIdx != 0 && m_iHeadIdx != 0 && m_iWeaponHandIdx !=0)
+		if (m_iCameraIdx != 0 && m_iHeadIdx != 0 && m_iWeaponHandIdx != 0)
 			break;
 
 		tMTBone bone = m_pVecBones[i];
@@ -234,17 +267,10 @@ void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 		{
 			m_iWeaponHandIdx = i;
 		}
-		
 	}
 	m_vHeadPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
-	m_vCameraPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iCameraIdx].vTranslate;
-	m_vWeaponHandPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponHandIdx].vTranslate;
-}
 
-void CAnimator3D::BoneSkinning()
-{
-	if (!m_pCurClip->GetCurClip().vecTransKeyFrame.empty())
-		return;
+	
 }
 
 void CAnimator3D::SetCurAnimClip(CAnimClip* _Clip)
@@ -278,17 +304,10 @@ void CAnimator3D::ManualIdxDown()
 	m_pCurClip->SetManualIdx(m_iManualIdx);
 }
 
-//void CAnimator3D::SetClipIdx(int _idx)
-//{
-//	if (m_bBlendMode)
-//		m_iNextClipIdx = _idx;
-//	else
-//		m_iClipIdx = _idx;
-//}
-
 void CAnimator3D::ClearData()
 {
 	m_pBoneFinalMatBuffer->Clear();
+	//m_pBoneFinalMatBuffer->Clear_CS(false);
 
 	UINT iMtrlCount = MeshRender()->GetMtrlCount();
 	Ptr<CMaterial> pMtrl = nullptr;
@@ -309,7 +328,7 @@ void CAnimator3D::SetBlend(bool _bBlend, float _fBlendTime)
 	m_fBlendTime = _fBlendTime;
 }
 
-void CAnimator3D::SetDefineAnimation(wstring animName, ANIMATION_TYPE _Type)
+void CAnimator3D::SetDefineAnimation(wstring animName, UINT _Type)
 {
 	CAnimClip* clip = FindClip(animName);
 
@@ -319,10 +338,10 @@ void CAnimator3D::SetDefineAnimation(wstring animName, ANIMATION_TYPE _Type)
 	//Events* events = FindEvents(animName);
 
 	DeleteDefine(_Type);
-	m_mapPreDefineAnim.insert(make_pair(_Type, animName));
+	m_mapPreDefineAnim.insert(make_pair((UINT)_Type, animName));
 }
 
-ANIMATION_TYPE CAnimator3D::FindDefineAnimation(wstring animName)
+UINT CAnimator3D::FindDefineAnimation(wstring animName)
 {
 	auto iter = m_mapPreDefineAnim.begin();
 	while (iter != m_mapPreDefineAnim.end())
@@ -334,16 +353,23 @@ ANIMATION_TYPE CAnimator3D::FindDefineAnimation(wstring animName)
 		else ++iter;
 
 	}
-	return ANIMATION_TYPE::END;
+
+	if(GetOwner()->IsItem())
+	{
+		return (UINT)GUN_ANIMATION_TYPE::END;
+	}else
+	{
+		return (UINT)ANIMATION_TYPE::END;
+	}
 }
 
-const wstring& CAnimator3D::GetDefineAnimationName(ANIMATION_TYPE _Type)
+const wstring& CAnimator3D::GetDefineAnimationName(UINT _Type)
 {
-	auto iter = m_mapPreDefineAnim.find(_Type);
+	auto iter = m_mapPreDefineAnim.find((UINT)_Type);
 	if (iter != m_mapPreDefineAnim.end())
 		return iter->second;
 
-	return L"NO_ANIM_SET";	
+	return L"NO_ANIM_SET";
 }
 
 bool CAnimator3D::DeleteDefineAnimation(wstring animName)
@@ -363,15 +389,60 @@ bool CAnimator3D::DeleteDefineAnimation(wstring animName)
 	return false;
 }
 
-void CAnimator3D::DeleteDefine(ANIMATION_TYPE _Type)
+void CAnimator3D::DeleteDefine(UINT _Type)
 {
-	if (_Type == ANIMATION_TYPE::END) return;
-
-	auto iter = m_mapPreDefineAnim.find(_Type);
+	if(GetOwner()->IsItem())
+	{
+		if (_Type == (UINT)GUN_ANIMATION_TYPE::END) return;
+	}
+	else
+	{
+		if (_Type == (UINT)ANIMATION_TYPE::END) return;
+	}
+	
+	auto iter = m_mapPreDefineAnim.find((UINT)_Type);
 	if (iter != m_mapPreDefineAnim.end())
 	{
 		iter = m_mapPreDefineAnim.erase(iter);
 	};
+}
+
+//void CAnimator3D::SetDefineAnimation(wstring animName, GUN_ANIMATION_TYPE _Type)
+//{
+//	CAnimClip* clip = FindClip(animName);
+//
+//	if (nullptr == clip)
+//		assert(NULL);
+//
+//	//Events* events = FindEvents(animName);
+//
+//	DeleteDefine(_Type);
+//	m_mapPreDefineAnim.insert(make_pair((UINT)_Type, animName));
+//}
+//
+//const wstring& CAnimator3D::GetDefineAnimationName(GUN_ANIMATION_TYPE _Type)
+//{
+//	auto iter = m_mapPreDefineAnim.find((UINT)_Type);
+//	if (iter != m_mapPreDefineAnim.end())
+//		return iter->second;
+//
+//	return L"NO_ANIM_SET";
+//}
+//
+//void CAnimator3D::DeleteDefine(GUN_ANIMATION_TYPE _Type)
+//{
+//	if (_Type == GUN_ANIMATION_TYPE::END) return;
+//
+//	auto iter = m_mapPreDefineAnim.find((UINT)_Type);
+//	if (iter != m_mapPreDefineAnim.end())
+//	{
+//		iter = m_mapPreDefineAnim.erase(iter);
+//	};
+//}
+
+Vec4 CAnimator3D::GetHeadPos()
+{
+	return m_vHeadPos;
 }
 
 void CAnimator3D::Play(const wstring& _Name, bool _Loop)
@@ -423,7 +494,7 @@ void CAnimator3D::Play(const wstring& _Name, bool _Loop)
 	m_bLoop = _Loop;
 }
 
-void CAnimator3D::Play(ANIMATION_TYPE _type, bool _Loop)
+void CAnimator3D::Play(UINT _type, bool _Loop)
 {
 	wstring animName = GetDefineAnimationName(_type);
 
@@ -432,7 +503,7 @@ void CAnimator3D::Play(ANIMATION_TYPE _type, bool _Loop)
 	CAnimClip* pCheckClip = FindClip(animName);
 	Events* events;
 
-	if (nullptr == pCheckClip) 
+	if (nullptr == pCheckClip)
 		return;
 
 	if (pCheckClip == m_pCurClip)
@@ -465,10 +536,10 @@ void CAnimator3D::Play(ANIMATION_TYPE _type, bool _Loop)
 			if (events)
 				events->startEvent();
 		}
-		else{
+		else
+		{
 			m_pCurClip = pCheckClip;
 			m_pCurClip->Reset();
-
 			events = FindEvents(m_pCurClip->GetName() + L"startEvent");
 			if (events)
 				events->startEvent();
@@ -579,7 +650,7 @@ void CAnimator3D::SaveToLevelFile(FILE* _pFile)
 
 	vecSize = m_vecFinalBoneMat.size();
 	fwrite(&vecSize, sizeof(UINT), 1, _pFile);
-	for(const auto& pair : m_vecFinalBoneMat)
+	for (const auto& pair : m_vecFinalBoneMat)
 	{
 		fwrite(&pair, sizeof(Matrix), 1, _pFile);
 	}
@@ -589,25 +660,19 @@ void CAnimator3D::SaveToLevelFile(FILE* _pFile)
 	fwrite(&m_bFinalMatUpdate, sizeof(bool), 1, _pFile);
 	fwrite(&m_bLoop, sizeof(bool), 1, _pFile);
 	fwrite(&m_bMultipleClip, sizeof(bool), 1, _pFile);
+	fwrite(&m_iHeadIdx, sizeof(int), 1, _pFile);
+	fwrite(&m_iCameraIdx, sizeof(int), 1, _pFile);
+	fwrite(&m_iWeaponHandIdx, sizeof(int), 1, _pFile);
 
 	mapSize = m_mapPreDefineAnim.size();
 	fwrite(&mapSize, sizeof(UINT), 1, _pFile);
 	auto iter = m_mapPreDefineAnim.begin();
-	while(iter != m_mapPreDefineAnim.end())
+	while (iter != m_mapPreDefineAnim.end())
 	{
 		SaveWString(iter->second, _pFile);
 		fwrite(&iter->first, sizeof(UINT), 1, _pFile);
 		++iter;
 	}
-	//size_t count = mClips.size();
-
-	//fwrite(&count, sizeof(size_t), 1, _pFile);
-	//for (const auto& pair : mClips)
-	//{
-	//	SaveWString(pair.first, _pFile);
-	//	pair.second->SaveToLevelFile(_pFile);
-	//	mEvents[pair.first]->SaveToLevelFile(_pFile);
-	//}
 }
 
 void CAnimator3D::LoadFromLevelFile(FILE* _pFile)
@@ -665,7 +730,7 @@ void CAnimator3D::LoadFromLevelFile(FILE* _pFile)
 	}
 
 	fread(&vecSize, sizeof(UINT), 1, _pFile);
-	for (int i = 0 ; i < vecSize; ++i)
+	for (int i = 0; i < vecSize; ++i)
 	{
 		float fUpdateTime = 0.f;
 		fread(&fUpdateTime, sizeof(float), 1, _pFile);
@@ -688,15 +753,19 @@ void CAnimator3D::LoadFromLevelFile(FILE* _pFile)
 	fread(&m_bLoop, sizeof(bool), 1, _pFile);
 	fread(&m_bMultipleClip, sizeof(bool), 1, _pFile);
 
+	fread(&m_iHeadIdx, sizeof(int), 1, _pFile);
+	fread(&m_iCameraIdx, sizeof(int), 1, _pFile);
+	fread(&m_iWeaponHandIdx, sizeof(int), 1, _pFile);
+
 	mapSize = m_mapPreDefineAnim.size();
 	fread(&mapSize, sizeof(UINT), 1, _pFile);
 	wstring animName = L"";
 	UINT _type = (UINT)ANIMATION_TYPE::END;
-	for(int i = 0; i < mapSize; ++i)
+	for (int i = 0; i < mapSize; ++i)
 	{
 		LoadWString(animName, _pFile);
 		fread(&_type, sizeof(UINT), 1, _pFile);
-		m_mapPreDefineAnim.insert(make_pair((ANIMATION_TYPE)_type, animName));
+		m_mapPreDefineAnim.insert(make_pair(_type, animName));
 	}
 
 	create_clip();
@@ -707,8 +776,15 @@ void CAnimator3D::check_mesh(Ptr<CMesh> _pMesh)
 	UINT iBoneCount = _pMesh->GetBoneCount();
 	if (m_pBoneFinalMatBuffer->GetElementCount() != iBoneCount)
 	{
-		m_pBoneFinalMatBuffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, false, nullptr);
+		m_pBoneFinalMatBuffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, true);
 	}
+}
+
+void CAnimator3D::check_mesh(Ptr<CMesh> _pMesh, CStructuredBuffer* _buffer)
+{
+	UINT iBoneCount = _pMesh->GetBoneCount();
+
+	_buffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, true);
 }
 
 void CAnimator3D::create_clip()
@@ -716,7 +792,6 @@ void CAnimator3D::create_clip()
 	if (mClips.size() != 0 || mEvents.size() != 0) return;
 
 	wstring tempClipName = L"";
-	//for (size_t i = 0; i < m_pMapClip->size(); ++i)
 	for (auto& pair : m_pMapClip)
 	{
 		tMTAnimClip clip = pair.second;
@@ -729,8 +804,6 @@ void CAnimator3D::create_clip()
 		pAnimClip->Create(clip.strAnimName, clip
 			, clip.iStartFrame, clip.iEndFrame, true);
 
-		//pAnimClip->Create(clip.strAnimName, m_pMapClip, true);
-
 		mClips.insert(std::make_pair(clip.strAnimName, pAnimClip));
 		Events* events = FindEvents(clip.strAnimName);
 
@@ -738,7 +811,6 @@ void CAnimator3D::create_clip()
 			events = new Events();
 
 		mEvents.insert(make_pair(clip.strAnimName, events));
-		//m_mapPreDefineAnim.insert(make_pair(ANIMATION_TYPE::END, clip.strAnimName));
 	}
 
 	m_pCurClip = mClips.at(tempClipName);

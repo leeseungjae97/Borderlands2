@@ -8,7 +8,7 @@ private:
 
 public:
     void tick() override;
-
+	void finaltick() override;
 public:
     void SetWeaponPos();
 

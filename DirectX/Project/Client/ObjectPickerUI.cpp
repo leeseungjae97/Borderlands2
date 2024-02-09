@@ -74,14 +74,8 @@ int ObjectPickerUI::render_update()
 
 			ImGui::Text(str.c_str());
 
-			PxShape* pp = nullptr;
-			_dy->getShapes(&pp, sizeof(PxShape));
-
-			if(nullptr != pp)
-			{
-				pp->getSimulationFilterData();
-				pp->getQueryFilterData();
-			}
+			//PxShape* pp = nullptr;
+			//_dy->getShapes(&pp, sizeof(PxShape));
 
 
 			PxVec3 _angular_velocity = _dy->getAngularVelocity();

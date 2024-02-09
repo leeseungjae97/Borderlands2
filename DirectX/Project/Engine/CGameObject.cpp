@@ -22,6 +22,7 @@ CGameObject::CGameObject()
 	, m_CurLifeTime(0.f)
 	, m_bLifeSpan(false)
 	, m_bESM(false)
+	, m_bItem(false)
 {
 }
 
@@ -37,6 +38,7 @@ CGameObject::CGameObject(const CGameObject& _Other)
 	, m_CurLifeTime(0.f)
 	, m_bLifeSpan(false)
 	, m_bESM(false)
+	, m_bItem(false)
 {
 	// Component บนป็
 	for (UINT i = 0; i < (UINT)COMPONENT_TYPE::END; ++i)
@@ -123,6 +125,10 @@ void CGameObject::finaltick()
 	{
 		if (nullptr != m_arrCom[i])
 			m_arrCom[i]->finaltick();
+	}
+	for (size_t i = 0; i < m_vecScript.size(); ++i)
+	{
+		m_vecScript[i]->finaltick();
 	}
 
 	for (size_t i = 0; i < m_vecChild.size(); ++i)

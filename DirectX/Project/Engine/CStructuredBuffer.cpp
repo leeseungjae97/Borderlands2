@@ -180,7 +180,7 @@ void CStructuredBuffer::UpdateData(UINT _iRegisterNum, UINT _iPipeLineStage)
 	if (PIPELINE_STAGE::PS_PIXEL & _iPipeLineStage)
 	{
 		CONTEXT->PSSetShaderResources(_iRegisterNum, 1, m_SRV.GetAddressOf());
-	}	
+	}
 }
 
 void CStructuredBuffer::UpdateData_CS(UINT _iRegisterNum, bool _IsShaderRes)

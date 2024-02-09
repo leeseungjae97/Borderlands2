@@ -95,7 +95,7 @@ void CreateTestLevel()
 	pUICam->Camera()->SetLayerMask(31, true);	// 31번 레이어만 체크
 
 	PreloadGameObject(pUICam, Vec3(0.f, 0.f, 0.f), 0);
-	
+
 	{
 		CGameObject* pCrossHair = new CGameObject;
 
@@ -109,7 +109,7 @@ void CreateTestLevel()
 		pCrossHair->Transform()->SetRelativeScale(Vec3(80.f, 80.f, 1.f));
 		PreloadGameObject(pCrossHair, Vec3(0.f, 0.f, 0.f), 31);
 	}
-	
+
 
 	CGameObject* pSunLight = new CGameObject;
 	pSunLight->SetName(L"Sun Light");
@@ -335,17 +335,41 @@ void CreateTestLevel()
 		pObj->RigidBody()->SetCreature(true);
 		pObj->AddComponent(new CCollider3D);
 		pObj->AddComponent(new CGizmo);
+		pObj->Transform()->SetRelativePosOffset(Vec3(0.f, 350.f, 0.f));
 
 		//pObj->AddChild(pMainCam);
 		pObj->SetFollowObj(pMainCam);
 		//pMainCam->SetFollowObj(pObj);
-		pMainCam->Transform()->SetFollowOffset(Vec3(50.f, 350.f, 0.f));
+		//pMainCam->Transform()->SetFollowOffset(Vec3(50.f, 350.f, 0.f));
 
 		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
-
+		ObjPickerMgr::GetInst()->SetPickObj(pObj);
 		PlayerMgr::GetInst()->SetPlayer(pObj);
 		PreloadGameObject(pObj, Vec3(50.f, 1000.f, 50.f), L"Player");
 	}
+	//{
+	//	CGameObject* pCube = new CGameObject;
+	//	pCube->SetName(L"Monster2");
+	//	pCube->AddComponent(new CTransform);
+	//	pCube->AddComponent(new CMeshRender);
+	//	//pCube->AddComponent(new CMonsterScript);
+	//	//pCube->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::STATIC));
+	//	//pCube->AddComponent(new CCollider3D);
+	//	pCube->AddComponent(new CGunScript);
+	//	pCube->AddComponent(new CGizmo);
+
+	//	pCube->Transform()->SetRelativeScale(Vec3(20.f, 20.f, 20.f));
+
+	//	pCube->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//	pCube->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
+
+	//	pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
+	//	pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
+	//	//pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
+	//	//pCube->MeshRender()->GetMaterial(0)->SetAnim2D(true);
+
+	//	PreloadGameObject(pCube, Vec3(0.f, 0.f, 0.f), L"Monster");
+	//}
 	{
 		Ptr<CMeshData> pMeshData = nullptr;
 		CGameObject* pObj = nullptr;
@@ -355,9 +379,10 @@ void CreateTestLevel()
 
 		pObj->AddComponent(new CGunScript);
 		pObj->AddComponent(new CGizmo);
+		pObj->SetIsItem(true);
 
 		WeaponMgr::GetInst()->AddWeapon(pObj);
-		ObjPickerMgr::GetInst()->SetPickObj(pObj);
+
 		PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
 	}
 	//{
@@ -395,7 +420,7 @@ void CreateTestLevel()
 	//	
 	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 500.f), L"Default");
 	//}
-	
+
 	pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"switch level");
 	CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
 	//CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
@@ -421,7 +446,7 @@ void CreateTestLevel()
 	pMainCam->Camera()->SetCameraIndex(0);		// MainCamera 로 설정
 	pMainCam->Camera()->SetLayerMaskAll(true);	// 모든 레이어 체크
 	pMainCam->Camera()->SetLayerMask(31, false);// UI Layer 는 렌더링하지 않는다.
-	
+
 	PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
 	{
 		CGameObject* pSunLight = new CGameObject;
@@ -457,7 +482,7 @@ void CreateTestLevel()
 		//pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
 		PreloadGameObject(pLandScape, Vec3(0.f, 0.f, 0.f), 1);
 	}
-	
+
 
 	///*CGameObject* */pSunLight = new CGameObject;
 	//pSunLight->SetName(L"SunLight");

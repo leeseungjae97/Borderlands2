@@ -21,6 +21,7 @@ public:
     virtual int Load(const wstring& _strFilePath) override;
 
     CGameObject* Instantiate();
+    void Instantiate(CGameObject* _Obj);
 
     CLONE_DISABLE(CMeshData);
 

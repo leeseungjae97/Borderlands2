@@ -34,7 +34,11 @@ private:
 	
 	void*					m_pVtxSys;
 
+	FbxMesh*				m_pFbxMesh;
+
 public:
+	//void SetFbxScene(FbxScene* _FScene) { m_pScene = _FScene; }
+
 	Vtx* GetVtxSysMem() { return (Vtx*)m_pVtxSys; }
 	const vector<tIndexInfo>& GetIndexInfo() { return m_vecIdxInfo; }
 	UINT GetSubsetCount() { return (UINT)m_vecIdxInfo.size(); }
@@ -52,7 +56,14 @@ public:
 	CStructuredBuffer* GetBlendFrameDataBuffer(const wstring& _AnimName);
 	CStructuredBuffer* GetBoneOffsetBuffer() { return  m_pBoneOffset; }
 
-	Vec3 BonePosSkinning(int idx, Vec3 _vPos);
+	vector<Matrix> GetBoneOffset() { return m_vecBoneOffset; }
+
+	Vec3 BonePosSkinning(int idx, class CAnimator3D* animator);
+	Vec3 BoneRotSkinning(int idx, class CAnimator3D* animator);
+	Vec3 VertexPosSkinning(int idx, class CAnimator3D* animator);
+	Vec3 VertexRotSkinning(int idx, class CAnimator3D* animator);
+
+	void SetFbxMesh(FbxMesh* mesh) { m_pFbxMesh = mesh; }
 
 public:
 	static CMesh* CreateFromContainer(FBXLoader& _loader);

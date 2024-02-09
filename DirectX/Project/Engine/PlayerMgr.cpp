@@ -24,7 +24,7 @@ void PlayerMgr::init()
 
 void PlayerMgr::tick()
 {
-	if(CEventMgr::GetInst()->IsLevelChanged())
+	if (CEventMgr::GetInst()->IsLevelChanged())
 	{
 		vector<CGameObject*> objects = CLevelMgr::GetInst()->GetCurLevel()->FindLayerByName(L"Player")->GetObjects();
 		for (int i = 0; i < objects.size(); ++i)
@@ -38,32 +38,39 @@ void PlayerMgr::tick()
 	}
 }
 
-Vec3 PlayerMgr::GetPlayerCameraPos()
-{
-	if (nullptr == m_pPlayer) 
-		return Vec3::Zero;
-
-	Matrix matWorld = m_pPlayer->Transform()->GetWorldMat();
-	int iCameraIdx = m_pPlayer->Animator3D()->GetCameraIdx();
-	Vec4 v = m_pPlayer->Animator3D()->GetCameraPos();
-	Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iCameraIdx, v);
-
-	vPos = XMVector3TransformCoord(vPos, matWorld);
-
-	return vPos;
-}
-
-Vec3 PlayerMgr::GetPlayerWeaponPos()
+Vec3 PlayerMgr::GetPlayerCameraPos(Matrix matWorld)
 {
 	if (nullptr == m_pPlayer)
 		return Vec3::Zero;
 
-	Matrix matWorld = m_pPlayer->Transform()->GetWorldMat();
+	//Matrix matWorld = m_pPlayer->Transform()->GetWorldMat();
+	int iCameraIdx = m_pPlayer->Animator3D()->GetCameraIdx();
+	Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iCameraIdx, m_pPlayer->Animator3D());
+	//Vec3 v = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(186, m_pPlayer->Animator3D());
+	//Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iCameraIdx, v);
+	vPos = XMVector3TransformCoord(vPos, matWorld);
+
+	return vPos;
+}
+Vec3 PlayerMgr::GetPlayerWeaponRot()
+{
+	if (nullptr == m_pPlayer)
+		return Vec3::Zero;
+
+	int iWeaponHandRotIdx = m_pPlayer->Animator3D()->GetWeaponHandIdx();
+
+	Vec3 vRot = m_pPlayer->MeshRender()->GetMesh()->BoneRotSkinning(iWeaponHandRotIdx, m_pPlayer->Animator3D());
+
+	return vRot;
+}
+Vec3 PlayerMgr::GetPlayerWeaponPos(Matrix matWorld)
+{
+	if (nullptr == m_pPlayer)
+		return Vec3::Zero;
 
 	int iWeaponHandIdx = m_pPlayer->Animator3D()->GetWeaponHandIdx();
-	Vec4 v = m_pPlayer->Animator3D()->GetWeaponHandPos();
-	Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, v);
-
+	Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, m_pPlayer->Animator3D());
+	
 	vPos = XMVector3TransformCoord(vPos, matWorld);
 
 	return vPos;

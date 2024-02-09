@@ -234,7 +234,7 @@ struct tMTBone
 	int					iParentIndx;
 	Matrix				matOffset;
 	Matrix				matBone;
-	
+	Vec4				vBonePos;
 	map<wstring ,vector<tMTKeyFrame>>	vecKeyFrame;
 };
 

@@ -66,6 +66,23 @@ extern const wchar_t* COMPONENT_TYPE_WSTR[(UINT)COMPONENT_TYPE::END] =
 	L"DECAL",
 };
 
+extern const char* GUN_ANIMATION_TYPE_STR[(UINT)GUN_ANIMATION_TYPE::END + 1] =
+{
+	"FIRE",
+	"RELOAD",
+	"FAST_RELOAD",
+	"IDLE",
+	"END",
+};
+
+extern const wchar_t* GUN_ANIMATION_TYPE_WSTR[(UINT)GUN_ANIMATION_TYPE::END + 1] =
+{
+	L"FIRE",
+	L"RELOAD",
+	L"FAST_RELOAD",
+	L"IDLE",
+	L"END",
+};
 
 extern const char* ANIMATION_TYPE_STR[(UINT)ANIMATION_TYPE::END + 1] =
 {

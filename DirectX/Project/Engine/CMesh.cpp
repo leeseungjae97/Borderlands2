@@ -1,12 +1,16 @@
 #include "pch.h"
 #include "CMesh.h"
 
+#include "CAnimator3D.h"
 #include "CDevice.h"
 #include "CInstancingBuffer.h"
 #include "CPathMgr.h"
+#include "CResMgr.h"
 #include "mFBXLoader.h"
 
 #include "CStructuredBuffer.h"
+#include "IndividualBoneSkinningShader.h"
+#include "physx_util.h"
 
 CMesh::CMesh(bool _bEngine)
 	: CRes(RES_TYPE::MESH, _bEngine)
@@ -38,21 +42,192 @@ CMesh::~CMesh()
 		delete m_pBlendFrameData;
 }
 
-Vec3 CMesh::BonePosSkinning(int idx, Vec3 _vPos)
+Vec3 CMesh::BoneRotSkinning(int idx, CAnimator3D* animator)
 {
-	Vtx* vv  = (Vtx*)m_pVtxSys;
-	Vtx v = vv[idx];
+	CStructuredBuffer* pBoneMatBuffer = new CStructuredBuffer;
+	Matrix matBone;
 
-	Vec4 vPos;
-	for (int i = 0; i < 4; ++i)
+	Vec3 vRot;
+	IndividualBoneSkinningShader* boneSkinningCS = (IndividualBoneSkinningShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"IBSCS").Get();
+
+	CStructuredBuffer* pOutputBuffer = new CStructuredBuffer;
+
+	pOutputBuffer->Create(sizeof(Matrix), 1, SB_TYPE::READ_WRITE, true);
+	pOutputBuffer->SetData(&matBone, 1);
+
+	boneSkinningCS->SetBoneIdx(idx);
+	boneSkinningCS->SetOutputBuffer(pOutputBuffer);
+
+	animator->UpdateData(pBoneMatBuffer, true, false);
+	boneSkinningCS->SetBoneMat(pBoneMatBuffer);
+
+	boneSkinningCS->Execute();
+
+	pOutputBuffer->GetData(&matBone);
+
+	boneSkinningCS->Clear();
+
+	if (pOutputBuffer)
 	{
-		if (0.f == v.vWeights[i])
-			continue;
-
-		Matrix matBone = m_vecBones[v.vIndices[i], 1].matBone;
-		//vPos += XMVector4TransformCoord() * v.vWeights[i];
-		vPos += XMVector4Transform(Vec4(_vPos.x, _vPos.y, _vPos.z, 1.f), matBone)* v.vWeights[i];
+		delete pOutputBuffer;
+		pOutputBuffer = nullptr;
 	}
+
+	if (pBoneMatBuffer)
+	{
+		delete pBoneMatBuffer;
+		pBoneMatBuffer = nullptr;
+	}
+
+	animator->ClearData();
+	Quat quat;
+	Vec3 vS, vT;
+
+	matBone.Decompose(vS, quat, vT);
+
+	vRot = physx::Util::QuaternionToVector3(quat);
+	vRot.x *= -1.f;
+	vRot.y *= -1.f;
+	vRot.z *= -1.f;
+	vRot.y += XM_PI / 2.f;
+	return vRot;
+}
+
+Vec3 CMesh::BonePosSkinning(int idx, CAnimator3D* animator)
+{
+	CStructuredBuffer* pBoneMatBuffer = new CStructuredBuffer;
+	Matrix matBone;
+
+	IndividualBoneSkinningShader* boneSkinningCS = (IndividualBoneSkinningShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"IBSCS").Get();
+
+	CStructuredBuffer* pOutputBuffer = new CStructuredBuffer;
+
+	pOutputBuffer->Create(sizeof(Matrix), 1, SB_TYPE::READ_WRITE, true);
+	pOutputBuffer->SetData(&matBone, 1);
+
+	boneSkinningCS->SetBoneIdx(idx);
+
+	boneSkinningCS->SetOutputBuffer(pOutputBuffer);
+
+	animator->UpdateData(pBoneMatBuffer, false, true);
+	boneSkinningCS->SetBoneMat(pBoneMatBuffer);
+
+	boneSkinningCS->Execute();
+
+	pOutputBuffer->GetData(&matBone);
+
+	boneSkinningCS->Clear();
+
+	if (pOutputBuffer)
+	{
+		delete pOutputBuffer;
+		pOutputBuffer = nullptr;
+	}
+
+	if(pBoneMatBuffer)
+	{
+		delete pBoneMatBuffer;
+		pBoneMatBuffer = nullptr;
+	}
+
+	animator->ClearData();
+
+	return Vec3(matBone._14, matBone._24, matBone._34);
+	//return vT;
+}
+
+Vec3 CMesh::VertexPosSkinning(int idx, CAnimator3D* animator)
+{
+	Vtx* vv = (Vtx*)m_pVtxSys;
+
+	tIndexInfo indexInfo = m_vecIdxInfo[0];
+
+	vector<UINT> inds; inds.clear();
+	vector<UINT>().swap(inds); inds.resize(indexInfo.iIdxCount);
+	memcpy(inds.data(), indexInfo.pIdxSysMem, indexInfo.iIdxCount * sizeof(UINT));
+
+	int vertexIdx = inds[idx]; Vtx v = vv[vertexIdx];
+	Vec4 vPos;
+
+	CStructuredBuffer* pBoneMatBuffer = new CStructuredBuffer;
+	animator->UpdateData(pBoneMatBuffer, false, false);
+
+	IndividualBoneSkinningShader* boneSkinningCS = (IndividualBoneSkinningShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"IBSCS").Get();
+
+	CStructuredBuffer* pOutputBuffer = new CStructuredBuffer;
+	pOutputBuffer->Create(sizeof(Vec4), 1, SB_TYPE::READ_WRITE, true);
+	pOutputBuffer->SetData(&vPos, 1);
+
+	boneSkinningCS->SetBoneSkinning(false);
+	//boneSkinningCS->SetBoneIdx(idx);
+
+	boneSkinningCS->SetWeight(v.vWeights);
+	boneSkinningCS->SetIndices(v.vIndices);
+	boneSkinningCS->SetPosition(Vec4(v.vPos.x, v.vPos.y, v.vPos.z, 1.f));
+	boneSkinningCS->SetOutputBuffer(pOutputBuffer);
+	boneSkinningCS->SetBoneMat(pBoneMatBuffer);
+
+	boneSkinningCS->Execute();
+
+	pOutputBuffer->GetData(&vPos);
+
+	boneSkinningCS->Clear();
+
+	if (pOutputBuffer)
+	{
+		delete pOutputBuffer;
+		pOutputBuffer = nullptr;
+	}
+
+	animator->ClearData();
+
+	return vPos;
+}
+
+Vec3 CMesh::VertexRotSkinning(int idx, CAnimator3D* animator)
+{
+	Vtx* vv = (Vtx*)m_pVtxSys;
+
+	tIndexInfo indexInfo = m_vecIdxInfo[0];
+
+	vector<UINT> inds; inds.clear();
+	vector<UINT>().swap(inds); inds.resize(indexInfo.iIdxCount);
+	memcpy(inds.data(), indexInfo.pIdxSysMem, indexInfo.iIdxCount * sizeof(UINT));
+
+	int vertexIdx = inds[idx]; Vtx v = vv[vertexIdx];
+	Vec4 vPos;
+
+	CStructuredBuffer* pBoneMatBuffer = new CStructuredBuffer;
+	animator->UpdateData(pBoneMatBuffer, false, false);
+
+	IndividualBoneSkinningShader* boneSkinningCS = (IndividualBoneSkinningShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"IBSCS").Get();
+
+	CStructuredBuffer* pOutputBuffer = new CStructuredBuffer;
+	pOutputBuffer->Create(sizeof(Vec4), 1, SB_TYPE::READ_WRITE, true);
+	pOutputBuffer->SetData(&vPos, 1);
+
+	boneSkinningCS->SetBoneSkinning(false);
+	//boneSkinningCS->SetBoneIdx(idx);
+
+	boneSkinningCS->SetWeight(v.vWeights);
+	boneSkinningCS->SetIndices(v.vIndices);
+	boneSkinningCS->SetPosition(Vec4(v.vPos.x, v.vPos.y, v.vPos.z, 1.f));
+	boneSkinningCS->SetOutputBuffer(pOutputBuffer);
+	boneSkinningCS->SetBoneMat(pBoneMatBuffer);
+
+	boneSkinningCS->Execute();
+
+	pOutputBuffer->GetData(&vPos);
+
+	boneSkinningCS->Clear();
+
+	if (pOutputBuffer)
+	{
+		delete pOutputBuffer;
+		pOutputBuffer = nullptr;
+	}
+
+	animator->ClearData();
 
 	return vPos;
 }
@@ -60,11 +235,11 @@ Vec3 CMesh::BonePosSkinning(int idx, Vec3 _vPos)
 CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 {
 	const tContainer* container = &_loader.GetContainer(0);
-
+	//container->
 	UINT iVtxCount = (UINT)container->vecPos.size();
 
 	D3D11_BUFFER_DESC tVtxDesc = {};
-	
+
 	tVtxDesc.ByteWidth = sizeof(Vtx) * iVtxCount;
 	tVtxDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
@@ -168,6 +343,8 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 		bone.matBone = GetMatrixFromFbxMatrix(vecBone[i]->matBone);
 		bone.matOffset = GetMatrixFromFbxMatrix(vecBone[i]->matOffset);
 		bone.strBoneName = vecBone[i]->strBoneName;
+		bone.vBonePos = Vec4(vecBone[i]->vBonePos.mData[0], vecBone[i]->vBonePos.mData[1]
+			, vecBone[i]->vBonePos.mData[2], vecBone[i]->vBonePos.mData[3]);
 
 		for (UINT j = 0; j < vecAnimClip.size(); ++j)
 		{
@@ -191,7 +368,7 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 				_tMTKeyframe.vScale.x = (float)_tKeyFrame.matTransform.GetS().mData[0];
 				_tMTKeyframe.vScale.y = (float)_tKeyFrame.matTransform.GetS().mData[1];
 				_tMTKeyframe.vScale.z = (float)_tKeyFrame.matTransform.GetS().mData[2];
-
+				
 				_tMTKeyframe.qRot.x = (float)_tKeyFrame.matTransform.GetQ().mData[0];
 				_tMTKeyframe.qRot.y = (float)_tKeyFrame.matTransform.GetQ().mData[1];
 				_tMTKeyframe.qRot.z = (float)_tKeyFrame.matTransform.GetQ().mData[2];
@@ -215,7 +392,7 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 		TransKeyFrame(pMesh);
 
 		pMesh->m_pBoneOffset = new CStructuredBuffer;
-		pMesh->m_pBoneOffset->Create(sizeof(Matrix), (UINT)pMesh->m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false,pMesh->m_vecBoneOffset.data());
+		pMesh->m_pBoneOffset->Create(sizeof(Matrix), (UINT)pMesh->m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false, pMesh->m_vecBoneOffset.data());
 
 		pMesh->m_pBoneFrameData = new CStructuredBuffer;
 		pMesh->m_pBlendFrameData = new CStructuredBuffer;
@@ -228,7 +405,7 @@ CStructuredBuffer* CMesh::GetBoneFrameDataBuffer(const wstring& _AnimName)
 	//tMTAnimClip clip = m_mapAnimClip[_Idx];
 	tMTAnimClip clip = m_mapAnimClip.at(_AnimName);
 	m_pBoneFrameData->Create(sizeof(tFrameTrans), (UINT)m_vecBoneOffset.size() * clip.iFrameCount
-		, SB_TYPE::READ_ONLY, false,clip.vecTransKeyFrame.data());
+		, SB_TYPE::READ_ONLY, false, clip.vecTransKeyFrame.data());
 	return m_pBoneFrameData;
 }
 
@@ -237,7 +414,7 @@ CStructuredBuffer* CMesh::GetBlendFrameDataBuffer(const wstring& _AnimName)
 	//tMTAnimClip clip = m_mapAnimClip[_Idx];
 	tMTAnimClip clip = m_mapAnimClip.at(_AnimName);
 	m_pBlendFrameData->Create(sizeof(tFrameTrans), (UINT)m_vecBoneOffset.size() * clip.iFrameCount
-		, SB_TYPE::READ_ONLY, false,clip.vecTransKeyFrame.data());
+		, SB_TYPE::READ_ONLY, false, clip.vecTransKeyFrame.data());
 	return m_pBlendFrameData;
 }
 
@@ -449,7 +626,7 @@ int CMesh::Load(const wstring& _strFilePath)
 		TransKeyFrame(this);
 
 		m_pBoneOffset = new CStructuredBuffer;
-		m_pBoneOffset->Create(sizeof(Matrix), (UINT)m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false,m_vecBoneOffset.data());
+		m_pBoneOffset->Create(sizeof(Matrix), (UINT)m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false, m_vecBoneOffset.data());
 
 		m_pBoneFrameData = new CStructuredBuffer;
 		m_pBlendFrameData = new CStructuredBuffer;
@@ -513,7 +690,7 @@ int CMesh::Save(const wstring& _strRelativePath)
 	//	fwrite(&m_mapAnimClip[i].iFrameLength, sizeof(int), 1, pFile);
 	//	fwrite(&m_mapAnimClip[i].iFrameCount, sizeof(int), 1, pFile);
 	//}
-	for(const auto& pair : m_mapAnimClip)
+	for (const auto& pair : m_mapAnimClip)
 	{
 		SaveWString(pair.second.strAnimName, pFile);
 		fwrite(&pair.second.dStartTime, sizeof(double), 1, pFile);

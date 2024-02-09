@@ -7,6 +7,7 @@
 #include "CHeightMapShader.h"
 #include "CRayCastShader.h"
 #include "CWeightMapShader.h"
+#include "IndividualBoneSkinningShader.h"
 
 CResMgr::CResMgr()
 	: m_Changed(false)
@@ -1202,6 +1203,11 @@ void CResMgr::CreateDefaultComputeShader()
 	pCS = new CCopyBoneShader(1024, 1, 1);
 	pCS->SetKey(L"CopyBoneCS");
 	pCS->CreateComputeShader(L"shader\\copybone.fx", "CS_CopyBoneMatrix");
+	AddRes(pCS->GetKey(), pCS);
+
+	pCS = new IndividualBoneSkinningShader(1, 1, 1);
+	pCS->SetKey(L"IBSCS");
+	pCS->CreateComputeShader(L"shader\\individual_bone_skinning.fx", "CS_IndividualBone");
 	AddRes(pCS->GetKey(), pCS);
 
 	//pCS = new CWeightMapShader(32, 32, 1);

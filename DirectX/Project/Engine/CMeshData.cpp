@@ -166,3 +166,23 @@ CGameObject* CMeshData::Instantiate()
 
 	return pNewObj;
 }
+
+void CMeshData::Instantiate(CGameObject* _Obj)
+{
+	_Obj->MeshRender()->SetMesh(m_pMesh);
+
+	for (UINT i = 0; i < m_vecMtrl.size(); ++i)
+	{
+		_Obj->MeshRender()->SetMaterial(m_vecMtrl[i], i);
+	}
+
+	if (false == m_pMesh->IsAnimMesh())
+		return;
+
+	CAnimator3D* pAnimator = new CAnimator3D;
+	_Obj->AddComponent(pAnimator);
+
+	pAnimator->SetBones(m_pMesh->GetBones());
+	pAnimator->SetAnimClip(m_pMesh->GetAnimClip());
+
+}

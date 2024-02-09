@@ -8,6 +8,7 @@ private:
     Vec3    m_vRelativePos;
     Vec3    m_vRelativeScale;
     Vec3    m_vRelativeRot;
+    Vec3    m_vRelativePosOffset;
 
     Quat m_qRotation;
 
@@ -30,6 +31,7 @@ public:
     void SetRelativePos(Vec3 _vPos);
     void SetRelativeScale(Vec3 _vScale) { m_vRelativeScale = _vScale; }
     void SetRelativeRot(Vec3 _vRot);
+    void SetRelativePosOffset(Vec3 _Offset) { m_vRelativePosOffset = _Offset; }
 
     void SetRelativePos(float _x, float _y, float _z) { m_vRelativePos = Vec3(_x, _y, _z); }
     void SetRelativeScale(float _x, float _y, float _z) { m_vRelativeScale = Vec3(_x, _y, _z); }
@@ -39,6 +41,7 @@ public:
     void SetAbsolute(bool _Set) { m_bAbsolute = _Set; }    
 
     Vec3 GetRelativePos() const { return m_vRelativePos; }
+    Vec3 GetRelativePosOffset() const { return m_vRelativePosOffset; }
     Vec3 GetRelativeScale() const { return m_vRelativeScale; }
     Vec3 GetRelativeRot() const { return m_vRelativeRot; }
 

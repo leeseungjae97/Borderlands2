@@ -9,7 +9,7 @@ class CAnimation3DShader :
 	CStructuredBuffer* m_pFrameDataBuffer;			
 	CStructuredBuffer* m_pBlendFrameDataBuffer;
 	CStructuredBuffer* m_pOffsetMatBuffer;			
-	CStructuredBuffer* m_pOutputBuffer;				
+	CStructuredBuffer* m_pOutputBuffer;					
 
 public:
 	void SetBoneCount(int _iBoneCount) { m_Const.arrInt[0] = _iBoneCount; }
@@ -17,6 +17,8 @@ public:
 	void SetFrameNextIndex(int _iNextIdx) { m_Const.arrInt[2] = _iNextIdx; }
 	void SetIsBlend(bool _bIsBlend) { m_Const.arrInt[3] = _bIsBlend; }
 	void SetNextClipFrameIndex(int _iLastFrame) { m_Const.arrInt[4] = _iLastFrame; }
+	void SetIsTransOnly(bool _IsTransOnly) { m_Const.arrInt[5] = _IsTransOnly; }
+	void SetIsRotateOnly(bool _IsRotateOnly) { m_Const.arrInt[6] = _IsRotateOnly; }
 
 	void SetFrameRatio(float _fFrameRatio) { m_Const.arrFloat[0] = _fFrameRatio; }
 	void SetBlendRatio(float _fFrameRatio) { m_Const.arrFloat[1] = _fFrameRatio; }

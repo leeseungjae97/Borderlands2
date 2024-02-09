@@ -80,6 +80,10 @@ void FBXLoader::LoadFbx(const wstring& _strPath)
 	FbxAxisSystem DesireAxis = FbxAxisSystem::DirectX;
 	DesireAxis.ConvertScene(m_pScene);
 	originAxis = m_pScene->GetGlobalSettings().GetAxisSystem();*/
+	//m_pMesh = m_pScene->GetSrcObject<FbxMesh>(0);
+
+	//FbxTime time;
+	//m_pMesh->GetNode()->EvaluateGlobalTransform();
 
 	m_pScene->GetGlobalSettings().SetAxisSystem(FbxAxisSystem::Max);
 
@@ -135,6 +139,8 @@ void FBXLoader::LoadMeshDataFromNode(FbxNode* _pNode)
 
 void FBXLoader::LoadMesh(FbxMesh* _pFbxMesh)
 {
+	m_pMesh = _pFbxMesh;
+
 	m_vecContainer.push_back(tContainer{});
 	tContainer& Container = m_vecContainer[m_vecContainer.size() - 1];
 
@@ -471,6 +477,25 @@ wstring FBXLoader::GetMtrlTextureName(FbxSurfaceMaterial* _pSurface, const char*
 	return wstring(strName.begin(), strName.end());
 }
 
+FbxVector4 FBXLoader::GetBoneWorldTransform(int idx)
+{
+	FbxNode* pNode = m_pScene->GetRootNode();
+	for(int i = 0 ; i < pNode->GetChildCount(); ++i)
+	{
+		FbxNode* child = pNode->GetChild(i);
+		string str = child->GetName();
+		wstring wstr(str.begin(), str.end());
+		wstr += L"\n";
+		OutputDebugStringW(wstr.c_str());
+	}
+	pNode->GetChild(idx);
+	FbxVector4 vT = pNode->GetGeometricTranslation(FbxNode::eSourcePivot);
+	FbxVector4 vR = pNode->GetGeometricRotation(FbxNode::eSourcePivot);
+	FbxVector4 vS = pNode->GetGeometricScaling(FbxNode::eSourcePivot);
+
+	return vS;
+}
+
 void FBXLoader::LoadTexture()
 {
 	path path_content = CPathMgr::GetInst()->GetContentPath();
@@ -594,28 +619,34 @@ void FBXLoader::CreateMaterial()
 
 void FBXLoader::LoadSkeleton(FbxNode* _pNode)
 {
-	int iChildCount = _pNode->GetChildCount();
-	for (int i = 0; i < iChildCount; ++i)
-	{
-		LoadSkeleton_Re(_pNode->GetChild(i), 0, 0, -1);
-	}
-	//LoadSkeleton_Re(_pNode, 0, 0, -1);
+	//int iChildCount = _pNode->GetChildCount();
+	//for (int i = 0; i < iChildCount; ++i)
+	//{
+	//	LoadSkeleton_Re(_pNode->GetChild(i), 0, 0, -1);
+	//}
+	LoadSkeleton_Re(_pNode, 0, 0, -1);
 }
 
 void FBXLoader::LoadSkeleton_Re(FbxNode* _pNode, int _iDepth, int _iIdx, int _iParentIdx)
 {
 	FbxNodeAttribute* pAttr = _pNode->GetNodeAttribute();
+	FbxTime::EMode eTimeMode = m_pScene->GetGlobalSettings().GetTimeMode();
 
 	if (pAttr && pAttr->GetAttributeType() == FbxNodeAttribute::eSkeleton)
 	{
 		tBone* pBone = new tBone;
 
-		string strBoneName = _pNode->GetName();
+		FbxTime   tTime = 0;
+		tTime.SetFrame(0, eTimeMode);
 
+		string strBoneName = _pNode->GetName();
 		pBone->strBoneName = wstring(strBoneName.begin(), strBoneName.end());
 		pBone->iDepth = _iDepth++;
 		pBone->iParentIndx = _iParentIdx;
-
+		pBone->vBonePos = _pNode->EvaluateGlobalTransform(tTime).GetT();
+		//pBone->vBonePos = _pNode->EvaluateLocalTransform().GetT();
+		//pBone->vBonePos = _pNode->LclTranslation.Get();
+		
 		m_vecBone.push_back(pBone);
 	}
 
@@ -892,6 +923,7 @@ FbxAMatrix FBXLoader::GetTransform(FbxNode* _pNode)
 {
 	FbxVector4 vT = _pNode->GetGeometricTranslation(FbxNode::eSourcePivot);
 	FbxVector4 vR = _pNode->GetGeometricRotation(FbxNode::eSourcePivot);
+	//FbxVector4 vR = _pNode->
 	FbxVector4 vS = _pNode->GetGeometricScaling(FbxNode::eSourcePivot);
 
 	//FbxVector4 vT;

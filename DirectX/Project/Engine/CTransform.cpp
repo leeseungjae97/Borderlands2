@@ -14,6 +14,7 @@ CTransform::CTransform()
 	, m_bAbsolute(false)
 	, m_bExceptParentRot(false)
 	, m_vRelativeRot(Vec3::Zero)
+	, m_vRelativePosOffset(Vec3::Zero)
 	, m_qRotation(Quat(0.f, 0.f, 0.f, 0.f))
 	, m_vRelativeDir{
 		  Vec3(1.f, 0.f, 0.f)
@@ -61,7 +62,13 @@ void CTransform::SetRelativeRot(Vec3 _vRot)
 
 	if (_rb)
 	{
+		if (_rb->IsCreature())
+		{
+			_vRot.x = 0.f;
+		}
+
 		PxTransform trans = _rb->GetRigidBodyPos();
+		
 		Quat quat; quat = Util::Vector3ToQuaternion(_vRot);
 		trans.q = PxQuat(quat.x, quat.y, quat.z, quat.w);
 		_rb->SetRigidBodyTrans(trans);
@@ -85,6 +92,7 @@ void CTransform::finaltick()
 	m_matWorldScale = XMMatrixScaling(m_vRelativeScale.x, m_vRelativeScale.y, m_vRelativeScale.z);
 
 	Matrix m_Rot = XMMatrixIdentity();
+	Matrix m_RotNoX = XMMatrixIdentity();
 	Matrix matTranslation = XMMatrixIdentity();
 
 	Vec3 vDefaultDir[3] = {
@@ -103,42 +111,59 @@ void CTransform::finaltick()
 		//	m_vRelativePos = Vec3(trans.p.x, trans.p.y - (m_vRelativeScale.y / 2.f), trans.p.z);
 		//else
 		m_vRelativePos = Vec3(trans.p.x, trans.p.y, trans.p.z);
-		m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
-		m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
-		m_Rot = Matrix::CreateFromQuaternion(m_qRotation);
+		//m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
+		//Quat quat = Util::Vector3ToQuaternion(m_vRelativeRot);
+		//m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
+		
+		if (!_rb->IsCreature())
+		{
+			m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
+			m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
+			m_Rot = Matrix::CreateFromQuaternion(m_qRotation);
+			
+		}
+		else
+		{
+			m_RotNoX = XMMatrixRotationX(0.f);
+			m_RotNoX *= XMMatrixRotationY(m_vRelativeRot.y);
+			m_RotNoX *= XMMatrixRotationZ(m_vRelativeRot.z);
 
-		//if(!_db->IsCreature())
-		//{
-		//	m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
-		//	m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
-		//	m_Rot = Matrix::CreateFromQuaternion(m_qRotation);
-		//}
-		//else
-		//{
-		//	m_Rot = XMMatrixRotationX(m_vRelativeRot.x);
-		//	m_Rot *= XMMatrixRotationY(m_vRelativeRot.y);
-		//	m_Rot *= XMMatrixRotationZ(m_vRelativeRot.z);
-		//}
+			m_Rot = XMMatrixRotationX(m_vRelativeRot.x);
+			m_Rot *= XMMatrixRotationY(m_vRelativeRot.y);
+			m_Rot *= XMMatrixRotationZ(m_vRelativeRot.z);
+		}
 	}
 	else
 	{
-		//m_vRelativeRot
 		m_Rot = XMMatrixRotationX(m_vRelativeRot.x);
 		m_Rot *= XMMatrixRotationY(m_vRelativeRot.y);
 		m_Rot *= XMMatrixRotationZ(m_vRelativeRot.z);
 	}
-	if (GetOwner()->Animator3D())
-		matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y - m_vRelativeScale.y / 2.f, m_vRelativePos.z);
-	else
-		matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y, m_vRelativePos.z);
+
+	Vec3 vFinalPos = m_vRelativePos + m_vRelativePosOffset;
+	
+	if (GetOwner()->Animator3D()) // ¹Ù´ÚÀÌ ÀÖ´Â Meshµé ¹Ù´Ú¿¡ ¾È´ê´Â°Å
+		vFinalPos.y -= m_vRelativeScale.y / 2.f;
+
+	matTranslation = XMMatrixTranslation(vFinalPos.x, vFinalPos.y, vFinalPos.z);
+
+	//matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y, m_vRelativePos.z);
+
+
 	m_matWorld = m_matWorldScale * m_Rot * matTranslation;
 	m_noRotWorld = m_matWorldScale * matTranslation;
+
+	// Raycast Draw¿ë ¿ùµå Matrix
 	float dist = RaycastMgr::GetInst()->GetDrawRayDistance();
 	Matrix rayScale = XMMatrixScaling(dist, dist, dist);
 	m_DrawRayWorld = rayScale * m_Rot * matTranslation;
+
 	for (int i = 0; i < 3; ++i)
 	{
-		m_vWorldDir[i] = m_vRelativeDir[i] = XMVector3TransformNormal(vDefaultDir[i], m_Rot);
+		if (_rb && _rb->IsCreature())
+			m_vWorldDir[i] = m_vRelativeDir[i] = XMVector3TransformNormal(vDefaultDir[i], m_RotNoX);
+		else
+			m_vWorldDir[i] = m_vRelativeDir[i] = XMVector3TransformNormal(vDefaultDir[i], m_Rot);
 	}
 
 	CGameObject* pParent = GetOwner()->GetParent();
@@ -194,8 +219,10 @@ void CTransform::SaveToLevelFile(FILE* _File)
 	fwrite(&m_vRelativePos	, sizeof(Vec3), 1, _File);
 	fwrite(&m_vRelativeScale, sizeof(Vec3), 1, _File);
 	fwrite(&m_vRelativeRot	, sizeof(Vec3), 1, _File);
+	fwrite(&m_vRelativePosOffset, sizeof(Vec3), 1, _File);
 	fwrite(&m_FollowOffset, sizeof(Vec3), 1, _File);
-	fwrite(&m_bAbsolute, sizeof(bool), 1, _File);	    
+	fwrite(&m_bAbsolute, sizeof(bool), 1, _File);
+
 }
 
 void CTransform::LoadFromLevelFile(FILE* _FILE)
@@ -203,6 +230,7 @@ void CTransform::LoadFromLevelFile(FILE* _FILE)
 	fread(&m_vRelativePos, sizeof(Vec3), 1, _FILE);
 	fread(&m_vRelativeScale, sizeof(Vec3), 1, _FILE);
 	fread(&m_vRelativeRot, sizeof(Vec3), 1, _FILE);
+	fread(&m_vRelativePosOffset, sizeof(Vec3), 1, _FILE);
 	fread(&m_FollowOffset, sizeof(Vec3), 1, _FILE);
 	fread(&m_bAbsolute, sizeof(bool), 1, _FILE);
 }

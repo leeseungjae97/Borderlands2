@@ -84,9 +84,6 @@ int Animator3DUI::render_update()
 		}
 	}
 
-
-	GetTarget()->Animator3D()->SetBlendRatio(ratio);
-
 	if(curAnimClip)
 	{
 		wstring wanimName = curAnimClip->GetCurClip().strAnimName;
@@ -113,11 +110,26 @@ int Animator3DUI::render_update()
 	string comboLabel = "";
 	int count = 0;
 
+	const char** STRS = nullptr;
+	int STRSSIZE = 0;
+	if (GetTarget()->IsItem())
+	{
+		STRS = GUN_ANIMATION_TYPE_STR;
+		STRSSIZE = (int)GUN_ANIMATION_TYPE::END;
+	}
+	else
+	{
+		STRS = ANIMATION_TYPE_STR;
+		STRSSIZE = (int)ANIMATION_TYPE::END;
+	}
+
+
 	int strMaxLen = 0;
 	ImVec2 strSize;
 	ImGuiComboFlags flags = 0;
-	for(const string str : ANIMATION_TYPE_STR)
+	for(int i = 0 ; i < STRSSIZE; ++i)
 	{
+		const string str = STRS[i];
 		strSize = ImGui::CalcTextSize(str.c_str());
 		strMaxLen = strMaxLen < strSize.x ? strSize.x : strMaxLen;
 	}
@@ -131,28 +143,31 @@ int Animator3DUI::render_update()
 			mChosen = pair.first;
 		}
 		{
-			ANIMATION_TYPE setType = GetTarget()->Animator3D()->FindDefineAnimation(wanimName);
+			UINT setType;
+			setType = GetTarget()->Animator3D()->FindDefineAnimation(wanimName);
 			ImGui::Text("^ Define anim : ");
 			int currentItem = (int)setType;
 			ImGui::SameLine();
 			comboLabel = "##atc" + std::to_string(count);
 			ImGui::SetNextItemWidth(strMaxLen * 2.f);
-			if (ImGui::BeginCombo(comboLabel.c_str(), ANIMATION_TYPE_STR[currentItem], flags))
+
+			if (ImGui::BeginCombo(comboLabel.c_str(), STRS[currentItem], flags))
 			{
-				for (int n = 0; n < IM_ARRAYSIZE(ANIMATION_TYPE_STR); n++)
+				for (int n = 0; n < STRSSIZE; n++)
 				{
 					const bool is_selected = (currentItem == n);
 
-					if (ImGui::Selectable(ANIMATION_TYPE_STR[n], is_selected))
+					if (ImGui::Selectable(STRS[n], is_selected))
 					{
 						currentItem = n;
-						GetTarget()->Animator3D()->SetDefineAnimation(wanimName, (ANIMATION_TYPE)currentItem);
+						GetTarget()->Animator3D()->SetDefineAnimation(wanimName, currentItem);
 					}
 					if (is_selected)
 						ImGui::SetItemDefaultFocus();
 				}
 				ImGui::EndCombo();
 			}
+	
 		}
 		++count;
 	}

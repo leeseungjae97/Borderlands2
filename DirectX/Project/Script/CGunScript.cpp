@@ -18,17 +18,29 @@ void CGunScript::tick()
 	SetWeaponPos();
 }
 
+// Test FinalTick
+void CGunScript::finaltick()
+{
+	// Test Code;
+	//SetWeaponPos();
+}
+
 void CGunScript::SetWeaponPos()
 {
 	if (!m_bEquiWeapon)
 		return;
 
 	CGameObject* pPlayer = PlayerMgr::GetInst()->GetPlayer();
-
-	Vec3 vRot = pPlayer->Transform()->GetRelativeRot();
-	Vec3 vPos = PlayerMgr::GetInst()->GetPlayerWeaponPos();
-	
 	CGameObject* pGun = GetOwner();
+
+	Vec3 vvRot = pPlayer->Transform()->GetRelativeRot();
+	Vec3 vRot = PlayerMgr::GetInst()->GetPlayerWeaponRot();
+	Vec3 vPos = PlayerMgr::GetInst()->GetPlayerWeaponPos(pPlayer->Transform()->GetWorldMat());
+
+
+	Vec3 vScale = pGun->Transform()->GetRelativeScale();
+
+	vPos.y += vScale.y / 2.f;
 	pGun->Transform()->SetRelativePos(vPos);
-	pGun->Transform()->SetRelativeRot(vRot);
+	pGun->Transform()->SetRelativeRot(vRot + vvRot);
 }

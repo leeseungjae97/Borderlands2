@@ -247,8 +247,8 @@
     <ClInclude Include="WeaponMgr.h">
       <Filter>Source\_Manager\WeaponMgr</Filter>
     </ClInclude>
-    <ClInclude Include="BoneSkinningShader.h">
-      <Filter>Source\_ShaderCode\Compute Shader\BoneSkinningShader</Filter>
+    <ClInclude Include="IndividualBoneSkinningShader.h">
+      <Filter>Source\_ShaderCode\Compute Shader\IndividualBoneSkinningShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -480,8 +480,8 @@
     <ClCompile Include="WeaponMgr.cpp">
       <Filter>Source\_Manager\WeaponMgr</Filter>
     </ClCompile>
-    <ClCompile Include="BoneSkinningShader.cpp">
-      <Filter>Source\_ShaderCode\Compute Shader\BoneSkinningShader</Filter>
+    <ClCompile Include="IndividualBoneSkinningShader.cpp">
+      <Filter>Source\_ShaderCode\Compute Shader\IndividualBoneSkinningShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -716,7 +716,7 @@
     <Filter Include="Source\_Manager\WeaponMgr">
       <UniqueIdentifier>{2b14e5ca-3a5d-4e10-a26f-f20b6acb5734}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader\BoneSkinningShader">
+    <Filter Include="Source\_ShaderCode\Compute Shader\IndividualBoneSkinningShader">
       <UniqueIdentifier>{9d7c998b-a838-4821-ad26-7952694d5c81}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -806,6 +806,9 @@
       <Filter>Source\_ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="dissolve.fx">
+      <Filter>Source\_ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="individual_bone_skinning.fx">
       <Filter>Source\_ShaderCode</Filter>
     </FxCompile>
   </ItemGroup>

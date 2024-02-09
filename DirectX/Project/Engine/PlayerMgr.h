@@ -19,8 +19,9 @@ public:
 	void tick();
 
 public:
-	Vec3 GetPlayerCameraPos();
-	Vec3 GetPlayerWeaponPos();
+	Vec3 GetPlayerCameraPos(Matrix matWorld);
+	Vec3 GetPlayerWeaponPos(Matrix matWorld);
+	Vec3 GetPlayerWeaponRot();
 public:
 	PlayerMgr();
 	virtual ~PlayerMgr();

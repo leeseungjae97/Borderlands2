@@ -41,6 +41,8 @@ private:
 
     bool                    m_bESM;
     bool                    m_bPreLoading;
+
+    bool                    m_bItem;
 public:
     // 레벨이 시작될 때 호출 or 시작 된 레벨에 합류할 때 호출
     // 생성자
@@ -109,6 +111,9 @@ public:
 
     void SetPreLoadingObject(bool _PreLoading) { m_bPreLoading = _PreLoading; }
     bool IsPreLoadingObject();
+
+    void SetIsItem(bool _IsItem) { m_bItem = _IsItem; }
+    bool IsItem() { return m_bItem; }
 private:
     void DisconnectFromParent();
     void ChangeToChildType();

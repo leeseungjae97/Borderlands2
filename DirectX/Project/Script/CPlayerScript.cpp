@@ -70,7 +70,7 @@ void CPlayerScript::ShootBullet()
 	tRayInfo rayInfo{};
 	rayInfo.fDamage = 10.f;
 	rayInfo.iLayerIdx = pPlayer->GetLayerIndex();
-	rayInfo.vDir = MainCam->Transform()->GetRelativeDir(DIR_TYPE::FRONT);;
+	rayInfo.vDir = MainCam->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
 	rayInfo.vStart = MainCam->Transform()->GetRelativePos();
 	rayInfo.matWorld = MainCam->Transform()->GetDrawRayMat();
 	rayInfo.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
@@ -126,8 +126,7 @@ void CPlayerScript::Move()
 
 	CGameObject* pPlayerObj = GetOwner();
 
-	//Vec3 vPlayerPos = pPlayerObj->Transform()->GetRelativePos();
-	Vec3 vPlayerPos = PlayerMgr::GetInst()->GetPlayerCameraPos();
+	Vec3 vPlayerPos = PlayerMgr::GetInst()->GetPlayerCameraPos(pPlayerObj->Transform()->GetWorldMat());
 	Vec3 vCamRot = pCamObj->Transform()->GetRelativeRot();
 
 	Vec3 vPlayerFront = pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
@@ -137,16 +136,21 @@ void CPlayerScript::Move()
 	CRigidBody* pPlayerRB = pPlayerObj->RigidBody();
 
 	Vec2 vMouseDir = CKeyMgr::GetInst()->GetMouseDir();
-
+	Vec3 vPrevCamRot = vCamRot;
 	vCamRot.y += (DT * vMouseDir.x * 1.f);
 	vCamRot.x -= (DT * vMouseDir.y * 1.f);
 	vCamRot.z = 0;
 
-	pPlayerObj->Transform()->SetRelativeRot(Vec3(0.f, vCamRot.y, 0.f));
-	pCamObj->Transform()->SetRelativeRot(vCamRot);
+	//pPlayerObj->Transform()->SetRelativeRot(Vec3(0.f, vCamRot.y, 0.f));
+	Vec3 vSmoothRot = Vec3::SmoothStep(vCamRot, vPrevCamRot, 0.5f);
+	pPlayerObj->Transform()->SetRelativeRot(vSmoothRot);
+	pCamObj->Transform()->SetRelativeRot(vSmoothRot);
 
 	//vPlayerPos += pCamObj->Transform()->GetFollowOffset();
-	pCamObj->Transform()->SetRelativePos(vPlayerPos);
+	Vec3 vPrevCamPos = pCamObj->Transform()->GetRelativePos();
+	Vec3 vSmoothPos = Vec3::SmoothStep(vPrevCamPos, vPlayerPos, 0.5f);
+	
+	pCamObj->Transform()->SetRelativePos(vSmoothPos);
 
 	float _fSpeed = fSpeed;
 	//bool bKeyPressed = false;
@@ -199,21 +203,21 @@ void CPlayerScript::Move()
 	}
 	// 1 2
 	if (flag & uiFront)
-		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::WALK_FORWARD, true);
+		pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_FORWARD, true);
 	else if (flag & uiBack)
-		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::WALK_BACK, true);
+		pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_BACK, true);
 	else if (flag & uiRight)
-		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::WALK_RIGHT, true);
+		pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_RIGHT, true);
 	else if (flag & uiLeft)
-		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::WALK_LEFT, true);
+		pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_LEFT, true);
 	else if (flag & uiIdle)
 	{
-		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::IDLE, true);
+		pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::IDLE, true);
 	}
 
 	if (KEY_PRESSED(KEY::SPACE))
 	{
-		pPlayerObj->Animator3D()->Play(ANIMATION_TYPE::JUMP, false);
+		pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::JUMP, false);
 		final_velocity += vPlayerUp * DT * fJump;
 		//bKeyPressed = true;
 	}

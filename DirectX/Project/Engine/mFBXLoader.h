@@ -65,6 +65,7 @@ struct tBone
 	int					iParentIndx;
 	FbxAMatrix			matOffset;	
 	FbxAMatrix			matBone;
+	FbxVector4			vBonePos;
 	map<wstring, vector<tKeyFrame>>	vecKeyFrame;
 };
 
@@ -87,7 +88,7 @@ private:
 	FbxManager* m_pManager;
 	FbxScene* m_pScene;
 	FbxImporter* m_pImporter;
-
+	FbxMesh* m_pMesh;
 	vector<tContainer>				m_vecContainer;
 
 	FbxAnimLayer*					m_pCurLayer;
@@ -111,6 +112,7 @@ public:
 	vector<tAnimClip*>& GetAnimClip() { return m_vecAnimClip; }
 	//vector<vector<vector<tKeyFrame>>>& GetKeyFrame() { return m_vecAryKeyFrames; }
 
+	FbxMesh* GetMesh() { return m_pMesh; }
 private:
 	void LoadMeshDataFromNode(FbxNode* _pRoot);
 	void LoadMesh(FbxMesh* _pFbxMesh);
@@ -123,7 +125,7 @@ private:
 
 	Vec4 GetMtrlData(FbxSurfaceMaterial* _pSurface, const char* _pMtrlName, const char* _pMtrlFactorName);
 	wstring GetMtrlTextureName(FbxSurfaceMaterial* _pSurface, const char* _pMtrlProperty);
-
+	FbxVector4 GetBoneWorldTransform(int idx);
 	void LoadTexture();
 	void CreateMaterial();
 
