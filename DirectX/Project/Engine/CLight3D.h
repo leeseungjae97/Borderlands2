@@ -26,6 +26,9 @@ private:
 
     float           m_f[3];
 
+    float           m_fLifeSpan;
+    bool            m_bTimeConst;
+
 public:
     void SetLightColor(Vec3 _Color) { m_LightInfo.Color.vDiffuse = _Color; }
     void SetLightAmbient(Vec3 _Amb) { m_LightInfo.Color.vAmbient = _Amb; }
@@ -51,6 +54,7 @@ public:
     void SetFloatConstant(int _Index, float _Value) { m_f[_Index] = _Value; }
     float GetFloatConstant(int _Index) { return m_f[_Index]; }
 
+    void SetLifeSpan(float _Duration);
 public:
     virtual void finaltick() override;
     void render();

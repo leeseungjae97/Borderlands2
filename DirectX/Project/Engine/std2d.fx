@@ -79,10 +79,20 @@ float4 PS_Std2D(VS_OUT _in) : SV_Target
 //
 // Parameter
 #define bAnimUse        g_int_0
-#define LeftTop         g_vec2_0
-#define Slice           g_vec2_1
-#define Offset          g_vec2_2
-#define BackSize        g_vec2_3
+#define SpriteLeftTop   g_vec2_0
+#define SpriteSize      g_vec2_1
+#define SpriteOffset    g_vec2_2
+#define SheetSize       g_vec2_3
+
+
+//float2 SpriteLeftTop;
+//float2 SpriteSize;
+//float2 SpriteOffset;
+//float2 AtlasSize;
+//float2 SpriteOffsetOfCenterPos;
+    
+//uint animationType;
+//float mAlpha;
 
 // g_tex_0              : Output Texture
 // g_tex_1              : Nomal Texture
@@ -128,20 +138,15 @@ float4 PS_Std2DLight(VS_Light_OUT _in) : SV_Target
     {
         if (bAnimUse)
         {
-            float2 vUV = LeftTop + (BackSize * _in.vUV);       
-            vUV -= ((BackSize - Slice) / 2.f);
-            vUV -= Offset;
-            
-            if (LeftTop.x < vUV.x && vUV.x < LeftTop.x + Slice.x
-                && LeftTop.y < vUV.y && vUV.y < LeftTop.y + Slice.y)
-            {
-                vOutColor = g_tex_0.Sample(g_sam_0, vUV);
-            }
-            else
-            {
-                vOutColor = float4(1.f, 1.f, 0.f, 1.f);
-                //discard;
-            }
+            float2 diff = (SheetSize - SpriteSize) / 2.0f;
+            float2 UV = (SpriteLeftTop - diff - SpriteOffset)
+                + (SheetSize * _in.vUV);
+
+            if (UV.x < SpriteLeftTop.x || UV.x > SpriteLeftTop.x + SpriteSize.x
+            || UV.y < SpriteLeftTop.y || UV.y > SpriteLeftTop.y + SpriteSize.y)
+                discard;
+
+            vOutColor = g_tex_0.Sample(g_sam_0, UV);
         }
         else
         {

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "WeaponMgr.h"
 
+#include "CAnimator3D.h"
 #include "CEventMgr.h"
 #include "CGameObject.h"
 #include "CLayer.h"
@@ -54,35 +55,21 @@ CGameObject* WeaponMgr::GetCurWeapon()
 
 Vec3 WeaponMgr::GetCurWeaponMuzzlePos()
 {
-	Ptr<CMesh> mesh = m_arrWeapons[iCurWeaponIdx]->MeshRender()->GetMesh();
-	Matrix matWorld = m_arrWeapons[iCurWeaponIdx]->Transform()->GetWorldMat();
-	int muzzleIdx = m_arrWeaponMuzzleIdx[iCurWeaponIdx];
-	int vertexIdx = 0;
+	//int iMuzzleIdx = m_arrWeapons[iCurWeaponIdx]->Animator3D()->GetWeaponMuzzleIdx();
+	Vec3 vPos = m_arrWeapons[iCurWeaponIdx]->Animator3D()->GetMuzzlePos();
+	//Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, m_pPlayer->Animator3D());
 
-	tIndexInfo indexInfo = mesh->GetIndexInfo()[0];
-	vector<UINT> inds;
-	inds.clear();
-	vector<UINT>().swap(inds);
-	inds.resize(indexInfo.iIdxCount);
-	memcpy(inds.data(), indexInfo.pIdxSysMem, indexInfo.iIdxCount * sizeof(UINT));
-
-	if (inds.size() < muzzleIdx)
-	{
-		OutputDebugStringW(L"Muzzle Index Error");
-		vertexIdx = 0;
-	}
-	else
-		vertexIdx = inds[muzzleIdx];
-
-	if (mesh->GetVtxCount() < vertexIdx)
-	{
-		OutputDebugStringW(L"Muzzle Vertex Error");
-		return Vec3::Zero;
-		
-	}
-	Vec3 vPos = XMVector3TransformCoord(mesh->GetVtxSysMem()[vertexIdx].vPos, matWorld);
-	vPos.z += m_arrWeapons[iCurWeaponIdx]->Transform()->GetRelativeScale().z / 2.f;
+	vPos = XMVector3TransformCoord(vPos, m_arrWeapons[iCurWeaponIdx]->Transform()->GetWorldMat());
 	return vPos;
+}
+
+void WeaponMgr::Play(GUN_ANIMATION_TYPE _Type, bool _Loop)
+{
+
+	if (nullptr == m_arrWeapons[iCurWeaponIdx])
+		return;
+
+	m_arrWeapons[iCurWeaponIdx]->Animator3D()->Play((UINT)_Type, _Loop);
 }
 
 void WeaponMgr::tick()
@@ -96,4 +83,24 @@ void WeaponMgr::tick()
 			AddWeapon(layer->GetObjects()[i]);
 		}
 	}
+}
+
+void WeaponMgr::begin()
+{
+
+	for(int i = 0 ; i < (int)GUN_ANIMATION_TYPE::END; ++i)
+	{
+		m_arrWeapons[SMG_IDX]->Animator3D()->StartEvent(i)
+			= std::make_shared<std::function<void()>>([=]()
+		{
+			m_arrWeapons[SMG_IDX]->Animator3D()->Proceed();
+		});
+	}
+	m_arrWeapons[SMG_IDX]->Animator3D()->EndEvent((UINT)GUN_ANIMATION_TYPE::RELOAD)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				m_arrWeapons[SMG_IDX]->Animator3D()->StopPlay();
+			});
+
+
 }

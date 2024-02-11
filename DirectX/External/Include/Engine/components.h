@@ -11,6 +11,7 @@
 #include "CDecal.h"
 
 #include "CAnimator3D.h"
+#include "CAnimator2D.h"
 #include "CLandScape.h"
 
 #include "CPathFind.h"

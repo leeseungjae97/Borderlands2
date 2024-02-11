@@ -90,7 +90,7 @@ VS_OUT VS_Std3D_Deferred_Inst(VTX_IN_INST _in)
     output.vViewNormal = normalize(mul(float4(_in.vNormal, 0.f), _in.matWV));
     output.vViewBinormal = normalize(mul(float4(_in.vBinormal, 0.f), _in.matWV));
 
-    return output;
+    return output;  
 }
 
 struct PS_OUT
@@ -117,6 +117,10 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
             _in.vUV.x -= g_AccTime * 0.05f;
         }
         output.vColor = g_tex_0.Sample(g_sam_0, _in.vUV);
+        if (output.vColor.a <= 0.f)
+        {
+            discard;
+        }
         output.vColor.a = 1.f;
     }
     

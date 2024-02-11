@@ -37,6 +37,12 @@ static float3 g_vLightAmb = float3(0.15f, 0.15f, 0.15f);
 #define IS_SKYBOX_ENV   g_btexcube_0
 #define SKYBOX_ENV_TEX  g_cube_0
 
+#define bAnimUse        g_int_0
+#define SpriteLeftTop   g_vec2_0
+#define SpriteSize      g_vec2_1
+#define SpriteOffset    g_vec2_2
+#define SheetSize       g_vec2_3
+
 VS_OUT VS_Std3D(VS_IN _in)
 {
     VS_OUT output = (VS_OUT) 0.f;
@@ -59,7 +65,22 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
 
     if (g_btex_0)
     {
-        vOutColor = g_tex_0.Sample(g_sam_0, _in.vUV);
+        if (bAnimUse)
+        {
+            float2 diff = (SheetSize - SpriteSize) / 2.0f;
+            float2 UV = (SpriteLeftTop - diff - SpriteOffset)
+                + (SheetSize * _in.vUV);
+
+            if (UV.x < SpriteLeftTop.x || UV.x > SpriteLeftTop.x + SpriteSize.x
+            || UV.y < SpriteLeftTop.y || UV.y > SpriteLeftTop.y + SpriteSize.y)
+                discard;
+
+            vOutColor = g_tex_0.Sample(g_sam_0, UV);
+        }else
+        {
+            vOutColor = g_tex_0.Sample(g_sam_0, _in.vUV);
+        }
+        
     }
     
     if (g_btex_1)

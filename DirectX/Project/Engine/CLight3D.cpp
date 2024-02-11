@@ -8,6 +8,7 @@
 #include "CMesh.h"
 #include "CMaterial.h"
 #include "CResMgr.h"
+#include "CTimeMgr.h"
 
 CLight3D::CLight3D()
     : CComponent(COMPONENT_TYPE::LIGHT3D)
@@ -18,6 +19,8 @@ CLight3D::CLight3D()
 	, m_bGaus(false)
 	, m_fLightDepthCoeff(0.01f)
 	, m_f{}
+	, m_bTimeConst(false)
+	, m_fLifeSpan(0.0f)
 {
 	m_pCamObj = new CGameObject;
 	m_pCamObj->AddComponent(new CTransform);
@@ -46,9 +49,16 @@ CLight3D::~CLight3D()
 	if (nullptr != m_pCamObj)
 		delete m_pCamObj;
 }
-
 void CLight3D::finaltick()
 {
+	if (m_fLifeSpan != 0.0f)
+		m_fLifeSpan -= DT;
+
+	if(m_bTimeConst && m_fLifeSpan <= 0.0f)
+	{
+		DestroyObject(GetOwner());
+	}
+
 	m_LightInfo.vWorldPos = Transform()->GetWorldPos();
 	m_LightInfo.vWorldDir = Transform()->GetWorldDir(DIR_TYPE::FRONT);
 
@@ -60,7 +70,7 @@ void CLight3D::finaltick()
 		if((UINT)LIGHT_TYPE::DIRECTIONAL== m_LightInfo.LightType)
 			DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, true);
 		//if((UINT)LIGHT_TYPE::POINT == m_LightInfo.LightType)
-			//DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, true);
+		//	DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, true);
 		//else if((UINT)LIGHT_TYPE::SPOT == m_LightInfo.LightType)
 		//	DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, true);	
 	}
@@ -145,6 +155,12 @@ void CLight3D::render()
 	m_Mtrl->UpdateData();
 
 	m_Mesh->render(0);
+}
+
+void CLight3D::SetLifeSpan(float _Duration)
+{
+	m_fLifeSpan = _Duration;
+	m_bTimeConst = true;
 }
 
 void CLight3D::render_shadowmap()

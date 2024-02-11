@@ -9,12 +9,12 @@ class ObjPickerMgr
 	SINGLE(ObjPickerMgr)
 private:
 	CGameObject* m_pPickObj;
-
+	wstring		m_wsPickObjName;
 public:
 	void tick();
 
 public:
 	CGameObject* GetPickObj() { return m_pPickObj; }
-	void SetPickObj(CGameObject* _PickObj) { m_pPickObj = _PickObj; }
+	void SetPickObj(CGameObject* _PickObj);
 };
 

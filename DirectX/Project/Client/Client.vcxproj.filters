@@ -131,6 +131,9 @@
     <Filter Include="_UI\SamplerFilterUI">
       <UniqueIdentifier>{4c6697bb-3dce-4474-a272-21a8f5c8ad5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="_UI\DefineAnimationUI">
+      <UniqueIdentifier>{cd3516be-86c3-4318-b57a-998210f8879b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -281,6 +284,7 @@
     <ClInclude Include="SamplerFilterUI.h">
       <Filter>_UI\SamplerFilterUI</Filter>
     </ClInclude>
+    <ClInclude Include="DefineAnimationUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Client.rc">
@@ -439,5 +443,6 @@
     <ClCompile Include="SamplerFilterUI.cpp">
       <Filter>_UI\SamplerFilterUI</Filter>
     </ClCompile>
+    <ClCompile Include="DefineAnimationUI.cpp" />
   </ItemGroup>
 </Project>

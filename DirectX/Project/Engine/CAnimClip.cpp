@@ -27,20 +27,7 @@ CAnimClip::~CAnimClip()
 
 void CAnimClip::finlatick()
 {
-	//if (m_bFinish)
-	//	return;
-
 	m_fTime += DT;
-
-	//if (m_bLoop && m_iCurIdx == 0)
-	//{
-	//	m_iCurIdx = m_Clip.iStartFrame;
-	//}
-	//else
-	//{
-	//	m_iCurIdx = m_iNextIdx;
-	//}
-
 
 	if ((float)m_Clip.dTimeLength < m_fTime)
 	{
@@ -54,17 +41,6 @@ void CAnimClip::finlatick()
 
 	if (m_Clip.iFrameLength - 1 <= m_iCurIdx)
 	{
-		//if (m_bLoop)
-		//{
-		//	m_iCurIdx = m_Clip.iStartFrame;
-		//	m_iNextIdx = m_iCurIdx + 1;
-		//	m_fTime = m_Clip.dStartTime;
-		//	m_fRatio = 1.0f;
-		//}
-		//else
-		//{
-		//
-		//}
 		m_iCurIdx = m_Clip.iStartFrame;
 		m_iNextIdx = m_iCurIdx - 1;
 		m_fTime = 0.0f;

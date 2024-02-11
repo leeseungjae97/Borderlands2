@@ -44,12 +44,12 @@ int Animator3DUI::render_update()
 
 	if(ImGui::Button("STOP##AnimstopBtn"))
 	{
-		GetTarget()->Animator3D()->StopAutoPlay();
+		GetTarget()->Animator3D()->StopPlay();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("PLAY##AnimplayBtn"))
 	{
-		GetTarget()->Animator3D()->PlayAuto();
+		GetTarget()->Animator3D()->Proceed();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Manual Ratio##ManualRatioBtn"))
@@ -138,6 +138,7 @@ int Animator3DUI::render_update()
 	{
 		wstring wanimName = pair.first;
 		string animName = string(wanimName.begin(), wanimName.end());
+
 		if(ImGui::Button(animName.c_str()))
 		{
 			mChosen = pair.first;

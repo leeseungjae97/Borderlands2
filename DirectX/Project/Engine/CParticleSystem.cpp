@@ -188,12 +188,12 @@ void CParticleSystem::render()
 
 	m_ModuleDataBuffer->Clear();
 
-	static wchar_t szBuff[256] = {};
-	swprintf_s(szBuff, L"MOUSE X : %f, MOUSE Y : %f", _UnprojectPos.x, _UnprojectPos.y);
-	CFontMgr::GetInst()->DrawFont(szBuff, 10.f, 36.f, 16.f, FONT_RGBA(255, 0, 0, 255));
+	//static wchar_t szBuff[256] = {};
+	//swprintf_s(szBuff, L"MOUSE X : %f, MOUSE Y : %f", _UnprojectPos.x, _UnprojectPos.y);
+	//CFontMgr::GetInst()->DrawFont(szBuff, 10.f, 36.f, 16.f, FONT_RGBA(255, 0, 0, 255));
 
-	swprintf_s(szBuff, L"MOUSE_W X : %f, MOUSE_W Y : %f", _pp.x, _pp.y);
-	CFontMgr::GetInst()->DrawFont(szBuff, 10.f, 52.f, 16.f, FONT_RGBA(255, 0, 0, 255));
+	//swprintf_s(szBuff, L"MOUSE_W X : %f, MOUSE_W Y : %f", _pp.x, _pp.y);
+	//CFontMgr::GetInst()->DrawFont(szBuff, 10.f, 52.f, 16.f, FONT_RGBA(255, 0, 0, 255));
 }
 
 void CParticleSystem::render(UINT _iSubset)

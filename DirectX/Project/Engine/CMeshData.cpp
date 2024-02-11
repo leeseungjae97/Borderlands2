@@ -31,7 +31,7 @@ CMeshData* CMeshData::LoadFromFBX(const wstring& _strFilePath)
 	CMesh* pMesh = nullptr;
 	pMesh = CMesh::CreateFromContainer(loader);
 
-	//pMesh->SetName(_strFilePath);
+	pMesh->SetName(_strFilePath);
 
 	// ResMgr 에 메쉬 등록
 	if (nullptr != pMesh)

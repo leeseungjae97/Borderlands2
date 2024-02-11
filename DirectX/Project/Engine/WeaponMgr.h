@@ -14,9 +14,15 @@ public:
 	void ChangeWeapon(int _Idx);
 	void AddWeapon(CGameObject* _Weapon);
 	CGameObject* GetCurWeapon();
+	int GetCurWeaponMuzzleIdx() { return iCurWeaponIdx; }
 	Vec3 GetCurWeaponMuzzlePos();
+	void Play(GUN_ANIMATION_TYPE _Type, bool _Loop);
+	
+
 public:
 	void tick();
+	void begin();
+
 public:
 	WeaponMgr();
 	virtual ~WeaponMgr();

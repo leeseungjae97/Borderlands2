@@ -22,14 +22,11 @@ private:
 
     float                   m_fBounding;
     bool                    m_bFrustumCheck;
-    bool                    m_bDynamicShadow;
 
 public:
     virtual void render() = 0;
     virtual void render(UINT _iSubset) = 0;
     virtual void render_shadowmap();
-
-    void render_shadowmapexp();
 
 public:
     void SetMesh(Ptr<CMesh> _Mesh);
@@ -49,9 +46,6 @@ public:
 
     void SetBounding(float _fBounding) { m_fBounding = _fBounding; }
     float GetBounding() { return m_fBounding; }
-
-    void SetDynamicShadow(bool _bSet) { m_bDynamicShadow = _bSet; }
-    bool IsDynamicShadow() { return m_bDynamicShadow; }
 
     virtual void SaveToLevelFile(FILE* _File) override;
     virtual void LoadFromLevelFile(FILE* _File) override;

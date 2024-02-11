@@ -173,6 +173,8 @@ call EngineCopy.bat</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AnimationMgr.h" />
+    <ClInclude Include="CAnimator2D.h" />
+    <ClInclude Include="CAnimSprite.h" />
     <ClInclude Include="IndividualBoneSkinningShader.h" />
     <ClInclude Include="CameraMgr.h" />
     <ClInclude Include="CAnimClip.h" />
@@ -247,6 +249,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="physx_util.h" />
     <ClInclude Include="ptr.h" />
     <ClInclude Include="CRayCastShader.h" />
+    <ClInclude Include="RandMgr.h" />
     <ClInclude Include="RaycastMgr.h" />
     <ClInclude Include="RecastBuildContext.h" />
     <ClInclude Include="RecastMesh.h" />
@@ -258,6 +261,8 @@ call EngineCopy.bat</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationMgr.cpp" />
+    <ClCompile Include="CAnimator2D.cpp" />
+    <ClCompile Include="CAnimSprite.cpp" />
     <ClCompile Include="IndividualBoneSkinningShader.cpp" />
     <ClCompile Include="CameraMgr.cpp" />
     <ClCompile Include="CAnimClip.cpp" />
@@ -335,6 +340,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="PhysXMgr.cpp" />
     <ClCompile Include="physx_util.cpp" />
     <ClCompile Include="CRayCastShader.cpp" />
+    <ClCompile Include="RandMgr.cpp" />
     <ClCompile Include="RaycastMgr.cpp" />
     <ClCompile Include="RecastBuildContext.cpp" />
     <ClCompile Include="RecastMesh.cpp" />

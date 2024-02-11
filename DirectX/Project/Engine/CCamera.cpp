@@ -29,7 +29,7 @@ CCamera::CCamera()
 	, m_Frustum(this)
 	, m_ProjType(PROJ_TYPE::ORTHOGRAPHIC)
 	, m_iLayerMask(0)
-	, m_FOV(XM_PI / 2.f)
+	, m_FOV(XM_PI / 3.f)
 	, m_OrthoWidth(0.f)
 	, m_OrthoHeight(0.f)
 	, m_iCamIdx(-1)
@@ -393,7 +393,7 @@ void CCamera::render()
 
 
 		// Deferred MRT 에 그린 물체들을 다시 SwapChain 으로 옮기기
-
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
 		// 쉐이더 도메인에 따라서 순차적으로 그리기
 		//render_opaque();
 		//render_mask();

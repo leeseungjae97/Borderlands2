@@ -1,6 +1,7 @@
 #pragma once
 #include "CAnimClip.h"
 #include "CComponent.h"
+#include "struct.h"
 
 class CStructuredBuffer;
 class CMesh;
@@ -8,55 +9,6 @@ class CMesh;
 class CAnimator3D :
     public CComponent
 {
-public:
-    	struct Event
-		{
-			Event(){};
-			~Event(){};
-
-			void operator=(std::shared_ptr<std::function<void()>> func)
-			{
-				mEvent = std::move(func);
-			}
-			void operator()()
-			{
-				if (mEvent)
-					(*mEvent)();
-			}
-
-			std::shared_ptr<std::function<void()>> mEvent;
-		};
-
-		struct Events
-		{
-			Events()
-				: startEvent{}
-				, completeEvent{}
-				, progressEvent{}
-				, endEvent{}
-		    {};
-			~Events(){}
-			void SaveToLevelFile(FILE* file)
-			{
-				fwrite(&startEvent, sizeof(Event), 1, file);
-				fwrite(&completeEvent, sizeof(Event), 1, file);
-				fwrite(&progressEvent, sizeof(Event), 1, file);
-				fwrite(&endEvent, sizeof(Event), 1, file);
-			}
-
-			void LoadFromLevelFile(FILE* file)
-			{
-				fread(&startEvent, sizeof(Event), 1, file);
-				fread(&completeEvent, sizeof(Event), 1, file);
-				fread(&progressEvent, sizeof(Event), 1, file);
-				fread(&endEvent, sizeof(Event), 1, file);
-			}
-			Event startEvent;
-			Event completeEvent;
-			Event progressEvent;
-			Event endEvent;
-		};
-
 private:
     vector<tMTBone>				m_pVecBones;
     map<wstring, tMTAnimClip>	m_pMapClip;
@@ -93,8 +45,10 @@ private:
 	int							m_iHeadIdx;
 	int							m_iCameraIdx;
 	int							m_iWeaponHandIdx;
+	int							m_iWeaponMuzzleIdx;
 
 	Vec4						m_vHeadPos;
+	Vec4						m_vMuzzlePos;
 
 private:
     void check_mesh(Ptr<CMesh> _pMesh);
@@ -120,8 +74,8 @@ public:
 	void ManualIdxUp();
 	void ManualIdxDown();
 
-	void StopAutoPlay() { m_bStop = true; }
-	void PlayAuto() { m_bStop = false; }
+	void StopPlay() { m_bStop = true; }
+	void Proceed() { m_bStop = false; }
 	bool IsPlayManual() { return m_bStop; }
 
 	void ManualRatio() { m_bMaRatio = true; }
@@ -162,19 +116,28 @@ public:
 	int GetHeadIdx() { return m_iHeadIdx; }
 	int GetCameraIdx() { return m_iCameraIdx; }
 	int GetWeaponHandIdx() { return m_iWeaponHandIdx; }
+	int GetWeaponMuzzleIdx() { return m_iWeaponMuzzleIdx; }
 
 	Vec4 GetHeadPos();
+	Vec4 GetMuzzlePos() { return m_vMuzzlePos; }
 
 public:
 	void Play(const wstring& _Name, bool _Loop);
 	void Play(UINT _type, bool _Loop);
-	CAnimator3D::Events* FindEvents(const wstring& name);
+	Events* FindEvents(const wstring& name);
 	CAnimClip* FindClip(const wstring& name);
 
     std::shared_ptr<std::function<void()>>& StartEvent(const wstring key);
+	std::shared_ptr<std::function<void()>>& StartEvent(const UINT key);
+
 	std::shared_ptr<std::function<void()>>& CompleteEvent(const wstring key);
+	std::shared_ptr<std::function<void()>>& CompleteEvent(const UINT key);
+
 	std::shared_ptr<std::function<void()>>& EndEvent(const wstring key);
+	std::shared_ptr<std::function<void()>>& EndEvent(const UINT key);
+
 	std::shared_ptr<std::function<void()>>& ProgressEvent(const wstring key);
+	std::shared_ptr<std::function<void()>>& ProgressEvent(const UINT key);
 
 public:
     virtual void SaveToLevelFile(FILE* _pFile) override;

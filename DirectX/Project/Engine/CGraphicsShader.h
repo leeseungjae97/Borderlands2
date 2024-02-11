@@ -48,6 +48,8 @@ private:
 
     int                             m_StencilRef;
 
+    bool                            m_bUseDepthStencil;
+
 public:
     void CreateVertexShader(const wstring& _strFileName, const string& _strFuncName);
     void CreateHullShader(const wstring& _strFileName, const string& _strFuncName);
@@ -74,6 +76,8 @@ public:
 
     void SetStencilRef(int _Ref) { m_StencilRef = _Ref; }
     int GetStencilRef() { return m_StencilRef; }
+
+    void SetUseDepthStencil(bool _UseDepth) { m_bUseDepthStencil = true; }
 public:
     CGraphicsShader();
     ~CGraphicsShader();

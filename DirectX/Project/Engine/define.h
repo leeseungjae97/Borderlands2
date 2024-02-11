@@ -17,7 +17,7 @@
 
 #define SINGLE(type) private: type(); ~type(); friend class CSingleton<type>;
 
-#define SMG_MUZZLE_IDX 918
+#define SMG_MUZZLE_IDX 969
 #define PISTOL_MUZZLE_IDX 918
 #define SNIPER_MUZZLE_IDX 918
 
@@ -71,6 +71,7 @@ enum class COMPONENT_TYPE
 	COLLIDER3D,
 	RIGIDBODY,
 	ANIMATOR3D,
+	ANIMATOR2D,
 	LIGHT3D,
 	PATHFIND,
 	GIZMO,
@@ -216,6 +217,7 @@ enum class DS_TYPE
 	GREATER_EQUAL,
 	NO_WRITE,			// LESS, DepthWrite X
 	NO_TEST_NO_WRITE,	// Test X, DepthWrite X
+	NO_TEST,
 	STENCIL_CULL_TEST_T,
 	STENCIL_CULL_TEST_O,
 	STENCIL_CULL_DEPLOY,

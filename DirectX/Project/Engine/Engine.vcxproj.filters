@@ -250,6 +250,15 @@
     <ClInclude Include="IndividualBoneSkinningShader.h">
       <Filter>Source\_ShaderCode\Compute Shader\IndividualBoneSkinningShader</Filter>
     </ClInclude>
+    <ClInclude Include="CAnimator2D.h">
+      <Filter>Source\_Component\Animator2D</Filter>
+    </ClInclude>
+    <ClInclude Include="CAnimSprite.h">
+      <Filter>Source\_Component\Animator2D</Filter>
+    </ClInclude>
+    <ClInclude Include="RandMgr.h">
+      <Filter>Source\_Manager\RandMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -482,6 +491,15 @@
     </ClCompile>
     <ClCompile Include="IndividualBoneSkinningShader.cpp">
       <Filter>Source\_ShaderCode\Compute Shader\IndividualBoneSkinningShader</Filter>
+    </ClCompile>
+    <ClCompile Include="CAnimator2D.cpp">
+      <Filter>Source\_Component\Animator2D</Filter>
+    </ClCompile>
+    <ClCompile Include="CAnimSprite.cpp">
+      <Filter>Source\_Component\Animator2D</Filter>
+    </ClCompile>
+    <ClCompile Include="RandMgr.cpp">
+      <Filter>Source\_Manager\RandMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -718,6 +736,15 @@
     </Filter>
     <Filter Include="Source\_ShaderCode\Compute Shader\IndividualBoneSkinningShader">
       <UniqueIdentifier>{9d7c998b-a838-4821-ad26-7952694d5c81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Component\Animator2D">
+      <UniqueIdentifier>{0b7d9801-a8a0-4e47-bbde-b8f30e231f92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\RandMgr">
+      <UniqueIdentifier>{f5dc8005-423f-4cb8-aa18-bd9564517f43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_ShaderCode\Compute Shader\ParticleShader">
+      <UniqueIdentifier>{9fad93fe-4fb8-4d90-8aa2-09968ae6cd9c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

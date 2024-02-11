@@ -15,6 +15,7 @@
 #include "ObjPickerMgr.h"
 #include "PhysXMgr.h"
 #include "PlayerMgr.h"
+#include "RandMgr.h"
 #include "RaycastMgr.h"
 #include "WeaponMgr.h"
 
@@ -62,6 +63,8 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 	CLevelMgr::GetInst()->init();
 
 	CInstancingBuffer::GetInst()->init();
+
+	RandMgr::GetInst()->init();
 
 	return S_OK;
 }

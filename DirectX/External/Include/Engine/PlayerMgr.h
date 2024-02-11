@@ -5,6 +5,15 @@
 class PlayerMgr
 	: public CSingleton<PlayerMgr>
 {
+public:
+	enum class PLAYER_STATE {
+		RELOAD,
+		FIRE,
+		SPRINT,
+		WALK,
+		IDLE,
+	};
+
 private:
 	CGameObject*	m_pPlayer;
 	Vec3			m_vCameraPos;
@@ -19,9 +28,10 @@ public:
 	void tick();
 
 public:
-	Vec3 GetPlayerCameraPos(Matrix matWorld);
-	Vec3 GetPlayerWeaponPos(Matrix matWorld);
+	Vec3 GetPlayerCameraPos();
+	Vec3 GetPlayerWeaponPos();
 	Vec3 GetPlayerWeaponRot();
+	Vec3 GetConvertAnimationPos(Vec3 _vPos);
 public:
 	PlayerMgr();
 	virtual ~PlayerMgr();

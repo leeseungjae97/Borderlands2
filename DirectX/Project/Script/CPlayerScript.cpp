@@ -8,6 +8,7 @@
 #include <Engine\CameraMgr.h>
 #include <Engine\RaycastMgr.h>
 #include <Engine\WeaponMgr.h>
+#include <Engine\RandMgr.h>
 
 #include "CBulletScript.h"
 #include "CMissileScript.h"
@@ -21,6 +22,8 @@ CPlayerScript::CPlayerScript()
 	, fRateOfFireAcc(0.0f)
 	, fMouseAcces(1.f)
 	, iPlayerHp(1000.f)
+	, bReloading(false)
+	, tState(PlayerMgr::PLAYER_STATE::IDLE)
 {
 	AddScriptParam(SCRIPT_PARAM::FLOAT, &fSpeed, "Player Speed");
 	AddScriptParam(SCRIPT_PARAM::FLOAT, &fMouseAcces, "Mouse Speed");
@@ -35,12 +38,18 @@ void CPlayerScript::begin()
 {
 	// 동적 재질 생성
 	//MeshRender()->GetDynamicMaterial(0);
+	CGameObject* pPlayer = GetOwner();
+	pPlayer->Animator3D()->EndEvent((UINT)ANIMATION_TYPE::RELOAD)
+	= std::make_shared<std::function<void()>>([=]()
+		{
+			tState = PlayerMgr::PLAYER_STATE::IDLE;
+		});
 }
 
 void CPlayerScript::tick()
 {
 	Look();
-	Move();
+	Movement();
 	CatchRaycast();
 }
 
@@ -77,24 +86,52 @@ void CPlayerScript::ShootBullet()
 	RaycastMgr::GetInst()->SetPlayerRayInfo(rayInfo);
 
 	Vec3 vPos = WeaponMgr::GetInst()->GetCurWeaponMuzzlePos();
-
+	Vec3 vRot = WeaponMgr::GetInst()->GetCurWeapon()->Transform()->GetRelativeRot();
+	
+	//vPos = PlayerMgr::GetInst()->GetConvertAnimationPos(vPos);
 	{
+		int randX = RandMgr::GetInst()->GetRandMuzzleX(2);
+		int randY = RandMgr::GetInst()->GetRandMuzzleY(2);
+		Vec2 muzzleSize = Vec2(512.f / 2.f, 512.f / 2.f);
+
 		CGameObject* Light = new CGameObject;
 		Light->SetName(L"Point Light");
+		Light->AddComponent(new CMeshRender);
 		Light->AddComponent(new CTransform);
 		Light->AddComponent(new CLight3D);
+		Light->AddComponent(new CAnimator2D);
 
-		//Light->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
+		Light->Animator2D()->Create(L"muzzle"
+			, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\Tex_Assault_Muzzle_Flash_Front.tga")
+			, Vec2(muzzleSize.x * randX, muzzleSize.y * randY)
+			, muzzleSize
+			, 1
+			, 1
+			, Vec2::Zero
+			, Vec2::Zero
+		);
+		Light->Animator2D()->Play(L"muzzle", false);
+
 		Light->Light3D()->SetRadius(100.f);
-		//Light->Light3D()->SetShadow(true);
-		//Light->Light3D()->SetFloatConstant(0, 5);
-		//Light->Light3D()->SetFloatConstant(1, 0.0004);
 		Light->Light3D()->SetLightType(LIGHT_TYPE::POINT);
 		Light->Light3D()->SetLightColor(Vec3(1.f, 1.f, 0.f));
-		Light->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.0f));
+		Light->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
+		Light->Light3D()->SetLifeSpan(0.01f);
+		Light->Transform()->SetRelativeRot(vRot);
+		Light->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		Light->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3DShaderMtrl"), 0);
+		//Light->MeshRender()->SetDynamicMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
+		//Light->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\Tex_Assault_Muzzle_Flash_Front.tga"));
+		//Light->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, nullptr);
 
-		SpawnGameObject(Light, vPos, 1);
+		//Light->MeshRender()->GetDynamicMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\Tex_Assault_Muzzle_Flash_Front.tga"));
+		//Light->MeshRender()->GetDynamicMaterial(0)->SetTexParam(TEX_1, nullptr);
+
+		SpawnGameObject(Light, vPos, 0);
 	}
+
+	tState = PlayerMgr::PLAYER_STATE::FIRE;
+	WeaponMgr::GetInst()->Play(GUN_ANIMATION_TYPE::FIRE, false);
 }
 
 void CPlayerScript::ShootMissile()
@@ -114,9 +151,23 @@ void CPlayerScript::ShootMissile()
 	pBullet->AddComponent(new CBulletScript);
 
 	SpawnGameObject(pBullet, vStart, L"Bullet");
+
+
 }
 
-void CPlayerScript::Move()
+void CPlayerScript::Reload()
+{
+	if (tState == PlayerMgr::PLAYER_STATE::RELOAD)
+		return;
+
+	CGameObject* pPlayer = GetOwner();
+	pPlayer->Animator3D()->Play((UINT)ANIMATION_TYPE::RELOAD, false);
+	WeaponMgr::GetInst()->Play(GUN_ANIMATION_TYPE::RELOAD, false);
+
+	tState = PlayerMgr::PLAYER_STATE::RELOAD;
+}
+
+void CPlayerScript::Movement()
 {
 	fRateOfFireAcc += DT;
 
@@ -126,7 +177,7 @@ void CPlayerScript::Move()
 
 	CGameObject* pPlayerObj = GetOwner();
 
-	Vec3 vPlayerPos = PlayerMgr::GetInst()->GetPlayerCameraPos(pPlayerObj->Transform()->GetWorldMat());
+	Vec3 vPlayerPos = PlayerMgr::GetInst()->GetPlayerCameraPos();
 	Vec3 vCamRot = pCamObj->Transform()->GetRelativeRot();
 
 	Vec3 vPlayerFront = pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
@@ -156,6 +207,7 @@ void CPlayerScript::Move()
 	//bool bKeyPressed = false;
 	Vec3 final_velocity = Vec3(0.f, 0.f, 0.f);
 
+
 	if (KEY_PRESSED(KEY::LSHIFT))
 	{
 		_fSpeed *= 2.f;
@@ -174,6 +226,11 @@ void CPlayerScript::Move()
 
 
 	UINT flag = uiIdle;
+
+	if (KEY_PRESSED(KEY::R))
+	{
+		Reload();
+	}
 
 	if (KEY_PRESSED(KEY::W))
 	{
@@ -201,19 +258,24 @@ void CPlayerScript::Move()
 		final_velocity += vPlayerRight * DT * _fSpeed;
 		//bKeyPressed = true;
 	}
-	// 1 2
-	if (flag & uiFront)
-		pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_FORWARD, true);
-	else if (flag & uiBack)
-		pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_BACK, true);
-	else if (flag & uiRight)
-		pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_RIGHT, true);
-	else if (flag & uiLeft)
-		pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_LEFT, true);
-	else if (flag & uiIdle)
+	
+	if (tState != PlayerMgr::PLAYER_STATE::RELOAD)
 	{
-		pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::IDLE, true);
+		if (flag & uiFront)
+			pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_FORWARD, true);
+		else if (flag & uiBack)
+			pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_BACK, true);
+		else if (flag & uiRight)
+			pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_RIGHT, true);
+		else if (flag & uiLeft)
+			pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_LEFT, true);
+		else if (flag & uiIdle)
+		{
+			pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::IDLE, true);
+		}
 	}
+
+
 
 	if (KEY_PRESSED(KEY::SPACE))
 	{

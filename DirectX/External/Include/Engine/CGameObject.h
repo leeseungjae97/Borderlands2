@@ -6,6 +6,7 @@ class CTransform;
 class CMeshRender;
 class CParticleSystem;
 class CAnimator3D;
+class CAnimator2D;
 class CLight3D;
 class CCamera;
 class CRenderComponent;
@@ -71,6 +72,7 @@ public:
     GET_COMPONENT(Gizmo, GIZMO);
     GET_COMPONENT(Light3D, LIGHT3D);
     GET_COMPONENT(Animator3D, ANIMATOR3D);
+    GET_COMPONENT(Animator2D, ANIMATOR2D);
     GET_COMPONENT(SkyBox, SKYBOX);
     GET_COMPONENT(Decal, DECAL);
     GET_COMPONENT(LandScape, LANDSCAPE);

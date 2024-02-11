@@ -127,8 +127,12 @@ void CKeyMgr::tick()
 
 				POINT pt;
 				GetCursorPos(&pt);
-				m_vMouseDir.x = pt.x - m_vMousePos.x;
-				m_vMouseDir.y = pt.y - m_vMousePos.y;
+				Vec2 vCurMousePos = Vec2((float)pt.x, (float)pt.y);
+				Vec2 vPrevMousePos = Vec2(m_vMousePos.x, m_vMousePos.y);
+				Vec2 vSmoothMousePos = Vec2::SmoothStep(vCurMousePos, vPrevMousePos, 0.5f);
+
+				m_vMouseDir.x = pt.x - vSmoothMousePos.x;
+				m_vMouseDir.y = pt.y - vSmoothMousePos.y;
 
 				m_vMouseDir.y *= -1;
 

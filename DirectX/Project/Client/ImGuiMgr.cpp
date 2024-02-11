@@ -9,6 +9,7 @@
 #include <Engine\CGameObject.h>
 
 #include "CollisionUI.h"
+#include "DefineAnimationUI.h"
 #include "LayerUI.h"
 #include "ManagerInspectorUI.h"
 #include "ObjectPickerUI.h"
@@ -198,6 +199,10 @@ void ImGuiMgr::CreateUI()
     m_mapUI.insert(make_pair(pUI->GetID(), pUI));
 
     pUI = new SamplerFilterUI;
+    pUI->SetActive(true);
+    m_mapUI.insert(make_pair(pUI->GetID(), pUI));
+
+    pUI = new DefineAnimationUI;
     pUI->SetActive(true);
     m_mapUI.insert(make_pair(pUI->GetID(), pUI));
 

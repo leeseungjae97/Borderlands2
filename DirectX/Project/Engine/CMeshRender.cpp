@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "CMeshRender.h"
 
+#include "CAnimator2D.h"
 #include "CTransform.h"
 #include "CAnimator3D.h"
 
@@ -21,6 +22,13 @@ void CMeshRender::render()
 {	
 	if (nullptr == GetMesh() || nullptr == GetMaterial(0))
 		return;
+
+	if (Animator2D())
+	{
+
+		Animator2D()->UpdateData();
+	}
+		
 
 	// Animator3D 업데이트
 	if (Animator3D())
@@ -52,6 +60,8 @@ void CMeshRender::render()
 
 	if (Animator3D())
 		Animator3D()->ClearData();
+	if(Animator2D())
+		Animator2D()->ClearData();
 }
 
 void CMeshRender::render(UINT _iSubset)

@@ -229,6 +229,13 @@ int CDevice::CreateDepthStencilState()
     Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
     DEVICE->CreateDepthStencilState(&Desc, m_DSState[(UINT)DS_TYPE::NO_TEST_NO_WRITE].GetAddressOf());
 
+
+    Desc.DepthEnable = true;
+    Desc.DepthFunc = D3D11_COMPARISON_LESS;
+    Desc.StencilEnable = false;
+    Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+    DEVICE->CreateDepthStencilState(&Desc, m_DSState[(UINT)DS_TYPE::NO_TEST].GetAddressOf());
+
     // 볼륨 메쉬의 BackFace 보다 앞에 있는 영역에 stencil 값 증가
     Desc.DepthEnable = true;  
     Desc.DepthFunc = D3D11_COMPARISON_GREATER;          // 렌더링되는 볼륨메쉬의 뒷면이 더 멀어야 통과
@@ -328,6 +335,9 @@ int CDevice::CreateBlendState()
     Desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
     Desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
     Desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+
+    //Desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    //Desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 
     Desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     DEVICE->CreateBlendState(&Desc, m_BSState[(UINT)BS_TYPE::ALPHA_BLEND].GetAddressOf());

@@ -321,7 +321,7 @@ float4 PS_MergeShader(VS_OUT _in) : SV_Target
     float fShadowCoeff = ShadowTargetTex.Sample(g_sam_0, vScreenUV).x;
 
     // float fShadowCoeff = GaussianBlur(ShadowTargetTex, _in.vPosition.xy);
-
+    
     float3 vC = vColor.xyz * vDiffuse.xyz;
 
     //if (0.5f < fShadowCoeff)
@@ -356,6 +356,8 @@ float4 PS_MergeShader(VS_OUT _in) : SV_Target
     //vOutColor.xyz = vColor.xyz * vDiffuse.xyz
 				//  + (vSpecular.xyz * vColor.a)
 				//  + vEmissive.xyz;
+
+
 
     vOutColor.a = 1.f;
     

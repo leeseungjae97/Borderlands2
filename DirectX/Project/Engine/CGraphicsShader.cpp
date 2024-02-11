@@ -12,6 +12,7 @@ CGraphicsShader::CGraphicsShader()
 	, m_DSType(DS_TYPE::LESS)
 	, m_BSType(BS_TYPE::DEFAULT)
 	, m_Domain(SHADER_DOMAIN::DOMAIN_UNDEFINED)
+	, m_bUseDepthStencil(true)
 	, m_StencilRef(0)
 {
 }
@@ -154,7 +155,11 @@ void CGraphicsShader::UpdateData()
 	CONTEXT->PSSetShader(m_PS.Get(), nullptr, 0);
 
 	CONTEXT->RSSetState(CDevice::GetInst()->GetRSState(m_RSType).Get());
-	CONTEXT->OMSetDepthStencilState(CDevice::GetInst()->GetDSState(m_DSType).Get(), m_StencilRef);
+	if(m_bUseDepthStencil)
+		CONTEXT->OMSetDepthStencilState(CDevice::GetInst()->GetDSState(m_DSType).Get(), m_StencilRef);
+	else
+		CONTEXT->OMSetDepthStencilState(nullptr, 0);
+
 	CONTEXT->OMSetBlendState(CDevice::GetInst()->GetBSState(m_BSType).Get(), Vec4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
 }
 

@@ -6,7 +6,8 @@ class IndividualBoneSkinningShader :
     public CComputeShader
 {
 private:
-    CStructuredBuffer* m_pOutputBuffer;
+    CStructuredBuffer* m_pOutputMatBuffer;
+    CStructuredBuffer* m_pOutputVertexBuffer;
     CStructuredBuffer* m_pBoneMatBuffer;
 
 public:
@@ -15,9 +16,10 @@ public:
     void SetPosition(Vec4 _vPos) { m_Const.arrV4[0] = _vPos; }
 
     void SetBoneIdx(int _Idx) { m_Const.arrInt[0] = _Idx; }
-    void SetBoneSkinning(bool _IsBoneSkinning) { m_Const.arrInt[1] = _IsBoneSkinning; }
+    void SetVertexSkinning(bool _IsVertexSkinning) { m_Const.arrInt[1] = _IsVertexSkinning; }
 
-    void SetOutputBuffer(CStructuredBuffer* _buffer) { m_pOutputBuffer = _buffer; }
+    void SetOutputMatBuffer(CStructuredBuffer* _buffer) { m_pOutputMatBuffer = _buffer; }
+    void SetOutputVertexBuffer(CStructuredBuffer* _buffer) { m_pOutputVertexBuffer = _buffer; }
     void SetBoneMat(CStructuredBuffer* _buffer) { m_pBoneMatBuffer = _buffer; }
 public:
     void UpdateData() override;

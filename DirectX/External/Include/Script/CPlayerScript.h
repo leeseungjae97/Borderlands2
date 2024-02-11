@@ -1,5 +1,6 @@
 #pragma once
 #include <Engine\CScript.h>
+#include <Engine\PlayerMgr.h>
 
 class CPlayerScript :
     public CScript
@@ -12,6 +13,12 @@ private:
     float       fMouseAcces;
     int         iPlayerHp;
 
+    PlayerMgr::PLAYER_STATE tState;
+
+
+    bool        bReloading;
+    bool        bFire;
+    bool        bSprint;
 public:
     virtual void begin() override;
     virtual void tick() override;
@@ -20,7 +27,8 @@ private:
     void Look();
     void ShootBullet();
     void ShootMissile();
-    void Move();
+    void Reload();
+    void Movement();
     virtual void CatchRaycast() override;
 
 public:

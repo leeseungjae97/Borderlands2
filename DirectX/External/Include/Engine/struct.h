@@ -64,6 +64,52 @@ struct tEvent
 	DWORD_PTR	lParam;
 };
 
+struct Event {
+	Event() {};
+	~Event() {};
+
+	void operator=(const std::shared_ptr<std::function<void()>> func)
+	{
+		mEvent = std::move(func);
+	}
+	void operator()()
+	{
+		if (mEvent)
+			(*mEvent)();
+	}
+
+	std::shared_ptr<std::function<void()>> mEvent;
+};
+
+struct Events {
+	Events()
+		: startEvent{}
+		, completeEvent{}
+		, progressEvent{}
+		, endEvent{}
+	{
+	};
+	~Events() {}
+	void SaveToLevelFile(FILE* file)
+	{
+		fwrite(&startEvent, sizeof(Event), 1, file);
+		fwrite(&completeEvent, sizeof(Event), 1, file);
+		fwrite(&progressEvent, sizeof(Event), 1, file);
+		fwrite(&endEvent, sizeof(Event), 1, file);
+	}
+
+	void LoadFromLevelFile(FILE* file)
+	{
+		fread(&startEvent, sizeof(Event), 1, file);
+		fread(&completeEvent, sizeof(Event), 1, file);
+		fread(&progressEvent, sizeof(Event), 1, file);
+		fread(&endEvent, sizeof(Event), 1, file);
+	}
+	Event startEvent;
+	Event completeEvent;
+	Event progressEvent;
+	Event endEvent;
+};
 
 struct tDebugShapeInfo
 {
@@ -102,15 +148,7 @@ struct tLightInfo
 	int			padding;
 };
 
-
-// TileMap
-struct tTile
-{
-	Vec2 vLeftTop;
-	Vec2 vSlice;
-};
-
-// Animator2D
+// CAnimator2D
 struct tAnim2DFrm
 {
 	Vec2	LeftTopUV;

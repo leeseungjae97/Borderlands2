@@ -94,6 +94,10 @@ ULONG64 CRenderComponent::GetInstID(UINT _iMtrlIdx)
 void CRenderComponent::render_shadowmap()
 {
 	Ptr<CMaterial> pShadowMapMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"ShadowMapMtrl");
+	//if(Animator2D())
+	//{
+	//	Animator2D()->UpdateData();
+	//}
 
 	if (Animator3D())
 	{
@@ -123,18 +127,10 @@ void CRenderComponent::render_shadowmap()
 
 	if (Animator3D())
 		Animator3D()->ClearData();
+	//if (Animator2D())
+	//	Animator2D()->ClearData();
 }
 
-void CRenderComponent::render_shadowmapexp()
-{
-	Ptr<CMaterial> pShadowMapMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"ShadowMapExpMtrl");
-
-	Transform()->UpdateData();
-
-	pShadowMapMtrl->UpdateData();
-
-	GetMesh()->render(0);
-}
 
 void CRenderComponent::SetMaterial(Ptr<CMaterial> _Mtrl, UINT _Idx)
 {
@@ -159,10 +155,20 @@ void CRenderComponent::SaveToLevelFile(FILE* _File)
 	for (UINT i = 0; i < iMtrlCount; ++i)
 	{
 		SaveResRef(m_vecMtrls[i].pSharedMtrl.Get(), _File);
+
+		bool cloneDynamic = true;
+		if(nullptr != m_vecMtrls[i].pDynamicMtrl)
+		{
+			fwrite(&cloneDynamic, sizeof(bool), 1, _File);
+		}else
+		{
+			cloneDynamic = false;
+			fwrite(&cloneDynamic, sizeof(bool), 1, _File);
+		}
 		//SaveResRef(m_vecMtrls[i].pDynamicMtrl.Get(), _File);
 	}
 
-	fwrite(&m_bDynamicShadow, 1, 1, _File);
+	//fwrite(&m_bDynamicShadow, 1, 1, _File);
 	fwrite(&m_bFrustumCheck, 1, 1, _File);
 	fwrite(&m_fBounding, 1, 1, _File);
 }
@@ -176,18 +182,26 @@ void CRenderComponent::LoadFromLevelFile(FILE* _File)
 
 	for (UINT i = 0; i < iMtrlCount; ++i)
 	{
-		Ptr<CMaterial> pCurMtrl;
-		//Ptr<CMaterial> pDyMtrl;
+		Ptr<CMaterial> pSharedMtrl;
+		Ptr<CMaterial> pDynamicMtrl;
 		tMtrlSet mtrlSet;
-		LoadResRef(pCurMtrl, _File);
-		//LoadResRef(pDyMtrl, _File);
-		//mtrlSet.pCurrentMtrl = pCurMtrl;
-		//mtrlSet.pDynamicMtrl = pDyMtrl;
+		LoadResRef(pSharedMtrl, _File);
+		mtrlSet.pSharedMtrl= pSharedMtrl;
+
 		m_vecMtrls.push_back(mtrlSet);
-		SetMaterial(pCurMtrl, i);
+		SetMaterial(pSharedMtrl, i);
+
+		bool cloneDynamic = false;
+		fread(&cloneDynamic, sizeof(bool), 1, _File);
+		
+		if (cloneDynamic)
+		{
+			mtrlSet.pDynamicMtrl = mtrlSet.pSharedMtrl->Clone();
+			GetDynamicMaterial(i);
+		}
 	}
 
-	fread(&m_bDynamicShadow, 1, 1, _File);
+	//fread(&m_bDynamicShadow, 1, 1, _File);
 	fread(&m_bFrustumCheck, 1, 1, _File);
 	fread(&m_fBounding, 1, 1, _File);
 }

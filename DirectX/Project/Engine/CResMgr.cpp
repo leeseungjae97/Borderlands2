@@ -829,8 +829,9 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->CreatePixelShader(L"shader\\std3d.fx", "PS_Std3D");
 	//pShader->SetRSType(RS_TYPE::WIRE_FRAME);
 	pShader->SetRSType(RS_TYPE::CULL_BACK);
-	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_MASK);
+	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
+	pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_TRANSPARENT);
 
 	pShader->AddTexParam(TEX_0, "Output Texture");
 	pShader->AddTexParam(TEX_1, "Normal Mapping Texture");
@@ -873,6 +874,7 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->CreatePixelShader(L"shader\\skybox.fx", "PS_SkyBoxShader");
 	pShader->SetRSType(RS_TYPE::CULL_FRONT);
 	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
+	//pShader->SetUseDepthStencil(false);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_MASK);
 
 	pShader->AddTexParam(TEX_0, "Output Texture");
@@ -898,7 +900,6 @@ void CResMgr::CreateDefaultGraphicsShader()
 
     // Parameter	
     pShader->AddTexParam(TEX_1, "Output Texture");
-
     AddRes(pShader->GetKey(), pShader);
 
 	// ============================
@@ -915,34 +916,12 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->CreatePixelShader(L"shader\\std3d_deferred.fx", "PS_Std3D_Deferred");
 
 	pShader->SetRSType(RS_TYPE::CULL_BACK);
-	//pShader->SetRSType(RS_TYPE::WIRE_FRAME);
 	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
-	//pShader->SetDSType(DS_TYPE::STENCIL_CULL_TEST_O);
+	//pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_DEFERRED);
 
 	// Parameter	
 	pShader->AddTexParam(TEX_0, "Output Texture");
-
-	AddRes(pShader->GetKey(), pShader);
-
-	// Parameter	
-	pShader->AddTexParam(TEX_0, "Output Texture");
-
-	AddRes(pShader->GetKey(), pShader);
-
-	pShader = new CGraphicsShader;
-	pShader->SetKey(L"Planet3D_DeferredShader_Alpha");
-
-	pShader->CreateVertexShader(L"shader\\planet3d_deferred.fx", "VS_Planet3D_Deferred");
-	pShader->CreatePixelShader(L"shader\\planet3d_deferred.fx", "PS_Planet3D_Deferred_Alpha");
-
-	pShader->SetRSType(RS_TYPE::CULL_BACK);
-	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_DEFERRED);
-
-	// Parameter	
-	pShader->AddTexParam(TEX_0, "Output Texture");
-
 	AddRes(pShader->GetKey(), pShader);
 
 	// ============================

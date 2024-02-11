@@ -54,7 +54,8 @@ public:
 
 	void Reset()
 	{
-		m_iCurIdx = 0;
+		m_iCurIdx = m_Clip.iStartFrame;
+		m_iNextIdx = m_iCurIdx;
 		m_fTime = 0.0f;
 		m_fRatio = 0.0f;
 		m_bFinish = false;
