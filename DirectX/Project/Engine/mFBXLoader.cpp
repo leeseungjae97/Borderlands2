@@ -244,36 +244,36 @@ void FBXLoader::GetTangent(FbxMesh* _pMesh
 	int iTangentCnt = _pMesh->GetElementTangentCount();
 	if (1 < iTangentCnt)
 	{
-		//assert(NULL);
-		_pMesh->InitNormals(0);
-		_pMesh->GenerateNormals();
-		_pMesh->InitTangents(0);
-		_pMesh->GenerateTangentsData(0, true);
-		_pMesh->InitBinormals(0);
-		_pMesh->CreateElementBinormal();
+		assert(NULL);
+		//_pMesh->InitNormals(0);
+		//_pMesh->GenerateNormals();
+		//_pMesh->InitTangents(0);
+		//_pMesh->GenerateTangentsData(0, true);
+		//_pMesh->InitBinormals(0);
+		//_pMesh->CreateElementBinormal();
 
-		FbxGeometryElementTangent* pTangent = _pMesh->GetElementTangent();
-		UINT iTangentIdx = 0;
-		if (pTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
-		{
-			if (pTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
-				iTangentIdx = _iVtxOrder;
-			else
-				iTangentIdx = pTangent->GetIndexArray().GetAt(_iVtxOrder);
-		}
-		else if (pTangent->GetMappingMode() == FbxGeometryElement::eByControlPoint)
-		{
-			if (pTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
-				iTangentIdx = _iIdx;
-			else
-				iTangentIdx = pTangent->GetIndexArray().GetAt(_iIdx);
-		}
+		//FbxGeometryElementTangent* pTangent = _pMesh->GetElementTangent();
+		//UINT iTangentIdx = 0;
+		//if (pTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+		//{
+		//	if (pTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
+		//		iTangentIdx = _iVtxOrder;
+		//	else
+		//		iTangentIdx = pTangent->GetIndexArray().GetAt(_iVtxOrder);
+		//}
+		//else if (pTangent->GetMappingMode() == FbxGeometryElement::eByControlPoint)
+		//{
+		//	if (pTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
+		//		iTangentIdx = _iIdx;
+		//	else
+		//		iTangentIdx = pTangent->GetIndexArray().GetAt(_iIdx);
+		//}
 
-		FbxVector4 vTangent = pTangent->GetDirectArray().GetAt(iTangentIdx);
+		//FbxVector4 vTangent = pTangent->GetDirectArray().GetAt(iTangentIdx);
 
-		_pContainer->vecTangent[_iIdx].x = (float)vTangent.mData[0];
-		_pContainer->vecTangent[_iIdx].y = (float)vTangent.mData[2];
-		_pContainer->vecTangent[_iIdx].z = (float)vTangent.mData[1];
+		//_pContainer->vecTangent[_iIdx].x = (float)vTangent.mData[0];
+		//_pContainer->vecTangent[_iIdx].y = (float)vTangent.mData[2];
+		//_pContainer->vecTangent[_iIdx].z = (float)vTangent.mData[1];
 	}
 		
 
@@ -431,10 +431,15 @@ void FBXLoader::GetUV(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx, int _
 	else
 		iUVIdx = pUV->GetIndexArray().GetAt(_iIdx);
 
+	
 	iUVIdx = _iUVIndex;
 	FbxVector2 vUV = pUV->GetDirectArray().GetAt(iUVIdx);
+	FbxLayerElement::EMappingMode mapping = pUV->GetMappingMode();
+
+
+
 	_pContainer->vecUV[_iIdx].x = (float)vUV.mData[0];
-	_pContainer->vecUV[_iIdx].y = 1.f - (float)vUV.mData[1]; // fbx uv ÁÂÇ¥°è´Â ÁÂÇÏ´ÜÀÌ 0,0
+	_pContainer->vecUV[_iIdx].y = 1.f - (float)vUV.mData[1];
 }
 
 Vec4 FBXLoader::GetMtrlData(FbxSurfaceMaterial* _pSurface
@@ -501,6 +506,7 @@ void FBXLoader::LoadTexture()
 	path path_content = CPathMgr::GetInst()->GetContentPath();
 
 	path path_fbx_texture = path_content.wstring() + L"texture\\FBXTexture\\";
+
 	if (false == exists(path_fbx_texture))
 	{
 		create_directory(path_fbx_texture);
@@ -546,8 +552,8 @@ void FBXLoader::LoadTexture()
 				}
 			}
 		}
-		path_origin = path_origin.parent_path();
-		remove_all(path_origin);
+		//path_origin = path_origin.parent_path();
+		//remove_all(path_origin);
 	}
 }
 

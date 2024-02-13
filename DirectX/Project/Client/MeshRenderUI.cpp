@@ -150,6 +150,25 @@ int MeshRenderUI::render_update()
 				ImVec4 border_col = ImVec4(1.0f, 1.0f, 1.0f, 0.5f); // 50% opaque white
 
 				ImGui::Image((ImTextureID)tex->GetSRV().Get(), ImVec2(150, 150), uv_min, uv_max, tint_col, border_col);
+			}else
+			{
+				ImGui::Text("%d Material, %d Texture", i, j);
+				string str = "SET##" + std::to_string(i) + "mtrl" + std::to_string(j) + "tex";
+				if (ImGui::Button(str.c_str()))
+				{
+					const map<wstring, Ptr<CRes>>& pTexture = CResMgr::GetInst()->GetResources(RES_TYPE::TEXTURE);
+
+					ListUI* pListUI = (ListUI*)ImGuiMgr::GetInst()->FindUI("##List");
+					pListUI->Reset("Texture List", ImVec2(300.f, 500.f));
+					for (const auto& pair : pTexture)
+					{
+						pListUI->AddItem(string(pair.first.begin(), pair.first.end()));
+					}
+					iInst1 = i;
+					iInst0 = j;
+					pListUI->AddDynamic_Select(this, (UI_DELEGATE_2)&MeshRenderUI::SelectTexture);
+					//mtrl->SetTexParam((TEX_PARAM)j, );
+				}
 			}
 		}
 	}

@@ -9,7 +9,7 @@ private:
 	wstring		iCurWeaponName;
 
 	CGameObject* m_arrWeapons[3];
-	int m_arrWeaponMuzzleIdx[3];
+
 public:
 	void ChangeWeapon(int _Idx);
 	void AddWeapon(CGameObject* _Weapon);

@@ -392,6 +392,81 @@ void CreateTestLevel()
 	//{
 	//	Ptr<CMeshData> pMeshData = nullptr;
 	//	CGameObject* pObj = nullptr;
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\sniper_assem.fbx");
+	//	pObj = pMeshData->Instantiate();
+	//	pObj->SetName(L"sniper");
+
+	//	pObj->AddComponent(new CGunScript);
+	//	pObj->AddComponent(new CGizmo);
+	//	pObj->SetIsItem(true);
+
+	//	WeaponMgr::GetInst()->AddWeapon(pObj);
+
+	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
+	//}
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\sniper_assem2.fbx");
+	//	pObj = pMeshData->Instantiate();
+	//	pObj->SetName(L"sniper");
+
+	//	pObj->AddComponent(new CGunScript);
+	//	pObj->AddComponent(new CGizmo);
+	//	pObj->SetIsItem(true);
+
+	//	WeaponMgr::GetInst()->AddWeapon(pObj);
+
+	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
+	//}
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\sniper_assem3.fbx");
+	//	pObj = pMeshData->Instantiate();
+	//	pObj->SetName(L"sniper");
+
+	//	pObj->AddComponent(new CGunScript);
+	//	pObj->AddComponent(new CGizmo);
+	//	pObj->SetIsItem(true);
+
+	//	WeaponMgr::GetInst()->AddWeapon(pObj);
+
+	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
+	//}
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\sniper.fbx");
+		pObj = pMeshData->Instantiate();
+		pObj->SetName(L"sniper");
+
+		pObj->AddComponent(new CGunScript);
+		pObj->AddComponent(new CGizmo);
+		pObj->SetIsItem(true);
+
+		WeaponMgr::GetInst()->AddWeapon(pObj);
+
+		PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
+	}
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\barrel_hy.fbx");
+	//	pObj = pMeshData->Instantiate();
+	//	pObj->SetName(L"sniper_hy_barrel");
+
+	//	pObj->AddComponent(new CGunScript);
+	//	pObj->AddComponent(new CGizmo);
+	//	pObj->SetIsItem(true);
+
+	//	WeaponMgr::GetInst()->AddWeapon(pObj);
+
+	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
+	//}
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
 	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
 	//	pObj = pMeshData->Instantiate();
 	//	pObj->SetName(L"tangent fbx 2");

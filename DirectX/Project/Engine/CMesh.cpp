@@ -422,7 +422,6 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 		}
 		pMesh->m_vecBones.push_back(bone);
 	}
-	pMesh->GetVtxSysMem()[SMG_MUZZLE_IDX];
 	// Animation 이 있는 Mesh 경우 structuredbuffer 만들어두기
 	if (pMesh->IsAnimMesh())
 	{

@@ -39,8 +39,8 @@ float4 PS_GrayShader(VS_OUT _in) : SV_Target
     // _in.vPosition.xy;
     float2 vScreenUV = _in.vPosition.xy / g_Resolution;
     
-    //float4 vColor = g_tex_0.Sample(g_sam_0, _in.vUV);	
-    float4 vColor = g_tex_0.Sample(g_sam_0, vScreenUV);
+    //float4 vColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);	
+    float4 vColor = g_tex_0.Sample(g_sam_anti_0, vScreenUV);
 	
     float vAver = (vColor.r + vColor.g + vColor.b) / 3.f;
 
@@ -76,7 +76,7 @@ VS_OUT VS_Distortion(VS_IN _in)
 
 //    vUV.y += fChange;
 
-//    float4 vColor = g_tex_0.Sample(g_sam_0, vUV);
+//    float4 vColor = g_tex_0.Sample(g_sam_anti_0, vUV);
 //	//vColor.r *= 2.f;
 
 //    return vColor;
@@ -90,14 +90,14 @@ float4 PS_Distortion(VS_OUT _in) : SV_Target
     if (g_btex_1)
     {
         float2 vNoiseUV = float2(_in.vUV.x - (g_AccTime * 0.2f), _in.vUV.y);
-        float4 vNoise = g_tex_1.Sample(g_sam_0, vNoiseUV);
+        float4 vNoise = g_tex_1.Sample(g_sam_anti_0, vNoiseUV);
 
         vNoise = (vNoise - 0.5f) * 0.02f;
 
         vUV += vNoise.r;
     }
 
-    float4 vColor = g_tex_0.Sample(g_sam_0, vUV);
+    float4 vColor = g_tex_0.Sample(g_sam_anti_0, vUV);
 
     //vColor.r *= 2.f;
 	

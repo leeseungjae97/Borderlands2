@@ -34,17 +34,14 @@ void WeaponMgr::AddWeapon(CGameObject* _Weapon)
 	if(weaponName == L"smg")
 	{
 		m_arrWeapons[SMG_IDX] = _Weapon;
-		m_arrWeaponMuzzleIdx[SMG_IDX] = SMG_MUZZLE_IDX;
 	}
 	if (weaponName == L"sniper")
 	{
 		m_arrWeapons[SNIPER_IDX] = _Weapon;
-		m_arrWeaponMuzzleIdx[SNIPER_IDX] = SNIPER_MUZZLE_IDX;
 	}
 	if (weaponName == L"pistol")
 	{
 		m_arrWeapons[PISTOL_IDX] = _Weapon;
-		m_arrWeaponMuzzleIdx[PISTOL_IDX] = PISTOL_MUZZLE_IDX;
 	}
 }
 

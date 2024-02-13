@@ -114,9 +114,9 @@ StructuredBuffer<tLightInfo> g_Light3DBuffer : register(t13);
 // Animation3D Bone Matrix Buffer
 StructuredBuffer<matrix> g_arrBoneMat : register(t30);
 
-SamplerState g_sam_0 : register(s0);
-SamplerState g_sam_1 : register(s1);
-SamplerState g_sam_2 : register(s2);
+SamplerState g_sam_anti_0 : register(s0);
+SamplerState g_sam_point_1 : register(s1);
+SamplerState g_sam_linear_2 : register(s2);
 SamplerComparisonState g_shadow_sampler : register(s3);
 
 #define PI 3.1415926535f

@@ -63,8 +63,8 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
     PS_OUT output = (PS_OUT) 0.f;
     
     float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
-    float3 vViewPos = PositionTargetTex.Sample(g_sam_0, vScreenUV).xyz;
-    float3 vViewNormal = NormalTargetTex.Sample(g_sam_0, vScreenUV).xyz;
+    float3 vViewPos = PositionTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
+    float3 vViewNormal = NormalTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
     
     // 픽셀 위치랑 동일한 UV 위치에서 Position 값을 가져왔는데, 해당 지점에 기록된 물체가 없다.
     if (vViewPos.x == 0.f && vViewPos.y == 0.f && vViewPos.z == 0.f)
@@ -98,7 +98,7 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
     {
         float fDepth = vLightProj.z / vLightProj.w;
         //float fDepth = vLightProj.z;
-        //float fDepth = ShadowMapTargetTex.Sample(g_sam_0, vShadowMapUV);
+        //float fDepth = ShadowMapTargetTex.Sample(g_sam_anti_0, vShadowMapUV);
         fDepth -= DepthCoeff;
         float SMAP_SIZE = FloatCoeff1;
         float SMAP_DX = 1.0f / SMAP_SIZE;
@@ -168,8 +168,8 @@ PS_OUT PS_PointLightShader(VS_OUT _in)
 	PS_OUT output = (PS_OUT) 0.f;
     
     float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
-    float3 vViewPos = PositionTargetTex.Sample(g_sam_0, vScreenUV).xyz;
-    float3 vViewNormal = NormalTargetTex.Sample(g_sam_0, vScreenUV).xyz;
+    float3 vViewPos = PositionTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
+    float3 vViewNormal = NormalTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
     
     // 픽셀 위치랑 동일한 UV 위치에서 Position 값을 가져왔는데, 해당 지점에 기록된 물체가 없다.
     if (vViewPos.x == 0.f && vViewPos.y == 0.f && vViewPos.z == 0.f)
@@ -235,8 +235,8 @@ PS_OUT PS_SpotLightShader(VS_OUT _in)
     PS_OUT output = (PS_OUT) 0.f;
     
     float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
-    float3 vViewPos = PositionTargetTex.Sample(g_sam_0, vScreenUV).xyz;
-    float3 vViewNormal = NormalTargetTex.Sample(g_sam_0, vScreenUV).xyz;
+    float3 vViewPos = PositionTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
+    float3 vViewNormal = NormalTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
     
     // 픽셀 위치랑 동일한 UV 위치에서 Position 값을 가져왔는데, 해당 지점에 기록된 물체가 없다.
     if (vViewPos.x == 0.f && vViewPos.y == 0.f && vViewPos.z == 0.f)
@@ -314,11 +314,11 @@ float4 PS_MergeShader(VS_OUT _in) : SV_Target
     
     float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
 
-    float4 vColor = ColorTargetTex.Sample(g_sam_0, vScreenUV);
-    float4 vDiffuse = DiffuseTargetTex.Sample(g_sam_0, vScreenUV);
-    float4 vSpecular = SpecularTargetTex.Sample(g_sam_0, vScreenUV);
-    float4 vEmissive = EmissiveTargetTex.Sample(g_sam_0, vScreenUV);
-    float fShadowCoeff = ShadowTargetTex.Sample(g_sam_0, vScreenUV).x;
+    float4 vColor = ColorTargetTex.Sample(g_sam_anti_0, vScreenUV);
+    float4 vDiffuse = DiffuseTargetTex.Sample(g_sam_anti_0, vScreenUV);
+    float4 vSpecular = SpecularTargetTex.Sample(g_sam_anti_0, vScreenUV);
+    float4 vEmissive = EmissiveTargetTex.Sample(g_sam_anti_0, vScreenUV);
+    float fShadowCoeff = ShadowTargetTex.Sample(g_sam_anti_0, vScreenUV).x;
 
     // float fShadowCoeff = GaussianBlur(ShadowTargetTex, _in.vPosition.xy);
     

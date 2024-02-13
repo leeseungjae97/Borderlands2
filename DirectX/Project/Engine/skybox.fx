@@ -44,7 +44,7 @@ float4 PS_SkyBoxShader(VS_SKY_OUT _in) : SV_Target
     {
         if (g_btex_0)
         {
-            vOutColor = g_tex_0.Sample(g_sam_0, _in.vUV);
+            vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
         }
     }
     
@@ -54,7 +54,7 @@ float4 PS_SkyBoxShader(VS_SKY_OUT _in) : SV_Target
         if (g_btexcube_0)
         {
             float3 vUV = normalize(_in.vPos);
-            vOutColor = g_cube_0.Sample(g_sam_0, vUV);
+            vOutColor = g_cube_0.Sample(g_sam_anti_0, vUV);
         }
     }
 

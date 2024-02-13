@@ -75,17 +75,17 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
             || UV.y < SpriteLeftTop.y || UV.y > SpriteLeftTop.y + SpriteSize.y)
                 discard;
 
-            vOutColor = g_tex_0.Sample(g_sam_0, UV);
+            vOutColor = g_tex_0.Sample(g_sam_anti_0, UV);
         }else
         {
-            vOutColor = g_tex_0.Sample(g_sam_0, _in.vUV);
+            vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
         }
         
     }
     
     if (g_btex_1)
     {
-        float3 vNormal = g_tex_1.Sample(g_sam_0, _in.vUV).xyz;
+        float3 vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV).xyz;
         
         // 0 ~ 1 범위의 값을 -1 ~ 1 로 확장        
         vNormal = vNormal * 2.f - 1.f;
@@ -120,7 +120,7 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
 
         vEyeReflect = normalize(mul(float4(vEyeReflect, 0.f), g_matViewInv));
 
-        vOutColor += SKYBOX_ENV_TEX.Sample(g_sam_0, vEyeReflect);
+        vOutColor += SKYBOX_ENV_TEX.Sample(g_sam_anti_0, vEyeReflect);
     }
 
     return vOutColor;

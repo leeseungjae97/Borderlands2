@@ -43,8 +43,8 @@ void CS_WeightMap(int3 _iThreadID : SV_DispatchThreadID)
     int2 vLTPos = vCenterPos - (vScale / 2);
     float2 vUV = float2(_iThreadID.xy - vLTPos) / float2(vScale);
 
-    //float4 vBrushColor = BRUSH_TEX.SampleLevel(g_sam_0, float3(vUV, BRUSH_IDX), 0);
-    float4 vBrushColor = BRUSH_TEX.SampleLevel(g_sam_0, vUV, 0);
+    //float4 vBrushColor = BRUSH_TEX.SampleLevel(g_sam_anti_0, float3(vUV, BRUSH_IDX), 0);
+    float4 vBrushColor = BRUSH_TEX.SampleLevel(g_sam_anti_0, vUV, 0);
 
     // 2차원 인덱스 좌표를 1차원 인덱스로 계산
     uint iIdx = (_iThreadID.y * WIDTH) + _iThreadID.x;

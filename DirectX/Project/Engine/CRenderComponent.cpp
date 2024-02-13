@@ -120,10 +120,10 @@ void CRenderComponent::render_shadowmap()
 		// ·»´õ
 		GetMesh()->render(i);
 	}
-	if(GetMesh()->GetSubsetCount() == 0)
-	{
-		GetMesh()->render(0);
-	}
+	//if(GetMesh()->GetSubsetCount() == 0)
+	//{
+	//	GetMesh()->render(0);
+	//}
 
 	if (Animator3D())
 		Animator3D()->ClearData();

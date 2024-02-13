@@ -48,7 +48,7 @@ float4 PS_TestShader(VS_OUT _in) : SV_Target
         
     if (g_btex_0)
     {
-        vOutColor = g_tex_0.Sample(g_sam_0, _in.vUV);
+        vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
     }    
             
     return vOutColor;

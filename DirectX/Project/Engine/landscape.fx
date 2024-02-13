@@ -160,8 +160,8 @@ DS_OUT DS_LandScape(const OutputPatch<HS_OUT, 3> _origin
 
     // 높이맵 적용
     output.vHeightMapUV = vUV / float2(FaceX, FaceZ);
-    vLocalPos.y = HeightMap.SampleLevel(g_sam_0, output.vHeightMapUV, 0).x;
-    output.vColorMapColor = ColorMap.SampleLevel(g_sam_0, output.vHeightMapUV, 0);
+    vLocalPos.y = HeightMap.SampleLevel(g_sam_anti_0, output.vHeightMapUV, 0).x;
+    output.vColorMapColor = ColorMap.SampleLevel(g_sam_anti_0, output.vHeightMapUV, 0);
     // Normal, Tangent, Binormal 재 계산
 
     // 도메인 쉐이더 정점의 주변(위, 아래, 좌, 우) 로 접근하기 위한 간격
@@ -169,10 +169,10 @@ DS_OUT DS_LandScape(const OutputPatch<HS_OUT, 3> _origin
     float2 vUVStep = fLocalStep / float2(FaceX, FaceZ);
 
     // 도메인 정점 주변 정점 위치값(월드 좌표계) 구하기
-    float3 vUp = mul(float4(vLocalPos.x, HeightMap.SampleLevel(g_sam_0, output.vHeightMapUV + float2(0.f, -vUVStep.y), 0).x, vLocalPos.z + fLocalStep, 1.f), g_matWorld).xyz;
-    float3 vDown = mul(float4(vLocalPos.x, HeightMap.SampleLevel(g_sam_0, output.vHeightMapUV + float2(0.f, +vUVStep.y), 0).x, vLocalPos.z - fLocalStep, 1.f), g_matWorld).xyz;
-    float3 vLeft = mul(float4(vLocalPos.x - fLocalStep, HeightMap.SampleLevel(g_sam_0, output.vHeightMapUV + float2(-vUVStep.x, 0.f), 0).x, vLocalPos.z, 1.f), g_matWorld).xyz;
-    float3 vRight = mul(float4(vLocalPos.x + fLocalStep, HeightMap.SampleLevel(g_sam_0, output.vHeightMapUV + float2(+vUVStep.x, 0.f), 0).x, vLocalPos.z, 1.f), g_matWorld).xyz;
+    float3 vUp = mul(float4(vLocalPos.x, HeightMap.SampleLevel(g_sam_anti_0, output.vHeightMapUV + float2(0.f, -vUVStep.y), 0).x, vLocalPos.z + fLocalStep, 1.f), g_matWorld).xyz;
+    float3 vDown = mul(float4(vLocalPos.x, HeightMap.SampleLevel(g_sam_anti_0, output.vHeightMapUV + float2(0.f, +vUVStep.y), 0).x, vLocalPos.z - fLocalStep, 1.f), g_matWorld).xyz;
+    float3 vLeft = mul(float4(vLocalPos.x - fLocalStep, HeightMap.SampleLevel(g_sam_anti_0, output.vHeightMapUV + float2(-vUVStep.x, 0.f), 0).x, vLocalPos.z, 1.f), g_matWorld).xyz;
+    float3 vRight = mul(float4(vLocalPos.x + fLocalStep, HeightMap.SampleLevel(g_sam_anti_0, output.vHeightMapUV + float2(+vUVStep.x, 0.f), 0).x, vLocalPos.z, 1.f), g_matWorld).xyz;
 
     // 월드 방향 구하기
     float3 vTangent = normalize(vRight - vLeft);
@@ -221,8 +221,8 @@ PS_OUT PS_LandScape(DS_OUT _in)
 
         for (int i = 0; i < TileCount; ++i)
         {
-            vColor += TileTexArr.SampleGrad(g_sam_0, float3(_in.vUV, i), derivX, derivY) * vWeight[i];
-            //vColor += TileTexArr.SampleLevel(g_sam_0, float3(_in.vUV, i), 0) * vWeight[i];
+            vColor += TileTexArr.SampleGrad(g_sam_anti_0, float3(_in.vUV, i), derivX, derivY) * vWeight[i];
+            //vColor += TileTexArr.SampleLevel(g_sam_anti_0, float3(_in.vUV, i), 0) * vWeight[i];
 
             if (fMaxWeight < vWeight[i])
             {
@@ -231,15 +231,15 @@ PS_OUT PS_LandScape(DS_OUT _in)
             }
         }
         //float2 vvu =_in.vUV * 2048;
-        //vColor += ColorMap.Sample(g_sam_0, vvu);
+        //vColor += ColorMap.Sample(g_sam_anti_0, vvu);
        
         output.vColor = float4(vColor.rgb, 1.f);
 
         // 타일 노말
         if (-1 != iMaxWeightIdx)
         {
-            float3 vTangentSpaceNormal = TileTexArr.SampleGrad(g_sam_0, float3(_in.vUV, iMaxWeightIdx + TileCount), derivX, derivY).xyz;
-            //float3 vTangentSpaceNormal = TileTexArr.SampleLevel(g_sam_0, float3(_in.vUV, iMaxWeightIdx + TileCount), 0).xyz;
+            float3 vTangentSpaceNormal = TileTexArr.SampleGrad(g_sam_anti_0, float3(_in.vUV, iMaxWeightIdx + TileCount), derivX, derivY).xyz;
+            //float3 vTangentSpaceNormal = TileTexArr.SampleLevel(g_sam_anti_0, float3(_in.vUV, iMaxWeightIdx + TileCount), 0).xyz;
             vTangentSpaceNormal = vTangentSpaceNormal * 2.f - 1.f;
 
             float3x3 matTBN = { _in.vViewTangent, _in.vViewBinormal, _in.vViewNormal };
@@ -249,7 +249,7 @@ PS_OUT PS_LandScape(DS_OUT _in)
 
 
     output.vNormal = float4(vViewNormal, 1.f);
-    //float4 color = HeightMap.SampleLevel(g_sam_0, _in.vHeightMapUV, 0);
+    //float4 color = HeightMap.SampleLevel(g_sam_anti_0, _in.vHeightMapUV, 0);
     //output.vColor = float4(0.8f, 0.8f, 0.8f, 1.f);
     if (_in.vColorMapColor.a > 0)
     {

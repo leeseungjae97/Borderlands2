@@ -38,8 +38,8 @@ void CS_HeightMap(int3 _iThreadID : SV_DispatchThreadID)
     float2 vUV = float2(_iThreadID.xy - vLTPos) / float2(vScale);
 
     // 브러쉬로 부터 알파값 샘플링
-    //float4 vBrushColor = BRUSH_TEX.SampleLevel(g_sam_0, float3(vUV, BRUSH_IDX), 0);
-    float4 vBrushColor = BRUSH_TEX.SampleLevel(g_sam_0, vUV, 0);
+    //float4 vBrushColor = BRUSH_TEX.SampleLevel(g_sam_anti_0, float3(vUV, BRUSH_IDX), 0);
+    float4 vBrushColor = BRUSH_TEX.SampleLevel(g_sam_anti_0, vUV, 0);
     float fAlpha = g_DT * vBrushColor.a * 0.2f;
     if (POP_UP == false)
         fAlpha *= -1.0f;

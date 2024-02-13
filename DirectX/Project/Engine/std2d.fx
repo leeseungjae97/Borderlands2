@@ -47,7 +47,7 @@ float4 PS_Std2D(VS_OUT _in) : SV_Target
         
     if (g_btex_0)
     {
-        vOutColor = g_tex_0.Sample(g_sam_0, _in.vUV);
+        vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
     }
     else
     {
@@ -146,11 +146,11 @@ float4 PS_Std2DLight(VS_Light_OUT _in) : SV_Target
             || UV.y < SpriteLeftTop.y || UV.y > SpriteLeftTop.y + SpriteSize.y)
                 discard;
 
-            vOutColor = g_tex_0.Sample(g_sam_0, UV);
+            vOutColor = g_tex_0.Sample(g_sam_anti_0, UV);
         }
         else
         {
-            vOutColor = g_tex_0.Sample(g_sam_0, _in.vUV);
+            vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
         }        
     }
     else
@@ -162,7 +162,7 @@ float4 PS_Std2DLight(VS_Light_OUT _in) : SV_Target
     if(g_btex_1)
     {
         // Normal 값 추출
-        vNormal = g_tex_1.Sample(g_sam_0, _in.vUV).xyz;
+        vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV).xyz;
         
         // 0 ~ 1 범위를 -1 ~ 1 로 변경
         vNormal = (vNormal * 2.f) - 1.f;

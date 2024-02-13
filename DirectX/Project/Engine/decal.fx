@@ -49,7 +49,7 @@ float4 PS_Decal(VS_DECAL_OUT _in) : SV_Target
     
     // 데칼오브젝트 영역에 해당하는 Position 값을 가져온다.
     float2 vScreenUV = _in.vPosition.xy / g_Resolution;
-    float3 vViewPos = PositionTargetTex.Sample(g_sam_0, vScreenUV).xyz;
+    float3 vViewPos = PositionTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
     float3 vWorldPos = mul(float4(vViewPos, 1.f), g_matViewInv).xyz;
     float3 vLocal = mul(float4(vWorldPos, 1.f), g_matWorldInv).xyz;
     float2 vUV = vLocal.xz;
@@ -58,7 +58,7 @@ float4 PS_Decal(VS_DECAL_OUT _in) : SV_Target
         
     if (IsOutputTex)
     {
-        vOutColor = OutputTex.Sample(g_sam_0, vUV);
+        vOutColor = OutputTex.Sample(g_sam_anti_0, vUV);
     }
     else
     {
@@ -118,7 +118,7 @@ PS_DECAL_OUT PS_DeferredDecal(VS_DECAL_OUT _in) : SV_Target
     
     // 데칼오브젝트 영역에 해당하는 Position 값을 가져온다.
     float2 vScreenUV = _in.vPosition.xy / g_Resolution;
-    float3 vViewPos = PositionTargetTex.Sample(g_sam_0, vScreenUV).xyz;
+    float3 vViewPos = PositionTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
     float3 vWorldPos = mul(float4(vViewPos, 1.f), g_matViewInv).xyz;
     float3 vLocal = mul(float4(vWorldPos, 1.f), g_matWorldInv).xyz;
 
@@ -131,7 +131,7 @@ PS_DECAL_OUT PS_DeferredDecal(VS_DECAL_OUT _in) : SV_Target
         
         if (IsOutputTex)
         {
-            output.vColor = OutputTex.Sample(g_sam_0, vUV);
+            output.vColor = OutputTex.Sample(g_sam_anti_0, vUV);
             
             if (IsEmissive)
             {

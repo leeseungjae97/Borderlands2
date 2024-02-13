@@ -17,10 +17,6 @@
 
 #define SINGLE(type) private: type(); ~type(); friend class CSingleton<type>;
 
-#define SMG_MUZZLE_IDX 969
-#define PISTOL_MUZZLE_IDX 918
-#define SNIPER_MUZZLE_IDX 918
-
 #define SMG_IDX 0
 #define SNIPER_IDX 1
 #define PISTOL_IDX 2
