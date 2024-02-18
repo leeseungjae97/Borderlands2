@@ -5,6 +5,7 @@
 #include "CGameObject.h"
 
 #include "CRenderMgr.h"
+#include "WeaponMgr.h"
 
 CLevel::CLevel()
 	: m_arrLayer{}
@@ -18,17 +19,16 @@ CLevel::CLevel()
 		m_arrLayer[i]->m_iLayerIdx = i;
 	}
 
-	m_arrLayer[0]->SetName(L"Default");
-	m_arrLayer[1]->SetName(L"Environment");
-	m_arrLayer[2]->SetName(L"Monster");
-	m_arrLayer[3]->SetName(L"Player");
-	m_arrLayer[4]->SetName(L"Item");
-	m_arrLayer[5]->SetName(L"Bullet");
-	m_arrLayer[6]->SetName(L"Missile");
-	m_arrLayer[10]->SetName(L"Light");
-	m_arrLayer[31]->SetName(L"ViewPort UI");
-
-	CollisionMgr::GetInst()->SetBulletLayerIdx(3);
+	m_arrLayer[(int)LAYER_TYPE::Default]->SetName(L"Default");
+	m_arrLayer[(int)LAYER_TYPE::Environment]->SetName(L"Environment");
+	m_arrLayer[(int)LAYER_TYPE::Enemy]->SetName(L"Enemy");
+	m_arrLayer[(int)LAYER_TYPE::Player]->SetName(L"Player");
+	m_arrLayer[(int)LAYER_TYPE::Item]->SetName(L"Item");
+	m_arrLayer[(int)LAYER_TYPE::PlayerBullet]->SetName(L"PlayerBullet");
+	m_arrLayer[(int)LAYER_TYPE::EnemyBullet]->SetName(L"EnemyBullet");
+	m_arrLayer[(int)LAYER_TYPE::Missile]->SetName(L"Missile");
+	m_arrLayer[(int)LAYER_TYPE::Light]->SetName(L"Light");
+	m_arrLayer[(int)LAYER_TYPE::ViewPortUI]->SetName(L"ViewPort UI");
 }
 
 CLevel::~CLevel()
@@ -92,15 +92,20 @@ void CLevel::createScene()
 	PhysXMgr::GetInst()->SetCurScene(m_PxScene);
 }
 
-CLayer* CLevel::FindLayerByName(const wstring& _strName)
-{
-	for (int i = 0; i < MAX_LAYER; ++i)
-	{
-		if (m_arrLayer[i]->GetName() == _strName)
-			return m_arrLayer[i];
-	}
+//CLayer* CLevel::FindLayerByName(const wstring& _strName)
+//{
+//	for (int i = 0; i < MAX_LAYER; ++i)
+//	{
+//		if (m_arrLayer[i]->GetName() == _strName)
+//			return m_arrLayer[i];
+//	}
+//
+//	return nullptr;
+//}
 
-	return nullptr;
+CLayer* CLevel::FindLayerByType(LAYER_TYPE _Type)
+{
+	return m_arrLayer[(int)_Type];
 }
 
 
@@ -110,9 +115,9 @@ void CLevel::AddGameObject(CGameObject* _Object, int _iLayerIdx, bool _bMove)
 	//AddCollider3D(_Object);
 }
 
-void CLevel::AddGameObject(CGameObject* _Object, const wstring& _LayerName, bool _Move)
+void CLevel::AddGameObject(CGameObject* _Object, LAYER_TYPE _Type, bool _Move)
 {
-	CLayer* pLayer = FindLayerByName(_LayerName);
+	CLayer* pLayer = m_arrLayer[(int)_Type];
 	assert(pLayer);
 
 	pLayer->AddGameObject(_Object, _Move);
@@ -133,6 +138,7 @@ void CLevel::ChangeState(LEVEL_STATE _State)
 	{
 		CRenderMgr::GetInst()->SetRenderFunc(true);
 		begin();
+		WeaponMgr::GetInst()->begin();
 	}
 	else
 	{

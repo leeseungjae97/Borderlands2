@@ -21,7 +21,7 @@ public:
     void LoadFromLevelFile(FILE* _FILE) override;
     void SaveToLevelFile(FILE* _File) override;
 
-    void render(UINT _iSubset) override;
+    void render(UINT _iSubset, bool _Deferred) override;
 
     CLONE(CDecal);
 public:

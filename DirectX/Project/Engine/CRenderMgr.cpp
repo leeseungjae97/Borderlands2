@@ -6,6 +6,7 @@
 #include "CStructuredBuffer.h"
 
 #include "CCamera.h"
+#include "CEngine.h"
 #include "CLevel.h"
 #include "CLevelMgr.h"
 #include "CLight3D.h"
@@ -25,6 +26,15 @@ CRenderMgr::CRenderMgr()
                                                     , (UINT)vResolution.x, (UINT)vResolution.y
                                                     , DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE
                                                     , D3D11_USAGE_DEFAULT);
+
+    
+    //Ptr<CTexture> DHDR = CResMgr::GetInst()->CreateTexture(L"DHDRTargetTex", vResolution.x / 4.f, vResolution.y / 4.f
+    //    , DXGI_FORMAT_R32G32B32A32_FLOAT
+    //    , D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+
+    //Ptr<CTexture> BDHDR = CResMgr::GetInst()->CreateTexture(L"BDHDRTargetTex", vResolution.x / 4.f, vResolution.y / 4.f
+    //    , DXGI_FORMAT_R32G32B32A32_FLOAT
+    //    , D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
 
     CResMgr::GetInst()->FindRes<CMaterial>(L"GrayMtrl")->SetTexParam(TEX_0, m_RTCopyTex);
 
@@ -208,18 +218,48 @@ void CRenderMgr::CreateMRT()
     // ====================
     {
         m_MRT[(UINT)MRT_TYPE::SWAPCHAIN] = new MRT;
-
+        Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
         Ptr<CTexture> arrRTTex[8] = {};
         arrRTTex[0] = CResMgr::GetInst()->FindRes<CTexture>(L"RenderTargetTex");
 
+        arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"HDRTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R32G32B32A32_FLOAT
+            , D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+
         Ptr<CTexture> pDSTex = CResMgr::GetInst()->FindRes<CTexture>(L"DepthStencilTex");
         
-        m_MRT[(UINT)MRT_TYPE::SWAPCHAIN]->Create(arrRTTex, 1, pDSTex);
+        m_MRT[(UINT)MRT_TYPE::SWAPCHAIN]->Create(arrRTTex, 2, pDSTex);
         m_MRT[(UINT)MRT_TYPE::SWAPCHAIN]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
     }
+
     // ====================
-    // Deferred MRT 만들기
+    // Light MRT 만들기
     // ====================
+    {
+        m_MRT[(UINT)MRT_TYPE::LIGHT] = new MRT;
+
+        Vec2 vResol = CDevice::GetInst()->GetRenderResolution();
+
+        Ptr<CTexture> arrRTTex[8] = {};
+        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"DiffuseTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R8G8B8A8_UNORM
+            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+        arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"SpecularTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R8G8B8A8_UNORM
+            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+        
+        arrRTTex[2] = CResMgr::GetInst()->CreateTexture(L"ShadowTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R32_FLOAT
+            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+        m_MRT[(UINT)MRT_TYPE::LIGHT]->Create(arrRTTex, 3, nullptr);
+        //m_MRT[(UINT)MRT_TYPE::LIGHT]->SetClearColor(Vec4(0.f, 1.f, 0.f, 1.f), 0);
+    }
+    // ====================
+	// Deferred MRT 만들기
+	// ====================
     {
         m_MRT[(UINT)MRT_TYPE::DEFERRED] = new MRT;
 
@@ -246,12 +286,15 @@ void CRenderMgr::CreateMRT()
             , DXGI_FORMAT_R32G32B32A32_FLOAT
             , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
-        m_MRT[(UINT)MRT_TYPE::DEFERRED]->Create(arrRTTex, 5, nullptr);
-        //m_MRT[(UINT)MRT_TYPE::DEFERRED]->SetClearColor(Vec4(0.f, 0.f, 1.f, 1.f), 0);
+        arrRTTex[5] = CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex");
+
+        arrRTTex[6] = CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex");
+
+        m_MRT[(UINT)MRT_TYPE::DEFERRED]->Create(arrRTTex, 7, nullptr);
     }
     // ====================
-	// Decal MRT 만들기
-	// ====================
+    // Decal MRT 만들기
+    // ====================
     {
         m_MRT[(UINT)MRT_TYPE::DEFERRED_DECAL] = new MRT;
 
@@ -261,32 +304,6 @@ void CRenderMgr::CreateMRT()
 
         m_MRT[(UINT)MRT_TYPE::DEFERRED_DECAL]->Create(arrRTTex, 2, nullptr);
     }
-    // ====================
-    // Light MRT 만들기
-    // ====================
-    {
-        m_MRT[(UINT)MRT_TYPE::LIGHT] = new MRT;
-
-        Vec2 vResol = CDevice::GetInst()->GetRenderResolution();
-
-        Ptr<CTexture> arrRTTex[8] = {};
-        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"DiffuseTargetTex", vResol.x, vResol.y
-            , DXGI_FORMAT_R8G8B8A8_UNORM
-            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
-
-        arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"SpecularTargetTex", vResol.x, vResol.y
-            , DXGI_FORMAT_R8G8B8A8_UNORM
-            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
-
-        
-        arrRTTex[2] = CResMgr::GetInst()->CreateTexture(L"ShadowTargetTex", vResol.x, vResol.y
-            , DXGI_FORMAT_R32_FLOAT
-            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
-
-        m_MRT[(UINT)MRT_TYPE::LIGHT]->Create(arrRTTex, 3, nullptr);
-        //m_MRT[(UINT)MRT_TYPE::LIGHT]->SetClearColor(Vec4(0.f, 1.f, 0.f, 1.f), 0);
-    }
-
     // ====================
     // ShadowMap MRT 만들기
     // ====================
@@ -308,6 +325,20 @@ void CRenderMgr::CreateMRT()
         m_MRT[(UINT)MRT_TYPE::SHADOWMAP]->Create(arrRTTex, 1, pDSTex);
         m_MRT[(UINT)MRT_TYPE::SHADOWMAP]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
     }
+    //{
+    //    m_MRT[(UINT)MRT_TYPE::TONE_MAPPING] = new MRT;
+
+    //    //Vec2 vResol = Vec2(8192, 8192);
+    //    Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
+
+    //    Ptr<CTexture> arrRTTex[8] = {};
+
+
+
+
+    //    m_MRT[(UINT)MRT_TYPE::TONE_MAPPING]->Create(arrRTTex, 1, nullptr);
+    //    m_MRT[(UINT)MRT_TYPE::TONE_MAPPING]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
+    //}
     {
 	    m_MRT[(UINT)MRT_TYPE::STENCIL_CULL] = new MRT;
     

@@ -24,6 +24,14 @@ class CLandScape;
 class CGameObject :
     public CEntity
 {
+public:
+    enum class OBJECT_STATE
+    {
+	    VISIBLE,
+        INVISIBLE,
+        NONE,
+    };
+
 private:
     CComponent*             m_arrCom[(UINT)COMPONENT_TYPE::END];
     CRenderComponent*       m_RenderCom;
@@ -31,10 +39,10 @@ private:
 
     CGameObject*            m_Parent;
     CGameObject*            m_Follow;
-
+    
     vector<CGameObject*>    m_vecChild;
 
-    int                     m_iLayerIdx; // 소속된 레이어 인덱스값
+    int                     m_iLayerIdx;
     bool                    m_bDead;
     float                   m_LifeTime;
     float                   m_CurLifeTime;
@@ -44,10 +52,19 @@ private:
     bool                    m_bPreLoading;
 
     bool                    m_bItem;
+    bool                    m_bEqui;
+
+    OBJECT_STATE            m_tState;
+
+    CGameObject*            m_pGunOwner;
+    vector<CGameObject*>    m_vecGuns;
+
+    bool                    m_bOwned;
+
+    bool                    m_bWarrior;
+
 public:
-    // 레벨이 시작될 때 호출 or 시작 된 레벨에 합류할 때 호출
-    // 생성자
-    void begin();       
+    void begin();
 
     void tick();        
     virtual void finaltick();
@@ -56,6 +73,7 @@ public:
     void render_shadowmap();
 
 public:
+
     void AddComponent(CComponent* _Component);
     void AddChild(CGameObject* _Object);
 
@@ -79,10 +97,6 @@ public:
     GET_COMPONENT(Collider3D, COLLIDER3D);
     GET_COMPONENT(RigidBody, RIGIDBODY);
     GET_COMPONENT(PathFind, PATHFIND);
-    //Decal* Decal()
-    //{
-    //    return (Decal*)m_arrCom[(UINT)COMPONENT_TYPE::TRANSFORM];
-    //}
 
     CRenderComponent* GetRenderComponent() const {  return m_RenderCom; }
 
@@ -104,6 +118,7 @@ public:
     }
 
     bool IsDead() { return m_bDead; }
+    void SetDead(bool _Dead) { m_bDead = _Dead; }
     bool IsAncestor(CGameObject* _Target);
     void SetFollowObj(CGameObject* _Target);
 
@@ -115,7 +130,28 @@ public:
     bool IsPreLoadingObject();
 
     void SetIsItem(bool _IsItem) { m_bItem = _IsItem; }
+    void SetIsEqui(bool _IsEqui) { m_bEqui = _IsEqui; }
+    void SetIsOwned(bool _IsOwned) { m_bOwned = _IsOwned; }
+    void SetIsWarrior(bool _IsWarrior) { m_bWarrior = _IsWarrior; }
+
+    void SetObjectState(OBJECT_STATE _State) { m_tState = _State; }
+
     bool IsItem() { return m_bItem; }
+    bool IsEqui() { return m_bEqui; }
+    bool IsOwned() { return m_bOwned; }
+    bool IsWarrior() { return m_bWarrior; }
+
+    OBJECT_STATE GetObjectState() { return m_tState; }
+
+    void SetGunOwner(CGameObject* _pOwner) { m_pGunOwner = _pOwner; }
+    CGameObject*  GetGunOwner() { return m_pGunOwner; }
+
+    void AddGun(CGameObject* _pGun) { _pGun->SetIsOwned(true); _pGun->SetGunOwner(this); m_vecGuns.push_back(_pGun); }
+    void DeleteGun(CGameObject* _pGun);
+
+    vector<CGameObject*> GetGuns() { return m_vecGuns; }
+    CGameObject* GetGun(int _Idx) { if (m_vecGuns.size() <= _Idx) return nullptr; return m_vecGuns[_Idx]; }
+
 private:
     void DisconnectFromParent();
     void ChangeToChildType();

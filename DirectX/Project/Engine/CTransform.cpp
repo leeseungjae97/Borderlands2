@@ -43,35 +43,16 @@ void CTransform::SetRelativePos(Vec3 _vPos)
 	}
 	if(col)
 	{
-		PxRigidStatic* _rs = GetOwner()->Collider3D()->GetColliderRigid();
-		if(_rs)
-		{
-			PxTransform trans = _rs->getGlobalPose();
-			trans.p = PxVec3(_vPos.x, _vPos.y, _vPos.z);
-			_rs->setGlobalPose(trans);
-		}
+		col->SetColliderPos(_vPos);
 	}
 }
 
-void CTransform::SetRelativeRot(Vec3 _vRot, Vec3 _vAddRot)
+void CTransform::SetRelativeRot(Vec3 _vRot)
 {
 	CRigidBody* _rb = GetOwner()->RigidBody();
 	CCollider3D* col = GetOwner()->Collider3D();
 
 	m_vRelativeRot = _vRot;
-
-	//Quat curQuat = Util::Vector3ToQuaternion(m_vRelativeRot);
-
-	//if(_vAddRot != Vec3::Zero)
-	//{
-	//	Quat quat1 = Util::Vector3ToQuaternion(_vAddRot);
-	//	curQuat = Quat::Slerp(quat1, curQuat, 0.5f);
-	//	//quat2 += quat1;
-	//}
-
-	//m_vRelativeRot = Util::QuaternionToVector3(curQuat);
-	
-	//m_vRelativeRot = _vRot;
 
 	if (_rb)
 	{
@@ -88,43 +69,36 @@ void CTransform::SetRelativeRot(Vec3 _vRot, Vec3 _vAddRot)
 	}
 	if (col)
 	{
-		PxRigidStatic* _rs = GetOwner()->Collider3D()->GetColliderRigid();
-		if (_rs)
-		{
-			PxTransform trans = _rs->getGlobalPose();
-			Quat quat; quat = Util::Vector3ToQuaternion(_vRot);
-			trans.q = PxQuat(quat.x, quat.y, quat.z, quat.w);
-			_rs->setGlobalPose(trans);
-		}
+		col->SetColliderRot(_vRot);
 	}
 }
-
-void CTransform::AddRelativeRot(Vec3 _vAddRot)
-{
-	CRigidBody* _rb = GetOwner()->RigidBody();
-	CCollider3D* col = GetOwner()->Collider3D();
-
-	Quat quat = Util::Vector3ToQuaternion(_vAddRot);
-	Quat curQuat = Util::Vector3ToQuaternion(m_vRelativeRot);
-	curQuat += quat;
-	m_vRelativeRot = Util::QuaternionToVector3(curQuat);
-	if (_rb)
-	{
-		PxTransform trans = _rb->GetRigidBodyPos();
-		trans.q = PxQuat(curQuat.x, curQuat.y, curQuat.z, curQuat.w);
-		_rb->SetRigidBodyTrans(trans);
-	}
-	if (col)
-	{
-		PxRigidStatic* _rs = GetOwner()->Collider3D()->GetColliderRigid();
-		if (_rs)
-		{
-			PxTransform trans = _rs->getGlobalPose();
-			trans.q = PxQuat(curQuat.x, curQuat.y, curQuat.z, curQuat.w);
-			_rs->setGlobalPose(trans);
-		}
-	}
-}
+//
+//void CTransform::AddRelativeRot(Vec3 _vAddRot)
+//{
+//	CRigidBody* _rb = GetOwner()->RigidBody();
+//	CCollider3D* col = GetOwner()->Collider3D();
+//
+//	Quat quat = Util::Vector3ToQuaternion(_vAddRot);
+//	Quat curQuat = Util::Vector3ToQuaternion(m_vRelativeRot);
+//	curQuat += quat;
+//	m_vRelativeRot = Util::QuaternionToVector3(curQuat);
+//	if (_rb)
+//	{
+//		PxTransform trans = _rb->GetRigidBodyPos();
+//		trans.q = PxQuat(curQuat.x, curQuat.y, curQuat.z, curQuat.w);
+//		_rb->SetRigidBodyTrans(trans);
+//	}
+//	if (col)
+//	{
+//		PxRigidStatic* _rs = GetOwner()->Collider3D()->GetColliderRigid();
+//		if (_rs)
+//		{
+//			PxTransform trans = _rs->getGlobalPose();
+//			trans.q = PxQuat(curQuat.x, curQuat.y, curQuat.z, curQuat.w);
+//			_rs->setGlobalPose(trans);
+//		}
+//	}
+//}
 
 void CTransform::finaltick()
 {
@@ -142,7 +116,8 @@ void CTransform::finaltick()
 	};
 
 	CRigidBody* _rb = GetOwner()->RigidBody();
-
+	CCollider3D* _col = GetOwner()->Collider3D();
+	// Rigid Body가 있는 경우
 	if (_rb && _rb->IsRigidBodyCreate())
 	{
 		physx::PxTransform trans = _rb->GetRigidBodyPos();
@@ -173,6 +148,16 @@ void CTransform::finaltick()
 			m_Rot *= XMMatrixRotationZ(m_vRelativeRot.z);
 		}
 	}
+	// Collider3D만 있는 경우
+	else if(_col && _col->IsColliderRigidCreate())
+	{
+		physx::PxTransform trans = _col->GetColliderPos();
+		m_vRelativePos = Vec3(trans.p.x, trans.p.y, trans.p.z);
+		m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
+		m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
+		m_Rot = Matrix::CreateFromQuaternion(m_qRotation);
+	}
+	// 둘다 없는 경우
 	else
 	{
 		m_Rot = XMMatrixRotationX(m_vRelativeRot.x);

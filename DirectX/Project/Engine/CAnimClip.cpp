@@ -17,6 +17,11 @@ CAnimClip::CAnimClip()
 	, m_bLoop(false)
 	, m_fRatio(0.f)
 	, m_iFramePerSecond(24)
+	, m_fSpeedAdj(1.f)
+	, m_iEventStart(-1)
+	, m_iEventProgress(-1)
+	, m_iEventEnd(-1)
+	, m_iEventComplete(-1)
 {
 }
 
@@ -27,29 +32,30 @@ CAnimClip::~CAnimClip()
 
 void CAnimClip::finlatick()
 {
-	m_fTime += DT;
+	if(!m_bFinish)
+		m_fTime += DT * m_fSpeedAdj;
 
 	if ((float)m_Clip.dTimeLength < m_fTime)
 	{
-		m_iCurIdx = m_Clip.iStartFrame;
-		m_iNextIdx = m_iCurIdx;
-		m_fTime = 0.0f;
-		m_fRatio = 0.0f;
+		//m_iCurIdx = m_Clip.iStartFrame;
+		//m_iNextIdx = m_iCurIdx;
+		//m_fTime = 0.0f;
+		//m_fRatio = 0.0f;
 		m_bFinish = true;
-		m_fTime = 0.0f;
+		m_fSpeedAdj = 1.0f;
 	}
 
 	if (m_Clip.iFrameLength - 1 <= m_iCurIdx)
 	{
-		m_iCurIdx = m_Clip.iStartFrame;
-		m_iNextIdx = m_iCurIdx - 1;
-		m_fTime = 0.0f;
-		m_fRatio = 0.0f;
+		//m_iCurIdx = m_Clip.iStartFrame;
+		//m_iNextIdx = m_iCurIdx - 1;
+		//m_fTime = 0.0f;
+		//m_fRatio = 0.0f;
 		m_bFinish = true;
+		m_fSpeedAdj = 1.0f;
 	}
 	else
 		m_iNextIdx = m_iCurIdx + 1;
-
 
 	double dCurtime = m_Clip.dStartTime + m_fTime;
 	double dFrameIdx = dCurtime * (double)m_iFramePerSecond;

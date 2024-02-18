@@ -53,5 +53,21 @@ int Collider3DUI::render_update()
 
 	col->SetScale(vScale);
 
+	Vec3 vOffset = col->GetOffset();
+	float fOffset[3];
+
+	fOffset[0] = vOffset.x;
+	fOffset[1] = vOffset.y;
+	fOffset[2] = vOffset.z;
+
+	ImGui::Text("Collider Offset ");
+	ImGui::InputFloat3("##Collider3dOffset", fOffset);
+
+	vOffset.x = fOffset[0];
+	vOffset.y = fOffset[1];
+	vOffset.z = fOffset[2];
+
+	col->SetOffset(vOffset);
+
 	return TRUE;
 }

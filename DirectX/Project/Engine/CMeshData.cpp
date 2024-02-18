@@ -51,6 +51,7 @@ CMeshData* CMeshData::LoadFromFBX(const wstring& _strFilePath)
 	for (UINT i = 0; i < loader.GetContainer(0).vecMtrl.size(); ++i)
 	{
 		Ptr<CMaterial> pMtrl = CResMgr::GetInst()->FindRes<CMaterial>(loader.GetContainer(0).vecMtrl[i].strMtrlName);
+
 		// 예외처리 (material 이름이 입력 안되어있을 수도 있다.)
 		assert(pMtrl.Get());
 
@@ -141,12 +142,12 @@ int CMeshData::Load(const wstring& _strFilePath)
 	return S_OK;
 }
 
-CGameObject* CMeshData::Instantiate()
+CGameObject* CMeshData::Instantiate(Vec3 scale)
 {
 	CGameObject* pNewObj = new CGameObject;
 	pNewObj->AddComponent(new CTransform);
 	pNewObj->AddComponent(new CMeshRender);
-	pNewObj->Transform()->SetRelativeScale(Vec3(300.f, 300.f, 300.f));
+	pNewObj->Transform()->SetRelativeScale(scale);
 	pNewObj->MeshRender()->SetMesh(m_pMesh);
 
 	for (UINT i = 0; i < m_vecMtrl.size(); ++i)

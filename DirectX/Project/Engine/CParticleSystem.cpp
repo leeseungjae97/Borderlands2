@@ -196,7 +196,7 @@ void CParticleSystem::render()
 	//CFontMgr::GetInst()->DrawFont(szBuff, 10.f, 52.f, 16.f, FONT_RGBA(255, 0, 0, 255));
 }
 
-void CParticleSystem::render(UINT _iSubset)
+void CParticleSystem::render(UINT _iSubset, bool _Deferred)
 {
 	render();
 }

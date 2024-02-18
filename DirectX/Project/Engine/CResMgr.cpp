@@ -1,12 +1,14 @@
 #include "pch.h"
 #include "CResMgr.h"
 
+#include "BlurShader.h"
 #include "CAnimation3DShader.h"
 #include "CColorMapShader.h"
 #include "CCopyBoneShader.h"
 #include "CHeightMapShader.h"
 #include "CRayCastShader.h"
 #include "CWeightMapShader.h"
+#include "DownSamplingShader.h"
 #include "IndividualBoneSkinningShader.h"
 
 CResMgr::CResMgr()
@@ -816,6 +818,26 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	AddRes(pShader->GetKey(), pShader);
 
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"BloomCurveShader");
+	pShader->CreateVertexShader(L"shader\\postprocess.fx", "VS_BloomCurve");
+	pShader->CreatePixelShader(L"shader\\postprocess.fx", "PS_BloomCurve");
+	pShader->SetRSType(RS_TYPE::CULL_NONE);
+	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_POSTPROCESS);
+
+	AddRes(pShader->GetKey(), pShader);
+
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"QuadCompositeShader");
+	pShader->CreateVertexShader(L"shader\\postprocess.fx", "VSMain");
+	pShader->CreatePixelShader(L"shader\\postprocess.fx", "PSMain");
+	pShader->SetRSType(RS_TYPE::CULL_NONE);
+	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_POSTPROCESS);
+
+	AddRes(pShader->GetKey(), pShader);
+
 	// ============================
     // Std3DShader
     // RS_TYPE : CULL_BACK
@@ -828,13 +850,17 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->CreateVertexShader(L"shader\\std3d.fx", "VS_Std3D");
 	pShader->CreatePixelShader(L"shader\\std3d.fx", "PS_Std3D");
 	//pShader->SetRSType(RS_TYPE::WIRE_FRAME);
-	pShader->SetRSType(RS_TYPE::CULL_BACK);
+	pShader->SetRSType(RS_TYPE::CULL_NONE);
 	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
 	pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_TRANSPARENT);
 
 	pShader->AddTexParam(TEX_0, "Output Texture");
 	pShader->AddTexParam(TEX_1, "Normal Mapping Texture");
+	pShader->AddTexParam(TEX_2, "Emissive Texture");
+	pShader->AddTexParam(TEX_3, "Emissive2 Texture");
+	pShader->AddTexParam(TEX_4, "Texture");
+	pShader->AddTexParam(TEX_7, "Noise Texture");
 
 	AddRes(pShader->GetKey(), pShader);
 
@@ -922,6 +948,11 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	// Parameter	
 	pShader->AddTexParam(TEX_0, "Output Texture");
+	pShader->AddTexParam(TEX_1, "Normal Mapping Texture");
+	pShader->AddTexParam(TEX_2, "Emissive Texture");
+	pShader->AddTexParam(TEX_3, "Emissive2 Texture");
+	pShader->AddTexParam(TEX_4, "Texture");
+
 	AddRes(pShader->GetKey(), pShader);
 
 	// ============================
@@ -1125,6 +1156,18 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	AddRes(pShader->GetKey(), pShader);
 
+
+	//pShader = new CGraphicsShader;
+	//pShader->SetKey(L"ToneMappingShader");
+	//pShader->CreatePixelShader(L"shader\\tone_mapping.fx", "PS_ACESToneMapping");
+
+	//pShader->SetRSType(RS_TYPE::CULL_BACK);
+	//pShader->SetDSType(DS_TYPE::LESS);
+	////pShader->SetBSType(BS_TYPE::MASK);
+	//pShader->SetDomain(SHADER_DOMAIN::DOMAIN_LIGHT);
+
+	//AddRes(pShader->GetKey(), pShader);
+
 }
 
 #include "CSetColorShader.h"
@@ -1189,10 +1232,15 @@ void CResMgr::CreateDefaultComputeShader()
 	pCS->CreateComputeShader(L"shader\\individual_bone_skinning.fx", "CS_IndividualBone");
 	AddRes(pCS->GetKey(), pCS);
 
-	//pCS = new CWeightMapShader(32, 32, 1);
-	//pCS->SetKey(L"PathInitShader");
-	//pCS->CreateComputeShader(L"shader\\landscape_path.fx", "CS_MakePath");
-	//AddRes(pCS->GetKey(), pCS);
+	pCS = new DownSamplingShader(8, 8, 1);
+	pCS->SetKey(L"DownSamplingCS");
+	pCS->CreateComputeShader(L"shader\\down_sampling.fx", "CS_ThresholdAndDownsample");
+	AddRes(pCS->GetKey(), pCS);
+
+	pCS = new BlurShader(8, 8, 1);
+	pCS->SetKey(L"BlurCS");
+	pCS->CreateComputeShader(L"shader\\blur.fx", "CS_Blur");
+	AddRes(pCS->GetKey(), pCS);
 }
 
 void CResMgr::CreateDefaultMaterial()
@@ -1242,7 +1290,15 @@ void CResMgr::CreateDefaultMaterial()
 	// DistortionShader(PostProcess)
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DistortionShader"));
-	AddRes(L"DistortionMtrl", pMtrl);	
+	AddRes(L"DistortionMtrl", pMtrl);
+
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"BloomCurveShader"));
+	AddRes(L"BloomCurveMtrl", pMtrl);
+
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"QuadCompositeShader"));
+	AddRes(L"QuadCompositeMtrl", pMtrl);
 
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std3DShader"));
@@ -1325,6 +1381,10 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"LandScapeShader"));
 	AddRes(L"LandScapeMtrl", pMtrl);
+
+	//pMtrl = new CMaterial(true);
+	//pMtrl->SetShader(FindRes<CGraphicsShader>(L"ToneMappingShader"));
+	//AddRes(L"ToneMappingMtrl", pMtrl);
 }
 
 Ptr<CTexture> CResMgr::CreateTexture(const wstring& _strKey, UINT _Width, UINT _Height

@@ -29,9 +29,3 @@
 
 #include "E:\directx11_3d\DirectX\Project\Client\ContentUI.cpp"
 
-
-#include "E:\directx11_3d\DirectX\Project\Client\DecalUI.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Client\DefineAnimationUI.cpp"
-

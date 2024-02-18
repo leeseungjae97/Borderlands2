@@ -173,8 +173,10 @@ call EngineCopy.bat</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AnimationMgr.h" />
+    <ClInclude Include="BlurShader.h" />
     <ClInclude Include="CAnimator2D.h" />
     <ClInclude Include="CAnimSprite.h" />
+    <ClInclude Include="DownSamplingShader.h" />
     <ClInclude Include="IndividualBoneSkinningShader.h" />
     <ClInclude Include="CameraMgr.h" />
     <ClInclude Include="CAnimClip.h" />
@@ -200,7 +202,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="CInstancingBuffer.h" />
     <ClInclude Include="CKeyMgr.h" />
     <ClInclude Include="CollisionMgr.h" />
-    <ClInclude Include="MonsterMgr.h" />
+    <ClInclude Include="EnemyMgr.h" />
     <ClInclude Include="PlayerMgr.h" />
     <ClInclude Include="LandScapeMgr.h" />
     <ClInclude Include="CLandScapePathShader.h" />
@@ -256,13 +258,18 @@ call EngineCopy.bat</Command>
     <ClInclude Include="RecastNavi.h" />
     <ClInclude Include="CRigidBody.h" />
     <ClInclude Include="SimpleMath.h" />
+    <ClInclude Include="SkillMgr.h" />
     <ClInclude Include="struct.h" />
+    <ClInclude Include="UpSamplingShader.h" />
+    <ClInclude Include="WarriorMgr.h" />
     <ClInclude Include="WeaponMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationMgr.cpp" />
+    <ClCompile Include="BlurShader.cpp" />
     <ClCompile Include="CAnimator2D.cpp" />
     <ClCompile Include="CAnimSprite.cpp" />
+    <ClCompile Include="DownSamplingShader.cpp" />
     <ClCompile Include="IndividualBoneSkinningShader.cpp" />
     <ClCompile Include="CameraMgr.cpp" />
     <ClCompile Include="CAnimClip.cpp" />
@@ -291,7 +298,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CInstancingBuffer.cpp" />
     <ClCompile Include="CKeyMgr.cpp" />
     <ClCompile Include="CollisionMgr.cpp" />
-    <ClCompile Include="MonsterMgr.cpp" />
+    <ClCompile Include="EnemyMgr.cpp" />
     <ClCompile Include="PlayerMgr.cpp" />
     <ClCompile Include="LandScapeMgr.cpp" />
     <ClCompile Include="CLandScapePathShader.cpp" />
@@ -347,6 +354,9 @@ call EngineCopy.bat</Command>
     <ClCompile Include="RecastNavi.cpp" />
     <ClCompile Include="CRigidBody.cpp" />
     <ClCompile Include="SimpleMath.cpp" />
+    <ClCompile Include="SkillMgr.cpp" />
+    <ClCompile Include="UpSamplingShader.cpp" />
+    <ClCompile Include="WarriorMgr.cpp" />
     <ClCompile Include="WeaponMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -365,6 +375,14 @@ call EngineCopy.bat</Command>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="blur.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="down_sampling.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="individual_bone_skinning.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
@@ -533,10 +551,6 @@ call EngineCopy.bat</Command>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="test.fx">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="value.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>

@@ -9,6 +9,8 @@
 #include <Engine\RaycastMgr.h>
 #include <Engine\WeaponMgr.h>
 #include <Engine\RandMgr.h>
+#include <Engine\AnimationMgr.h>
+#include <Engine\CFontMgr.h>
 
 #include "CBulletScript.h"
 #include "CMissileScript.h"
@@ -16,13 +18,14 @@
 
 CPlayerScript::CPlayerScript()
 	: CScript((UINT)SCRIPT_TYPE::PLAYERSCRIPT)
-	, fSpeed(100.f)
-	, fJump(200.f)
-	, fRateOfFire(0.2f)
+	, fSpeed(500.f)
+	, fJump(00.f)
+	, fRateOfFire(0.05f)
 	, fRateOfFireAcc(0.0f)
 	, fMouseAcces(1.f)
 	, iPlayerHp(1000.f)
 	, bReloading(false)
+	, iAmmo(30)
 	, tState(PlayerMgr::PLAYER_STATE::IDLE)
 {
 	AddScriptParam(SCRIPT_PARAM::FLOAT, &fSpeed, "Player Speed");
@@ -36,21 +39,59 @@ CPlayerScript::~CPlayerScript()
 
 void CPlayerScript::begin()
 {
-	// 동적 재질 생성
-	//MeshRender()->GetDynamicMaterial(0);
 	CGameObject* pPlayer = GetOwner();
-	pPlayer->Animator3D()->EndEvent((UINT)ANIMATION_TYPE::RELOAD)
-	= std::make_shared<std::function<void()>>([=]()
-		{
-			tState = PlayerMgr::PLAYER_STATE::IDLE;
-		});
+
+	//for (int i = 0; i < 3; ++i)
+	//{
+	//	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD + i)
+	//		= std::make_shared<std::function<void()>>([=]()
+	//			{
+	//				tState = PlayerMgr::PLAYER_STATE::IDLE;
+	//			});
+	//	pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
+	//		= std::make_shared<std::function<void()>>([=]()
+	//			{
+	//				tState = PlayerMgr::PLAYER_STATE::DRAW;
+	//			});
+	//	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
+	//		= std::make_shared<std::function<void()>>([=]()
+	//			{
+	//				tState = PlayerMgr::PLAYER_STATE::IDLE;
+	//			});
+	//}
+	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::SNIPER_FIRE)
+	//	= std::make_shared<std::function<void()>>([=]()
+	//		{
+	//			tState = PlayerMgr::PLAYER_STATE::IDLE;
+	//		});
+
+	// Test code
+	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				tState = PlayerMgr::PLAYER_STATE::IDLE;
+				iAmmo = 30;
+			});
+	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				tState = PlayerMgr::PLAYER_STATE::IDLE;
+			});
 }
 
 void CPlayerScript::tick()
 {
-	Look();
+	//Look();
+	//CatchRaycast();
 	Movement();
-	CatchRaycast();
+
+	wstring str = std::to_wstring(iAmmo) + L"/ 30";
+	CFontMgr::GetInst()->DrawFont(str.c_str(), 20, 20, 20, FONT_RGBA(255, 0, 0, 255));
+}
+
+void CPlayerScript::finaltick()
+{
+	//Movement();
 }
 
 void CPlayerScript::Look()
@@ -71,10 +112,16 @@ void CPlayerScript::Look()
 
 void CPlayerScript::ShootBullet()
 {
+	if (tState == PlayerMgr::PLAYER_STATE::RELOAD || tState == PlayerMgr::PLAYER_STATE::DRAW 
+		|| tState == PlayerMgr::PLAYER_STATE::FIRE || iAmmo <= 0)
+		return;
+
 	CCamera* MainCam = CRenderMgr::GetInst()->GetMainCam();
 	if (nullptr == MainCam)
 		MainCam = CameraMgr::GetInst()->GetCamObj(L"MainCamera")->Camera();
 	CGameObject* pPlayer = GetOwner();
+
+	//--iAmmo;
 
 	tRayInfo rayInfo{};
 	rayInfo.fDamage = 10.f;
@@ -83,55 +130,24 @@ void CPlayerScript::ShootBullet()
 	rayInfo.vStart = MainCam->Transform()->GetRelativePos();
 	rayInfo.matWorld = MainCam->Transform()->GetDrawRayMat();
 	rayInfo.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
-	RaycastMgr::GetInst()->SetPlayerRayInfo(rayInfo);
-
+	//RaycastMgr::GetInst()->SetPlayerRayInfo(rayInfo);
+	RaycastMgr::GetInst()->DoRaycast(rayInfo);
 	Vec3 vPos = WeaponMgr::GetInst()->GetCurWeaponMuzzlePos();
 	Vec3 vRot = WeaponMgr::GetInst()->GetCurWeapon()->Transform()->GetRelativeRot();
+
+	WeaponMgr::GetInst()->MuzzleFlash(vPos, vRot);
 	
-	//vPos = PlayerMgr::GetInst()->GetConvertAnimationPos(vPos);
-	{
-		int randX = RandMgr::GetInst()->GetRandMuzzleX(2);
-		int randY = RandMgr::GetInst()->GetRandMuzzleY(2);
-		Vec2 muzzleSize = Vec2(512.f / 2.f, 512.f / 2.f);
-
-		CGameObject* Light = new CGameObject;
-		Light->SetName(L"Point Light");
-		Light->AddComponent(new CMeshRender);
-		Light->AddComponent(new CTransform);
-		Light->AddComponent(new CLight3D);
-		Light->AddComponent(new CAnimator2D);
-
-		Light->Animator2D()->Create(L"muzzle"
-			, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\Tex_Assault_Muzzle_Flash_Front.tga")
-			, Vec2(muzzleSize.x * randX, muzzleSize.y * randY)
-			, muzzleSize
-			, 1
-			, 1
-			, Vec2::Zero
-			, Vec2::Zero
-		);
-		Light->Animator2D()->Play(L"muzzle", false);
-
-		Light->Light3D()->SetRadius(100.f);
-		Light->Light3D()->SetLightType(LIGHT_TYPE::POINT);
-		Light->Light3D()->SetLightColor(Vec3(1.f, 1.f, 0.f));
-		Light->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
-		Light->Light3D()->SetLifeSpan(0.01f);
-		Light->Transform()->SetRelativeRot(vRot);
-		Light->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-		Light->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3DShaderMtrl"), 0);
-		//Light->MeshRender()->SetDynamicMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
-		//Light->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\Tex_Assault_Muzzle_Flash_Front.tga"));
-		//Light->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, nullptr);
-
-		//Light->MeshRender()->GetDynamicMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\Tex_Assault_Muzzle_Flash_Front.tga"));
-		//Light->MeshRender()->GetDynamicMaterial(0)->SetTexParam(TEX_1, nullptr);
-
-		SpawnGameObject(Light, vPos, 0);
-	}
-
-	tState = PlayerMgr::PLAYER_STATE::FIRE;
 	WeaponMgr::GetInst()->Play(GUN_ANIMATION_TYPE::FIRE, false);
+	CGameObject* pGun = WeaponMgr::GetInst()->GetCurWeapon();
+	int weaponIdx = WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::FIRE);
+
+	if(weaponIdx == (int)PLAYER_ANIMATION_TYPE::SNIPER_FIRE)
+	{
+		tState = PlayerMgr::PLAYER_STATE::FIRE;
+		pPlayer->Animator3D()->Play(weaponIdx, false);
+		AnimationMgr::GetInst()->AnimationSync(pGun->Animator3D(), pPlayer->Animator3D());
+	}
+	
 }
 
 void CPlayerScript::ShootMissile()
@@ -144,27 +160,42 @@ void CPlayerScript::ShootMissile()
 	Vec3 vStart = Ray.vStart;
 
 	CGameObject* pBullet = new CGameObject;
-	pBullet->SetName(L"Player Bullet");
+	pBullet->SetName(L"Player Missile");
 	pBullet->AddComponent(new CTransform);
 	pBullet->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
 	pBullet->AddComponent(new CCollider3D(false));
 	pBullet->AddComponent(new CBulletScript);
 
-	SpawnGameObject(pBullet, vStart, L"Bullet");
-
-
+	SpawnGameObject(pBullet, vStart, LAYER_TYPE::PlayerBullet);
 }
 
 void CPlayerScript::Reload()
 {
-	if (tState == PlayerMgr::PLAYER_STATE::RELOAD)
+	if (tState == PlayerMgr::PLAYER_STATE::RELOAD || tState == PlayerMgr::PLAYER_STATE::DRAW)
 		return;
 
+	int mReloadType = WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::RELOAD);
+
 	CGameObject* pPlayer = GetOwner();
-	pPlayer->Animator3D()->Play((UINT)ANIMATION_TYPE::RELOAD, false);
+	CGameObject* pGun = WeaponMgr::GetInst()->GetCurWeapon();
+
+	pPlayer->Animator3D()->Play(mReloadType, false);
 	WeaponMgr::GetInst()->Play(GUN_ANIMATION_TYPE::RELOAD, false);
 
+	AnimationMgr::GetInst()->AnimationSync(pGun->Animator3D(), pPlayer->Animator3D());
+
 	tState = PlayerMgr::PLAYER_STATE::RELOAD;
+}
+
+void CPlayerScript::Draw(int _Idx)
+{
+	CGameObject* pPlayer = GetOwner();
+
+	if(WeaponMgr::GetInst()->ChangeWeapon(_Idx))
+	{
+		pPlayer->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::DRAW), false);
+		tState = PlayerMgr::PLAYER_STATE::DRAW;
+	}
 }
 
 void CPlayerScript::Movement()
@@ -178,110 +209,86 @@ void CPlayerScript::Movement()
 	CGameObject* pPlayerObj = GetOwner();
 
 	Vec3 vPlayerPos = PlayerMgr::GetInst()->GetPlayerCameraPos();
-	Vec3 vCamRot = pCamObj->Transform()->GetRelativeRot();
+	Vec3 vCamRot	= pCamObj->Transform()->GetRelativeRot();
 
-	Vec3 vPlayerFront = pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
-	Vec3 vPlayerUp = pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::UP);
-	Vec3 vPlayerRight = pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+	Vec3 vPlayerFront	= pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+	Vec3 vPlayerUp		= pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::UP);
+	Vec3 vPlayerRight	= pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
 
 	CRigidBody* pPlayerRB = pPlayerObj->RigidBody();
 
-	Vec2 vMouseDir = CKeyMgr::GetInst()->GetMouseDir();
-	Vec3 vPrevCamRot = vCamRot;
+	Vec2 vMouseDir		= CKeyMgr::GetInst()->GetMouseDir();
+	Vec3 vPrevCamRot	= vCamRot;
 	vCamRot.y += (DT * vMouseDir.x * 1.f);
 	vCamRot.x -= (DT * vMouseDir.y * 1.f);
 	vCamRot.z = 0;
 
-	//pPlayerObj->Transform()->SetRelativeRot(Vec3(0.f, vCamRot.y, 0.f));
 	Vec3 vSmoothRot = Vec3::SmoothStep(vCamRot, vPrevCamRot, 0.5f);
 	pPlayerObj->Transform()->SetRelativeRot(vSmoothRot);
 	pCamObj->Transform()->SetRelativeRot(vSmoothRot);
 
-	//vPlayerPos += pCamObj->Transform()->GetFollowOffset();
-	Vec3 vPrevCamPos = pCamObj->Transform()->GetRelativePos();
-	Vec3 vSmoothPos = Vec3::SmoothStep(vPrevCamPos, vPlayerPos, 0.5f);
-	
+	Vec3 vPrevCamPos	= pCamObj->Transform()->GetRelativePos();
+	Vec3 vSmoothPos		= Vec3::SmoothStep(vPrevCamPos, vPlayerPos, 0.5f);
+
 	pCamObj->Transform()->SetRelativePos(vSmoothPos);
 
-	float _fSpeed = fSpeed;
-	//bool bKeyPressed = false;
+	float _fSpeed		= fSpeed;
 	Vec3 final_velocity = Vec3(0.f, 0.f, 0.f);
 
-
-	if (KEY_PRESSED(KEY::LSHIFT))
-	{
-		_fSpeed *= 2.f;
-	}
-
-	// 0001
-	UINT uiFront = (1 << 0);
-	UINT uiBack = (1 << 0);
-
-	// 0010
-	UINT uiRight = (1 << 1);
-	UINT uiLeft = (1 << 1);
-
-	// 0100
-	UINT uiIdle = (1 << 2);
-
-
+	UINT uiFront	= (1 << 0);
+	UINT uiBack		= (1 << 0);
+	UINT uiRight	= (1 << 1);
+	UINT uiLeft		= (1 << 1);
+	UINT uiIdle		= (1 << 2);
 	UINT flag = uiIdle;
+
+	if (KEY_PRESSED(KEY::_1))
+	{
+		Draw(SMG_IDX);
+	}
+	if (KEY_PRESSED(KEY::_2))
+	{
+		Draw(SNIPER_IDX);
+	}
+	if (KEY_PRESSED(KEY::_3))
+	{
+		Draw(PISTOL_IDX);
+	}
 
 	if (KEY_PRESSED(KEY::R))
 	{
 		Reload();
 	}
 
+	if (KEY_PRESSED(KEY::LSHIFT))
+	{
+		_fSpeed *= 2.f;
+	}
+
 	if (KEY_PRESSED(KEY::W))
 	{
 		flag |= uiFront;
 		final_velocity += vPlayerFront * DT * _fSpeed;
-		//bKeyPressed = true;
 	}
 	if (KEY_PRESSED(KEY::S))
 	{
 		flag |= uiBack;
 		final_velocity += vPlayerFront * DT * -_fSpeed;
-		//bKeyPressed = true;
 	}
 	if (KEY_PRESSED(KEY::A))
 	{
 		flag |= uiLeft;
 		final_velocity += vPlayerRight * DT * -_fSpeed;
-		//bKeyPressed = true;
 	}
 
 	if (KEY_PRESSED(KEY::D))
 	{
 		flag |= uiRight;
-
 		final_velocity += vPlayerRight * DT * _fSpeed;
-		//bKeyPressed = true;
 	}
-	
-	if (tState != PlayerMgr::PLAYER_STATE::RELOAD)
-	{
-		if (flag & uiFront)
-			pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_FORWARD, true);
-		else if (flag & uiBack)
-			pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_BACK, true);
-		else if (flag & uiRight)
-			pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_RIGHT, true);
-		else if (flag & uiLeft)
-			pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::WALK_LEFT, true);
-		else if (flag & uiIdle)
-		{
-			pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::IDLE, true);
-		}
-	}
-
-
-
 	if (KEY_PRESSED(KEY::SPACE))
 	{
-		pPlayerObj->Animator3D()->Play((UINT)ANIMATION_TYPE::JUMP, false);
 		final_velocity += vPlayerUp * DT * fJump;
-		//bKeyPressed = true;
 	}
 	if (KEY_PRESSED(KEY::V))
 	{
@@ -298,11 +305,46 @@ void CPlayerScript::Movement()
 	}
 
 	pPlayerRB->SetLinearVelocity(final_velocity * _fSpeed);
+
+	if (tState != PlayerMgr::PLAYER_STATE::RELOAD && tState != PlayerMgr::PLAYER_STATE::DRAW && tState != PlayerMgr::PLAYER_STATE::FIRE)
+	{
+		if (flag & uiFront)
+		{
+			pPlayerObj->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_FORWARD), true);
+		}
+		//else if (flag & uiBack)
+		//{
+		//	pPlayerObj->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_BACK), true);
+		//}
+		else if (flag & uiRight)
+		{
+			pPlayerObj->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_RIGHT), true);
+		}
+		else if (flag & uiLeft)
+		{
+			pPlayerObj->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_LEFT), true);
+		}
+		else if (flag & uiIdle)
+		{
+			pPlayerObj->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::IDLE), true);
+		}
+	}
+}
+
+void CPlayerScript::Attacked(float _Damage)
+{
+	if (iPlayerHp < _Damage)
+		iPlayerHp = 0;
+	else
+		iPlayerHp -= _Damage;
 }
 
 void CPlayerScript::CatchRaycast()
 {
 	CGameObject* pPlayer = GetOwner();
+	CCamera* MainCam = CRenderMgr::GetInst()->GetMainCam();
+	if (nullptr == MainCam)
+		MainCam = CameraMgr::GetInst()->GetCamObj(L"MainCamera")->Camera();
 
 	vector<tRayInfo> monsRayInfo = RaycastMgr::GetInst()->GetRayInfo();
 	for (int i = 0; i < monsRayInfo.size(); ++i)
@@ -319,7 +361,7 @@ void CPlayerScript::CatchRaycast()
 		// ================================================================================
 		PxGeomRaycastHit hitInfo;
 		const PxU32 maxHits = 1;
-		const PxHitFlags hitFlags = PxHitFlag::eDEFAULT;
+		const PxHitFlags hitFlags = PxHitFlag::eANY_HIT | PxHitFlag::eMESH_MULTIPLE;
 		const PxU32 stride = sizeof(PxGeomRaycastHit);
 		const PxGeometryQueryFlags queryFlags = PxGeometryQueryFlag::eDEFAULT;
 		PxRaycastThreadContext* threadContext = NULL;
@@ -341,8 +383,23 @@ void CPlayerScript::CatchRaycast()
 			stride, queryFlags, threadContext);
 		if (hitCount != 0)
 		{
+			if(rayInfo.tRayType == (UINT)RAYCAST_TYPE::SHOOT)
+			{
+				Attacked(rayInfo.fDamage);
+				RaycastMgr::GetInst()->AddRaycastDraw(vFront, vStart, rayInfo.matWorld, Vec4(1.f, 1.f, 0.f, 1.f));
+			}else
+			{
+				tRayInfo rayReply{};
+				rayReply.fDamage = 0.0f;
+				rayReply.iLayerIdx = pPlayer->GetLayerIndex();
+				rayReply.vDir = MainCam->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+				rayReply.vStart = MainCam->Transform()->GetRelativePos();
+				rayReply.matWorld = MainCam->Transform()->GetDrawRayMat();
+				rayReply.tRayType = (UINT)RAYCAST_TYPE::REPLY;
+				rayReply.iID = rayInfo.iID;
+				RaycastMgr::GetInst()->SetPlayerRayInfo(rayReply);
+			}
 			//RaycastMgr::GetInst()->UseRayInfo();
-			RaycastMgr::GetInst()->AddRaycastDraw(vFront, vStart, rayInfo.matWorld, Vec4(1.f, 1.f, 0.f, 1.f));
 			//Raycast(RaycastMgr::GetInst()->GetRaycastInfo());
 		}
 	}

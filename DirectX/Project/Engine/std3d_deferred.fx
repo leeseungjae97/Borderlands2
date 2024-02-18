@@ -1,4 +1,4 @@
-#ifndef _STD3D_DEFFERED
+#ifndef _STD3D_DEFERRED
 #define _STD3D_DEFERRED
 
 #include "value.fx"
@@ -100,6 +100,8 @@ struct PS_OUT
     float4 vPosition    : SV_Target2;
     float4 vEmissive    : SV_Target3;
     float4 vData        : SV_Target4;
+    float4 vDiffuse     : SV_Target5;
+    float4 vSpecular    : SV_Target6;
 };
 
 PS_OUT PS_Std3D_Deferred(VS_OUT _in)
@@ -109,24 +111,70 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
     output.vColor = float4(0.f, 0.f, 0.f, 1.f);
     
     float3 vViewNormal = _in.vViewNormal;
-    
+
+    float2 derivX = ddx(_in.vUV);
+    float2 derivY = ddy(_in.vUV);
+    float2 moveUV = _in.vUV;
+    float4 vEmissiveCoeff = (float4) 0.f;
+    if (g_iTexAnim)
+    {
+       
+        if (g_vTexFlowDir.x != 0.0f)
+        {
+            moveUV.x = _in.vUV.x + (g_AccTime * g_fTexFlowSpeed) * g_vTexFlowDir.x;
+        }
+        if (g_vTexFlowDir.y != 0.0f)
+        {
+            moveUV.y = _in.vUV.y + (g_AccTime * g_fTexFlowSpeed) * g_vTexFlowDir.y;
+        }
+        if (g_vTexFlowDir.y == 0.0f && g_vTexFlowDir.x == 0.0f)
+        {
+            if (g_fTexFlowSpeed != 0.0f)
+                moveUV.x = _in.vUV.x - g_AccTime * g_fTexFlowSpeed;
+            else
+                moveUV.x = _in.vUV.x - g_AccTime * 0.5f;
+        }
+            
+
+        if (g_btex_7)
+        {
+            float2 vNoiseUV = float2(_in.vUV.x - (g_AccTime * g_fTexFlowSpeed), _in.vUV.y);
+            float4 vNoise = g_tex_7.Sample(g_sam_anti_0, vNoiseUV);
+
+            vNoise = (vNoise - 0.5f) * 0.02f;
+
+            moveUV += vNoise.r;
+        }
+            
+        output.vColor = g_tex_0.SampleGrad(g_sam_anti_0, float3(moveUV, 1.f), derivX, derivY);
+        output.vColor.a = 1.f;
+    }
+
     if (g_btex_0)
     {
-        if (g_iTexAnim)
+
+        if (g_btex_0_flow)
         {
-            _in.vUV.x -= g_AccTime * 0.05f;
+            output.vColor = g_tex_0.SampleGrad(g_sam_anti_0, float3(moveUV, 1.f), derivX, derivY);
         }
-        output.vColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
-        if (output.vColor.a <= 0.f)
+        else
         {
-            discard;
+            output.vColor = g_tex_0.SampleGrad(g_sam_anti_0, float3(_in.vUV, 1.f), derivX, derivY);
         }
         output.vColor.a = 1.f;
+
+        //output.vColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
+        //if (output.vColor.a <= 0.f)
+        //{
+        //    discard;
+        //}
+      
     }
     
     if (g_btex_1)
     {
-        float3 vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV).xyz;
+        //float3 vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV).xyz;
+        float3 vNormal = g_tex_1.SampleGrad(g_sam_anti_0, float3(_in.vUV, 1.f), derivX, derivY);
         
         // 0 ~ 1 범위의 값을 -1 ~ 1 로 확장        
         vNormal = vNormal * 2.f - 1.f;
@@ -140,11 +188,104 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
         
         vViewNormal = normalize(mul(vNormal, vRotateMat));
     }
-    
+    if(g_btex_2)
+    {
+
+        if (g_btex_2_flow)
+        {
+            vEmissiveCoeff = g_tex_2.Sample(g_sam_anti_0, moveUV);
+        }
+        else
+            vEmissiveCoeff = g_tex_2.Sample(g_sam_anti_0, _in.vUV);
+        
+        if (vEmissiveCoeff.r > 0.0f)
+        {
+            output.vEmissive += vEmissiveCoeff * g_fEmisCoeff;
+        }
+        if (vEmissiveCoeff.g > 0.0f)
+        {
+            output.vEmissive += output.vColor * vEmissiveCoeff.g * g_fEmisCoeff;
+        }
+        if (vEmissiveCoeff.b > 0.0f)
+        {
+            output.vEmissive += output.vColor * vEmissiveCoeff.b * g_fEmisCoeff;
+        }
+
+        //tLightColor LightColor;
+        //CalcLight3D(_in.vViewPos, vViewNormal, 1, LightColor, 0.5f);
+
+        //output.vColor = LightColor.vDiffuse + LightColor.vAmbient;
+        //output.vSpecular = g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
+        
+        //output.vDiffuse.a = 1.f;
+        //output.vSpecular.a = 1.f;
+    }
+    if (g_btex_3)
+    {
+        if (g_btex_3_flow)
+        {
+            output.vEmissive += g_tex_3.Sample(g_sam_anti_0, moveUV);
+        }
+        else
+            output.vEmissive += g_tex_3.Sample(g_sam_anti_0, _in.vUV);
+    }
+
+    if (g_btex_4)
+    {
+        if (g_btex_4_flow)
+        {
+            if (g_btex_4_emis)
+                output.vEmissive += g_tex_4.Sample(g_sam_anti_0, moveUV);
+            else
+                output.vColor += g_tex_4.Sample(g_sam_anti_0, moveUV);
+        }
+        else
+        {
+            if (g_btex_4_emis)
+                output.vEmissive += g_tex_4.Sample(g_sam_anti_0, _in.vUV);
+            else
+                output.vColor += g_tex_4.Sample(g_sam_anti_0, _in.vUV);
+        }
+    }
+
+    if (g_btex_5)
+    {
+        if (g_btex_5_flow)
+        {
+            if (g_btex_5_emis)
+                output.vEmissive += g_tex_5.Sample(g_sam_anti_0, moveUV);
+            else
+                output.vColor += g_tex_5.Sample(g_sam_anti_0, moveUV);
+        }
+        else
+        {
+            if (g_btex_5_emis)
+                output.vEmissive += g_tex_5.Sample(g_sam_anti_0, _in.vUV);
+            else
+                output.vColor += g_tex_5.Sample(g_sam_anti_0, _in.vUV);
+        }
+    }
+
+    if (g_btex_6)
+    {
+        if (g_btex_6_flow)
+        {
+            if (g_btex_6_emis)
+                output.vEmissive += g_tex_6.Sample(g_sam_anti_0, moveUV);
+            else
+                output.vColor += g_tex_6.Sample(g_sam_anti_0, moveUV);
+        }
+        else
+        {
+            if (g_btex_6_emis)
+                output.vEmissive += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
+            else
+                output.vColor += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
+        }
+    }
     output.vNormal = float4(vViewNormal, 1.f);
     output.vPosition = float4(_in.vViewPos, 1.f);
     output.vData = float4(0.f, 0.f, 0.f, 1.f);
-    
     return output;
 }
 

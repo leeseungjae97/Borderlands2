@@ -100,8 +100,8 @@ void CLight3D::SetLightType(LIGHT_TYPE _type)
 
 		m_pCamObj->Camera()->SetFarZ(100000.f);
 		m_pCamObj->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
-		m_pCamObj->Camera()->SetOrthoWidth(80000.f);
-		m_pCamObj->Camera()->SetOrthoHeight(80000.f);
+		m_pCamObj->Camera()->SetOrthoWidth(800000.f);
+		m_pCamObj->Camera()->SetOrthoHeight(800000.f);
 		m_pCamObj->Camera()->SetESM(false);
 	}
 

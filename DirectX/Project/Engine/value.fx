@@ -79,8 +79,32 @@ cbuffer MATERIAL : register(b1)
     int g_iBoneCount;
 
     int g_iTexAnim;
+    float g_fTexFlowSpeed;
 
-    int padding;
+    float2 g_vTexFlowDir;
+    float g_fEmisCoeff;
+
+    int g_btex_0_flow;
+    int g_btex_1_flow;
+    int g_btex_2_flow;
+    int g_btex_3_flow;
+
+    int g_btex_4_flow;
+    int g_btex_5_flow;
+    int g_btex_6_flow;
+    int g_btex_7_flow;
+
+    int g_btex_0_emis;
+    int g_btex_1_emis;
+    int g_btex_2_emis;
+    int g_btex_3_emis;
+
+    int g_btex_4_emis;
+    int g_btex_5_emis;
+    int g_btex_6_emis;
+    int g_btex_7_emis;
+    
+    int pad;
 };
 
 cbuffer GLOBAL : register(b2)

@@ -25,7 +25,7 @@ private:
 
 public:
     virtual void render() = 0;
-    virtual void render(UINT _iSubset) = 0;
+    virtual void render(UINT _iSubset, bool _Deferred) = 0;
     virtual void render_shadowmap();
 
 public:

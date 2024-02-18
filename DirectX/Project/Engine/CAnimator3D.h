@@ -46,9 +46,13 @@ private:
 	int							m_iCameraIdx;
 	int							m_iWeaponHandIdx;
 	int							m_iWeaponMuzzleIdx;
+	int							m_iFireBreathIdx;
+	int							m_iTailWeaponIdx;
 
 	Vec4						m_vHeadPos;
 	Vec4						m_vMuzzlePos;
+
+	double						m_fSpeedAdj;
 
 private:
     void check_mesh(Ptr<CMesh> _pMesh);
@@ -56,6 +60,7 @@ private:
 	void create_clip();
 
 public:
+    void CustomEvent(CAnimClip* _AnimClip);
     virtual void finaltick() override;
     void UpdateData();
     void UpdateData(CStructuredBuffer* structuredBuffer, bool IsRotate, bool IsTrans);
@@ -69,6 +74,9 @@ public:
 	const std::map<UINT, wstring>& GetPrefDefineAnimation() { return m_mapPreDefineAnim; }
 	void SetCurAnimClip(CAnimClip* _Clip);
 	CAnimClip* GetCurAnimClip() { return m_pCurClip; }
+	CAnimClip* GetNextAnimClip() { return m_pNextClip; }
+	CAnimClip* GetAnimClip(const wstring& _AnimClipName);
+	void SetSpeedAdjustment(double _Speed) { m_fSpeedAdj = _Speed; }
 
 	// Animation È®ÀÎ¿ë -----------------------------------------------------
 	void ManualIdxUp();
@@ -95,6 +103,8 @@ public:
 	float GetBlendAcc() { return m_fBlendAcc; }
 	// -----------------------------------------------------------------------
 
+	void SetAnimClipEventIdx(UINT _Type, int _iEnd, int _iStart, int _iProgress, int _iComplete);
+
 	CStructuredBuffer* GetFinalBoneMat() { return m_pBoneFinalMatBuffer; }
 	UINT GetBoneCount() { return (UINT)m_pVecBones.size(); }
 	vector<tMTBone> GetBone() { return m_pVecBones; }
@@ -117,6 +127,9 @@ public:
 	int GetCameraIdx() { return m_iCameraIdx; }
 	int GetWeaponHandIdx() { return m_iWeaponHandIdx; }
 	int GetWeaponMuzzleIdx() { return m_iWeaponMuzzleIdx; }
+	
+	int GetFireBreathIdx() { return m_iFireBreathIdx; }
+	int GetTailIdx() { return m_iTailWeaponIdx; }
 
 	Vec4 GetHeadPos();
 	Vec4 GetMuzzlePos() { return m_vMuzzlePos; }

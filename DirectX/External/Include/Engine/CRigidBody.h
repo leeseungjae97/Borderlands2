@@ -55,6 +55,7 @@ private:
     bool                    m_bCreature;
 
     bool                    m_bInit;
+    bool                    m_bInitData;
 
 public:
 	PxRigidDynamic*         GetDynamicBody()        const { return m_pDynamicBody; }
@@ -110,6 +111,7 @@ private:
     void createShape();
     void createTriangleMesh();
     void addToScene();
+    void setUserData();
     void drawDebugRigid();
 
 public:

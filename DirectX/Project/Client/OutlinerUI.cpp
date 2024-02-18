@@ -15,6 +15,7 @@
 OutlinerUI::OutlinerUI()
     : UI("##Outliner")
 	, m_Tree(nullptr)
+	, m_bReset(false)
 {
     SetName("Outliner");
 
@@ -38,6 +39,7 @@ OutlinerUI::~OutlinerUI()
 
 void OutlinerUI::tick()
 {
+	m_bReset = false;
 	if (CEventMgr::GetInst()->IsLevelChanged())
 	{
 		ResetOutliner();
@@ -48,6 +50,7 @@ void OutlinerUI::tick()
 			m_Tree->GetSelectedNode(m_dwSelectedData);
 		}		
 	}
+	
 }
 
 int OutlinerUI::render_update()
@@ -58,6 +61,8 @@ int OutlinerUI::render_update()
 
 void OutlinerUI::ResetOutliner()
 {
+	m_bReset = true;
+	m_pSelectedNode = nullptr;
 	// Tree Clear
 	m_Tree->Clear();
 	m_Tree->AddItem("Root", 0);
@@ -80,8 +85,8 @@ void OutlinerUI::ResetOutliner()
 
 void OutlinerUI::SetTargetToInspector(DWORD_PTR _SelectedNode)
 {
-	TreeNode* pSelectedNode = (TreeNode*)_SelectedNode;
-	CGameObject* pSelectObject = (CGameObject*)pSelectedNode->GetData();
+	m_pSelectedNode = (TreeNode*)_SelectedNode;
+	CGameObject* pSelectObject = (CGameObject*)m_pSelectedNode->GetData();
 
 	// Inspector 에 선택된 GameObject 를 알려준다.	
 	InspectorUI* pInspector = (InspectorUI*)ImGuiMgr::GetInst()->FindUI("##Inspector");
@@ -107,18 +112,13 @@ void OutlinerUI::AddGameObject(CGameObject* _Obj, TreeNode* _ParentNode)
 
 CGameObject* OutlinerUI::GetSelectedObject()
 {
-	TreeNode* pSelectedNode = m_Tree->GetSelectedNode();
+	m_pSelectedNode = m_Tree->GetSelectedNode();
 
-	if (nullptr == pSelectedNode)
+	if (nullptr == m_pSelectedNode)
 		return nullptr;
 
-	return (CGameObject*)pSelectedNode->GetData();
+	return (CGameObject*)m_pSelectedNode->GetData();
 }
-
-
-
-
-
 
 void OutlinerUI::DragDrop(DWORD_PTR _DragNode, DWORD_PTR _DropNode)
 {

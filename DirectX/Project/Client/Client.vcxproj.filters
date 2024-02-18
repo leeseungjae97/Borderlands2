@@ -134,6 +134,9 @@
     <Filter Include="_UI\DefineAnimationUI">
       <UniqueIdentifier>{cd3516be-86c3-4318-b57a-998210f8879b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="_UI\RenderUI">
+      <UniqueIdentifier>{01410db3-14dc-4f08-bad6-c4333f2cdebc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -260,9 +263,6 @@
     <ClInclude Include="ManagerInspectorUI.h">
       <Filter>_UI\ManagerInspectorUI</Filter>
     </ClInclude>
-    <ClInclude Include="ComponentUI.h">
-      <Filter>_UI\_InspectorUI\_ResUI</Filter>
-    </ClInclude>
     <ClInclude Include="ImGui\imgui_stdlib.h">
       <Filter>ImGui</Filter>
     </ClInclude>
@@ -284,7 +284,15 @@
     <ClInclude Include="SamplerFilterUI.h">
       <Filter>_UI\SamplerFilterUI</Filter>
     </ClInclude>
-    <ClInclude Include="DefineAnimationUI.h" />
+    <ClInclude Include="DefineAnimationUI.h">
+      <Filter>_UI\DefineAnimationUI</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentUI.h">
+      <Filter>_UI\_InspectorUI\_ComponentUI</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderUI.h">
+      <Filter>_UI\RenderUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Client.rc">
@@ -443,6 +451,11 @@
     <ClCompile Include="SamplerFilterUI.cpp">
       <Filter>_UI\SamplerFilterUI</Filter>
     </ClCompile>
-    <ClCompile Include="DefineAnimationUI.cpp" />
+    <ClCompile Include="DefineAnimationUI.cpp">
+      <Filter>_UI\DefineAnimationUI</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderUI.cpp">
+      <Filter>_UI\RenderUI</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

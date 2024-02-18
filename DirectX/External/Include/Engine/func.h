@@ -10,10 +10,10 @@ class CMesh;
 class CRigidBody;
 //class Ptr;
 void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
-void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName);
+void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, LAYER_TYPE _Type);
 
 void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
-void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName);
+void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, LAYER_TYPE _Type);
 
 void ChangeCurLevel(CLevel* _ChangeLevel);
 

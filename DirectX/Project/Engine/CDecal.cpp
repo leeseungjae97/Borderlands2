@@ -76,7 +76,7 @@ void CDecal::SaveToLevelFile(FILE* _File)
     fwrite(&m_bEmissive, sizeof(bool), 1, _File);
 }
 
-void CDecal::render(UINT _iSubset)
+void CDecal::render(UINT _iSubset, bool _Deferred)
 {
     render();
 }

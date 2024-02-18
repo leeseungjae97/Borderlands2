@@ -3,10 +3,16 @@
 #include "E:\directx11_3d\DirectX\Project\Engine\AnimationMgr.cpp"
 
 
+#include "E:\directx11_3d\DirectX\Project\Engine\BlurShader.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\CAnimator2D.cpp"
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\CAnimSprite.cpp"
+
+
+#include "E:\directx11_3d\DirectX\Project\Engine\DownSamplingShader.cpp"
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\IndividualBoneSkinningShader.cpp"
@@ -25,10 +31,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\CCamera.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\CCollider3D.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\CColorMapShader.cpp"
 

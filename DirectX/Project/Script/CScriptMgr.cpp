@@ -6,8 +6,9 @@
 #include "CCrossHairScript.h"
 #include "CGunScript.h"
 #include "CMissileScript.h"
-#include "CMonsterScript.h"
+#include "CEnemyScript.h"
 #include "CPlayerScript.h"
+#include "CWarriorScript.h"
 
 void CScriptMgr::GetScriptInfo(vector<wstring>& _vec)
 {
@@ -15,7 +16,8 @@ void CScriptMgr::GetScriptInfo(vector<wstring>& _vec)
 	_vec.push_back(L"CCameraMoveScript");
 	_vec.push_back(L"CCrossHairScript");
 	_vec.push_back(L"CMissileScript");
-	_vec.push_back(L"CMonsterScript");
+	_vec.push_back(L"CEnemyScript");
+	_vec.push_back(L"CWarriorScript");
 	_vec.push_back(L"CPlayerScript");
 	_vec.push_back(L"CGunScript");
 }
@@ -30,8 +32,10 @@ CScript * CScriptMgr::GetScript(const wstring& _strScriptName)
 		return new CCrossHairScript;
 	if (L"CMissileScript" == _strScriptName)
 		return new CMissileScript;
-	if (L"CMonsterScript" == _strScriptName)
-		return new CMonsterScript;
+	if (L"CEnemyScript" == _strScriptName)
+		return new CEnemyScript;
+	if (L"CWarriorScript" == _strScriptName)
+		return new CWarriorScript;
 	if (L"CPlayerScript" == _strScriptName)
 		return new CPlayerScript;
 	if (L"CGunScript" == _strScriptName)
@@ -55,8 +59,11 @@ CScript * CScriptMgr::GetScript(UINT _iScriptType)
 	case (UINT)SCRIPT_TYPE::MISSILESCRIPT:
 		return new CMissileScript;
 		break;
-	case (UINT)SCRIPT_TYPE::MONSTERSCRIPT:
-		return new CMonsterScript;
+	case (UINT)SCRIPT_TYPE::ENEMYSCRIPT:
+		return new CEnemyScript;
+		break;
+	case (UINT)SCRIPT_TYPE::WARRIORSCRIPT:
+		return new CWarriorScript;
 		break;
 	case (UINT)SCRIPT_TYPE::PLAYERSCRIPT:
 		return new CPlayerScript;
@@ -64,6 +71,8 @@ CScript * CScriptMgr::GetScript(UINT _iScriptType)
 	case (UINT)SCRIPT_TYPE::GUNSCRIPT:
 		return new CGunScript;
 		break;
+
+		//FIREBREATHSCRIPT
 	}
 	return nullptr;
 }
@@ -88,8 +97,12 @@ const wchar_t * CScriptMgr::GetScriptName(CScript * _pScript)
 		return L"CMissileScript";
 		break;
 
-	case SCRIPT_TYPE::MONSTERSCRIPT:
-		return L"CMonsterScript";
+	case SCRIPT_TYPE::ENEMYSCRIPT:
+		return L"CEnemyScript";
+		break;
+
+	case SCRIPT_TYPE::WARRIORSCRIPT:
+		return L"CWarriorScript";
 		break;
 
 	case SCRIPT_TYPE::PLAYERSCRIPT:

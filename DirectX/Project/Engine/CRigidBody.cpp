@@ -23,6 +23,7 @@ CRigidBody::CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2)
 	, m_vRigidScale(Vec3(1.f, 1.f, 1.f))
 	, m_bCreature(false)
 	, m_bInit(false)
+	, m_bInitData(false)
 	, m_debugMeshName(L"")
 {
 	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(1.0f, 1.0f, 0.1f);
@@ -56,6 +57,10 @@ void CRigidBody::finaltick()
 	{
 		addToScene();
 		m_bInit = true;
+	}
+	if(!m_bInitData)
+	{
+		setUserData();
 	}
 	
 
@@ -199,10 +204,10 @@ void CRigidBody::createShape()
 	}
 	else if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::SPHERE)
 	{
-		float _fMax = fmax(m_vRigidScale.x, m_vRigidScale.y);
-		_fMax = fmax(_fMax, m_vRigidScale.z);
+		//float _fMax = fmax(m_vRigidScale.x, m_vRigidScale.y);
+		//_fMax = fmax(_fMax, m_vRigidScale.z);
 		m_pShape = PhysXMgr::GetInst()->GPhysics()->createShape(
-			physx::PxSphereGeometry(_fMax / 2.f)
+			physx::PxSphereGeometry(m_vRigidScale.x / 2.f)
 			, *m_pMaterial
 			, true);
 	}
@@ -277,6 +282,19 @@ void CRigidBody::addToScene()
 		PhysXMgr::GetInst()->GCurScene()->addActor(*m_pStaticBody);
 	}
 
+}
+
+void CRigidBody::setUserData()
+{
+	if (nullptr == GetOwner()->Collider3D())
+		return;
+
+	if(m_pStaticBody)
+		m_pStaticBody->userData = GetOwner()->Collider3D();
+	if(m_pDynamicBody)
+		m_pDynamicBody->userData = GetOwner()->Collider3D();
+
+	m_bInitData = true;
 }
 
 void CRigidBody::drawDebugRigid()

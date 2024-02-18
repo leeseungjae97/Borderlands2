@@ -11,7 +11,6 @@ public:
 	void finaltick() override;
 public:
     void SetWeaponPos();
-
     void SetEquiWeapon(bool _Equi) { m_bEquiWeapon = _Equi; }
 public:
     CLONE(CGunScript);

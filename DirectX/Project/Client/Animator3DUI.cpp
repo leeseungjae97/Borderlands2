@@ -4,6 +4,7 @@
 #include <Engine/CGameObject.h>
 #include <Engine/CAnimator3D.h>
 #include <Engine/AnimationMgr.h>
+#include <Engine/WarriorMgr.h>
 
 
 Animator3DUI::Animator3DUI()
@@ -117,12 +118,21 @@ int Animator3DUI::render_update()
 		STRS = GUN_ANIMATION_TYPE_STR;
 		STRSSIZE = (int)GUN_ANIMATION_TYPE::END;
 	}
+	else if (GetTarget()->IsWarrior())
+	{
+		STRS = WARRIOR_ANIMATION_TYPE_STR;
+		STRSSIZE = (int)WARRIOR_ANIMATION_TYPE::END;
+	}
+	else if (GetTarget()->GetLayerIndex() == (int)LAYER_TYPE::Enemy)
+	{
+		STRS = ENEMY_ANIMATION_TYPE_STR;
+		STRSSIZE = (int)ENEMY_ANIMATION_TYPE::END;
+	}
 	else
 	{
-		STRS = ANIMATION_TYPE_STR;
-		STRSSIZE = (int)ANIMATION_TYPE::END;
+		STRS = PLAYER_ANIMATION_TYPE_STR;
+		STRSSIZE = (int)PLAYER_ANIMATION_TYPE::END;
 	}
-
 
 	int strMaxLen = 0;
 	ImVec2 strSize;

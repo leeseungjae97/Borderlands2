@@ -14,6 +14,7 @@ using std::string;
 
 #include <typeinfo>
 #include <assert.h>
+#include <thread>
 
 // FileSystem
 #define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING

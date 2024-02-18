@@ -5,6 +5,7 @@
 #include "CEventMgr.h"
 #include "CLevel.h"
 #include "CLayer.h"
+#include "WeaponMgr.h"
 
 CLevelMgr::CLevelMgr()
 	: m_pCurLevel(nullptr)

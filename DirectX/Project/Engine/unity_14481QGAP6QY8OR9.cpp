@@ -1,5 +1,11 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Engine\CSound.cpp"
+
+
+#include "E:\directx11_3d\DirectX\Project\Engine\CStructuredBuffer.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\CTexture.cpp"
 
 
@@ -25,10 +31,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\KeyUseInfoMgr.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\mFBXLoader.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\mMRT.cpp"
 

@@ -12,6 +12,7 @@ private:
     float       fRateOfFireAcc;
     float       fMouseAcces;
     int         iPlayerHp;
+    int         iAmmo;
 
     PlayerMgr::PLAYER_STATE tState;
 
@@ -22,13 +23,17 @@ private:
 public:
     virtual void begin() override;
     virtual void tick() override;
+    virtual void finaltick() override;
 
 private:
     void Look();
     void ShootBullet();
     void ShootMissile();
     void Reload();
+    void Draw(int _Idx);
     void Movement();
+
+    void Attacked(float _Damage);
     virtual void CatchRaycast() override;
 
 public:

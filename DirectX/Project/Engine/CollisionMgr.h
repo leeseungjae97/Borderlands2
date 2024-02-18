@@ -12,14 +12,11 @@ class CollisionMgr :
 private:
 	std::bitset<MAX_LAYER> m_matrix[MAX_LAYER];
 
-	int m_iBulletLayerIdx;
-
 public:
-	void SetBulletLayerIdx(int idx) { m_iBulletLayerIdx = idx; }
-	int GetBulletLayerIdx() { return m_iBulletLayerIdx; }
 
-	void SetLayerIntersect(const wstring& _strLeftLayer, const wstring& _strRightLayer, bool _enable);
-	bool IsLayerIntersect(const wstring& _strLeftLayer, const wstring& _strRightLayer);
+	void SetLayerIntersect(LAYER_TYPE _LeftType, LAYER_TYPE _RightType, bool _enable);
+	void SetLayerIntersect(UINT _intLeftLayerIdx, UINT _intRightLayerIdx, bool _enable);
+	bool IsLayerIntersect(LAYER_TYPE _LeftType, LAYER_TYPE _RightType);
 	bool IsLayerIntersect(UINT _intLeftLayerIdx, UINT _intRightLayerIdx);
 
 	void Clear()

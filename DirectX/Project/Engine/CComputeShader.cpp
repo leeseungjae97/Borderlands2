@@ -33,7 +33,7 @@ void CComputeShader::CreateComputeShader(const wstring& _strFileName, const stri
 	}
 
 	// 컴파일된 객체로 Shader 를 만든다.
-	DEVICE->CreateComputeShader(m_CSBlob->GetBufferPointer(), m_CSBlob->GetBufferSize()
+		DEVICE->CreateComputeShader(m_CSBlob->GetBufferPointer(), m_CSBlob->GetBufferSize()
 		, nullptr, m_CS.GetAddressOf());
 }
 

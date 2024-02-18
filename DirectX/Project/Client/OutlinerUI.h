@@ -11,7 +11,8 @@ private:
     TreeUI*     m_Tree;
     DWORD_PTR   m_dwSelectedData;
 
-
+    bool        m_bReset;
+    TreeNode*   m_pSelectedNode;
 public:
     virtual void tick() override;
     virtual int render_update() override;
@@ -26,6 +27,7 @@ public:
     {
         m_dwSelectedData = _data;
     }
+    bool IsOutlinearReset() { return m_bReset; }
 
 private:
     void AddGameObject(CGameObject* _Obj, TreeNode* _ParentNode);

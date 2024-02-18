@@ -1,5 +1,11 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Engine\CPathFind.cpp"
+
+
+#include "E:\directx11_3d\DirectX\Project\Engine\CPathMgr.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\CPrefab.cpp"
 
 
@@ -25,10 +31,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\CSkyBox.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\CSound.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\CStructuredBuffer.cpp"
 

@@ -30,10 +30,8 @@ private:
 public:
     void SetRelativePos(Vec3 _vPos);
     void SetRelativeScale(Vec3 _vScale) { m_vRelativeScale = _vScale; }
-    void SetRelativeRot(Vec3 _vRot, Vec3 _vAddRot = Vec3::Zero);
+    void SetRelativeRot(Vec3 _vRot);
     void SetRelativePosOffset(Vec3 _Offset) { m_vRelativePosOffset = _Offset; }
-
-    void AddRelativeRot(Vec3 _vAddRot);
 
     void SetRelativePos(float _x, float _y, float _z) { m_vRelativePos = Vec3(_x, _y, _z); }
     void SetRelativeScale(float _x, float _y, float _z) { m_vRelativeScale = Vec3(_x, _y, _z); }

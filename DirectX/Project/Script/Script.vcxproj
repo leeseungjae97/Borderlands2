@@ -179,9 +179,11 @@ cd $(SolutionDir)\OutputFile\bin_d\</Command>
     <ClInclude Include="CCrossHairScript.h" />
     <ClInclude Include="CGunScript.h" />
     <ClInclude Include="CMissileScript.h" />
-    <ClInclude Include="CMonsterScript.h" />
+    <ClInclude Include="CEnemyScript.h" />
     <ClInclude Include="CPlayerScript.h" />
     <ClInclude Include="CScriptMgr.h" />
+    <ClInclude Include="CWarriorScript.h" />
+    <ClInclude Include="FireBreathScript.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
@@ -191,9 +193,11 @@ cd $(SolutionDir)\OutputFile\bin_d\</Command>
     <ClCompile Include="CCrossHairScript.cpp" />
     <ClCompile Include="CGunScript.cpp" />
     <ClCompile Include="CMissileScript.cpp" />
-    <ClCompile Include="CMonsterScript.cpp" />
+    <ClCompile Include="CEnemyScript.cpp" />
     <ClCompile Include="CPlayerScript.cpp" />
     <ClCompile Include="CScriptMgr.cpp" />
+    <ClCompile Include="CWarriorScript.cpp" />
+    <ClCompile Include="FireBreathScript.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

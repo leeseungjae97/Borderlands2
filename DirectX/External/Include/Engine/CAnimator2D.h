@@ -18,6 +18,7 @@ private:
 	int m_iLoopCount;
 	bool m_bLoop;
 
+	int m_iMtrlIdx;
 public:
 	CAnimSprite* FindAnimSprite(const std::wstring& name);
 	Events* FindEvents(const std::wstring& name);
@@ -51,6 +52,7 @@ public:
 		, Vec2 offsetOfCenterPos
 		, float duration
 		, float alpha
+		, int mtrlIdx = 0
 	);
 
 	void Create(const std::wstring& name
@@ -61,6 +63,7 @@ public:
 		, Vec2 offset
 		, float duration
 		, float alpha
+		, int mtrlIdx = 0
 	);
 	void Create(const std::wstring& name
 		, Ptr<CTexture> sheet
@@ -72,6 +75,7 @@ public:
 		, Vec2 offsetOfCenterPos
 		, float duration
 		, float alpha
+		, int mtrlIdx = 0
 	);
 	void Create(const std::wstring& name
 		, Ptr<CTexture> sheet
@@ -81,6 +85,7 @@ public:
 		, UINT rowLength
 		, Vec2 offset
 		, Vec2 offsetOfCenterPos
+		, int mtrlIdx = 0
 	);
 
 public:

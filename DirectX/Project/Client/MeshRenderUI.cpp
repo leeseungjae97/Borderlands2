@@ -122,6 +122,31 @@ int MeshRenderUI::render_update()
 		if (nullptr == mtrl)
 			continue;
 
+		tMtrlConst mtrlConst =mtrl->GetConst();
+
+		float fTexFlowSpeed = mtrlConst.fTexFlowSpeed;
+		ImGui::Text("Tex Flow Speed : ");
+		ImGui::SameLine();
+		ImGui::InputFloat("##texflowspeed", &fTexFlowSpeed);
+		mtrl->SetFlowSpeed(fTexFlowSpeed);
+
+		Vec2 vTexFlowDir = mtrlConst.vTexDir;
+		ImGui::Text("Tex Flow Dir : ");
+		ImGui::SameLine();
+		float dir[2];
+		dir[0] = vTexFlowDir.x;
+		dir[1] = vTexFlowDir.y;
+		ImGui::InputFloat2("##texflowdir", dir);
+		vTexFlowDir.x = dir[0];
+		vTexFlowDir.y = dir[1];
+		mtrl->SetFlowDir(vTexFlowDir);
+
+		float fEmisCoef = mtrlConst.fEmisCoeff;
+		ImGui::Text("Emissive Coeff : ");
+		ImGui::SameLine();
+		ImGui::InputFloat("##emiscoeff", &fEmisCoef);
+		mtrl->SetEmissiveCoeff(fEmisCoef);
+
 		for(int j = 0 ; j < TEX_PARAM::TEX_7; ++j)
 		{
 			Ptr<CTexture> tex = mtrl->GetTexParam((TEX_PARAM)j);
@@ -150,9 +175,49 @@ int MeshRenderUI::render_update()
 				ImVec4 border_col = ImVec4(1.0f, 1.0f, 1.0f, 0.5f); // 50% opaque white
 
 				ImGui::Image((ImTextureID)tex->GetSRV().Get(), ImVec2(150, 150), uv_min, uv_max, tint_col, border_col);
+
+				str = "DELETE##" + std::to_string(i) + "mtrl" + std::to_string(j) + "tex";
+				if (ImGui::Button(str.c_str()))
+				{
+					mtrl->SetTexParam((TEX_PARAM)j, nullptr);
+				}
+				if(mtrl->GetShader()->GetDomain() == SHADER_DOMAIN::DOMAIN_DEFERRED)
+				{
+					str = "FORWARD##" + std::to_string(i) + "mtrl" + std::to_string(j) + "tex";
+					if (ImGui::Button(str.c_str()))
+					{
+						mtrl->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3DShader"));
+					}
+				}else
+				{
+					str = "DEFERRED##" + std::to_string(i) + "mtrl" + std::to_string(j) + "tex";
+					if (ImGui::Button(str.c_str()))
+					{
+						mtrl->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3D_DeferredShader"));
+					}
+				}
+				bool bFlow = mtrlConst.arrTexFlow[j];
+				if(bFlow)
+				{
+					str = "STOP##" + std::to_string(i) + "mtrl" + std::to_string(j) + "tex";
+					if (ImGui::Button(str.c_str()))
+					{
+						bFlow = !bFlow;
+					}
+				}else
+				{
+					str = "FLOW##" + std::to_string(i) + "mtrl" + std::to_string(j) + "tex";
+					if (ImGui::Button(str.c_str()))
+					{
+						bFlow = !bFlow;
+					}
+				}
+				mtrl->SetFlow(j, bFlow);
+				
 			}else
 			{
 				ImGui::Text("%d Material, %d Texture", i, j);
+				
 				string str = "SET##" + std::to_string(i) + "mtrl" + std::to_string(j) + "tex";
 				if (ImGui::Button(str.c_str()))
 				{

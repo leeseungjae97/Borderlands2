@@ -26,6 +26,8 @@ void CLayer::tick()
 {
 	for (size_t i = 0; i < m_vecParentObj.size(); ++i)
 	{
+		if (m_vecParentObj[i]->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
+			continue;
 		m_vecParentObj[i]->tick();
 	}
 }
@@ -35,15 +37,20 @@ void CLayer::finaltick()
 	vector<CGameObject*>::iterator iter = m_vecParentObj.begin();
 	for (; iter != m_vecParentObj.end(); )
 	{
-		(*iter)->finaltick();
-
-		if ((*iter)->IsDead())
-		{
-			iter = m_vecParentObj.erase(iter);
-		}
+		if ((*iter)->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
+			++iter;
 		else
 		{
-			++iter;
+			(*iter)->finaltick();
+
+			if ((*iter)->IsDead())
+			{
+				iter = m_vecParentObj.erase(iter);
+			}
+			else
+			{
+				++iter;
+			}
 		}
 	}	
 }

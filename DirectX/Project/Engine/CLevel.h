@@ -30,14 +30,15 @@ public:
 
     void createScene();
 public:
-    CLayer* FindLayerByName(const wstring& _strName);
+    //CLayer* FindLayerByName(const wstring& _strName);
+    CLayer* FindLayerByType(LAYER_TYPE _Type);
     CLayer* GetLayer(int _iLayerIdx) { assert(!(_iLayerIdx < 0)); return m_arrLayer[_iLayerIdx]; }
 
     CGameObject* FindObjectByName(const wstring& _Name);
     void FindObjectByName(const wstring& _Name, vector<CGameObject*>& _Out);
 
     void AddGameObject(CGameObject* _Object, int _iLayerIdx, bool _Move);
-    void AddGameObject(CGameObject* _Object, const wstring& _LayerName, bool _Move);
+    void AddGameObject(CGameObject* _Object, LAYER_TYPE _Type, bool _Move);
     void AddCollider3D(CGameObject* _Object);
     void ChangeState(LEVEL_STATE _State);
     LEVEL_STATE GetState() { return m_State; }

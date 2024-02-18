@@ -45,6 +45,7 @@ int MaterialUI::render_update()
         char szEmtpy[10] = {};
         ImGui::InputText("##ShaderUIName", szEmtpy, 10, ImGuiInputTextFlags_::ImGuiInputTextFlags_ReadOnly);
     }
+
     // GraphicsShader 드랍 체크    
     if (ImGui::BeginDragDropTarget())
     {
@@ -99,6 +100,10 @@ int MaterialUI::render_update()
         case INT_1:
         case INT_2:
         case INT_3:
+        case INT_4:
+        case INT_5:
+        case INT_6:
+        case INT_7:
         {
             // 현재 머티리얼에 세팅된 값을 전달   
             int data = 0;
@@ -114,6 +119,10 @@ int MaterialUI::render_update()
         case FLOAT_1:
         case FLOAT_2:
         case FLOAT_3:
+        case FLOAT_4:
+        case FLOAT_5:
+        case FLOAT_6:
+        case FLOAT_7:
         {
             // 현재 머티리얼에 세팅된 값을 전달   
             float data = 0;

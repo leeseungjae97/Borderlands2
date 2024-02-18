@@ -279,7 +279,7 @@ void CLandScape::render()
 	m_pWeightMapBuffer->Clear();
 }
 
-void CLandScape::render(UINT _iSubset)
+void CLandScape::render(UINT _iSubset, bool _Deferred)
 {
 	render();
 }

@@ -1,5 +1,11 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Engine\CLandScape.cpp"
+
+
+#include "E:\directx11_3d\DirectX\Project\Engine\CLayer.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\CLevel.cpp"
 
 
@@ -25,10 +31,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\CParticleUpdateShader.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\CPathFind.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\CPathMgr.cpp"
 

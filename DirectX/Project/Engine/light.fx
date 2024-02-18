@@ -189,11 +189,10 @@ PS_OUT PS_PointLightShader(VS_OUT _in)
     // 광원 계산 결과를 받을 변수 선언
     tLightColor LightColor = (tLightColor) 0.f;
     float fSpecPow = 0.f;
-    
-    // 광원 본인의 정보가 LightBuffer 내에서 어디에 있는지 인덱스를 입력
-    // 빛을 넣어줄 물체의 위치값과 노말값을 타겟 텍스쳐에서 가져와서 입력
-    CalcLight3D(vViewPos, vViewNormal, LightIdx, LightColor, fSpecPow);
 
+    CalcLight3D(vViewPos, vViewNormal, LightIdx, LightColor, fSpecPow);
+    
+    output.vShadow = 0.0f;
     // 계산된 최종 광원의 세기를 각 타겟(Diffuse, Specular) 에 출력
     output.vDiffuse = LightColor.vDiffuse + LightColor.vAmbient;
     output.vSpecular = g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
@@ -272,7 +271,7 @@ PS_OUT PS_SpotLightShader(VS_OUT _in)
     // 계산된 최종 광원의 세기를 각 타겟(Diffuse, Specular) 에 출력
     output.vDiffuse = LightColor.vDiffuse + LightColor.vAmbient;
     output.vSpecular = g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
-        
+    output.vShadow = 0.0f;
     output.vDiffuse.a = 1.f;
     output.vSpecular.a = 1.f;
     
@@ -294,7 +293,10 @@ PS_OUT PS_SpotLightShader(VS_OUT _in)
 #define SpecularTargetTex g_tex_2
 #define EmissiveTargetTex g_tex_3
 #define ShadowTargetTex   g_tex_4
+//#define HDRTargetTex      g_tex_5
 #define FloatCoeff        g_float_0
+#define IsHDR             g_int_0
+#define IsBloom           g_int_1
 // =====================================
 VS_OUT VS_MergeShader(VS_IN _in)
 {
@@ -307,10 +309,15 @@ VS_OUT VS_MergeShader(VS_IN _in)
     return output;
 }
 
-
-float4 PS_MergeShader(VS_OUT _in) : SV_Target
+struct MERGE_OUT
 {
-    float4 vOutColor = float4(0.f, 0.f, 0.f, 1.f);
+    float4 vLDR : SV_Target1;
+    float4 vHDR : SV_Target2;
+};
+
+MERGE_OUT PS_MergeShader(VS_OUT _in) : SV_Target
+{
+    MERGE_OUT vOutColor = (MERGE_OUT) 0.f;
     
     float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
 
@@ -319,10 +326,19 @@ float4 PS_MergeShader(VS_OUT _in) : SV_Target
     float4 vSpecular = SpecularTargetTex.Sample(g_sam_anti_0, vScreenUV);
     float4 vEmissive = EmissiveTargetTex.Sample(g_sam_anti_0, vScreenUV);
     float fShadowCoeff = ShadowTargetTex.Sample(g_sam_anti_0, vScreenUV).x;
+    
+	//vEmissive += GaussianBlur(EmissiveTargetTex, _in.vPosition.xy);
+	//vEmissive += GaussianBlur(EmissiveTargetTex, _in.vPosition.xy);
+	//vEmissive += GaussianBlur(EmissiveTargetTex, _in.vPosition.xy);
 
+    //vColor.xyz = vColor.xyz / (vColor.xyz + 1.0f);
+
+        
+    //vColor = pow(vColor, 1 / 2.2f);
+    //vEmissive = pow(pow(abs(vEmissive), 2.2f) + pow(abs(vColor), 2.2f), 1.f / 2.2f);
     // float fShadowCoeff = GaussianBlur(ShadowTargetTex, _in.vPosition.xy);
     
-    float3 vC = vColor.xyz * vDiffuse.xyz;
+    float3 vColorDiffuse = vColor.xyz * vDiffuse.xyz;
 
     //if (0.5f < fShadowCoeff)
     //{
@@ -331,7 +347,7 @@ float4 PS_MergeShader(VS_OUT _in) : SV_Target
     //    vSpecular.z = 0.f;
     //}
 
-    float3 vS = vSpecular.xyz * vColor.a;
+    float3 vColorSpecular = vSpecular.xyz * vColor.a;
 
     if (0.f < fShadowCoeff)
     {
@@ -343,11 +359,32 @@ float4 PS_MergeShader(VS_OUT _in) : SV_Target
     }
     //lerp(vC, fShadowCoeff);
 
-    float3 mvC = vC * fShadowCoeff;
-    mvC = (mvC + vC / 2.f);
-    vS *= fShadowCoeff;
-    
-    vOutColor.xyz = mvC + vS + vEmissive.xyz;
+    float3 vColorDiffuseShadow = vColorDiffuse * fShadowCoeff;
+    vColorDiffuseShadow = (vColorDiffuseShadow + vColorDiffuse / 2.f);
+    vColorSpecular *= fShadowCoeff;
+
+    vOutColor.vHDR.xyz = vColorDiffuseShadow + vColorSpecular + vEmissive.xyz;
+    vOutColor.vHDR.a = 1.f;
+	//= DownScale(vOutColor.vHDR, vScreenUV);
+
+    if (IsBloom)
+    {
+        //float3 color = vOutColor.vHDR.xyz;
+        //float bright = dot(color, float3(0.3f, 0.3f, 0.3));
+        //float bloom = BloomCurve(bright);
+        //float3 bloomColor = color * bloom / bright;
+    }
+
+    if (IsHDR)
+    {
+        vOutColor.vLDR.xyz = ACESToneMapping(vOutColor.vHDR.xyz);
+    }else
+    {
+        vOutColor.vLDR.xyz = vColorDiffuseShadow + vColorSpecular + vEmissive.xyz;
+    }
+
+   
+    vOutColor.vLDR.a = 1.f;
 
     //vOutColor.xyz = vColor.xyz * vDiffuse.xyz * (1.f - fShadowCoeff)
 				//  + (vSpecular.xyz * vColor.a) * (1.f - fShadowCoeff)
@@ -359,8 +396,8 @@ float4 PS_MergeShader(VS_OUT _in) : SV_Target
 
 
 
-    vOutColor.a = 1.f;
     
+    //vOutColor.a 
     return vOutColor;
 }
 
@@ -395,7 +432,7 @@ VS_SHADOW_OUT VS_ShadowMap(VS_IN _in)
     }
 
     output.vPosition = mul(float4(_in.vPos, 1.f), g_matWVP);
-        
+    
     output.vProjPos = output.vPosition;
     output.vProjPos.xyz /= output.vProjPos.w;
             
@@ -404,6 +441,13 @@ VS_SHADOW_OUT VS_ShadowMap(VS_IN _in)
 
 float4 PS_ShadowMap(VS_SHADOW_OUT _in) : SV_Target
 {
+    //for (int i = 1; i < g_Light3DCount; ++i)
+    //{
+    //    _in.vProjPos;
+    //    g_Light3DBuffer[i].vWorldPos
+
+    //}
+        
     //_in.vProjPos.z = _in.vProjPos.z + _in.vProjPos.x;
     return float4(_in.vProjPos.z, 0.f, 0.f, 0.f);
 }

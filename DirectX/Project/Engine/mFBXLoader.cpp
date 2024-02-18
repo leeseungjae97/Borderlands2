@@ -587,28 +587,45 @@ void FBXLoader::CreateMaterial()
 			// 상대경로가 곧 키
 			pMaterial->SetKey(strPath);
 			pMaterial->SetRelativePath(strPath);
-
-			pMaterial->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3D_DeferredShader"));
+			if(j == 3) // 4번째 Material 투명으로 사용
+				pMaterial->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3DShader"));
+			else
+				pMaterial->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3D_DeferredShader"));
 
 			wstring strTexKey = m_vecContainer[i].vecMtrl[j].strDiff;
 			Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(strTexKey);
+
+			
+
 			if (NULL != pTex)
+			{
+				pTex->GenerateMip(8);
 				pMaterial->SetTexParam(TEX_PARAM::TEX_0, pTex);
+			}
 
 			strTexKey = m_vecContainer[i].vecMtrl[j].strNormal;
 			pTex = CResMgr::GetInst()->FindRes<CTexture>(strTexKey);
 			if (NULL != pTex)
+			{
+				pTex->GenerateMip(8);
 				pMaterial->SetTexParam(TEX_PARAM::TEX_1, pTex);
+			}
 
 			strTexKey = m_vecContainer[i].vecMtrl[j].strSpec;
 			pTex = CResMgr::GetInst()->FindRes<CTexture>(strTexKey);
 			if (NULL != pTex)
+			{
+				pTex->GenerateMip(8);
 				pMaterial->SetTexParam(TEX_PARAM::TEX_2, pTex);
+			}
 
 			strTexKey = m_vecContainer[i].vecMtrl[j].strEmis;
 			pTex = CResMgr::GetInst()->FindRes<CTexture>(strTexKey);
 			if (NULL != pTex)
+			{
+				pTex->GenerateMip(8);
 				pMaterial->SetTexParam(TEX_PARAM::TEX_3, pTex);
+			}
 
 
 			pMaterial->SetMaterialCoefficient(

@@ -23,6 +23,8 @@ CGameObject::CGameObject()
 	, m_bLifeSpan(false)
 	, m_bESM(false)
 	, m_bItem(false)
+	, m_bOwned(false)
+	, m_bWarrior(false)
 {
 }
 
@@ -38,7 +40,9 @@ CGameObject::CGameObject(const CGameObject& _Other)
 	, m_CurLifeTime(0.f)
 	, m_bLifeSpan(false)
 	, m_bESM(false)
-	, m_bItem(false)
+	, m_bItem(_Other.m_bItem)
+	, m_bOwned(_Other.m_bOwned)
+	, m_bWarrior(_Other.m_bWarrior)
 {
 	// Component บนป็
 	for (UINT i = 0; i < (UINT)COMPONENT_TYPE::END; ++i)
@@ -59,7 +63,7 @@ CGameObject::CGameObject(const CGameObject& _Other)
 	for (size_t i = 0; i < _Other.m_vecChild.size(); ++i)
 	{
 		AddChild(_Other.m_vecChild[i]->Clone());
-	}	
+	}
 }
 
 CGameObject::~CGameObject()
@@ -257,6 +261,22 @@ bool CGameObject::IsPreLoadingObject()
 	bool bTemp = m_bPreLoading;
 	m_bPreLoading = false;
 	return bTemp;
+}
+
+void CGameObject::DeleteGun(CGameObject* _pGun)
+{
+	_pGun->SetGunOwner(nullptr);
+	_pGun->SetIsOwned(false);
+
+	vector<CGameObject*>::iterator iter = m_vecGuns.begin();
+	for (; iter != m_vecGuns.end(); ++iter)
+	{
+		if (_pGun == *iter)
+		{
+			iter = m_vecGuns.erase(iter);
+			return;
+		}
+	}
 }
 
 void CGameObject::DisconnectFromParent()

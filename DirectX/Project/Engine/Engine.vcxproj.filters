@@ -116,13 +116,13 @@
       <Filter>Source\_Resource\Shader\ComputeShader</Filter>
     </ClInclude>
     <ClInclude Include="CSetColorShader.h">
-      <Filter>Source\_ShaderCode\Compute Shader\SetColor</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\SetColor</Filter>
     </ClInclude>
     <ClInclude Include="CParticleSystem.h">
       <Filter>Source\_Component\_RenderComponent\ParticleSystem</Filter>
     </ClInclude>
     <ClInclude Include="CParticleUpdateShader.h">
-      <Filter>Source\_ShaderCode\Compute Shader\ParticleUpdate</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\ParticleUpdate</Filter>
     </ClInclude>
     <ClInclude Include="CSound.h">
       <Filter>Source\_Resource\Sound</Filter>
@@ -149,7 +149,7 @@
       <Filter>Source\_Manager\KeyUseInfoMgr</Filter>
     </ClInclude>
     <ClInclude Include="CAnimation3DShader.h">
-      <Filter>Source\_ShaderCode\Compute Shader\Animation3DShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\Animation3DShader</Filter>
     </ClInclude>
     <ClInclude Include="CAnimator3D.h">
       <Filter>Source\_Component\_Animator3D</Filter>
@@ -176,22 +176,22 @@
       <Filter>Source\_Module\PhysX</Filter>
     </ClInclude>
     <ClInclude Include="CRayCastShader.h">
-      <Filter>Source\_ShaderCode\Compute Shader\RayCastShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\RayCastShader</Filter>
     </ClInclude>
     <ClInclude Include="CHeightMapShader.h">
-      <Filter>Source\_ShaderCode\Compute Shader\HeightMapShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\HeightMapShader</Filter>
     </ClInclude>
     <ClInclude Include="CColorMapShader.h">
-      <Filter>Source\_ShaderCode\Compute Shader\ColorMapShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\ColorMapShader</Filter>
     </ClInclude>
     <ClInclude Include="CWeightMapShader.h">
-      <Filter>Source\_ShaderCode\Compute Shader\WeightMapShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\WeightMapShader</Filter>
     </ClInclude>
     <ClInclude Include="CPathFind.h">
       <Filter>Source\_Component\PathFind</Filter>
     </ClInclude>
     <ClInclude Include="CLandScapePathShader.h">
-      <Filter>Source\_ShaderCode\Compute Shader\LandScapePathShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\LandScapePathShader</Filter>
     </ClInclude>
     <ClInclude Include="RecastNavi.h">
       <Filter>Source\_Module\Recast\RecastNavi</Filter>
@@ -206,7 +206,7 @@
       <Filter>Source\_Device\InstancingBuffer</Filter>
     </ClInclude>
     <ClInclude Include="CCopyBoneShader.h">
-      <Filter>Source\_ShaderCode\Compute Shader\CopyBoneShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\CopyBoneShader</Filter>
     </ClInclude>
     <ClInclude Include="LandScapeMgr.h">
       <Filter>Source\_Manager\LandScapeMgr</Filter>
@@ -229,8 +229,8 @@
     <ClInclude Include="PlayerMgr.h">
       <Filter>Source\_Manager\PlayerMgr</Filter>
     </ClInclude>
-    <ClInclude Include="MonsterMgr.h">
-      <Filter>Source\_Manager\MonsterMgr</Filter>
+    <ClInclude Include="EnemyMgr.h">
+      <Filter>Source\_Manager\EnemyMgr</Filter>
     </ClInclude>
     <ClInclude Include="CGizmo.h">
       <Filter>Source\_Component\Gizmo</Filter>
@@ -248,7 +248,7 @@
       <Filter>Source\_Manager\WeaponMgr</Filter>
     </ClInclude>
     <ClInclude Include="IndividualBoneSkinningShader.h">
-      <Filter>Source\_ShaderCode\Compute Shader\IndividualBoneSkinningShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\IndividualBoneSkinningShader</Filter>
     </ClInclude>
     <ClInclude Include="CAnimator2D.h">
       <Filter>Source\_Component\Animator2D</Filter>
@@ -258,6 +258,21 @@
     </ClInclude>
     <ClInclude Include="RandMgr.h">
       <Filter>Source\_Manager\RandMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="WarriorMgr.h">
+      <Filter>Source\_Manager\WarriorMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillMgr.h">
+      <Filter>Source\_Manager\SkillMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="DownSamplingShader.h">
+      <Filter>Source\_Resource\Shader\ComputeShader\DownSamplerShader</Filter>
+    </ClInclude>
+    <ClInclude Include="BlurShader.h">
+      <Filter>Source\_Resource\Shader\ComputeShader\BlurShader</Filter>
+    </ClInclude>
+    <ClInclude Include="UpSamplingShader.h">
+      <Filter>Source\_Resource\Shader\ComputeShader\UpSamplerShader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -358,13 +373,13 @@
       <Filter>Source\_Resource\Shader\ComputeShader</Filter>
     </ClCompile>
     <ClCompile Include="CSetColorShader.cpp">
-      <Filter>Source\_ShaderCode\Compute Shader\SetColor</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\SetColor</Filter>
     </ClCompile>
     <ClCompile Include="CParticleSystem.cpp">
       <Filter>Source\_Component\_RenderComponent\ParticleSystem</Filter>
     </ClCompile>
     <ClCompile Include="CParticleUpdateShader.cpp">
-      <Filter>Source\_ShaderCode\Compute Shader\ParticleUpdate</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\ParticleUpdate</Filter>
     </ClCompile>
     <ClCompile Include="CSound.cpp">
       <Filter>Source\_Resource\Sound</Filter>
@@ -391,7 +406,7 @@
       <Filter>Source\_Manager\KeyUseInfoMgr</Filter>
     </ClCompile>
     <ClCompile Include="CAnimation3DShader.cpp">
-      <Filter>Source\_ShaderCode\Compute Shader\Animation3DShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\Animation3DShader</Filter>
     </ClCompile>
     <ClCompile Include="CAnimator3D.cpp">
       <Filter>Source\_Component\_Animator3D</Filter>
@@ -415,22 +430,22 @@
       <Filter>Source\_Module\PhysX</Filter>
     </ClCompile>
     <ClCompile Include="CRayCastShader.cpp">
-      <Filter>Source\_ShaderCode\Compute Shader\RayCastShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\RayCastShader</Filter>
     </ClCompile>
     <ClCompile Include="CHeightMapShader.cpp">
-      <Filter>Source\_ShaderCode\Compute Shader\HeightMapShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\HeightMapShader</Filter>
     </ClCompile>
     <ClCompile Include="CColorMapShader.cpp">
-      <Filter>Source\_ShaderCode\Compute Shader\ColorMapShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\ColorMapShader</Filter>
     </ClCompile>
     <ClCompile Include="CWeightMapShader.cpp">
-      <Filter>Source\_ShaderCode\Compute Shader\WeightMapShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\WeightMapShader</Filter>
     </ClCompile>
     <ClCompile Include="CPathFind.cpp">
       <Filter>Source\_Component\PathFind</Filter>
     </ClCompile>
     <ClCompile Include="CLandScapePathShader.cpp">
-      <Filter>Source\_ShaderCode\Compute Shader\LandScapePathShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\LandScapePathShader</Filter>
     </ClCompile>
     <ClCompile Include="RecastNavi.cpp">
       <Filter>Source\_Module\Recast\RecastNavi</Filter>
@@ -445,7 +460,7 @@
       <Filter>Source\_Device\InstancingBuffer</Filter>
     </ClCompile>
     <ClCompile Include="CCopyBoneShader.cpp">
-      <Filter>Source\_ShaderCode\Compute Shader\CopyBoneShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\CopyBoneShader</Filter>
     </ClCompile>
     <ClCompile Include="LandScapeMgr.cpp">
       <Filter>Source\_Manager\LandScapeMgr</Filter>
@@ -468,8 +483,8 @@
     <ClCompile Include="PlayerMgr.cpp">
       <Filter>Source\_Manager\PlayerMgr</Filter>
     </ClCompile>
-    <ClCompile Include="MonsterMgr.cpp">
-      <Filter>Source\_Manager\MonsterMgr</Filter>
+    <ClCompile Include="EnemyMgr.cpp">
+      <Filter>Source\_Manager\EnemyMgr</Filter>
     </ClCompile>
     <ClCompile Include="CGizmo.cpp">
       <Filter>Source\_Component\Gizmo</Filter>
@@ -490,7 +505,7 @@
       <Filter>Source\_Manager\WeaponMgr</Filter>
     </ClCompile>
     <ClCompile Include="IndividualBoneSkinningShader.cpp">
-      <Filter>Source\_ShaderCode\Compute Shader\IndividualBoneSkinningShader</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\IndividualBoneSkinningShader</Filter>
     </ClCompile>
     <ClCompile Include="CAnimator2D.cpp">
       <Filter>Source\_Component\Animator2D</Filter>
@@ -500,6 +515,21 @@
     </ClCompile>
     <ClCompile Include="RandMgr.cpp">
       <Filter>Source\_Manager\RandMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="WarriorMgr.cpp">
+      <Filter>Source\_Manager\WarriorMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="SkillMgr.cpp">
+      <Filter>Source\_Manager\SkillMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="DownSamplingShader.cpp">
+      <Filter>Source\_Resource\Shader\ComputeShader\DownSamplerShader</Filter>
+    </ClCompile>
+    <ClCompile Include="BlurShader.cpp">
+      <Filter>Source\_Resource\Shader\ComputeShader\BlurShader</Filter>
+    </ClCompile>
+    <ClCompile Include="UpSamplingShader.cpp">
+      <Filter>Source\_Resource\Shader\ComputeShader\UpSamplerShader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -626,36 +656,6 @@
     <Filter Include="Source\_ShaderCode">
       <UniqueIdentifier>{7bae9d30-a4aa-4ff1-abdc-5ed8dcbd21ce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader">
-      <UniqueIdentifier>{e7e58685-e989-40bc-92c9-4f79bf523b39}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader\SetColor">
-      <UniqueIdentifier>{10f44ac0-4d7c-466f-8168-e9649d728a5f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader\ParticleUpdate">
-      <UniqueIdentifier>{12834beb-ba3f-4987-aee4-cf905f38179d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader\RayCastShader">
-      <UniqueIdentifier>{794f2ff5-7da5-4ce6-87ea-30051c6a6007}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader\Animation3DShader">
-      <UniqueIdentifier>{47d7770c-d818-460a-94bd-566bb181cac2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader\ColorMapShader">
-      <UniqueIdentifier>{3c0a2b6b-07ad-4210-a170-fd1a9d1fb3fb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader\HeightMapShader">
-      <UniqueIdentifier>{84e34483-be87-4f71-8599-3e7b71e2eadf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader\WeightMapShader">
-      <UniqueIdentifier>{68f83462-b4d8-4d1a-b934-5abf68f8409f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader\LandScapePathShader">
-      <UniqueIdentifier>{6f3947b0-018a-433e-9e77-d7f6046c59ef}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader\CopyBoneShader">
-      <UniqueIdentifier>{292c633a-ce56-44a1-abac-0122e5a8b64a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\_Component">
       <UniqueIdentifier>{687dc90e-c2c0-4507-bd5e-153a25cd4d38}</UniqueIdentifier>
     </Filter>
@@ -713,9 +713,6 @@
     <Filter Include="Source\_Manager\PlayerMgr">
       <UniqueIdentifier>{74d63b27-cb75-4cb6-948b-5b0416830720}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\_Manager\MonsterMgr">
-      <UniqueIdentifier>{4ca50685-60fa-477a-b81f-e992f956bd23}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\_Component\Gizmo">
       <UniqueIdentifier>{ec5339a9-b08b-459d-8477-39ea7f94afa0}</UniqueIdentifier>
     </Filter>
@@ -734,17 +731,68 @@
     <Filter Include="Source\_Manager\WeaponMgr">
       <UniqueIdentifier>{2b14e5ca-3a5d-4e10-a26f-f20b6acb5734}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader\IndividualBoneSkinningShader">
-      <UniqueIdentifier>{9d7c998b-a838-4821-ad26-7952694d5c81}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\_Component\Animator2D">
       <UniqueIdentifier>{0b7d9801-a8a0-4e47-bbde-b8f30e231f92}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\_Manager\RandMgr">
       <UniqueIdentifier>{f5dc8005-423f-4cb8-aa18-bd9564517f43}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\_ShaderCode\Compute Shader\ParticleShader">
+    <Filter Include="Source\_Manager\EnemyMgr">
+      <UniqueIdentifier>{4ca50685-60fa-477a-b81f-e992f956bd23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\SkillMgr">
+      <UniqueIdentifier>{fd662726-c6af-4477-b114-1b4c7fc79b4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\WarriorMgr">
+      <UniqueIdentifier>{d097f387-23e8-4df0-b0d9-8cfc8af40d66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\Animation3DShader">
+      <UniqueIdentifier>{47d7770c-d818-460a-94bd-566bb181cac2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\ColorMapShader">
+      <UniqueIdentifier>{3c0a2b6b-07ad-4210-a170-fd1a9d1fb3fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\CopyBoneShader">
+      <UniqueIdentifier>{292c633a-ce56-44a1-abac-0122e5a8b64a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\HeightMapShader">
+      <UniqueIdentifier>{84e34483-be87-4f71-8599-3e7b71e2eadf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\IndividualBoneSkinningShader">
+      <UniqueIdentifier>{9d7c998b-a838-4821-ad26-7952694d5c81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\LandScapePathShader">
+      <UniqueIdentifier>{6f3947b0-018a-433e-9e77-d7f6046c59ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\DownSamplerShader">
+      <UniqueIdentifier>{7210d9a8-ac70-42aa-bf9c-06e1f2d052a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\ParticleShader">
       <UniqueIdentifier>{9fad93fe-4fb8-4d90-8aa2-09968ae6cd9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\ParticleUpdate">
+      <UniqueIdentifier>{12834beb-ba3f-4987-aee4-cf905f38179d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\RayCastShader">
+      <UniqueIdentifier>{794f2ff5-7da5-4ce6-87ea-30051c6a6007}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\SetColor">
+      <UniqueIdentifier>{10f44ac0-4d7c-466f-8168-e9649d728a5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\WeightMapShader">
+      <UniqueIdentifier>{68f83462-b4d8-4d1a-b934-5abf68f8409f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\BlurShader">
+      <UniqueIdentifier>{4c47e72e-c6f6-4328-88b2-89516c30ad57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_ShaderCode\Animation">
+      <UniqueIdentifier>{d3e03e0c-1695-4f5f-b2db-86b96be072b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_ShaderCode\Effect">
+      <UniqueIdentifier>{9bc5a1a2-09e2-4635-9b8d-4a7be00afff6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\UpSamplerShader">
+      <UniqueIdentifier>{6dcdaef3-502b-49b5-a01a-62dc93e9f476}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -770,18 +818,12 @@
       <Filter>Source\_ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="setcolor.fx">
-      <Filter>Source\_ShaderCode\Compute Shader\SetColor</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\SetColor</Filter>
     </FxCompile>
     <FxCompile Include="particle_update.fx">
-      <Filter>Source\_ShaderCode\Compute Shader\ParticleUpdate</Filter>
+      <Filter>Source\_Resource\Shader\ComputeShader\ParticleUpdate</Filter>
     </FxCompile>
     <FxCompile Include="particle_render.fx">
-      <Filter>Source\_ShaderCode</Filter>
-    </FxCompile>
-    <FxCompile Include="postprocess.fx">
-      <Filter>Source\_ShaderCode</Filter>
-    </FxCompile>
-    <FxCompile Include="test.fx">
       <Filter>Source\_ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="std3d.fx">
@@ -790,22 +832,10 @@
     <FxCompile Include="skybox.fx">
       <Filter>Source\_ShaderCode</Filter>
     </FxCompile>
-    <FxCompile Include="decal.fx">
-      <Filter>Source\_ShaderCode</Filter>
-    </FxCompile>
     <FxCompile Include="std3d_deferred.fx">
       <Filter>Source\_ShaderCode</Filter>
     </FxCompile>
-    <FxCompile Include="light.fx">
-      <Filter>Source\_ShaderCode</Filter>
-    </FxCompile>
     <FxCompile Include="area_decal.fx">
-      <Filter>Source\_ShaderCode</Filter>
-    </FxCompile>
-    <FxCompile Include="tess.fx">
-      <Filter>Source\_ShaderCode</Filter>
-    </FxCompile>
-    <FxCompile Include="animation3d.fx">
       <Filter>Source\_ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="landscape.fx">
@@ -829,14 +859,35 @@
     <FxCompile Include="copybone.fx">
       <Filter>Source\_ShaderCode</Filter>
     </FxCompile>
-    <FxCompile Include="animation2d.fx">
-      <Filter>Source\_ShaderCode</Filter>
+    <FxCompile Include="blur.fx">
+      <Filter>Source\_ShaderCode\Effect</Filter>
     </FxCompile>
-    <FxCompile Include="dissolve.fx">
-      <Filter>Source\_ShaderCode</Filter>
+    <FxCompile Include="down_sampling.fx">
+      <Filter>Source\_ShaderCode\Effect</Filter>
+    </FxCompile>
+    <FxCompile Include="animation2d.fx">
+      <Filter>Source\_ShaderCode\Animation</Filter>
+    </FxCompile>
+    <FxCompile Include="animation3d.fx">
+      <Filter>Source\_ShaderCode\Animation</Filter>
     </FxCompile>
     <FxCompile Include="individual_bone_skinning.fx">
-      <Filter>Source\_ShaderCode</Filter>
+      <Filter>Source\_ShaderCode\Animation</Filter>
+    </FxCompile>
+    <FxCompile Include="light.fx">
+      <Filter>Source\_ShaderCode\Effect</Filter>
+    </FxCompile>
+    <FxCompile Include="decal.fx">
+      <Filter>Source\_ShaderCode\Effect</Filter>
+    </FxCompile>
+    <FxCompile Include="dissolve.fx">
+      <Filter>Source\_ShaderCode\Effect</Filter>
+    </FxCompile>
+    <FxCompile Include="postprocess.fx">
+      <Filter>Source\_ShaderCode\Effect</Filter>
+    </FxCompile>
+    <FxCompile Include="tess.fx">
+      <Filter>Source\_ShaderCode\Effect</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

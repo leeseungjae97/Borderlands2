@@ -50,63 +50,70 @@ void RaycastMgr::AddRaycastDraw(Vec3 _vDir, Vec3 _vOrigin, Matrix matWorld, Vec4
 	m_vecRayDraw.push_back(drawRay);
 }
 
-void RaycastMgr::DoRaycast(tRayInfo _RaycastInfo)
+bool RaycastMgr::DoRaycast(tRayInfo _RaycastInfo)
 {
-	//tPlayerRayInfo = _RaycastInfo;
-	//m_vecMonsterRayInfo.push_back(_RaycastInfo);
-	//m_bDoRaycast = true;
+	Vec3 _vDir = _RaycastInfo.vDir;
+	Vec3 _vOrigin = _RaycastInfo.vStart;
 
-	//PxScene* mScene = PhysXMgr::GetInst()->GCurScene();
-	//PxVec3 _vOr = PxVec3(_vOrigin.x, _vOrigin.y, _vOrigin.z);
-	//PxVec3 _vDr = PxVec3(_vDir.x, _vDir.y, _vDir.z);
-	//_vDr.normalize();
-	//PxRaycastBuffer hit2;
-	//if(mScene->raycast(_vOr, _vDr, 10000.f, hit2))
-	//{
-	//	AddRaycastDraw(_vDir, _vOrigin, Vec4(1.f, 0.f, 1.f, 1.f));
-	//}
+	PxScene* mScene = PhysXMgr::GetInst()->GCurScene();
+	PxVec3 _vOr = PxVec3(_vOrigin.x, _vOrigin.y, _vOrigin.z);
+	PxVec3 _vDr = PxVec3(_vDir.x, _vDir.y, _vDir.z);
 
-	//PxOverlapBuffer OverLaphit;
-	//PxTransform pose = physx::Util::PxTransformFromVec3PosRot(_vOr, _vDr);
-	//PxRaycastBuffer hit;
-	//PxQueryFilterData filterData;
-	//filterData.flags = PxQueryFlag::eDYNAMIC;
-	//int iBulletLayerIdx = CollisionMgr::GetInst()->GetBulletLayerIdx();
-	//if (mScene->raycast(_vOr, _vDr, 100000.f, hit, PxHitFlag::eDEFAULT, filterData))
-	//{
-	//	if (hit.block.actor->userData)
-	//	{
-	//		CCollider3D* ohterCol = static_cast<CCollider3D*>(hit.block.actor->userData);
+	PxOverlapBuffer OverLaphit;
+	PxRaycastBuffer hit;
+	PxQueryFilterData filterData;
 
-	//		if (ohterCol)
-	//		{
-	//			int iOtherLayoutIdx = ohterCol->GetOwner()->GetLayerIndex();
+	filterData.flags |= PxQueryFlag::eDYNAMIC;
+	//filterData.flags |= PxQueryFlag::eSTATIC;
+	int iBulletLayoutIndex = (int)LAYER_TYPE::EnemyBullet;
+	if(_RaycastInfo.iLayerIdx == (int)LAYER_TYPE::Player)
+	{
+		iBulletLayoutIndex = (int)LAYER_TYPE::PlayerBullet;
+	}
 
-	//			if (!CollisionMgr::GetInst()->IsLayerIntersect(iOtherLayoutIdx, iBulletLayerIdx))
-	//			{
-	//				wstring m = L"Raycast Skipped (" + std::to_wstring(iOtherLayoutIdx) + L")\n";
-	//				OutputDebugStringW(m.c_str());
-	//				return;
-	//			}
+	if (mScene->raycast(_vOr, _vDr, 100000.f, hit, PxHitFlag::eDEFAULT, filterData))
+	{
+		if (hit.block.actor->userData)
+		{
+			
+			CCollider3D* ohterCol = static_cast<CCollider3D*>(hit.block.actor->userData);
 
-	//			if (col != ohterCol)
-	//			{
-	//				ohterCol->Raycast(_RaycastInfo);
-	//			}
-	//		}
-	//	}
-	//}
+			if (ohterCol)
+			{
+				int iOtherLayoutIdx = ohterCol->GetOwner()->GetLayerIndex();
+				if (_RaycastInfo.iID == ohterCol->GetOwner()->GetID())
+				{
+					return false;
+				}
+
+				if (CollisionMgr::GetInst()->IsLayerIntersect(iOtherLayoutIdx, iBulletLayoutIndex))
+				{
+					ohterCol->Raycast(_RaycastInfo);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 void RaycastMgr::AddRaycast(tRayInfo _RaycastInfo)
 {
-	m_vecMonsterRayInfo.push_back(_RaycastInfo);
+	m_vecEnemyRayInfo.push_back(_RaycastInfo);
+}
+void RaycastMgr::ReplyRaycast(tRayInfo _RaycastInfo)
+{
+	m_vecEnemyRayInfo.push_back(_RaycastInfo);
 }
 
 void RaycastMgr::ClearRayInfo()
 {
-	m_vecMonsterRayInfo.clear();
-	vector<tRayInfo>().swap(m_vecMonsterRayInfo);
+	m_vecEnemyRayInfo.clear();
+	vector<tRayInfo>().swap(m_vecEnemyRayInfo);
 }
 
 PxVec3 RaycastMgr::GetShapeCenter(PxShape* shape, const PxTransform& pose)

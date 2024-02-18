@@ -22,10 +22,20 @@ DefineAnimationUI::~DefineAnimationUI()
 
 int DefineAnimationUI::render_update()
 {
+	if (CEventMgr::GetInst()->IsLevelChanged())
+		return FALSE;
+
 	if (CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
 		return FALSE;
 
 	OutlinerUI* outliner = (OutlinerUI*)ImGuiMgr::GetInst()->FindUI("##Outliner");
+
+	if (nullptr == outliner)
+		return FALSE;
+
+	if (outliner->IsOutlinearReset())
+		return FALSE;
+
 	CGameObject* pSelectedObject = outliner->GetSelectedObject();
 
 	if (nullptr == pSelectedObject || nullptr == pSelectedObject->Animator3D())
@@ -38,10 +48,15 @@ int DefineAnimationUI::render_update()
 		STRS = GUN_ANIMATION_TYPE_STR;
 		STRSSIZE = (int)GUN_ANIMATION_TYPE::END;
 	}
+	else if (pSelectedObject->GetLayerIndex() == (int)LAYER_TYPE::Enemy)
+	{
+		STRS = ENEMY_ANIMATION_TYPE_STR;
+		STRSSIZE = (int)ENEMY_ANIMATION_TYPE::END;
+	}
 	else
 	{
-		STRS = ANIMATION_TYPE_STR;
-		STRSSIZE = (int)ANIMATION_TYPE::END;
+		STRS = PLAYER_ANIMATION_TYPE_STR;
+		STRSSIZE = (int)PLAYER_ANIMATION_TYPE::END;
 	}
 	for(int i = 0 ; i < STRSSIZE; ++i)
 	{

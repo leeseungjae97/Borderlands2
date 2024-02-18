@@ -1,5 +1,11 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Engine\mFBXLoader.cpp"
+
+
+#include "E:\directx11_3d\DirectX\Project\Engine\mMRT.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\ObjPickerMgr.cpp"
 
 
@@ -25,10 +31,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\RecastNavi.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\CRigidBody.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\SimpleMath.cpp"
 

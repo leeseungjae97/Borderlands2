@@ -1,5 +1,6 @@
 #pragma once
 #include <Engine\CScript.h>
+#include <Engine\MonsterMgr.h>
 
 class CMonsterScript :
     public CScript
@@ -10,12 +11,18 @@ private:
     float fRateOfFire;
     float fRateOfFireAcc;
     int   iMonsterHp;
+    int   iAmmo;
     bool  bRotate;
+
+    MonsterMgr::MONSTER_STATE tState;
 public:
     void Move();
     bool Rotate();
+    void Reload();
 
 public:
+    void begin() override;
+
     virtual void tick() override;
     void BeginOverlap(CCollider3D* _Other) override;
     void Raycast(tRayInfo _RaycastInfo) override;

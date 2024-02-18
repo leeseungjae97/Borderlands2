@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "TreeUI.h"
 
-
+#include <Engine\CEventMgr.h>
 
 // ========
 // TreeNode
@@ -128,6 +128,11 @@ TreeUI::~TreeUI()
 
 int TreeUI::render_update()
 {
+    if(CEventMgr::GetInst()->IsLevelChanged())
+    {
+        m_SelectedNode = nullptr;
+    }
+
     if (nullptr != m_RootNode)
     {
         if (m_bShowRoot)

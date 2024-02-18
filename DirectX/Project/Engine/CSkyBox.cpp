@@ -71,7 +71,7 @@ void CSkyBox::finaltick()
 {
 }
 
-void CSkyBox::render(UINT _iSubset)
+void CSkyBox::render(UINT _iSubset, bool _Deferred)
 {
 	render();
 }

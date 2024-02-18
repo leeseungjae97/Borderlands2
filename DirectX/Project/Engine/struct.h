@@ -333,7 +333,16 @@ struct tMtrlConst
 
 	int arrTex[(UINT)TEX_PARAM::TEX_END];
 
-	int	arrAnimData[4];	
+	int	arrAnimData[3];
+	float fTexFlowSpeed;
+
+	Vec2 vTexDir;
+	float fEmisCoeff;
+	
+	int arrTexFlow[(UINT)TEX_PARAM::TEX_END];
+	int arrTexEmis[(UINT)TEX_PARAM::TEX_END];
+
+	int pad;
 };
 
 
@@ -352,6 +361,7 @@ extern tGlobal GlobalData;
 // 광선 구조체
 struct tRay
 {
+	// 주의 : 같은 Relative Position인지 확인하고 써야함.
 	Vec3 vStart;
 	Vec3 vDir;
 };
@@ -382,4 +392,5 @@ struct tRayInfo
 	Vec3	vDir;
 	Matrix  matWorld;
 	UINT	tRayType;
+	UINT	iID;
 };

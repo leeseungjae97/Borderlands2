@@ -35,8 +35,18 @@ public:
     Ptr<CGraphicsShader> GetShader() { return m_pShader; }
 
     void SetAnim3D(bool _bTrue) { m_Const.arrAnimData[0] = (int)_bTrue; }
-    void SetAnim2D(bool _bTrue) { m_Const.arrAnimData[2] = (int)_bTrue; }
     void SetBoneCount(int _iBoneCount) { m_Const.arrAnimData[1] = _iBoneCount; }
+
+    void SetTexFlow(bool _bTrue) { m_Const.arrAnimData[2] = (int)_bTrue; }
+    void SetFlowSpeed(float _fSpeed) { m_Const.fTexFlowSpeed = _fSpeed; }
+
+    void SetFlowDir(Vec2 _Dir) { m_Const.vTexDir = _Dir; }
+
+    void SetEmissiveCoeff(float _Coeff) { m_Const.fEmisCoeff = _Coeff; }
+    void SetFlow(int _Idx, bool _bFlow) { m_Const.arrTexFlow[_Idx] = _bFlow; }
+
+    tMtrlConst GetConst() { return m_Const; }
+
 
     virtual void UpdateData() override;
     void UpdateData_Instancing();

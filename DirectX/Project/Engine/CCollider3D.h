@@ -13,19 +13,20 @@ class CCollider3D :
     public CComponent
 {
 private:
-    // PhysX 연산에 사용될 충돌체 모양
     PxShape*        m_PxColliderShape;
+    //PxShape*        m_PxRangeShape;
+
     PxRigidStatic*  m_PxColliderRigid;
-    // PhysX 연산에 사용될 정보
-    // 마찰 결합 방식, 탄성 결합 방식 결정
-    // https://docs.unrealengine.com/4.26/ko/InteractiveExperiences/Physics/PhysicalMaterials/Reference/
+
     PxMaterial*     m_PxMaterial;
 
     COLLIDER_SHAPE_TYPE  m_tColliderShapeType;
 
     Vec3            m_vScale;
+    Vec3            m_vOffset;
     bool            m_bFirstInit;
     bool            m_bAttachToRigidBody;
+    bool            m_bCenter;
 
 private:
     void setShapeToRigidBody();
@@ -34,11 +35,14 @@ private:
 
 public:
     PxShape* GetShape() { return m_PxColliderShape; }
+    //PxShape* GetRange() { return m_PxColliderShape; }
     PxMaterial* GetMaterial() const { return m_PxMaterial; }
     PxRigidStatic* GetColliderRigid() const { return m_PxColliderRigid; }
     COLLIDER_SHAPE_TYPE GetColliderShape() { return m_tColliderShapeType; }
 
     //PxTransform GetColliderPos() { return m_PxColliderShape->Get}
+    void SetColliderPos(Vec3 _vPos);
+    void SetColliderRot(Vec3 _vRot);
 
     void SetShape(PxShape* m_px_collider_shape) { m_PxColliderShape = m_px_collider_shape; }
     void SetMaterial(PxMaterial* m_px_material) { m_PxMaterial = m_px_material; }
@@ -47,9 +51,18 @@ public:
     void SetScale(Vec3 _Scale) { m_vScale = _Scale; }
     Vec3 GetScale() { return m_vScale; }
 
+    void SetOffset(Vec3 _Offset) { m_vOffset = _Offset; }
+    Vec3 GetOffset() { return m_vOffset; }
+
     void SetAttachToRigidBody(bool _Attach) { m_bAttachToRigidBody = true; }
     bool GetAttachToRigidBody() { return m_bAttachToRigidBody; }
-    
+
+    void SetCenter(bool _Center) { m_bCenter = _Center; }
+    bool GetCenter() { return m_bCenter; }
+
+    PxTransform GetColliderPos() { return m_PxColliderRigid->getGlobalPose(); }
+
+    bool IsColliderRigidCreate() { return m_PxColliderRigid; }
 public:
     void EndOverlap(CCollider3D* _OhterCol);
     void OnOverlap(CCollider3D* _OhterCol);

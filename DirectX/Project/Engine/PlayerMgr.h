@@ -9,6 +9,7 @@ public:
 	enum class PLAYER_STATE {
 		RELOAD,
 		FIRE,
+		DRAW,
 		SPRINT,
 		WALK,
 		IDLE,

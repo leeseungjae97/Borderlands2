@@ -189,7 +189,7 @@ void CEditorObjMgr::render()
 
 		pShapeObj->render();
 
-		iter->fCurTime += DT;
+     		iter->fCurTime += DT;
 		if (iter->fMaxTime < iter->fCurTime)
 		{
 			iter = m_DebugShapeInfo.erase(iter);

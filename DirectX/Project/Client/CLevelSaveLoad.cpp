@@ -50,7 +50,7 @@ int CLevelSaveLoad::SaveLevel(const wstring& _LevelPath, CLevel* _Level)
 		// 각 게임오브젝트
 		for (size_t i = 0; i < objCount; ++i)
 		{
-			SaveGameObject(vecParent[i], pFile);
+			SaveGameObject(vecParent[i], pFile, true);
 		}
 	}
 
@@ -60,11 +60,27 @@ int CLevelSaveLoad::SaveLevel(const wstring& _LevelPath, CLevel* _Level)
 	return S_OK;
 }
 
-int CLevelSaveLoad::SaveGameObject(CGameObject* _Object, FILE* _File)
+int CLevelSaveLoad::SaveGameObject(CGameObject* _Object, FILE* _File, bool _Root)
 {
+	bool bOwned = _Object->IsOwned();
+	fwrite(&bOwned, sizeof(bool), 1, _File);
+
+	if (bOwned && _Root)
+		return FALSE;
+
 	// 이름
 	SaveWString(_Object->GetName(), _File);
+	bool bItem = _Object->IsItem();
+	bool bEqui = _Object->IsEqui();
+	bool bWarrior = _Object->IsWarrior();
 	
+	CGameObject::OBJECT_STATE state = _Object->GetObjectState();
+
+	fwrite(&bItem, sizeof(bool), 1, _File);
+	fwrite(&bEqui, sizeof(bool), 1, _File);
+	fwrite(&bWarrior, sizeof(bool), 1, _File);
+	fwrite(&state, sizeof(UINT), 1, _File);
+
 	// 컴포넌트
 	for (UINT i = 0; i <= (UINT)COMPONENT_TYPE::END; ++i)
 	{		
@@ -106,10 +122,20 @@ int CLevelSaveLoad::SaveGameObject(CGameObject* _Object, FILE* _File)
 
 	for (size_t i = 0; i < ChildCount; ++i)
 	{
-		SaveGameObject(vecChild[i], _File);		
+		SaveGameObject(vecChild[i], _File, false);		
 	}
 
-	return 0;
+	const vector<CGameObject*>& vecGuns = _Object->GetGuns();
+	size_t GunCount = vecGuns.size();
+	fwrite(&GunCount, sizeof(size_t), 1, _File);
+
+	for (size_t i = 0; i < GunCount; ++i)
+	{
+		SaveGameObject(vecGuns[i], _File, false);
+	}
+
+
+	return TRUE;
 }
 
 CLevel* CLevelSaveLoad::LoadLevel(const wstring& _LevelPath)
@@ -148,7 +174,9 @@ CLevel* CLevelSaveLoad::LoadLevel(const wstring& _LevelPath)
 		// 각 게임오브젝트
 		for (size_t j = 0; j < objCount; ++j)
 		{
-			CGameObject* pNewObj = LoadGameObject(pFile);
+			CGameObject* pNewObj = LoadGameObject(pFile, NewLevel, i, true);
+			if (nullptr == pNewObj) continue;
+
 			NewLevel->AddGameObject(pNewObj, i, false);
 		}
 	}
@@ -160,13 +188,37 @@ CLevel* CLevelSaveLoad::LoadLevel(const wstring& _LevelPath)
 	return NewLevel;
 }
 
-CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File)
+CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File, CLevel* _NewLevel, int _LayerIdx, bool _Root)
 {
+	bool bOwned = false;
+	fread(&bOwned, sizeof(bool), 1, _File);
+
+	if (bOwned && _Root)
+		return FALSE;
+
 	CGameObject* pObject = new CGameObject;
 
 	// 이름
 	wstring Name;
 	LoadWString(Name, _File);
+	bool bItem = false;
+	bool bEqui = false;
+	bool bWarrior = false;
+
+	CGameObject::OBJECT_STATE state = CGameObject::OBJECT_STATE::VISIBLE;
+
+	fread(&bItem, sizeof(bool), 1, _File);
+	fread(&bEqui, sizeof(bool), 1, _File);
+	fread(&bWarrior, sizeof(bool), 1, _File);
+	fread(&state, sizeof(UINT), 1, _File);
+	
+	pObject->SetIsItem(bItem);
+	pObject->SetIsEqui(bEqui);
+	pObject->SetIsOwned(bOwned);
+	pObject->SetIsWarrior(bWarrior);
+
+	pObject->SetObjectState(state);
+
 	pObject->SetName(Name);
 
 	// 컴포넌트
@@ -210,6 +262,9 @@ CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File)
 		case COMPONENT_TYPE::MESHRENDER:
 			Component = new CMeshRender;
 			break;
+		case COMPONENT_TYPE::PATHFIND:
+			Component = new CPathFind;
+			break;
 		case COMPONENT_TYPE::PARTICLESYSTEM:
 			Component = new CParticleSystem;
 			break;
@@ -248,8 +303,21 @@ CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File)
 
 	for (size_t i = 0; i < ChildCount; ++i)
 	{
-		CGameObject* ChildObject = LoadGameObject(_File);
+		CGameObject* ChildObject = LoadGameObject(_File, nullptr, 0, false);
+		if (nullptr == ChildObject)
+			continue;
 		pObject->AddChild(ChildObject);
+	}
+	size_t GunCount = 0;
+	fread(&GunCount, sizeof(size_t), 1, _File);
+
+	for (size_t i = 0; i < GunCount; ++i)
+	{
+		CGameObject* GunObject = LoadGameObject(_File, nullptr, 0, false);
+		if (nullptr == GunObject)
+			continue;
+		pObject->AddGun(GunObject);
+		_NewLevel->AddGameObject(GunObject, _LayerIdx, false);
 	}
 
 	return pObject;

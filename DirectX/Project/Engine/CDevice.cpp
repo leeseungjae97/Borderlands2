@@ -124,6 +124,7 @@ int CDevice::CreateSwapChain()
     tDesc.BufferDesc.Width = (UINT)m_vRenderResolution.x;
     tDesc.BufferDesc.Height = (UINT)m_vRenderResolution.y;
     tDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    //tDesc.BufferDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     tDesc.BufferDesc.RefreshRate.Denominator = 1;
     tDesc.BufferDesc.RefreshRate.Numerator = 60;
     tDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;

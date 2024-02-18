@@ -10,6 +10,7 @@ CCollider3D::CCollider3D(bool _AttachRigid)
 	: CComponent(COMPONENT_TYPE::COLLIDER3D)
 	, m_PxColliderShape(nullptr)
 	, m_bFirstInit(false)
+	, m_bCenter(false)
 	, m_tColliderShapeType(COLLIDER_SHAPE_TYPE::BOX)
 	, m_bAttachToRigidBody(_AttachRigid)
 	, m_vScale(Vec3(1.f, 1.f, 1.f))
@@ -76,8 +77,8 @@ void CCollider3D::setShapeToRigidBody()
 {
 	CRigidBody* _rb = GetOwner()->RigidBody();
 
-	if (!m_bAttachToRigidBody && nullptr == _rb
-		|| !_rb->IsRigidBodyCreate()) return;
+	if (m_bAttachToRigidBody && (nullptr == _rb || !_rb->IsRigidBodyCreate())) return;
+
 
 	if (m_bFirstInit) return;
 
@@ -88,12 +89,18 @@ void CCollider3D::setShapeToRigidBody()
 
 	createColliderShape();
 
-	if(nullptr == _rb)
+	if(!m_bAttachToRigidBody)
 	{
 		Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
 		Vec3 vRot = GetOwner()->Transform()->GetRelativeRot();
+		//Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
 
 		Quat quat; quat = Vector3ToQuaternion(vRot);
+		//if (m_bCenter)
+		//{
+		//	m_vOffset.z = vScale.z / 2.f;
+		//	vPos.z += m_vOffset.z;
+		//}
 
 		PxTransform localTm(PxVec3(vPos.x, vPos.y, vPos.z), PxQuat(quat.x, quat.y, quat.z, quat.w));
 
@@ -122,14 +129,18 @@ void CCollider3D::createColliderShape()
 			m_vScale = GetOwner()->Transform()->GetRelativeScale();
 			//Matrix matWorld = GetOwner()->Transform()->GetWorldMat();
 			//Vec4 headPos = XMVector3TransformCoord(GetOwner()->Animator3D()->GetMeshHeadPosition(), matWorld);
-			m_vScale.y = 100.f / 2.f;
+			//m_vScale.y = 100.f / 2.f;
 		}
 			
 		else if (_rb && m_bAttachToRigidBody)
 			m_vScale = GetOwner()->RigidBody()->GetRigidScale();
 	}
 	
-	m_PxColliderShape = createTriggerShape(PxBoxGeometry(m_vScale.x + 2, m_vScale.y + 2, m_vScale.z + 2), *m_PxMaterial, true);
+	//m_PxColliderShape = createTriggerShape(PxBoxGeometry(m_vScale.x + 2, m_vScale.y + 2, m_vScale.z + 2), *m_PxMaterial, true);
+	m_PxColliderShape = PhysXMgr::GetInst()->GPhysics()->createShape(
+		physx::PxBoxGeometry(m_vScale.x / 2.f, m_vScale.y / 2.f, m_vScale.z / 2.f)
+		, *m_PxMaterial
+		, true);
 	PxFilterData triggerFilterData(0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff);
 	m_PxColliderShape->setSimulationFilterData(triggerFilterData);
 }
@@ -154,14 +165,41 @@ void CCollider3D::colliderDebugDraw()
 	DrawDebugCube(worldMat, Vec4(0.f, 1.f, 0.f, 1.f), 0.f, true);
 }
 
+void CCollider3D::SetColliderPos(Vec3 _vPos)
+{
+	//_vPos += m_vOffset;
+
+	if (m_PxColliderRigid)
+	{
+		PxTransform trans = m_PxColliderRigid->getGlobalPose();
+		trans.p = PxVec3(_vPos.x, _vPos.y, _vPos.z);
+		m_PxColliderRigid->setGlobalPose(trans);
+	}
+}
+
+void CCollider3D::SetColliderRot(Vec3 _vRot)
+{
+	if (m_PxColliderRigid)
+	{
+		PxTransform trans = m_PxColliderRigid->getGlobalPose();
+		Quat quat; quat = Util::Vector3ToQuaternion(_vRot);
+		trans.q = PxQuat(quat.x, quat.y, quat.z, quat.w);
+		m_PxColliderRigid->setGlobalPose(trans);
+	}
+}
+
 void CCollider3D::LoadFromLevelFile(FILE* _FILE)
 {
 	fread(&m_vScale, sizeof(Vec3), 1, _FILE);
+	fread(&m_vOffset, sizeof(Vec3), 1, _FILE);
 	fread(&m_bAttachToRigidBody, sizeof(bool), 1, _FILE);
+	fread(&m_bCenter, sizeof(bool), 1, _FILE);
 }
 
 void CCollider3D::SaveToLevelFile(FILE* _File)
 {
 	fwrite(&m_vScale, sizeof(Vec3), 1, _File);
+	fwrite(&m_vOffset, sizeof(Vec3), 1, _File);
 	fwrite(&m_bAttachToRigidBody, sizeof(bool), 1, _File);
+	fwrite(&m_bCenter, sizeof(bool), 1, _File);
 }

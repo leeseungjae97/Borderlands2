@@ -102,14 +102,14 @@ int CollisionUI::render_update()
 
 					string m = "##" + layerNameStr + otherLayerNameStr;
 					bool t = false;
-					if (CollisionMgr::GetInst()->IsLayerIntersect(layerName, ohterLayerName))
+					if (CollisionMgr::GetInst()->IsLayerIntersect(row, col))
 					{
 						t = true;
 					}
 
 					if(ImGui::Checkbox(m.c_str(), &t))
 					{
-						CollisionMgr::GetInst()->SetLayerIntersect(layerName, ohterLayerName, t);
+						CollisionMgr::GetInst()->SetLayerIntersect(row, col, t);
 					}
 				}
 			}

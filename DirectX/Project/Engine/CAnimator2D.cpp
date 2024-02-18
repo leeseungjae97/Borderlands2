@@ -6,6 +6,10 @@
 
 CAnimator2D::CAnimator2D()
 	: CComponent(COMPONENT_TYPE::ANIMATOR2D)
+	, m_iMtrlIdx(0)
+	, m_iLoopCount(0)
+	, m_bLoop(false)
+
 {
 }
 
@@ -49,7 +53,7 @@ void CAnimator2D::finaltick()
 
 void CAnimator2D::UpdateData()
 {
-	Ptr<CMaterial> pMtrl = MeshRender()->GetMaterial(0);
+	Ptr<CMaterial> pMtrl = MeshRender()->GetMaterial(m_iMtrlIdx);
 
 	const CAnimSprite::Sprite curSprite = m_pActiveSprite->GetCurrentSprite();
 
@@ -65,7 +69,7 @@ void CAnimator2D::UpdateData()
 
 void CAnimator2D::ClearData()
 {
-	Ptr<CMaterial> pMtrl = MeshRender()->GetMaterial(0);
+	Ptr<CMaterial> pMtrl = MeshRender()->GetMaterial(m_iMtrlIdx);
 
 	int iAnimUse = 0;
 	pMtrl->SetScalarParam(INT_0, &iAnimUse);
@@ -80,7 +84,7 @@ void CAnimator2D::begin()
 }
 
 void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 leftTop, Vector2 size,
-	UINT columnLength, Vector2 offset, Vector2 offsetOfCenterPos, float duration, float alpha)
+	UINT columnLength, Vector2 offset, Vector2 offsetOfCenterPos, float duration, float alpha, int mtrlIdx)
 {
 	CAnimSprite* animSprite = FindAnimSprite(name);
 	if (nullptr != animSprite)
@@ -89,6 +93,9 @@ void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 
 	animSprite = new CAnimSprite;
 	animSprite->SetAnimator(this);
 	animSprite->SetName(name);
+
+	//if (GetOwner()->MeshRender()->GetMaterial(m_iMtrlIdx) != nullptr)
+	//	sheet = GetOwner()->MeshRender()->GetMaterial(m_iMtrlIdx)->GetTexParam(TEX_0);
 
 	animSprite->Create(name
 		, sheet
@@ -108,10 +115,12 @@ void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 
 
 	events = new Events();
 	mEvents.insert(std::make_pair(name, events));
+
+	m_iMtrlIdx = mtrlIdx;
 }
 
 void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 leftTop, Vector2 size,
-	UINT columnLength, UINT rowLength, Vector2 offset, Vector2 offsetOfCenterPos, float duration, float alpha)
+	UINT columnLength, UINT rowLength, Vector2 offset, Vector2 offsetOfCenterPos, float duration, float alpha, int mtrlIdx)
 {
 	CAnimSprite* animSprite = FindAnimSprite(name);
 	if (nullptr != animSprite)
@@ -140,10 +149,12 @@ void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 
 
 	events = new Events();
 	mEvents.insert(std::make_pair(name, events));
+
+	m_iMtrlIdx = mtrlIdx;
 }
 
 void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 leftTop, Vector2 size,
-	UINT columnLength, UINT rowLength, Vector2 offset, Vector2 offsetOfCenterPos)
+	UINT columnLength, UINT rowLength, Vector2 offset, Vector2 offsetOfCenterPos, int mtrlIdx)
 {
 	CAnimSprite* animSprite = FindAnimSprite(name);
 	if (nullptr != animSprite)
@@ -171,10 +182,12 @@ void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 
 
 	events = new Events();
 	mEvents.insert(std::make_pair(name, events));
+
+	m_iMtrlIdx = mtrlIdx;
 }
 
 void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 leftTop, Vector2 size,
-                         UINT columnLength, Vector2 offset, float duration, float alpha)
+                         UINT columnLength, Vector2 offset, float duration, float alpha, int mtrlIdx)
 {
 	CAnimSprite* animSprite = FindAnimSprite(name);
 	if (nullptr != animSprite)
@@ -201,6 +214,8 @@ void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 
 
 	events = new Events();
 	mEvents.insert(std::make_pair(name, events));
+
+	m_iMtrlIdx = mtrlIdx;
 }
 
 CAnimSprite* CAnimator2D::FindAnimSprite(const std::wstring& name)
@@ -244,12 +259,17 @@ void CAnimator2D::Play(const std::wstring& name, bool loop)
 	{
 		m_pActiveSprite = animation;
 
+	}else
+	{
+		return;
 	}
+
 	events = FindEvents(m_pActiveSprite->GetName());
 	if (events)
 		events->startEvent();
 
 	m_bLoop = loop;
+
 	m_pActiveSprite->Reset();
 }
 

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "TestLevel.h"
 
-#include <Engine/CollisionMgr.h>
+#include <Engine\CollisionMgr.h>
 #include <Engine\CLevelMgr.h>
 #include <Engine\CLevel.h>
 #include <Engine\CLayer.h>
@@ -15,7 +15,7 @@
 #include <Engine\WeaponMgr.h>
 
 #include <Script\CPlayerScript.h>
-#include <Script\CMonsterScript.h>
+#include <Script\CEnemyScript.h>
 #include <Script\CCameraMoveScript.h>
 
 #include "CLevelSaveLoad.h"
@@ -24,27 +24,15 @@
 #include <Engine\CSetColorShader.h>
 #include <Engine\PlayerMgr.h>
 
-#include "../Script/CGunScript.h"
+#include <Script\CGunScript.h>
+
+#include "../Script/CWarriorScript.h"
 
 //#include <Engine/PhysXT.h>
 
 
 void CreateTestLevel()
 {
-	//return;
-
-	// 컴퓨트 쉐이더 테스트
-	//Ptr<CTexture> pTestTexture = 
-	//	CResMgr::GetInst()->CreateTexture(L"ComputeTestTex"
-	//		, 200, 200, DXGI_FORMAT_R8G8B8A8_UNORM
-	//		, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
-	//		, D3D11_USAGE_DEFAULT );
-
-	//Ptr<CSetColorShader> pCS = (CSetColorShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"SetColorCS").Get();
-	//pCS->SetTargetTexture(pTestTexture);
-	//pCS->SetColor(Vec3(1.f, 0.f, 1.f));
-	//pCS->Execute();
-
 	//Ptr<CSound> pSound = CResMgr::GetInst()->FindRes<CSound>(L"sound\\BGM_Stage1.wav");
 	//pSound->Play(1, 0.5f, false);
 	CLevel* pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"main level");
@@ -52,36 +40,20 @@ void CreateTestLevel()
 	//CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
 	pCurLevel->ChangeState(LEVEL_STATE::STOP);
 
-	// Layer 이름설정
-	//pCurLevel->GetLayer(0)->SetName(L"Default");
-	//pCurLevel->GetLayer(1)->SetName(L"Monster");
-	//pCurLevel->GetLayer(2)->SetName(L"Player");
-	//pCurLevel->GetLayer(3)->SetName(L"Bullet");
-	//pCurLevel->GetLayer(4)->SetName(L"Missile");
-	//pCurLevel->GetLayer(10)->SetName(L"Light");
-	//pCurLevel->GetLayer(31)->SetName(L"ViewPort UI");
-
-	// Main Camera Object 생성
 	CGameObject* pMainCam = new CGameObject;
 	pMainCam->SetName(L"MainCamera");
 
 	pMainCam->AddComponent(new CTransform);
 	pMainCam->AddComponent(new CCamera);
 	pMainCam->AddComponent(new CCameraMoveScript);
-	//pMainCam->AddComponent(new CMeshRender);
-
-	//pMainCam->AddComponent(new CGizmo);
 
 	pMainCam->Camera()->SetFarZ(1000000.f);
 	pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
 	pMainCam->Camera()->SetCameraIndex(0);
 	pMainCam->Camera()->SetLayerMaskAll(true);
 	pMainCam->Camera()->SetLayerMask(31, false);
-	//pMainCam->Transform()->SetRelativeScale(Vec3(10000.f, 10000.f, 10000.f));
-	//SpawnGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
-	PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
+	PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 
-	// UI cameara
 	CGameObject* pUICam = new CGameObject;
 	pUICam->SetName(L"UICamera");
 
@@ -90,11 +62,11 @@ void CreateTestLevel()
 
 	pUICam->Camera()->SetFarZ(1000000.f);
 	pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
-	pUICam->Camera()->SetCameraIndex(1);		// Sub 카메라로 지정
+	pUICam->Camera()->SetCameraIndex(1);
 	pUICam->Camera()->SetLayerMaskAll(false);
-	pUICam->Camera()->SetLayerMask(31, true);	// 31번 레이어만 체크
+	pUICam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, true);
 
-	PreloadGameObject(pUICam, Vec3(0.f, 0.f, 0.f), 0);
+	PreloadGameObject(pUICam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 
 	{
 		CGameObject* pCrossHair = new CGameObject;
@@ -105,9 +77,9 @@ void CreateTestLevel()
 
 		pCrossHair->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
 		pCrossHair->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UI2DShaderMtrl"), 0);
-		pCrossHair->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\crosshair\\Crosshair.png"));
+		pCrossHair->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\Crosshair.png"));
 		pCrossHair->Transform()->SetRelativeScale(Vec3(80.f, 80.f, 1.f));
-		PreloadGameObject(pCrossHair, Vec3(0.f, 0.f, 0.f), 31);
+		PreloadGameObject(pCrossHair, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::ViewPortUI);
 	}
 
 
@@ -119,14 +91,14 @@ void CreateTestLevel()
 	pSunLight->Transform()->SetRelativeRot(Vec3(XM_PI / 4.f, XM_PI / 4.f, 0.f));
 	pSunLight->Light3D()->SetRadius(500.f);
 	pSunLight->Light3D()->SetShadow(true);
-	pSunLight->Light3D()->SetLightDepthCoeff(0.0003f);
+	pSunLight->Light3D()->SetLightDepthCoeff(0.003f);
 	pSunLight->Light3D()->SetFloatConstant(0, 8192.f);
 	pSunLight->Light3D()->SetFloatConstant(1, 9.0f);
 	pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
 	pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
 	pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
 
-	PreloadGameObject(pSunLight, Vec3(-2000.f, 20000.f, -2000.f), 0);
+	PreloadGameObject(pSunLight, Vec3(-2000.f, 60000.f, -2000.f), LAYER_TYPE::Default);
 
 	//{
 	//	CGameObject* Light = new CGameObject;
@@ -173,7 +145,7 @@ void CreateTestLevel()
 	pDistortion->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl"), 0);
 	pDistortion->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\noise\\noise_04.jpg"));
 
-	PreloadGameObject(pDistortion, Vec3(0.f, 0.f, 0.f), 0);
+	PreloadGameObject(pDistortion, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 
 	//CGameObject* pCube = new CGameObject;
 	//pCube->SetName(L"Cube1");
@@ -193,10 +165,10 @@ void CreateTestLevel()
 	//
 	{
 		CGameObject* pCube = new CGameObject;
-		pCube->SetName(L"Monster1");
+		pCube->SetName(L"Enemy1");
 		pCube->AddComponent(new CTransform);
 		pCube->AddComponent(new CMeshRender);
-		pCube->AddComponent(new CMonsterScript);
+		pCube->AddComponent(new CEnemyScript);
 		pCube->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
 		pCube->AddComponent(new CCollider3D);
 		pCube->AddComponent(new CGizmo);
@@ -211,14 +183,14 @@ void CreateTestLevel()
 		pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 		pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
 
-		PreloadGameObject(pCube, Vec3(500.f, 90.f, 500.f), L"Monster");
+		PreloadGameObject(pCube, Vec3(500.f, 90.f, 500.f), LAYER_TYPE::Enemy);
 	}
 	//{
 	//	CGameObject* pCube = new CGameObject;
 	//	pCube->SetName(L"Monster2");
 	//	pCube->AddComponent(new CTransform);
 	//	pCube->AddComponent(new CMeshRender);
-	//	pCube->AddComponent(new CMonsterScript);
+	//	pCube->AddComponent(new CEnemyScript);
 	//	pCube->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::STATIC));
 	//	pCube->AddComponent(new CCollider3D);
 	//	pCube->AddComponent(new CGizmo);
@@ -242,7 +214,7 @@ void CreateTestLevel()
 	pPlane->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
 	//pPlane->AddComponent(new CCollider3D);
 
-	pPlane->Transform()->SetRelativeScale(Vec3(10000.f, 10000.f, 1.f));
+	pPlane->Transform()->SetRelativeScale(Vec3(100000.f, 100000.f, 1.f));
 	pPlane->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
 
 	pPlane->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
@@ -250,8 +222,26 @@ void CreateTestLevel()
 
 	pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
 	pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
-	PreloadGameObject(pPlane, Vec3(0.f, -10.f, 0.f), 0);
+	PreloadGameObject(pPlane, Vec3(0.f, -10.f, 0.f), LAYER_TYPE::Environment);
 
+	{
+		CGameObject* pPlane = new CGameObject;
+		pPlane->SetName(L"Plane");
+		pPlane->AddComponent(new CTransform);
+		pPlane->AddComponent(new CMeshRender);
+		pPlane->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
+		pPlane->AddComponent(new CCollider3D);
+
+		pPlane->Transform()->SetRelativeScale(Vec3(10000.f, 10000.f, 100.f));
+		pPlane->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
+
+		pPlane->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CubeMesh"));
+		pPlane->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
+
+		pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
+		pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
+		PreloadGameObject(pPlane, Vec3(0.f, -10.f, 0.f), LAYER_TYPE::Environment);
+	}
 	//CGameObject* pObject = new CGameObject;
 	//pObject->SetName(L"Tess Object");
 	//pObject->AddComponent(new CTransform);
@@ -273,10 +263,10 @@ void CreateTestLevel()
 
 	pSkyBox->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100));
 	pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
-	pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\2k_stars_milky_way.jpg"));
+	pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\Sky.tga"));
 
 	//SpawnGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 0);
-	PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 0);
+	PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Environment);
 
 	//CGameObject* pObject = new CGameObject;
 	//pObject->SetName(L"Decal");
@@ -321,7 +311,7 @@ void CreateTestLevel()
 
 		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\Monster.fbx");
 		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\soldier_fps.fbx");
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\soldier_hands.fbx");
 		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\anim_NLA.fbx");
 		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\house.mdat");
 		//pObj = pMeshData->Instantiate();
@@ -330,10 +320,10 @@ void CreateTestLevel()
 		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\monster.fbx");
 		//pMeshData = CResMgr::GetInst()->Load<CMeshData>(L"meshdata\\monster.mdat", L"meshdata\\monster.mdat");
 		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\anim_NLA.mdat");
-		pObj = pMeshData->Instantiate();
+		pObj = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
 		pObj->SetName(L"player");
 		//pObj->AddComponent(new CPathFind);
-		//pObj->AddComponent(new CMonsterScript);
+		//pObj->AddComponent(new CEnemyScript);
 		pObj->AddComponent(new CPlayerScript);
 		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
 		pObj->RigidBody()->SetCreature(true);
@@ -349,36 +339,13 @@ void CreateTestLevel()
 		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
 		ObjPickerMgr::GetInst()->SetPickObj(pObj);
 		PlayerMgr::GetInst()->SetPlayer(pObj);
-		PreloadGameObject(pObj, Vec3(50.f, 1000.f, 50.f), L"Player");
+		PreloadGameObject(pObj, Vec3(50.f, 1000.f, 50.f), LAYER_TYPE::Player);
 	}
-	//{
-	//	CGameObject* pCube = new CGameObject;
-	//	pCube->SetName(L"Monster2");
-	//	pCube->AddComponent(new CTransform);
-	//	pCube->AddComponent(new CMeshRender);
-	//	//pCube->AddComponent(new CMonsterScript);
-	//	//pCube->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::STATIC));
-	//	//pCube->AddComponent(new CCollider3D);
-	//	pCube->AddComponent(new CGunScript);
-	//	pCube->AddComponent(new CGizmo);
-
-	//	pCube->Transform()->SetRelativeScale(Vec3(20.f, 20.f, 20.f));
-
-	//	pCube->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	//	pCube->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
-
-	//	pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
-	//	pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
-	//	//pCube->MeshRender()->GetMaterial(0)->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
-	//	//pCube->MeshRender()->GetMaterial(0)->SetAnim2D(true);
-
-	//	PreloadGameObject(pCube, Vec3(0.f, 0.f, 0.f), L"Monster");
-	//}
 	{
 		Ptr<CMeshData> pMeshData = nullptr;
 		CGameObject* pObj = nullptr;
 		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\smg.fbx");
-		pObj = pMeshData->Instantiate();
+		pObj = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
 		pObj->SetName(L"smg");
 
 		pObj->AddComponent(new CGunScript);
@@ -387,58 +354,13 @@ void CreateTestLevel()
 
 		WeaponMgr::GetInst()->AddWeapon(pObj);
 
-		PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
+		PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
 	}
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\sniper_assem.fbx");
-	//	pObj = pMeshData->Instantiate();
-	//	pObj->SetName(L"sniper");
-
-	//	pObj->AddComponent(new CGunScript);
-	//	pObj->AddComponent(new CGizmo);
-	//	pObj->SetIsItem(true);
-
-	//	WeaponMgr::GetInst()->AddWeapon(pObj);
-
-	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
-	//}
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\sniper_assem2.fbx");
-	//	pObj = pMeshData->Instantiate();
-	//	pObj->SetName(L"sniper");
-
-	//	pObj->AddComponent(new CGunScript);
-	//	pObj->AddComponent(new CGizmo);
-	//	pObj->SetIsItem(true);
-
-	//	WeaponMgr::GetInst()->AddWeapon(pObj);
-
-	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
-	//}
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\sniper_assem3.fbx");
-	//	pObj = pMeshData->Instantiate();
-	//	pObj->SetName(L"sniper");
-
-	//	pObj->AddComponent(new CGunScript);
-	//	pObj->AddComponent(new CGizmo);
-	//	pObj->SetIsItem(true);
-
-	//	WeaponMgr::GetInst()->AddWeapon(pObj);
-
-	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
-	//}
 	{
 		Ptr<CMeshData> pMeshData = nullptr;
 		CGameObject* pObj = nullptr;
 		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\sniper.fbx");
-		pObj = pMeshData->Instantiate();
+		pObj = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
 		pObj->SetName(L"sniper");
 
 		pObj->AddComponent(new CGunScript);
@@ -447,71 +369,122 @@ void CreateTestLevel()
 
 		WeaponMgr::GetInst()->AddWeapon(pObj);
 
-		PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
+		PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
 	}
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\barrel_hy.fbx");
-	//	pObj = pMeshData->Instantiate();
-	//	pObj->SetName(L"sniper_hy_barrel");
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\pistol.fbx");
+		pObj = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
+		pObj->SetName(L"pistol");
 
-	//	pObj->AddComponent(new CGunScript);
-	//	pObj->AddComponent(new CGizmo);
-	//	pObj->SetIsItem(true);
+		pObj->AddComponent(new CGunScript);
+		pObj->AddComponent(new CGizmo);
+		pObj->SetIsItem(true);
 
-	//	WeaponMgr::GetInst()->AddWeapon(pObj);
+		WeaponMgr::GetInst()->AddWeapon(pObj);
 
-	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), L"Item");
-	//}
+		PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
+	}
+	{
+		WeaponMgr::GetInst()->ChangeWeapon(SMG_IDX);
+	}
 	//{
 	//	Ptr<CMeshData> pMeshData = nullptr;
 	//	CGameObject* pObj = nullptr;
 	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
 	//	pObj = pMeshData->Instantiate();
-	//	pObj->SetName(L"tangent fbx 2");
-	//	pObj->AddComponent(new CMonsterScript);
+	//	pObj->SetName(L"Monster1");
+	//	pObj->AddComponent(new CEnemyScript);
 	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
 	//	pObj->RigidBody()->SetCreature(true);
 	//	pObj->AddComponent(new CCollider3D);
 	//	pObj->AddComponent(new CGizmo);
+	//	//EnemyMgr::GetInst()->MonsterGen(MONSTER_TYPE::NOMAD);
 	//	PreloadGameObject(pObj, Vec3(50.f, 90.f, 500.f), L"Monster");
 	//}
 	//{
 	//	Ptr<CMeshData> pMeshData = nullptr;
 	//	CGameObject* pObj = nullptr;
 
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\terrain.fbx");
-	//	pObj = pMeshData->Instantiate();
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\map_statics.fbx");
+	//	pObj = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
 	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
 	//	//pObj->AddComponent(new CCollider3D);
 
 	//	pObj->SetName(L"fbx terrain");
-	//	PreloadGameObject(pObj, Vec3(200.f, 100.f, 200.f), L"Default");
+	//	PreloadGameObject(pObj, Vec3(200.f, 100.f, 200.f), LAYER_TYPE::Environment);
 	//}
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
 
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
-	//	pObj = pMeshData->Instantiate();
-	//	pObj->SetName(L"fbx nomad");
-	//	
-	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 500.f), L"Default");
-	//}
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+		pObj = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
+		
+		pObj->SetName(L"fbx nomad");
 
-	pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"switch level");
+		pObj->AddComponent(new CEnemyScript);
+		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
+		pObj->AddComponent(new CCollider3D);
+		pObj->AddComponent(new CGizmo);
+
+		PreloadGameObject(pObj, Vec3(500.f, 100.f, 500.f), LAYER_TYPE::Enemy);
+
+		{
+			Ptr<CMeshData> pMeshData = nullptr;
+			CGameObject* pGun = nullptr;
+			pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\dahl.fbx");
+			pGun = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
+			pGun->SetName(L"enemy_gun");
+
+			pGun->AddComponent(new CGunScript);
+			pGun->AddComponent(new CGizmo);
+			pGun->SetIsItem(true);
+			pObj->AddGun(pGun);
+
+			PreloadGameObject(pGun, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
+		}
+
+	}
+
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
+		
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\fire_breath.fbx");
+		pObj = pMeshData->Instantiate(Vec3(10000.f, 10000.f, 10000.f));
+		pObj->AddComponent(new CCollider3D(false));
+		pObj->AddComponent(new CGizmo);
+		pObj->Collider3D()->SetScale(Vec3(1500.f, 1500.f, 13000.f));
+		//pObj->Collider3D()->SetCenter(true);
+
+		pObj->SetName(L"fbx fire breath");
+		pObj->MeshRender()->GetMaterial(0)->SetTexFlow(true);
+		pObj->MeshRender()->GetMaterial(0)->SetFlowSpeed(2.f);
+		pObj->MeshRender()->GetMaterial(0)->SetFlowDir(Vec2(-0.5f, 0.0f));
+		PreloadGameObject(pObj, Vec3(200.f, 100.f, 15000.f), LAYER_TYPE::Environment);
+	}
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
+
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\warrior_2.fbx");
+		pObj = pMeshData->Instantiate(Vec3(1000.f, 1000.f, 1000.f));
+		pObj->SetName(L"fbx warrior");
+		pObj->SetIsWarrior(true);
+		//pObj->AddComponent(new CAnimator2D);
+		pObj->AddComponent(new CWarriorScript);
+		
+
+		PreloadGameObject(pObj, Vec3(500.f, 100.f, 500.f), LAYER_TYPE::Enemy);
+	}
+
+
+
+	pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"main menu level");
 	CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
-	//CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
 	pCurLevel->ChangeState(LEVEL_STATE::STOP);
-
-	//pCurLevel->GetLayer(0)->SetName(L"Default");
-	//pCurLevel->GetLayer(1)->SetName(L"Monster");
-	//pCurLevel->GetLayer(2)->SetName(L"Player");
-	//pCurLevel->GetLayer(3)->SetName(L"Bullet");
-	//pCurLevel->GetLayer(4)->SetName(L"Missile");
-	//pCurLevel->GetLayer(10)->SetName(L"Light");
-	//pCurLevel->GetLayer(31)->SetName(L"ViewPort UI");
 
 	pMainCam = new CGameObject;
 	pMainCam->SetName(L"MainCamera");
@@ -522,47 +495,23 @@ void CreateTestLevel()
 
 	pMainCam->Camera()->SetFarZ(1000000.f);
 	pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
-	pMainCam->Camera()->SetCameraIndex(0);		// MainCamera 로 설정
-	pMainCam->Camera()->SetLayerMaskAll(true);	// 모든 레이어 체크
-	pMainCam->Camera()->SetLayerMask(31, false);// UI Layer 는 렌더링하지 않는다.
+	pMainCam->Camera()->SetCameraIndex(0);
+	pMainCam->Camera()->SetLayerMaskAll(true);
+	pMainCam->Camera()->SetLayerMask(31, false);
+	PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 
-	PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), 0);
-	{
-		CGameObject* pSunLight = new CGameObject;
-		pSunLight->SetName(L"Sun Light");
-		pSunLight->AddComponent(new CTransform);
-		pSunLight->AddComponent(new CLight3D);
+	pUICam = new CGameObject;
+	pUICam->SetName(L"UICamera");
 
-		pSunLight->Transform()->SetRelativeRot(Vec3(XM_PI / 4.f, XM_PI / 4.f, 0.f));
-		pSunLight->Light3D()->SetRadius(500.f);
-		pSunLight->Light3D()->SetShadow(true);
-		pSunLight->Light3D()->SetLightDepthCoeff(0.0003f);
-		pSunLight->Light3D()->SetFloatConstant(0, 8192.f);
-		pSunLight->Light3D()->SetFloatConstant(1, 9.0f);
-		pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
-		pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
-		pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
+	pUICam->AddComponent(new CTransform);
+	pUICam->AddComponent(new CCamera);
 
-		PreloadGameObject(pSunLight, Vec3(-2000.f, 20000.f, -2000.f), 0);
-	}
-	{
-		CGameObject* pLandScape = new CGameObject;
-		pLandScape->SetName(L"LandScape");
-
-		pLandScape->AddComponent(new CTransform);
-		pLandScape->AddComponent(new CLandScape);
-
-		pLandScape->Transform()->SetRelativeScale(Vec3(200.f, 1000.f, 200.f));
-		//pLandScape->LandScape()->SetBrushGuideLine(pObject);
-		pLandScape->LandScape()->SetHeightMapName(L"HeightMap1");
-		pLandScape->LandScape()->SetColorMapName(L"ColorMap1");
-		pLandScape->LandScape()->SetFace(32, 32);
-		pLandScape->LandScape()->SetFrustumCheck(false);
-		//pLandScape->LandScape()->SetHeightMap(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\HeightMap_01.jpg"));
-		PreloadGameObject(pLandScape, Vec3(0.f, 0.f, 0.f), 1);
-	}
-
-
+	pUICam->Camera()->SetFarZ(1000000.f);
+	pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
+	pUICam->Camera()->SetCameraIndex(1);
+	pUICam->Camera()->SetLayerMaskAll(false);
+	pUICam->Camera()->SetLayerMask(31, true);
+	PreloadGameObject(pUICam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 	///*CGameObject* */pSunLight = new CGameObject;
 	//pSunLight->SetName(L"SunLight");
 	//pSunLight->AddComponent(new CTransform);
@@ -576,24 +525,24 @@ void CreateTestLevel()
 
 	//////SpawnGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 0);
 	//PreloadGameObject(pSunLight, Vec3(-2000.f, 3500.f, -2000.f), 1);
-	{
-		CGameObject* pSkyBox = new CGameObject;
-		pSkyBox->SetName(L"SkyBox");
+	//{
+	//	CGameObject* pSkyBox = new CGameObject;
+	//	pSkyBox->SetName(L"SkyBox");
 
-		pSkyBox->AddComponent(new CTransform);
-		pSkyBox->AddComponent(new CSkyBox);
+	//	pSkyBox->AddComponent(new CTransform);
+	//	pSkyBox->AddComponent(new CSkyBox);
 
-		pSkyBox->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100));
-		pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
-		pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\2k_stars_milky_way.jpg"));
+	//	pSkyBox->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100));
+	//	pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
+	//	pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\2k_stars_milky_way.jpg"));
 
-		PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 1);
+	//	PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 1);
 
-	}
+	//}
 
-	CollisionMgr::GetInst()->SetLayerIntersect(L"Monster", L"Bullet", true);
+	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Enemy, LAYER_TYPE::PlayerBullet, true);
 	//CollisionMgr::GetInst()->SetLayerIntersect(L"Default", L"Bullet", true);
-	CollisionMgr::GetInst()->SetLayerIntersect(L"Monster", L"Player", true);
-	CollisionMgr::GetInst()->SetLayerIntersect(L"Monster", L"Default", true);
-	CollisionMgr::GetInst()->SetLayerIntersect(L"Player", L"Default", true);
+	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Player, LAYER_TYPE::EnemyBullet, true);
+	//CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Enemy, LAYER_TYPE::Environment, true);
+	//CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Player,LAYER_TYPE::Environment, true);
 }

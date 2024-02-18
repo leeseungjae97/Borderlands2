@@ -22,6 +22,13 @@ private:
 
 	int						m_iFramePerSecond;
 
+	double					m_fSpeedAdj;
+
+	int						m_iEventStart;
+	int						m_iEventProgress;
+	int						m_iEventEnd;
+	int						m_iEventComplete;
+
 public:
 	void finlatick();
 	void Create(const std::wstring& name, const tMTAnimClip _AnimClips, int _StartIdx, int _EndIdx, bool _bLoop);
@@ -51,6 +58,18 @@ public:
 
 	float GetRatio() { return m_fRatio; }
 	void SetRatio(float _Ratio) { m_fRatio = _Ratio; }
+
+	void SetSpeedAdj(double _Speed) { m_fSpeedAdj = _Speed; }
+
+	int GetEventStartIdx() { return m_iEventStart; }
+	int GetEventProgressIdx() { return m_iEventProgress; }
+	int GetEventEndIdx() { return m_iEventEnd; }
+	int GetEventCompleteIdx() { return m_iEventComplete; }
+
+	void SetEventStartIdx(int _Idx) { m_iEventStart = _Idx; }
+	void SetEventProgressIdx(int _Idx) { m_iEventProgress = _Idx; }
+	void SetEventEndIdx(int _Idx) { m_iEventEnd = _Idx; }
+	void SetEventCompleteIdx(int _Idx) { m_iEventComplete = _Idx; }
 
 	void Reset()
 	{

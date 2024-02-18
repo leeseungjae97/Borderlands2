@@ -194,6 +194,7 @@
     <ClInclude Include="ParticleSystemUI.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PrefabUI.h" />
+    <ClInclude Include="RenderUI.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResUI.h" />
     <ClInclude Include="RigidBodyUI.h" />
@@ -251,6 +252,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PrefabUI.cpp" />
+    <ClCompile Include="RenderUI.cpp" />
     <ClCompile Include="ResUI.cpp" />
     <ClCompile Include="RigidBodyUI.cpp" />
     <ClCompile Include="SamplerFilterUI.cpp" />

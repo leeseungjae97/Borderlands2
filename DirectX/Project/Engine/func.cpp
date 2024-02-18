@@ -21,11 +21,11 @@ void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx)
 	CLevelMgr::GetInst()->GetCurLevel()->AddGameObject(_NewObject, _LayerIdx, false);
 }
 
-void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName)
+void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, LAYER_TYPE _Type)
 {
 	_NewObject->Transform()->SetRelativePos(_vWorldPos);
 	_NewObject->SetPreLoadingObject(true);
-	CLevelMgr::GetInst()->GetCurLevel()->AddGameObject(_NewObject, _LayerName, false);
+	CLevelMgr::GetInst()->GetCurLevel()->AddGameObject(_NewObject, _Type, false);
 }
 
 void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx)
@@ -41,7 +41,7 @@ void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx)
 	CEventMgr::GetInst()->AddEvent(evn);
 }
 
-void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _LayerName)
+void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, LAYER_TYPE _Type)
 {
 	_NewObject->Transform()->SetRelativePos(_vWorldPos);
 
@@ -49,7 +49,7 @@ void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, const wstring& _L
 
 	evn.Type = EVENT_TYPE::CREATE_OBJECT;
 	evn.wParam = (DWORD_PTR)_NewObject;
-	evn.lParam = CLevelMgr::GetInst()->GetCurLevel()->FindLayerByName(_LayerName)->GetLayerIndex();
+	evn.lParam = CLevelMgr::GetInst()->GetCurLevel()->FindLayerByType(_Type)->GetLayerIndex();
 
 	CEventMgr::GetInst()->AddEvent(evn);
 }
@@ -394,9 +394,9 @@ const char* ToString(COMPONENT_TYPE type)
 	return COMPONENT_TYPE_STR[(UINT)type];
 }
 
-const char* ToString(ANIMATION_TYPE type)
+const char* ToString(PLAYER_ANIMATION_TYPE type)
 {
-	return ANIMATION_TYPE_STR[(UINT)type];
+	return PLAYER_ANIMATION_TYPE_STR[(UINT)type];
 }
 wstring GetRelativePath(const wstring& _strBase, const wstring& _strPath)
 {

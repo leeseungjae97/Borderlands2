@@ -2,9 +2,12 @@
 #include "CCamera.h"
 
 
+#include "BlurShader.h"
 #include "CameraMgr.h"
+#include "CAnimator2D.h"
 #include "CAnimator3D.h"
 #include "CDevice.h"
+#include "CEngine.h"
 #include "CRenderMgr.h"
 #include "CTransform.h"
 
@@ -19,7 +22,9 @@
 #include "CKeyMgr.h"
 #include "CLight3D.h"
 #include "CResMgr.h"
+#include "DownSamplingShader.h"
 #include "mMRT.h"
+#include "UpSamplingShader.h"
 
 
 CCamera::CCamera()
@@ -29,13 +34,15 @@ CCamera::CCamera()
 	, m_Frustum(this)
 	, m_ProjType(PROJ_TYPE::ORTHOGRAPHIC)
 	, m_iLayerMask(0)
-	, m_FOV(XM_PI / 3.f)
+	, m_FOV(0.95f) // 55 degree
 	, m_OrthoWidth(0.f)
 	, m_OrthoHeight(0.f)
 	, m_iCamIdx(-1)
     , m_NearZ(1.f)
     , m_FarZ(1000000.f)
 	, m_bESM(false)
+	, m_HDR(false)
+	, m_Bloom(false)
 	, m_fT{}
 	, m_ray{}
 {
@@ -194,6 +201,22 @@ void CCamera::CalRay()
 	m_ray.vDir.Normalize();
 }
 
+void CCamera::Scale(Ptr<CTexture> _In, Ptr<CTexture> _Out)
+{
+	//D3D11_VIEWPORT viewport;
+	//viewport.Width = CEngine::GetInst()->GetWindowResolution().x;
+	//viewport.Height = CEngine::GetInst()->GetWindowResolution().y;
+
+	//FLOAT rgba[4] = {0.f,0.f, 0.f, 1.f};
+
+	//CONTEXT->ClearRenderTargetView(_Out->GetRTV().Get(), rgba);
+
+	//ComPtr<ID3D11RenderTargetView> renderTargetView [] = {_Out->GetRTV()};
+	//CONTEXT->OMSetRenderTargets(1, &renderTargetView[0], 0);
+
+	//CONTEXT->RSSetViewports(1, &viewport);
+}
+
 void CCamera::SortObject()
 {
 	// 이전 프레임 분류정보 제거
@@ -216,6 +239,8 @@ void CCamera::SortObject()
 
 				// 렌더링 기능이 없는 오브젝트는 제외
 				if (nullptr == pRenderCom)
+					continue;
+				if (vecObject[j]->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
 					continue;
 
 				//if (pRenderCom->IsFrustumCheck() 
@@ -318,8 +343,8 @@ void CCamera::SortObject_Shadow()
 	for (UINT i = 0; i < MAX_LAYER; ++i)
 	{
 		// 레이어 마스크 확인
-		if (i == 31) continue; // UI
-		if (i == 0) continue;  // Default
+		if (i == (int)LAYER_TYPE::ViewPortUI) continue; // UI
+		if (i == (int)LAYER_TYPE::Default) continue;  // Default
 
 		if (m_iLayerMask & (1 << i))
 		{
@@ -329,6 +354,9 @@ void CCamera::SortObject_Shadow()
 			for (size_t j = 0; j < vecObject.size(); ++j)
 			{
 				CRenderComponent* pRenderCom = vecObject[j]->GetRenderComponent();
+
+				if (vecObject[j]->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
+					continue;
 
 				//if (vecObject[j]->Camera()) 
 				//	continue;
@@ -365,16 +393,12 @@ void CCamera::render()
 		}
 
 		// SwapChain MRT 로 변경
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();	
 
 		static Ptr<CMesh> pRectMesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
 		static Ptr<CMaterial> pMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
 
 		static bool bSet = false;
-
-		// Main camera가 아니면 그림자를 그리지 않음.
-		// 다른 RenderTarget에도 문제가 생기면 아예 Merge못하게
-		// 다른 camera에서 deffered를 쓸 일이 있을까
 		if (!bSet)
 		{
 			bSet = true;
@@ -385,15 +409,77 @@ void CCamera::render()
 				pMtrl->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
 				pMtrl->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
 				pMtrl->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
+				//pMtrl->SetTexParam(TEX_5, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
 			}
 		}
-
 		pMtrl->UpdateData();
 		pRectMesh->render(0);
 
+		//Ptr<CTexture> emisTex = CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex");
 
-		// Deferred MRT 에 그린 물체들을 다시 SwapChain 으로 옮기기
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+		//Ptr<CTexture> HDR = CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex");
+		//Ptr<CTexture> DHDR = CResMgr::GetInst()->FindRes<CTexture>(L"DHDRTargetTex");
+		//Ptr<CTexture> BDHDR = CResMgr::GetInst()->FindRes<CTexture>(L"BDHDRTargetTex");
+
+		//DownSamplingShader* down = (DownSamplingShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"DownSamplingCS").Get();
+
+		//down->SetThreshold(0.5f);
+		//down->SetInput(HDR);
+		//down->SetOutput(DHDR);
+		//down->UpdateData();
+
+		//down->Execute();
+
+		//down->Clear();
+
+		//static Ptr<CMesh> pRectMesh2 = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
+		//static Ptr<CMaterial> pMtrl2 = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomCurveMtrl");
+		//pMtrl2->SetTexParam(TEX_0, DHDR);
+
+		//pMtrl2->UpdateData();
+		//pRectMesh2->render(0);
+		//
+		//BlurShader* blur = (BlurShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"BlurCS").Get();
+
+		//blur->SetInput(DHDR);
+		//blur->SetOutput(BDHDR);
+		//blur->UpdateData();
+
+		//blur->Execute();
+
+		//blur->Clear();
+
+		//static Ptr<CMesh> pRectMesh3 = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
+		//static Ptr<CMaterial> pMtrl3 = CResMgr::GetInst()->FindRes<CMaterial>(L"QuadCompositeMtrl");
+		//pMtrl3->SetTexParam(TEX_0, HDR);
+		//pMtrl3->SetTexParam(TEX_1, BDHDR);
+
+		//pMtrl3->UpdateData();
+		//pRectMesh3->render(0);
+
+		//UpSamplingShader* up = (UpSamplingShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"UpSamplingCS").Get();
+
+		//up->SetThreshold(0.5f);
+		//up->SetInput(BDHDR);
+		//up->SetOutput(HDR);
+		//up->UpdateData();
+
+		//up->Execute();
+
+
+		//pMtrl->SetScalarParam(INT_0, &m_HDR);
+		//pMtrl->SetScalarParam(INT_1, &m_Bloom);
+
+		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::TONE_MAPPING)->OMSet(true);
+
+		//pMtrl->UpdateData();
+		//pRectMesh->render(0);
+
+		//ToneMapping();
+		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+
+
 		// 쉐이더 도메인에 따라서 순차적으로 그리기
 		//render_opaque();
 		//render_mask();
@@ -544,7 +630,11 @@ void CCamera::render_deferred()
 
 		for (auto& instObj : pair.second)
 		{
-			instObj.pObj->GetRenderComponent()->render(instObj.iMtrlIdx);
+			instObj.pObj->GetRenderComponent()->render(instObj.iMtrlIdx, true);
+		}
+		if (pair.second[0].pObj->Animator2D())
+		{
+			pair.second[0].pObj->Animator2D()->ClearData();
 		}
 
 		if (pair.second[0].pObj->Animator3D())
@@ -660,7 +750,11 @@ void CCamera::render_forward()
 
 		for (auto& instObj : pair.second)
 		{
-			instObj.pObj->GetRenderComponent()->render(instObj.iMtrlIdx);
+			instObj.pObj->GetRenderComponent()->render(instObj.iMtrlIdx, false);
+		}
+		if (pair.second[0].pObj->Animator2D())
+		{
+			pair.second[0].pObj->Animator2D()->ClearData();
 		}
 
 		if (pair.second[0].pObj->Animator3D())

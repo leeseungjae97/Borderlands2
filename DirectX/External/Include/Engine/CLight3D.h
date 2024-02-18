@@ -29,6 +29,7 @@ private:
     float           m_fLifeSpan;
     bool            m_bTimeConst;
 
+    std::shared_ptr<std::function<void()>> m_pFunc;
 public:
     void SetLightColor(Vec3 _Color) { m_LightInfo.Color.vDiffuse = _Color; }
     void SetLightAmbient(Vec3 _Amb) { m_LightInfo.Color.vAmbient = _Amb; }
@@ -55,6 +56,7 @@ public:
     float GetFloatConstant(int _Index) { return m_f[_Index]; }
 
     void SetLifeSpan(float _Duration);
+    std::shared_ptr<std::function<void()>>& LightFunc() { return m_pFunc; }
 public:
     virtual void finaltick() override;
     void render();

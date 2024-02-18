@@ -17,6 +17,16 @@ CGunScript::~CGunScript()
 void CGunScript::tick()
 {
 	SetWeaponPos();
+
+	CGameObject* pGun = GetOwner();
+
+	if (pGun->IsOwned())
+	{
+		if(pGun->GetGunOwner()->IsDead())
+		{
+			DestroyObject(pGun);
+		}
+	}
 }
 
 // Test FinalTick
@@ -28,17 +38,23 @@ void CGunScript::finaltick()
 
 void CGunScript::SetWeaponPos()
 {
-	if (!m_bEquiWeapon)
-		return;
-
-	CGameObject* pPlayer = PlayerMgr::GetInst()->GetPlayer();
 	CGameObject* pGun = GetOwner();
+	CGameObject* pOwner = nullptr;
+	if(pGun->IsOwned())
+	{
+		pOwner = pGun->GetGunOwner();
+	}
+	else
+	{
+		pOwner = PlayerMgr::GetInst()->GetPlayer();
+	}
+	
 
-	Vec3 vvRot = pPlayer->Transform()->GetRelativeRot();
-	Vec3 vRot = PlayerMgr::GetInst()->GetPlayerWeaponRot();
-	Vec3 vPos = PlayerMgr::GetInst()->GetPlayerWeaponPos();
+	Vec3 vvRot = pOwner->Transform()->GetRelativeRot();
+	Vec3 vRot = WeaponMgr::GetInst()->GetOwnerWeaponRot(pOwner);
+	Vec3 vPos = WeaponMgr::GetInst()->GetOwnerWeaponPos(pOwner);
 
-	//int muzzleIdx = WeaponMgr::GetInst()->GetCurWeaponMuzzleIdx();
+	//int muzzleIdx = WeaponMgr::GetInst()->GetCurWeaponIdx();
 	Vec3 vScale = pGun->Transform()->GetRelativeScale();
 
 	vPos.y += vScale.y / 2.f;

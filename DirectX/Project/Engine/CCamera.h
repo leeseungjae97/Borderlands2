@@ -3,6 +3,8 @@
 
 #include "CFrustum.h"
 
+class CTexture;
+
 class CCamera :
     public CComponent
 {
@@ -37,6 +39,9 @@ private:
     float       m_fT[4];
 
     tRay        m_ray;
+
+    bool        m_HDR;
+    bool        m_Bloom;
 
     map<ULONG64, vector<tInstObj>>		m_mapInstGroup_D;	    // Deferred
     map<ULONG64, vector<tInstObj>>		m_mapInstGroup_F;	    // Foward ( Opaque, Mask )	
@@ -95,8 +100,14 @@ public:
 
     const tRay& GetRay() { return m_ray; }
 
+    bool IsHDR() { return m_HDR; }
+    void SetHDR(bool _HDR) { m_HDR = _HDR; }
+
+    void SetBloom(bool _Bloom) { m_Bloom = _Bloom; }
+
 protected:
     void CalRay();
+    void Scale(Ptr<CTexture> _In, Ptr<CTexture> _Out);
 
 public:
     void SortObject();
