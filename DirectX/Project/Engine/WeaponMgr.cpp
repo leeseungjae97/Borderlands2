@@ -11,6 +11,7 @@
 #include "CLight3D.h"
 #include "CMeshRender.h"
 #include "CResMgr.h"
+#include "CRigidBody.h"
 #include "CTransform.h"
 #include "RandMgr.h"
 
@@ -114,8 +115,10 @@ Vec3 WeaponMgr::GetOwnerWeaponPos(CGameObject* _Owner)
 
 	int iWeaponHandIdx = _Owner->Animator3D()->GetWeaponHandIdx();
 	Vec3 vPos = _Owner->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, _Owner->Animator3D());
+	Matrix matWorld;
+	matWorld = _Owner->Transform()->GetWorldMat();
 
-	vPos = XMVector3TransformCoord(vPos, _Owner->Transform()->GetWorldMat());
+	vPos = XMVector3TransformCoord(vPos, matWorld);
 
 	return vPos;
 }

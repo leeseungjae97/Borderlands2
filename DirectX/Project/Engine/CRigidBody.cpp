@@ -26,8 +26,8 @@ CRigidBody::CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2)
 	, m_bInitData(false)
 	, m_debugMeshName(L"")
 {
-	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(1.0f, 1.0f, 0.1f);
-	m_pMaterial->setDamping(0.f);
+	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(1.0f, 1.0f, 0.2f);
+	//m_pMaterial->setDamping(0.f);
 	if (m_tRigidType == RIGID_BODY_TYPE::DYNAMIC)
 	{
 		//m_pMaterial->setFrictionCombineMode(static_cast<physx::PxCombineMode::Enum>(physx::PxCombineMode::eMAX));
@@ -99,7 +99,7 @@ void CRigidBody::SetLinearVelocity(Vec3 _Velocity)
 
 	PxVec3 prev_velocity = m_pDynamicBody->getLinearVelocity();
 	
-	_Velocity.y = prev_velocity.y < 0 ? _Velocity.y + prev_velocity.y : prev_velocity.y;
+	_Velocity.y = areAlmostEqual(prev_velocity.y, 0.0f, 0.001) ? prev_velocity.y : _Velocity.y + prev_velocity.y;
 
 	m_pDynamicBody->setLinearVelocity(PxVec3(_Velocity.x, _Velocity.y, _Velocity.z));
 }
@@ -130,6 +130,18 @@ bool CRigidBody::IsRigidBodyCreate()
 		return true;
 
 	return false;
+}
+
+Matrix CRigidBody::GetRigidBodyMatrix()
+{
+	Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
+	PxTransform trans;
+	if (m_pDynamicBody)
+		trans = m_pDynamicBody->getGlobalPose();
+	else
+		trans = m_pStaticBody->getGlobalPose();
+
+	return physx::Util::WorldMatFromGlobalPose(trans, vScale);
 }
 
 void CRigidBody::convertMeshToGeom()
@@ -262,8 +274,8 @@ void CRigidBody::addToScene()
 		// RigidBody로 TriangleMesh를 쓸 수 없음
 		m_pDynamicBody = PhysXMgr::GetInst()->GPhysics()->createRigidDynamic(localTm);
 		m_pDynamicBody->userData = GetOwner()->Collider3D();
+		m_pDynamicBody->setAngularDamping(0.5f);
 		m_pDynamicBody->attachShape(*m_pShape);
-
 		//m_pDynamicBody->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
 		//m_pDynamicBody->setLinearDamping(10.f);
 		PxRigidBodyExt::updateMassAndInertia(*m_pDynamicBody, 0.1f);

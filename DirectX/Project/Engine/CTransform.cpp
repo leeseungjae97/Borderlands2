@@ -5,6 +5,7 @@
 #include "CDevice.h"
 #include "CConstBuffer.h"
 #include "CRigidBody.h"
+#include "CTimeMgr.h"
 #include "physx_util.h"
 #include "RaycastMgr.h"
 
@@ -125,6 +126,9 @@ void CTransform::finaltick()
 		//if (GetOwner()->Animator3D())
 		//	m_vRelativePos = Vec3(trans.p.x, trans.p.y - (m_vRelativeScale.y / 2.f), trans.p.z);
 		//else
+		//Vec3 curPos = Vec3(trans.p.x, trans.p.y, trans.p.z);
+		//m_vRelativePos= XMVectorLerpV(m_vRelativePos, curPos, Vec3(_mt, _mt, _mt));
+
 		m_vRelativePos = Vec3(trans.p.x, trans.p.y, trans.p.z);
 		//m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
 		//Quat quat = Util::Vector3ToQuaternion(m_vRelativeRot);
@@ -146,6 +150,13 @@ void CTransform::finaltick()
 			m_Rot = XMMatrixRotationX(m_vRelativeRot.x);
 			m_Rot *= XMMatrixRotationY(m_vRelativeRot.y);
 			m_Rot *= XMMatrixRotationZ(m_vRelativeRot.z);
+			//Quat quat = m_qRotation;
+			//quat.x = 0.f;
+			//m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
+			//m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
+
+			//m_RotNoX = Matrix::CreateFromQuaternion(quat);
+			//m_Rot = Matrix::CreateFromQuaternion(m_qRotation);
 		}
 	}
 	// Collider3D만 있는 경우

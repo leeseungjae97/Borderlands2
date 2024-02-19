@@ -17,12 +17,16 @@ public:
 
 private:
 	CGameObject*	m_pPlayer;
+	CGameObject*	m_pPlayerBody;
 	Vec3			m_vCameraPos;
 	int				m_iCameraBoneIdx;
 
 public:
 	CGameObject* GetPlayer() { return m_pPlayer; }
+	CGameObject* GetPlayerBody() { return m_pPlayerBody; }
+
 	void SetPlayer(CGameObject* _Player) { m_pPlayer = _Player; }
+	void SetPlayerBody(CGameObject* _PlayerBody) { m_pPlayerBody = _PlayerBody; }
 
 public:
 	void init();
@@ -33,6 +37,7 @@ public:
 	Vec3 GetPlayerWeaponPos();
 	Vec3 GetPlayerWeaponRot();
 	Vec3 GetConvertAnimationPos(Vec3 _vPos);
+	
 public:
 	PlayerMgr();
 	virtual ~PlayerMgr();

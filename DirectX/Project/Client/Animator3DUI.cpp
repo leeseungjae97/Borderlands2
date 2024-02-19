@@ -4,6 +4,8 @@
 #include <Engine/CGameObject.h>
 #include <Engine/CAnimator3D.h>
 #include <Engine/AnimationMgr.h>
+#include <Engine/CLevelMgr.h>
+#include <Engine/CLevel.h>
 #include <Engine/WarriorMgr.h>
 
 
@@ -21,6 +23,10 @@ int Animator3DUI::render_update()
 {
 	if (FALSE == ComponentUI::render_update())
 		return FALSE;
+
+	if (CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
+		return FALSE;
+
 	char str[50] = {};
 	const map<wstring, CAnimClip*> clips = GetTarget()->Animator3D()->GetAnimClips();
 	CAnimClip* curAnimClip = GetTarget()->Animator3D()->GetCurAnimClip();
@@ -185,10 +191,9 @@ int Animator3DUI::render_update()
 	if(L"" != mChosen)
 	{
 		GetTarget()->Animator3D()->Play(mChosen, true);
-		//GetTarget()->Animator3D()->SetCurAnimClip(clips.at(mChosen));
-		//GetTarget()->Animator3D()->SetClipIdx(idx);
 	}
 	ImGui::Text("Adapt Animation");
+
 	if (ImGui::Button("Target Layer Only##AnimationAdaptBtn"))
 	{
 		AnimationMgr::GetInst()->AdaptAnimation(GetTarget());

@@ -73,6 +73,10 @@ InspectorUI::InspectorUI()
 	m_arrComUI[(UINT)COMPONENT_TYPE::PARTICLESYSTEM]->SetSize(0.f, 150.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::PARTICLESYSTEM]);
 
+	//m_arrComUI[(UINT)COMPONENT_TYPE::SCRIPT] = new ScriptUI;
+	//m_arrComUI[(UINT)COMPONENT_TYPE::SCRIPT]->SetSize(0.f, 200.f);
+	//AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::SCRIPT]);
+
 	// ResUI
 	m_arrResUI[(UINT)RES_TYPE::MESHDATA] = new MeshDataUI;
 	m_arrResUI[(UINT)RES_TYPE::MESHDATA]->SetSize(0.f, 0.f);
@@ -155,6 +159,7 @@ void InspectorUI::SetTargetObject(CGameObject* _Target)
 		{
 			m_vecScriptUI[i]->SetActive(false);
 		}
+		m_vecScriptUI.clear();
 		return ;
 	}
 
@@ -187,6 +192,7 @@ void InspectorUI::SetTargetObject(CGameObject* _Target)
 		// 스크립트를 스크립트UI 에게 알려준다.
 		m_vecScriptUI[i]->SetTarget(m_pTargetObj);
 		m_vecScriptUI[i]->SetScript(vecScript[i]);
+		m_vecScriptUI[i]->SetSize(0.f, 200.f);
 		m_vecScriptUI[i]->SetActive(true);
 	}
 }
@@ -213,7 +219,6 @@ void InspectorUI::SetTargetResource(Ptr<CRes> _Res)
 
 void InspectorUI::ClearTargetObject()
 {
-	// 타겟오브젝트 정보 노출
 	m_pTargetObj = nullptr;
 
 	for (UINT i = 0; i < (UINT)COMPONENT_TYPE::END; ++i)

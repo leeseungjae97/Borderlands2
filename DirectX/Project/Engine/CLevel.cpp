@@ -72,12 +72,13 @@ void CLevel::createScene()
 {
 	m_PxCollisionCallBack = new PxCollisionCallBack;
 	PxSceneDesc sceneDesc(PhysXMgr::GetInst()->GPhysics()->getTolerancesScale());
-	sceneDesc.gravity = PxVec3(0.0f, -100.f, 0.0f);
+	// 300, 300, 300이 1,1,1같은 물리연산이 되게
+	sceneDesc.gravity = PxVec3(0.0f, -2943, 0.0f);
 	sceneDesc.cpuDispatcher = PhysXMgr::GetInst()->GDispatcher();
 	sceneDesc.filterShader = SimulationFilterShader;
 	sceneDesc.simulationEventCallback = m_PxCollisionCallBack;
 	//sceneDesc.filterCallback = m_PxTriggerCallBack;
-	sceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
+	//sceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
 
 	m_PxScene = PhysXMgr::GetInst()->GPhysics()->createScene(sceneDesc);
 

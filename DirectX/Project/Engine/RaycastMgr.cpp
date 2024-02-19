@@ -58,7 +58,7 @@ bool RaycastMgr::DoRaycast(tRayInfo _RaycastInfo)
 	PxScene* mScene = PhysXMgr::GetInst()->GCurScene();
 	PxVec3 _vOr = PxVec3(_vOrigin.x, _vOrigin.y, _vOrigin.z);
 	PxVec3 _vDr = PxVec3(_vDir.x, _vDir.y, _vDir.z);
-
+	_vDr.normalize();
 	PxOverlapBuffer OverLaphit;
 	PxRaycastBuffer hit;
 	PxQueryFilterData filterData;

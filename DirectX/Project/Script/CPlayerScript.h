@@ -20,6 +20,8 @@ private:
     bool        bReloading;
     bool        bFire;
     bool        bSprint;
+
+    float mt;
 public:
     virtual void begin() override;
     virtual void tick() override;

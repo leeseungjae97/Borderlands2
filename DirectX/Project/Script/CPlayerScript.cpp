@@ -18,18 +18,21 @@
 
 CPlayerScript::CPlayerScript()
 	: CScript((UINT)SCRIPT_TYPE::PLAYERSCRIPT)
-	, fSpeed(500.f)
-	, fJump(00.f)
+	, fSpeed(80.f)
+	, fJump(80.f)
 	, fRateOfFire(0.05f)
 	, fRateOfFireAcc(0.0f)
 	, fMouseAcces(1.f)
 	, iPlayerHp(1000.f)
 	, bReloading(false)
 	, iAmmo(30)
+	, mt(0.1f)
 	, tState(PlayerMgr::PLAYER_STATE::IDLE)
 {
 	AddScriptParam(SCRIPT_PARAM::FLOAT, &fSpeed, "Player Speed");
+	AddScriptParam(SCRIPT_PARAM::FLOAT, &fJump, "Player Jump");
 	AddScriptParam(SCRIPT_PARAM::FLOAT, &fMouseAcces, "Mouse Speed");
+	AddScriptParam(SCRIPT_PARAM::FLOAT, &mt, "MT");
 }
 
 CPlayerScript::~CPlayerScript()
@@ -84,14 +87,14 @@ void CPlayerScript::tick()
 	//Look();
 	//CatchRaycast();
 	Movement();
-
-	wstring str = std::to_wstring(iAmmo) + L"/ 30";
-	CFontMgr::GetInst()->DrawFont(str.c_str(), 20, 20, 20, FONT_RGBA(255, 0, 0, 255));
 }
 
 void CPlayerScript::finaltick()
 {
 	//Movement();
+
+	wstring str = std::to_wstring(iAmmo) + L"/ 30";
+	CFontMgr::GetInst()->DrawFont(str.c_str(), 20, 20, 20, FONT_RGBA(255, 0, 0, 255));
 }
 
 void CPlayerScript::Look()
@@ -206,31 +209,38 @@ void CPlayerScript::Movement()
 	if (nullptr == pCamObj)
 		pCamObj = CameraMgr::GetInst()->GetCamObj(L"MainCamera");
 
-	CGameObject* pPlayerObj = GetOwner();
+	CGameObject* pPlayerFbx = GetOwner();
+	//CGameObject* pPlayerBody = PlayerMgr::GetInst()->GetPlayerBody();
 
 	Vec3 vPlayerPos = PlayerMgr::GetInst()->GetPlayerCameraPos();
 	Vec3 vCamRot	= pCamObj->Transform()->GetRelativeRot();
 
-	Vec3 vPlayerFront	= pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
-	Vec3 vPlayerUp		= pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::UP);
-	Vec3 vPlayerRight	= pPlayerObj->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
-
-	CRigidBody* pPlayerRB = pPlayerObj->RigidBody();
+	Vec3 vPlayerBodyFront	= pPlayerFbx->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+	Vec3 vPlayerBodyUp		= pPlayerFbx->Transform()->GetRelativeDir(DIR_TYPE::UP);
+	Vec3 vPlayerBodyRight	= pPlayerFbx->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+	Vec3 vPlayerBodyPos		= pPlayerFbx->Transform()->GetRelativePos();
+	CRigidBody* pPlayerRB = pPlayerFbx->RigidBody();
 
 	Vec2 vMouseDir		= CKeyMgr::GetInst()->GetMouseDir();
 	Vec3 vPrevCamRot	= vCamRot;
-	vCamRot.y += (DT * vMouseDir.x * 1.f);
-	vCamRot.x -= (DT * vMouseDir.y * 1.f);
+	vCamRot.y += (DT * vMouseDir.x * 0.2f);
+	vCamRot.x -= (DT * vMouseDir.y * 0.2f);
 	vCamRot.z = 0;
 
-	Vec3 vSmoothRot = Vec3::SmoothStep(vCamRot, vPrevCamRot, 0.5f);
-	pPlayerObj->Transform()->SetRelativeRot(vSmoothRot);
-	pCamObj->Transform()->SetRelativeRot(vSmoothRot);
+	//vCamRot = XMVectorLerpV(vPrevCamRot, vCamRot, Vec3(DT, DT, DT));
+
+	//Vec3 vSmoothRot = Vec3::SmoothStep(vCamRot, vPrevCamRot, 0.5f);
+	pPlayerFbx->Transform()->SetRelativeRot(vCamRot);
+	pPlayerFbx->Transform()->SetMt(mt);
+	pCamObj->Transform()->SetRelativeRot(vCamRot);
+	//pPlayerFbx->Transform()->SetRelativeRot(vCamRot);
 
 	Vec3 vPrevCamPos	= pCamObj->Transform()->GetRelativePos();
-	Vec3 vSmoothPos		= Vec3::SmoothStep(vPrevCamPos, vPlayerPos, 0.5f);
+	//vPlayerPos = XMVectorLerpV(vPlayerPos, vPlayerBodyPos, Vec3(0.1f, 0.1f, 0.1f));
+	//Vec3 vSmoothPos		= Vec3::SmoothStep(vPrevCamPos, vPlayerPos, 0.1f);
 
-	pCamObj->Transform()->SetRelativePos(vSmoothPos);
+	//pPlayerFbx->Transform()->SetRelativePos(vPlayerBodyPos);
+	pCamObj->Transform()->SetRelativePos(vPlayerPos);
 
 	float _fSpeed		= fSpeed;
 	Vec3 final_velocity = Vec3(0.f, 0.f, 0.f);
@@ -262,33 +272,33 @@ void CPlayerScript::Movement()
 
 	if (KEY_PRESSED(KEY::LSHIFT))
 	{
-		_fSpeed *= 2.f;
+		_fSpeed *= 1.3f;
 	}
 
 	if (KEY_PRESSED(KEY::W))
 	{
 		flag |= uiFront;
-		final_velocity += vPlayerFront * DT * _fSpeed;
+		final_velocity += vPlayerBodyFront * DT * _fSpeed;
 	}
 	if (KEY_PRESSED(KEY::S))
 	{
 		flag |= uiBack;
-		final_velocity += vPlayerFront * DT * -_fSpeed;
+		final_velocity += vPlayerBodyFront * DT * -_fSpeed;
 	}
 	if (KEY_PRESSED(KEY::A))
 	{
 		flag |= uiLeft;
-		final_velocity += vPlayerRight * DT * -_fSpeed;
+		final_velocity += vPlayerBodyRight * DT * -_fSpeed;
 	}
 
 	if (KEY_PRESSED(KEY::D))
 	{
 		flag |= uiRight;
-		final_velocity += vPlayerRight * DT * _fSpeed;
+		final_velocity += vPlayerBodyRight * DT * _fSpeed;
 	}
 	if (KEY_PRESSED(KEY::SPACE))
 	{
-		final_velocity += vPlayerUp * DT * fJump;
+		final_velocity += vPlayerBodyUp * DT * fJump;
 	}
 	if (KEY_PRESSED(KEY::V))
 	{
@@ -310,7 +320,7 @@ void CPlayerScript::Movement()
 	{
 		if (flag & uiFront)
 		{
-			pPlayerObj->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_FORWARD), true);
+			pPlayerFbx->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_FORWARD), true);
 		}
 		//else if (flag & uiBack)
 		//{
@@ -318,15 +328,15 @@ void CPlayerScript::Movement()
 		//}
 		else if (flag & uiRight)
 		{
-			pPlayerObj->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_RIGHT), true);
+			pPlayerFbx->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_RIGHT), true);
 		}
 		else if (flag & uiLeft)
 		{
-			pPlayerObj->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_LEFT), true);
+			pPlayerFbx->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_LEFT), true);
 		}
 		else if (flag & uiIdle)
 		{
-			pPlayerObj->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::IDLE), true);
+			pPlayerFbx->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::IDLE), true);
 		}
 	}
 }

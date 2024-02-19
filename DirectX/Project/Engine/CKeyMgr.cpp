@@ -104,7 +104,6 @@ void CKeyMgr::tick()
 			}
 		}
 
-		
 		static bool bMouseShow = false;
 		static bool bCur = false;
 		if(CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
@@ -131,8 +130,8 @@ void CKeyMgr::tick()
 				Vec2 vPrevMousePos = Vec2(m_vMousePos.x, m_vMousePos.y);
 				Vec2 vSmoothMousePos = Vec2::SmoothStep(vCurMousePos, vPrevMousePos, 0.5f);
 
-				m_vMouseDir.x = pt.x - vSmoothMousePos.x;
-				m_vMouseDir.y = pt.y - vSmoothMousePos.y;
+				m_vMouseDir.x = pt.x - m_vMousePos.x;
+				m_vMouseDir.y = pt.y - m_vMousePos.y;
 
 				m_vMouseDir.y *= -1;
 

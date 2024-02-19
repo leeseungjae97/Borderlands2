@@ -987,22 +987,24 @@ void CAnimator3D::CustomEvent(CAnimClip* _AnimClip)
 {
 	Events* events = nullptr;
 	events = FindEvents(_AnimClip->GetName());
-	if(_AnimClip->GetEventEndIdx() == _AnimClip->GetClipIdx())
+	int idx =  _AnimClip->GetClipIdx();
+
+	if(_AnimClip->GetEventEndIdx() == idx)
 	{
 		if (events)
 			events->endEvent();
 	}
-	if (_AnimClip->GetEventStartIdx() == _AnimClip->GetClipIdx())
+	if (_AnimClip->GetEventStartIdx() == idx)
 	{
 		if (events)
 			events->startEvent();
 	}
-	if (_AnimClip->GetEventProgressIdx() == _AnimClip->GetClipIdx())
+	if (_AnimClip->GetEventProgressIdx() == idx)
 	{
 		if (events)
 			events->progressEvent();
 	}
-	if (_AnimClip->GetEventCompleteIdx() == _AnimClip->GetClipIdx())
+	if (_AnimClip->GetEventCompleteIdx() == idx)
 	{
 		if (events)
 			events->completeEvent();

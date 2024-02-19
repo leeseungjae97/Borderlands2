@@ -29,13 +29,20 @@ void PlayerMgr::tick()
 	if (CEventMgr::GetInst()->IsLevelChanged())
 	{
 		vector<CGameObject*> objects = CLevelMgr::GetInst()->GetCurLevel()->FindLayerByType(LAYER_TYPE::Player)->GetObjects();
+		bool p = false, b = false;
 		for (int i = 0; i < objects.size(); ++i)
 		{
 			if (objects[i]->GetName() == L"player")
 			{
 				m_pPlayer = objects[i];
-				break;
+				p = true;
 			}
+			if (objects[i]->GetName() == L"player body")
+			{
+				m_pPlayerBody = objects[i];
+				b = true;
+			}
+			if (p && b) break;
 		}
 	}
 }

@@ -43,11 +43,17 @@ void PhysXMgr::init()
 void PhysXMgr::fixedTick()
 {
 	GCurScene();
-	if(gCurScene)
+	if(CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
 	{
-		gCurScene->simulate(1.0f / 60.0f);
-		gCurScene->fetchResults(true);
+		if (gCurScene)
+		{
+			//gCurScene->simulate(1.0f / 60.0f);
+			//gCurScene->simulate(DT);
+			gCurScene->simulate(1.0 / 60.0f);
+			gCurScene->fetchResults(true);
+		}
 	}
+	
 }
 
 void PhysXMgr::render()

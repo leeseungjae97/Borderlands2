@@ -26,7 +26,7 @@ private:
     Matrix  m_noRotWorld;
     Matrix  m_DrawRayWorld;
 
-
+    float _mt;
 public:
     void SetRelativePos(Vec3 _vPos);
     void SetRelativeScale(Vec3 _vScale) { m_vRelativeScale = _vScale; }
@@ -61,6 +61,7 @@ public:
 
     void SetExceptParentRot(bool _Except) { m_bExceptParentRot = _Except; }
 
+    void SetMt(float mt) { _mt = mt; }
 public:
     virtual void finaltick() override;    
     void UpdateData();

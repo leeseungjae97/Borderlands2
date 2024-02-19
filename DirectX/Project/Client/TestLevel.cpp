@@ -39,13 +39,20 @@ void CreateTestLevel()
 	CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
 	//CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
 	pCurLevel->ChangeState(LEVEL_STATE::STOP);
+	
+	//Ptr<CMeshData> pMeshData = nullptr;
 
+	//CGameObject* pMainCam = nullptr;
 	CGameObject* pMainCam = new CGameObject;
+	//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\soldier_hands.fbx");
+	//pMainCam = pMeshData->Instantiate(Vec3(300, 300, 300));
+	//pMainCam->SetName(L"player");
+	//
 	pMainCam->SetName(L"MainCamera");
-
 	pMainCam->AddComponent(new CTransform);
 	pMainCam->AddComponent(new CCamera);
-	pMainCam->AddComponent(new CCameraMoveScript);
+	//pMainCam->AddComponent(new CCameraMoveScript);aaa
+
 
 	pMainCam->Camera()->SetFarZ(1000000.f);
 	pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
@@ -53,6 +60,8 @@ void CreateTestLevel()
 	pMainCam->Camera()->SetLayerMaskAll(true);
 	pMainCam->Camera()->SetLayerMask(31, false);
 	PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
+	
+	
 
 	CGameObject* pUICam = new CGameObject;
 	pUICam->SetName(L"UICamera");
@@ -305,41 +314,48 @@ void CreateTestLevel()
 	// ============
 	// FBX Loading
 	// ============	
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
+
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\soldier_hands.fbx");
+	//	pObj = pMeshData->Instantiate(Vec3(300, 300, 300));
+	//	pObj->SetName(L"player");
+	//	pObj->AddComponent(new CPlayerScript);
+	//	
+
+	//	PlayerMgr::GetInst()->SetPlayer(pObj);
+
+	//	PreloadGameObject(pObj, Vec3(50.f, 1000.f, 50.f), LAYER_TYPE::Player);
+	//}
 	{
+		/*CGameObject* pObj = new CGameObject;
+
+		pObj->SetName(L"player body");
+
+		pObj->AddComponent(new CTransform);
+		pObj->AddComponent(new CMeshRender);*/
 		Ptr<CMeshData> pMeshData = nullptr;
 		CGameObject* pObj = nullptr;
-
-		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\Monster.fbx");
-		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
 		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\soldier_hands.fbx");
-		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\anim_NLA.fbx");
-		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\house.mdat");
-		//pObj = pMeshData->Instantiate();
-		//pObj->SetName(L"House");
-
-		//pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\monster.fbx");
-		//pMeshData = CResMgr::GetInst()->Load<CMeshData>(L"meshdata\\monster.mdat", L"meshdata\\monster.mdat");
-		//pMeshData = CResMgr::GetInst()->FindRes<CMeshData>(L"meshdata\\anim_NLA.mdat");
-		pObj = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
+		pObj = pMeshData->Instantiate(Vec3(300, 300, 300));
 		pObj->SetName(L"player");
-		//pObj->AddComponent(new CPathFind);
-		//pObj->AddComponent(new CEnemyScript);
-		pObj->AddComponent(new CPlayerScript);
+
 		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
-		pObj->RigidBody()->SetCreature(true);
 		pObj->AddComponent(new CCollider3D);
+		pObj->AddComponent(new CPlayerScript);
+		pObj->RigidBody()->SetCreature(true);
+		
 		pObj->AddComponent(new CGizmo);
+		pObj->Transform()->SetRelativeScale(Vec3(300.f, 300.f, 300.f));
 		pObj->Transform()->SetRelativePosOffset(Vec3(0.f, 350.f, 0.f));
 
-		//pObj->AddChild(pMainCam);
-		pObj->SetFollowObj(pMainCam);
-		//pMainCam->SetFollowObj(pObj);
-		//pMainCam->Transform()->SetFollowOffset(Vec3(50.f, 350.f, 0.f));
-
-		//SpawnGameObject(pObj, Vec3(0.f, 0.f, 100.f), L"Default");
-		ObjPickerMgr::GetInst()->SetPickObj(pObj);
+		//pObj->SetFollowObj(pMainCam);
+		//pMainCam->AddChild(pObj);
 		PlayerMgr::GetInst()->SetPlayer(pObj);
-		PreloadGameObject(pObj, Vec3(50.f, 1000.f, 50.f), LAYER_TYPE::Player);
+		ObjPickerMgr::GetInst()->SetPickObj(pObj);
+		//PlayerMgr::GetInst()->SetPlayerBody(pObj);
+		PreloadGameObject(pObj, Vec3(500.f, 500.f, 50.f), LAYER_TYPE::Player);
 	}
 	{
 		Ptr<CMeshData> pMeshData = nullptr;
@@ -415,90 +431,92 @@ void CreateTestLevel()
 	//	pObj->SetName(L"fbx terrain");
 	//	PreloadGameObject(pObj, Vec3(200.f, 100.f, 200.f), LAYER_TYPE::Environment);
 	//}
-	{
-		Ptr<CMeshData> pMeshData = nullptr;
-		CGameObject* pObj = nullptr;
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
 
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
-		pObj = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
-		
-		pObj->SetName(L"fbx nomad");
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+	//	pObj = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
+	//	
+	//	pObj->SetName(L"fbx nomad");
 
-		pObj->AddComponent(new CEnemyScript);
-		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
-		pObj->AddComponent(new CCollider3D);
-		pObj->AddComponent(new CGizmo);
+	//	pObj->AddComponent(new CEnemyScript);
+	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
+	//	pObj->AddComponent(new CCollider3D);
+	//	pObj->AddComponent(new CGizmo);
 
-		PreloadGameObject(pObj, Vec3(500.f, 100.f, 500.f), LAYER_TYPE::Enemy);
+	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 500.f), LAYER_TYPE::Enemy);
 
-		{
-			Ptr<CMeshData> pMeshData = nullptr;
-			CGameObject* pGun = nullptr;
-			pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\dahl.fbx");
-			pGun = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
-			pGun->SetName(L"enemy_gun");
+	//	{
+	//		Ptr<CMeshData> pMeshData = nullptr;
+	//		CGameObject* pGun = nullptr;
+	//		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\dahl.fbx");
+	//		pGun = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
+	//		pGun->SetName(L"enemy_gun");
 
-			pGun->AddComponent(new CGunScript);
-			pGun->AddComponent(new CGizmo);
-			pGun->SetIsItem(true);
-			pObj->AddGun(pGun);
+	//		pGun->AddComponent(new CGunScript);
+	//		pGun->AddComponent(new CGizmo);
+	//		pGun->SetIsItem(true);
+	//		pObj->AddGun(pGun);
 
-			PreloadGameObject(pGun, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
-		}
+	//		PreloadGameObject(pGun, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
+	//	}
 
-	}
+	//}
 
-	{
-		Ptr<CMeshData> pMeshData = nullptr;
-		CGameObject* pObj = nullptr;
-		
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\fire_breath.fbx");
-		pObj = pMeshData->Instantiate(Vec3(10000.f, 10000.f, 10000.f));
-		pObj->AddComponent(new CCollider3D(false));
-		pObj->AddComponent(new CGizmo);
-		pObj->Collider3D()->SetScale(Vec3(1500.f, 1500.f, 13000.f));
-		//pObj->Collider3D()->SetCenter(true);
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
+	//	
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\fire_breath.fbx");
+	//	pObj = pMeshData->Instantiate(Vec3(10000.f, 10000.f, 10000.f));
+	//	pObj->AddComponent(new CCollider3D(false));
+	//	pObj->AddComponent(new CGizmo);
+	//	pObj->Collider3D()->SetScale(Vec3(1500.f, 1500.f, 13000.f));
+	//	//pObj->Collider3D()->SetCenter(true);
 
-		pObj->SetName(L"fbx fire breath");
-		pObj->MeshRender()->GetMaterial(0)->SetTexFlow(true);
-		pObj->MeshRender()->GetMaterial(0)->SetFlowSpeed(2.f);
-		pObj->MeshRender()->GetMaterial(0)->SetFlowDir(Vec2(-0.5f, 0.0f));
-		PreloadGameObject(pObj, Vec3(200.f, 100.f, 15000.f), LAYER_TYPE::Environment);
-	}
-	{
-		Ptr<CMeshData> pMeshData = nullptr;
-		CGameObject* pObj = nullptr;
+	//	pObj->SetName(L"fbx fire breath");
+	//	pObj->MeshRender()->GetMaterial(0)->SetTexFlow(true);
+	//	pObj->MeshRender()->GetMaterial(0)->SetFlowSpeed(2.f);
+	//	pObj->MeshRender()->GetMaterial(0)->SetFlowDir(Vec2(-0.5f, 0.0f));
+	//	PreloadGameObject(pObj, Vec3(200.f, 100.f, 15000.f), LAYER_TYPE::Environment);
+	//}
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
 
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\warrior_2.fbx");
-		pObj = pMeshData->Instantiate(Vec3(1000.f, 1000.f, 1000.f));
-		pObj->SetName(L"fbx warrior");
-		pObj->SetIsWarrior(true);
-		//pObj->AddComponent(new CAnimator2D);
-		pObj->AddComponent(new CWarriorScript);
-		
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\warrior_2.fbx");
+	//	pObj = pMeshData->Instantiate(Vec3(1000.f, 1000.f, 1000.f));
+	//	pObj->SetName(L"fbx warrior");
+	//	pObj->SetIsWarrior(true);
+	//	//pObj->AddComponent(new CAnimator2D);
+	//	pObj->AddComponent(new CWarriorScript);
+	//	
 
-		PreloadGameObject(pObj, Vec3(500.f, 100.f, 500.f), LAYER_TYPE::Enemy);
-	}
-
+	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 500.f), LAYER_TYPE::Enemy);
+	//}
 
 
 	pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"main menu level");
 	CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
 	pCurLevel->ChangeState(LEVEL_STATE::STOP);
 
-	pMainCam = new CGameObject;
-	pMainCam->SetName(L"MainCamera");
+	{
+		CGameObject* pMainCam = new CGameObject;
+		pMainCam->SetName(L"MainCamera");
 
-	pMainCam->AddComponent(new CTransform);
-	pMainCam->AddComponent(new CCamera);
-	pMainCam->AddComponent(new CCameraMoveScript);
+		pMainCam->AddComponent(new CTransform);
+		pMainCam->AddComponent(new CCamera);
+		pMainCam->AddComponent(new CCameraMoveScript);
 
-	pMainCam->Camera()->SetFarZ(1000000.f);
-	pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
-	pMainCam->Camera()->SetCameraIndex(0);
-	pMainCam->Camera()->SetLayerMaskAll(true);
-	pMainCam->Camera()->SetLayerMask(31, false);
-	PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
+		pMainCam->Camera()->SetFarZ(1000000.f);
+		pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
+		pMainCam->Camera()->SetCameraIndex(0);
+		pMainCam->Camera()->SetLayerMaskAll(true);
+		pMainCam->Camera()->SetLayerMask(31, false);
+		PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
+	}
+	
 
 	pUICam = new CGameObject;
 	pUICam->SetName(L"UICamera");

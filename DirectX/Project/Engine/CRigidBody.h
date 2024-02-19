@@ -105,6 +105,8 @@ public:
 
 	bool IsRigidBodyCreate();
 
+    Matrix GetRigidBodyMatrix();
+
 private:
     void convertMeshToGeom();
     void setRigidPos();
