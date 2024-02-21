@@ -13,7 +13,7 @@ void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
 void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, LAYER_TYPE _Type);
 
 void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
-void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, LAYER_TYPE _Type);
+void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, LAYER_TYPE _Type, bool _IntergratedCollider = false);
 
 void ChangeCurLevel(CLevel* _ChangeLevel);
 

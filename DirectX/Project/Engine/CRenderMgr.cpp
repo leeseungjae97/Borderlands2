@@ -153,6 +153,18 @@ CCamera* CRenderMgr::GetMainCam()
     }
 }
 
+CCamera* CRenderMgr::GetUICam()
+{
+    if (CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
+    {
+        if (m_vecCam.empty())
+            return nullptr;
+
+        return m_vecCam[1];
+    }
+    return nullptr;
+}
+
 void CRenderMgr::CopyRenderTarget()
 {
     Ptr<CTexture> pRTTex = CResMgr::GetInst()->FindRes<CTexture>(L"RenderTargetTex");

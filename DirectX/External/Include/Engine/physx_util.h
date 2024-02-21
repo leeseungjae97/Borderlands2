@@ -187,14 +187,14 @@ namespace physx
 
 		static bool isTrigger(const physx::PxFilterData& data)
 		{
-			if (data.word0 == 0xffffffff)
+			//if (data.word0 == 0x0000000f)	 
+			//	return true;
+			if (data.word1 == 0x0000000f)
 				return true;
-			if (data.word1 == 0xffffffff)
-				return true;
-			if (data.word2 == 0xffffffff)
-				return true;
-			if (data.word3 == 0xffffffff)
-				return true;
+			//if (data.word2 == 0x0000000f)
+			//	return true;
+			//if (data.word3 == 0x0000000f)
+			//	return true;
 
 			return false;
 
@@ -340,43 +340,42 @@ namespace physx
 			void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 count)	PX_OVERRIDE
 			{
 				OutputDebugStringW(L"onContact\n");
-				while (count--)
+
+
+				if (pairHeader.actors[0]->userData
+					&& pairHeader.actors[1]->userData)
 				{
-					if (pairHeader.actors[0]->userData 
-						&& pairHeader.actors[1]->userData)
+
+					CCollider3D* col1 = static_cast<CCollider3D*>(pairHeader.actors[0]->userData);
+					CCollider3D* col2 = static_cast<CCollider3D*>(pairHeader.actors[1]->userData);
+
+					if (nullptr != col1 && nullptr != col2)
 					{
-					
-						CCollider3D* col1 = static_cast<CCollider3D*>(pairHeader.actors[0]->userData);
-						CCollider3D* col2 = static_cast<CCollider3D*>(pairHeader.actors[1]->userData);
-
-						if(nullptr != col1 && nullptr != col2)
+						UINT col1LayerIdx = col1->GetOwner()->GetLayerIndex();
+						UINT col2LayerIdx = col2->GetOwner()->GetLayerIndex();
+						if (!CollisionMgr::GetInst()->IsLayerIntersect(col1LayerIdx, col2LayerIdx))
 						{
-							UINT col1LayerIdx = col1->GetOwner()->GetLayerIndex();
-							UINT col2LayerIdx = col2->GetOwner()->GetLayerIndex();
-							if (!CollisionMgr::GetInst()->IsLayerIntersect(col1LayerIdx, col2LayerIdx))
-							{
-								continue;
-							}
+							return;
+						}
 
-							if (pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
-							{
-								OutputDebugStringW(L"Contact Begin\n");
-								col1->BeginOverlap(col2);
-								col2->BeginOverlap(col1);
-							}
-							else if (pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS)
-							{
-								OutputDebugStringW(L"Contact On\n");
-								col1->OnOverlap(col2);
-								col2->OnOverlap(col1);
-							}
+						if (pairs[0].events == physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
+						{
+							OutputDebugStringW(L"Contact Begin\n");
+							col1->BeginOverlap(col2);
+							col2->BeginOverlap(col1);
+						}
+						else if (pairs[0].events == physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS)
+						{
+							OutputDebugStringW(L"Contact On\n");
+							col1->OnOverlap(col2);
+							col2->OnOverlap(col1);
+						}
 
-							else // pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_LOST
-							{
-								OutputDebugStringW(L"Contact Exit\n");
-								col1->EndOverlap(col2);
-								col2->EndOverlap(col1);
-							}
+						else // pairs[count].events == physx::PxPairFlag::eNOTIFY_TOUCH_LOST
+						{
+							OutputDebugStringW(L"Contact Exit\n");
+							col1->EndOverlap(col2);
+							col2->EndOverlap(col1);
 						}
 					}
 				}
@@ -461,16 +460,37 @@ namespace physx
 			Quat quat; quat = Util::Vector3ToQuaternion(_vRot);
 			return PxTransform(PxVec3(_vPos.x, _vPos.y, _vPos.z), PxQuat(quat.x, quat.y, quat.z, quat.w));
 		}
+		static Matrix WorldMatFromGlobalPose(physx::PxTransform pos, Vec3 vScale, Vec3 vRot, Vec3 Offset)
+		{
+			Vec3 vPos = Vec3(pos.p.x, pos.p.y, pos.p.z);
+
+			vPos.x += Offset.x;
+			vPos.y += Offset.y;
+			vPos.z += Offset.z;
+
+			Matrix matTranslation = XMMatrixTranslation(vPos.x, vPos.y, vPos.z);
+
+			Matrix mRot = XMMatrixIdentity();
+
+			mRot = XMMatrixRotationX(vRot.x);
+			mRot *= XMMatrixRotationY(vRot.y);
+			mRot *= XMMatrixRotationZ(vRot.z);
+
+			Matrix matWorldScale = XMMatrixIdentity();
+			matWorldScale = XMMatrixScaling(vScale.x, vScale.y, vScale.z);
+
+			return matWorldScale * mRot * matTranslation;
+		}
 		static Matrix WorldMatFromGlobalPose(physx::PxTransform pos, Vec3 vScale)
 		{
 			Vec3 vPos = Vec3(pos.p.x, pos.p.y, pos.p.z);
 			Matrix matTranslation = XMMatrixTranslation(vPos.x, vPos.y, vPos.z);
 
 			Quat rotation(pos.q.x, pos.q.y, pos.q.z, pos.q.w);
-			Matrix m_Rot = Matrix::CreateFromQuaternion(rotation);
+			Matrix mRot = Matrix::CreateFromQuaternion(rotation);
 			Matrix matWorldScale = XMMatrixScaling(vScale.x, vScale.y, vScale.z);
 
-			return matWorldScale * m_Rot * matTranslation;
+			return matWorldScale * mRot * matTranslation;
 		}
 	}
 

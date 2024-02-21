@@ -84,6 +84,7 @@ ULONG64 CRenderComponent::GetInstID(UINT _iMtrlIdx)
 {
 	if (m_vecMtrls.empty()) return 0;
 
+
 	if (m_pMesh == NULL || m_vecMtrls[_iMtrlIdx].pCurrentMtrl == NULL)
 		return 0;
 

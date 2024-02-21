@@ -34,7 +34,7 @@ bool WeaponMgr::ChangeWeapon(int _Idx, bool _Force)
 	iCurWeaponName = m_arrWeapons[iCurWeaponIdx]->GetName();
 	SetEquis(false);
 	SetEqui(iCurWeaponIdx, true);
-	Play(GUN_ANIMATION_TYPE::FIRE, false);
+	Play(GUN_ANIMATION_TYPE::IDLE, false);
 	return true;
 }
 
@@ -115,10 +115,14 @@ Vec3 WeaponMgr::GetOwnerWeaponPos(CGameObject* _Owner)
 
 	int iWeaponHandIdx = _Owner->Animator3D()->GetWeaponHandIdx();
 	Vec3 vPos = _Owner->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, _Owner->Animator3D());
-	Matrix matWorld;
-	matWorld = _Owner->Transform()->GetWorldMat();
 
-	vPos = XMVector3TransformCoord(vPos, matWorld);
+	CRigidBody* rb = _Owner->RigidBody();
+	Vec3 vOffset = Vec3::Zero;
+	if (_Owner->Animator3D())
+	{
+		vOffset += _Owner->Transform()->GetRelativePosOffset();
+	}
+	vPos = XMVector3TransformCoord(vPos, rb->GetRigidBodyMatrix(vOffset));
 
 	return vPos;
 }
@@ -162,6 +166,7 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot)
 	Light->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
 	Light->Light3D()->SetLifeSpan(0.01f);
 	Light->Transform()->SetRelativeRot(_vRot);
+	Light->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
 	Light->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
 	Light->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3DShaderMtrl"), 0);
 

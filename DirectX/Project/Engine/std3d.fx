@@ -156,7 +156,7 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
         
         if (vEmis.r > 0.0f)
         {
-            vEmissiveCoeff += vEmis.r * 10.f;
+            vEmissiveCoeff += vEmis.r * 2.f;
         }
         if (vEmis.g > 0.0f)
         {

@@ -26,6 +26,10 @@ public:
     void Create(UINT _iElementSize, UINT _iElementCount, SB_TYPE _Type, bool _bUseSysAccess, void* _pSysMem = nullptr);
     void SetData(void* _pSrc, UINT _iSize = 0);
     void GetData(void* _pDst);
+    template <typename T>
+    void GetArrData(T* _pDst);
+    void GetMatrixData(vector<Matrix>& _pDst);
+    void GetMatrixData(Matrix* mat, int _Idx);
 
     // PIPELINE_STAGE
     void UpdateData(UINT _iRegisterNum, UINT _iPipeLineStage);

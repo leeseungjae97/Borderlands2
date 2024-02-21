@@ -33,6 +33,9 @@ void CFontMgr::init()
 
 void CFontMgr::DrawFont(const wchar_t* _pStr, float _fPosX, float _fPosY, float _fFontSize, UINT _Color)
 {
+	Vector2 vSize = GetTextSize(_pStr, _fFontSize);
+	_fPosX += vSize.x / 2.f;
+	
 	m_pFontWrapper->DrawString(
 		CONTEXT,
 		_pStr, // String
@@ -40,6 +43,18 @@ void CFontMgr::DrawFont(const wchar_t* _pStr, float _fPosX, float _fPosY, float 
 		_fPosX,// X position
 		_fPosY,// Y position
 		_Color,// Text color, 0xAaBbGgRr
-		FW1_RESTORESTATE
+		FW1_CENTER | FW1_RESTORESTATE
 	);
+}
+
+Vec2 CFontMgr::GetTextSize(const wchar_t* str, float size)
+{
+	FW1_RECTF measuredSize = { 0.f, 0.f, 0.f, 0.f };
+
+	FW1_RECTF mSize = m_pFontWrapper->MeasureString(str, L"HYGothic", size, &measuredSize, FW1_NOWORDWRAP);
+	FLOAT width = mSize.Right - mSize.Left;
+	FLOAT height = mSize.Bottom - mSize.Top;
+	height += 5.f;
+	width += 5.f;
+	return Vec2(width, height);
 }

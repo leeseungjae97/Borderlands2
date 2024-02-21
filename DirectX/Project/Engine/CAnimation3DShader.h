@@ -10,6 +10,9 @@ class CAnimation3DShader :
 	CStructuredBuffer* m_pBlendFrameDataBuffer;
 	CStructuredBuffer* m_pOffsetMatBuffer;			
 	CStructuredBuffer* m_pOutputBuffer;					
+	//CStructuredBuffer* m_pOutputPosRotBuffer;					
+	CStructuredBuffer* m_pOutputPosBuffer;					
+	CStructuredBuffer* m_pOutputRotBuffer;					
 
 public:
 	void SetBoneCount(int _iBoneCount) { m_Const.arrInt[0] = _iBoneCount; }
@@ -26,6 +29,9 @@ public:
 	void SetFrameDataBuffer(CStructuredBuffer* _buffer) { m_pFrameDataBuffer = _buffer; }
 	void SetOffsetMatBuffer(CStructuredBuffer* _buffer) { m_pOffsetMatBuffer = _buffer; }
 	void SetOutputBuffer(CStructuredBuffer* _buffer) { m_pOutputBuffer = _buffer; }
+	//void SetOutputPosRotBuffer(CStructuredBuffer* _buffer) { m_pOutputPosRotBuffer = _buffer; }
+	void SetOutputPosBuffer(CStructuredBuffer* _buffer) { m_pOutputPosBuffer = _buffer; }
+	void SetOutputRotBuffer(CStructuredBuffer* _buffer) { m_pOutputRotBuffer = _buffer; }
 	void SetBlendFrameDataBuffer(CStructuredBuffer* _buffer) { m_pBlendFrameDataBuffer = _buffer; }
 
 public:

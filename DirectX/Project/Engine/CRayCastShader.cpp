@@ -41,6 +41,6 @@ void CRayCastShader::UpdateData()
 
 void CRayCastShader::Clear()
 {
-	m_pHeightMap->Clear_CS(0);
-	m_pOutput->Clear();
+	m_pHeightMap->Clear();
+	m_pOutput->Clear_CS(false);
 }

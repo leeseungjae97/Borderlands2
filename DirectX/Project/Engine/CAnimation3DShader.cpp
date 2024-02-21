@@ -31,6 +31,12 @@ void CAnimation3DShader::UpdateData()
 	if(m_pOutputBuffer)
 		m_pOutputBuffer->UpdateData_CS(0, false);
 
+	if (m_pOutputPosBuffer)
+		m_pOutputPosBuffer->UpdateData_CS(1, false);
+
+	if (m_pOutputRotBuffer)
+		m_pOutputRotBuffer->UpdateData_CS(2, false);
+
 	m_iGroupX = (m_Const.arrInt[0] / m_iGroupPerThreadX) + 1;
 	m_iGroupY = 1;
 	m_iGroupZ = 1;
@@ -59,5 +65,23 @@ void CAnimation3DShader::Clear()
 	{
 		m_pOutputBuffer->Clear_CS(false);
 		m_pOutputBuffer = nullptr;
+	}
+
+	//if (nullptr != m_pOutputPosRotBuffer)
+	//{
+	//	m_pOutputPosRotBuffer->Clear_CS(false);
+	//	m_pOutputPosRotBuffer = nullptr;
+	//}
+
+	if (nullptr != m_pOutputPosBuffer)
+	{
+		m_pOutputPosBuffer->Clear_CS(false);
+		m_pOutputPosBuffer = nullptr;
+	}
+
+	if (nullptr != m_pOutputRotBuffer)
+	{
+		m_pOutputRotBuffer->Clear_CS(false);
+		m_pOutputRotBuffer = nullptr;
 	}
 }

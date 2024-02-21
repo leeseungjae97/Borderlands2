@@ -5,6 +5,7 @@ class CGunScript :
 {
 private:
     bool    m_bEquiWeapon;
+    Vec3    m_vPrevRot;
 
 public:
     void tick() override;

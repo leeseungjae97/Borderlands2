@@ -733,7 +733,81 @@ inline void Vector2::TransformNormal(const Vector2* varray, size_t count, const 
     XMMATRIX M = XMLoadFloat4x4(&m);
     XMVector2TransformNormalStream(resultArray, sizeof(XMFLOAT2), varray, sizeof(XMFLOAT2), count, M);
 }
+inline bool Vector2::PointIntersectRect(Vector2 targetVector, Vector2 targetScale, Vector2 pointPos)
+{
+    Vector2 sp = Vector2(targetVector.x - targetScale.x / 2.f, targetVector.y + targetScale.y / 2.f);
+    Vector2 lp = Vector2(targetVector.x + targetScale.x / 2.f, targetVector.y - targetScale.y / 2.f);
+    if ((sp.x <= pointPos.x && sp.y >= pointPos.y)
+        && (lp.x >= pointPos.x && lp.y <= pointPos.y))
+    {
+        return true;
+    }
+    else return false;
+}
+inline bool Vector2::PointIntersectRhombus(Vector2 pos, Vector2 scale, Vector2 otherPos)
+{
+    Vector2 vertex[4];
+    float gradient[4];
+    float intercept[4];
 
+    float direct[4][2] = {
+        {-(scale.x / 2.f), 0},
+        {0, -(scale.y / 2.f)},
+        {(scale.x / 2.f), 0},
+        {0, (scale.y / 2.f)},
+    };
+    for (size_t i = 0; i < 4; i++)
+    {
+        vertex[i].x = pos.x + direct[i][0];
+        vertex[i].y = pos.y + direct[i][1];
+    }
+    for (size_t i = 0; i < 4; i++)
+    {   // 0 - 1, 1 - 2, 2 - 3, 3 - 0
+        gradient[i] = ((vertex[i].y - vertex[(i + 1) % 4].y) / (vertex[i].x - vertex[(i + 1) % 4].x));
+        intercept[i] = vertex[i].y - gradient[i] * vertex[i].x;
+    }
+    float _y = otherPos.y;
+    float _x = otherPos.x;
+
+    if (gradient[0] * _x + intercept[0] < _y
+        && gradient[1] * _x + intercept[1] < _y
+        && gradient[2] * _x + intercept[2] > _y
+        && gradient[3] * _x + intercept[3] > _y)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+inline bool Vector2::RectIntersectRect(Vector2 targetVector, Vector2 targetScale, Vector2 ohterVector, Vector2 otherScale)
+{
+    if (fabs(targetVector.x - ohterVector.x) < targetScale.x / 2.f + otherScale.x / 2.f
+        && fabs(targetVector.y - ohterVector.y) < targetScale.y / 2.f + otherScale.y / 2.f)
+    {
+        return true;
+    }
+    else return false;
+}
+inline bool Vector2::RectIndexesIntersectRectIndexes(Vector2 targetVector, Vector2 targetScale, Vector2 ohterVector, Vector2 otherScale)
+{
+    std::vector<Vector2> otherRectIndexes;
+    otherRectIndexes.push_back(Vector2(ohterVector.x - otherScale.x / 2.f, ohterVector.y + otherScale.y / 2.f));
+    otherRectIndexes.push_back(Vector2(ohterVector.x - otherScale.x / 2.f, ohterVector.y - otherScale.y / 2.f));
+    otherRectIndexes.push_back(Vector2(ohterVector.x + otherScale.x / 2.f, ohterVector.y + otherScale.y / 2.f));
+    otherRectIndexes.push_back(Vector2(ohterVector.x + otherScale.x / 2.f, ohterVector.y - otherScale.y / 2.f));
+
+    for (int i = 0; i < 4; ++i)
+    {
+        if (!PointIntersectRect(targetVector, targetScale, otherRectIndexes[i]))
+        {
+            return true;
+        }
+    }
+    return false;
+
+}
 
 /****************************************************************************
  *

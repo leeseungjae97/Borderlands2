@@ -7,7 +7,7 @@
 #include <Engine/WeaponMgr.h>
 
 CGunScript::CGunScript()
-	: CScript(SCRIPT_TYPE::GUNSCRIPT)
+	: CScript(SCRIPT_TYPE::GUN_SCRIPT)
 	, m_bEquiWeapon(true)
 {
 }
@@ -56,29 +56,18 @@ void CGunScript::SetWeaponPos()
 	if (nullptr == pCamObj)
 		pCamObj = CameraMgr::GetInst()->GetCamObj(L"MainCamera");
 
-	Vec3 vPrevRot = pGun->Transform()->GetRelativeRot();
 	Vec3 vPrevPos = pGun->Transform()->GetRelativePos();
 
-	Vec3 vScale = pGun->Transform()->GetRelativeScale();
-	Vec3 vCamRot = pCamObj->Transform()->GetRelativeRot();
-	Vec2 vMouseDir = CKeyMgr::GetInst()->GetMouseDir();
-	Vec3 vPrevCamRot = vCamRot;
-	vCamRot.y += (DT * vMouseDir.x * 0.2f);
-	vCamRot.x -= (DT * vMouseDir.y * 0.2f);
-	vCamRot.z = 0;
-
-	Vec3 vvRot = pOwner->Transform()->GetRelativeRot();
+	Vec3 vCurRot = pOwner->Transform()->GetRelativeRot();
 	Vec3 vRot = WeaponMgr::GetInst()->GetOwnerWeaponRot(pOwner);
 	Vec3 vPos = WeaponMgr::GetInst()->GetOwnerWeaponPos(pOwner);
 
-	vPos.y += vScale.y / 2.f;
-	//vPrevPos = XMVectorLerpV(vPrevPos, vPos, Vec3(0.1f, 0.1f, 0.1f));
-
+	//vPos.y += vScale.y / 2.f;
+	m_vPrevRot = XMVectorLerpV(m_vPrevRot, vCurRot, Vec3(0.3f, 0.3f, 0.3f));
+	
 	//int muzzleIdx = WeaponMgr::GetInst()->GetCurWeaponIdx();
-	
 
-	
 	pGun->Transform()->SetRelativePos(vPos);
 	//pGun->Transform()->AddRelativeRot(vvRot);
-	pGun->Transform()->SetRelativeRot(vRot + vvRot);
+	pGun->Transform()->SetRelativeRot(vRot + m_vPrevRot);
 }

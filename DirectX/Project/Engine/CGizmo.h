@@ -8,6 +8,7 @@ private:
     CGameObject* m_pRight;
     CGameObject* m_pFront;
 
+    bool         m_bUsePhysxPos;
 public:
     void finaltick() override;
 
@@ -16,7 +17,7 @@ public:
 
     CLONE(CGizmo)
 public:
-    CGizmo();
+    CGizmo(bool _UsePhysxPos = false);
     virtual ~CGizmo();
 };
 

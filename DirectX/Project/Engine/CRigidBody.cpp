@@ -132,16 +132,18 @@ bool CRigidBody::IsRigidBodyCreate()
 	return false;
 }
 
-Matrix CRigidBody::GetRigidBodyMatrix()
+Matrix CRigidBody::GetRigidBodyMatrix(Vec3 _vOffset)
 {
 	Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
+	Vec3 vRot = GetOwner()->Transform()->GetRelativeRot();
 	PxTransform trans;
 	if (m_pDynamicBody)
 		trans = m_pDynamicBody->getGlobalPose();
 	else
 		trans = m_pStaticBody->getGlobalPose();
 
-	return physx::Util::WorldMatFromGlobalPose(trans, vScale);
+
+	return physx::Util::WorldMatFromGlobalPose(trans, vScale, vRot, _vOffset);
 }
 
 void CRigidBody::convertMeshToGeom()

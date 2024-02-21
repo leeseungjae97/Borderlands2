@@ -85,9 +85,32 @@ int ObjectPickerUI::render_update()
 				+ std::to_string(_angular_velocity.y)
 				+ "\nz : "
 				+ std::to_string(_angular_velocity.z);
+
+			ImGui::Text(str.c_str());
+
+
+			PxTransform _global_trans = _dy->getGlobalPose();
+			str = "_global_trans pose\nx :"
+				+ std::to_string(_global_trans.p.x)
+				+ "\ny : "
+				+ std::to_string(_global_trans.p.y)
+				+ "\nz : "
+				+ std::to_string(_global_trans.p.z);
+
+			ImGui::Text(str.c_str());
+
+			PxTransform _mass_local_trans = _dy->getCMassLocalPose();
+			str = "_mass_local_trans pose\nx :"
+				+ std::to_string(_mass_local_trans.p.x)
+				+ "\ny : "
+				+ std::to_string(_mass_local_trans.p.y)
+				+ "\nz : "
+				+ std::to_string(_mass_local_trans.p.z);
+
+			ImGui::Text(str.c_str());
 		}
 
-		ImGui::Text(str.c_str());
+
 	}
 
 	

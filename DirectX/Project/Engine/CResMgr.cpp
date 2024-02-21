@@ -859,7 +859,9 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->AddTexParam(TEX_1, "Normal Mapping Texture");
 	pShader->AddTexParam(TEX_2, "Emissive Texture");
 	pShader->AddTexParam(TEX_3, "Emissive2 Texture");
-	pShader->AddTexParam(TEX_4, "Texture");
+	pShader->AddTexParam(TEX_4, "Emissive3 Texture");
+	pShader->AddTexParam(TEX_5, "Emissive4 Texture");
+	pShader->AddTexParam(TEX_6, "Emissive5 Texture");
 	pShader->AddTexParam(TEX_7, "Noise Texture");
 
 	AddRes(pShader->GetKey(), pShader);
@@ -871,6 +873,7 @@ void CResMgr::CreateDefaultGraphicsShader()
 	//pShader->SetRSType(RS_TYPE::WIRE_FRAME);
 	pShader->SetRSType(RS_TYPE::CULL_NONE);
 	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+	pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_MASK);
 
 	AddRes(pShader->GetKey(), pShader);
@@ -883,6 +886,7 @@ void CResMgr::CreateDefaultGraphicsShader()
 	//pShader->SetRSType(RS_TYPE::WIRE_FRAME);
 	pShader->SetRSType(RS_TYPE::CULL_NONE);
 	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+	pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_UI);
 
 	AddRes(pShader->GetKey(), pShader);
@@ -951,7 +955,10 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->AddTexParam(TEX_1, "Normal Mapping Texture");
 	pShader->AddTexParam(TEX_2, "Emissive Texture");
 	pShader->AddTexParam(TEX_3, "Emissive2 Texture");
-	pShader->AddTexParam(TEX_4, "Texture");
+	pShader->AddTexParam(TEX_4, "Emissive3 Texture");
+	pShader->AddTexParam(TEX_5, "Emissive4 Texture");
+	pShader->AddTexParam(TEX_6, "Emissive5 Texture");
+	pShader->AddTexParam(TEX_7, "Noise Texture");
 
 	AddRes(pShader->GetKey(), pShader);
 
@@ -1303,6 +1310,12 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std3DShader"));
 	AddRes(L"Std3DShaderMtrl", pMtrl);
+
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std3DShader"));
+		AddRes(L"ColliderMtrl", pMtrl);
+	}
 
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DShader"));

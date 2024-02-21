@@ -7,21 +7,27 @@ class CStructuredBuffer;
 class CMesh;
 
 class CAnimator3D :
-    public CComponent
-{
+	public CComponent {
 private:
-    vector<tMTBone>				m_pVecBones;
-    map<wstring, tMTAnimClip>	m_pMapClip;
+	vector<tMTBone>				m_pVecBones;
+	map<wstring, tMTAnimClip>	m_pMapClip;
 
-    vector<float>				m_vecClipUpdateTime;
-    vector<Matrix>				m_vecFinalBoneMat;
-    int							m_iFrameCount;
+	vector<Matrix>				m_vecRotMat;
+	vector<Matrix>				m_vecPosMat;
 
-    CStructuredBuffer*          m_pBoneFinalMatBuffer;
-    bool						m_bFinalMatUpdate;
+	bool						m_bUpdate;
+	vector<float>				m_vecClipUpdateTime;
 
-    CAnimClip*                  m_pCurClip;
-    CAnimClip*                  m_pNextClip;
+	int							m_iFrameCount;
+
+	CStructuredBuffer* m_pBoneFinalMatBuffer;
+	CStructuredBuffer* m_pBoneFinalMatPosBuffer;
+	CStructuredBuffer* m_pBoneFinalMatRotBuffer;
+
+	bool						m_bFinalMatUpdate;
+
+	CAnimClip* m_pCurClip;
+	CAnimClip* m_pNextClip;
 
 	bool						m_bLoop;
 	bool						m_bMultipleClip;
@@ -48,6 +54,10 @@ private:
 	int							m_iWeaponMuzzleIdx;
 	int							m_iFireBreathIdx;
 	int							m_iTailWeaponIdx;
+	int							m_iKnuckleIdx;
+	int							m_iStomachIdx;
+	int							m_iMouseIdx;
+	int							m_iChestIdx;
 
 	Vec4						m_vHeadPos;
 	Vec4						m_vMuzzlePos;
@@ -55,15 +65,15 @@ private:
 	double						m_fSpeedAdj;
 
 private:
-    void check_mesh(Ptr<CMesh> _pMesh);
+	void check_mesh(Ptr<CMesh> _pMesh);
 	void check_mesh(Ptr<CMesh> _pMesh, CStructuredBuffer* _buffer);
 	void create_clip();
 
 public:
-    void CustomEvent(CAnimClip* _AnimClip);
-    virtual void finaltick() override;
-    void UpdateData();
-    void UpdateData(CStructuredBuffer* structuredBuffer, bool IsRotate, bool IsTrans);
+	void CustomEvent(CAnimClip* _AnimClip);
+	virtual void finaltick() override;
+	void UpdateData();
+	void UpdateData(CStructuredBuffer* structuredBuffer, bool IsRotate, bool IsTrans);
 
 public:
 	void SetBones(const vector<tMTBone>* _vecBones);
@@ -72,17 +82,18 @@ public:
 	const std::map<wstring, CAnimClip*>& GetAnimClips() { return mClips; }
 	const std::map<wstring, Events*>& GetEvents() { return mEvents; }
 	const std::map<UINT, wstring>& GetPrefDefineAnimation() { return m_mapPreDefineAnim; }
-	void SetCurAnimClip(CAnimClip* _Clip);
+
 	CAnimClip* GetCurAnimClip() { return m_pCurClip; }
 	CAnimClip* GetNextAnimClip() { return m_pNextClip; }
 	CAnimClip* GetAnimClip(const wstring& _AnimClipName);
+
 	void SetSpeedAdjustment(double _Speed) { m_fSpeedAdj = _Speed; }
 
+	bool IsFinalBoneMatUpdate() { return m_bFinalMatUpdate; }
 	// Animation È®ÀÎ¿ë -----------------------------------------------------
-	void ManualIdxUp();
-	void ManualIdxDown();
+	void SetAnimClipIdx(int _idx);
 
-	void StopPlay() { m_bStop = true; }
+	void StopPlay();
 	void Proceed() { m_bStop = false; }
 	bool IsPlayManual() { return m_bStop; }
 
@@ -101,11 +112,19 @@ public:
 	void SetBlendRatio(float _Ratio) { m_fBRatio = _Ratio; }
 	float GetBlendRatio() { return m_fBRatio; }
 	float GetBlendAcc() { return m_fBlendAcc; }
+	float GetBlendTime() { return m_fBlendTime; }
 	// -----------------------------------------------------------------------
 
 	void SetAnimClipEventIdx(UINT _Type, int _iEnd, int _iStart, int _iProgress, int _iComplete);
 
 	CStructuredBuffer* GetFinalBoneMat() { return m_pBoneFinalMatBuffer; }
+	vector<Matrix>& GetRotMat() { return m_vecRotMat; }
+	vector<Matrix>& GetPosMat() { return m_vecPosMat; }
+
+	Matrix GetRotMat(int idx);
+	Matrix GetPosMat(int idx);
+
+	bool IsUpdate() { return m_bUpdate; }
 	UINT GetBoneCount() { return (UINT)m_pVecBones.size(); }
 	vector<tMTBone> GetBone() { return m_pVecBones; }
 
@@ -127,7 +146,11 @@ public:
 	int GetCameraIdx() { return m_iCameraIdx; }
 	int GetWeaponHandIdx() { return m_iWeaponHandIdx; }
 	int GetWeaponMuzzleIdx() { return m_iWeaponMuzzleIdx; }
-	
+	int GetKnuckleIdx() { return m_iKnuckleIdx; }
+	int GetMouseIdx() { return m_iMouseIdx; }
+	int GetChestIdx() { return m_iChestIdx; }
+	int GetStomachIdx() { return m_iStomachIdx; }
+
 	int GetFireBreathIdx() { return m_iFireBreathIdx; }
 	int GetTailIdx() { return m_iTailWeaponIdx; }
 
@@ -136,11 +159,11 @@ public:
 
 public:
 	void Play(const wstring& _Name, bool _Loop);
-	void Play(UINT _type, bool _Loop);
+	void Play(UINT _type, bool _Loop, bool _Force = true);
 	Events* FindEvents(const wstring& name);
 	CAnimClip* FindClip(const wstring& name);
 
-    std::shared_ptr<std::function<void()>>& StartEvent(const wstring key);
+	std::shared_ptr<std::function<void()>>& StartEvent(const wstring key);
 	std::shared_ptr<std::function<void()>>& StartEvent(const UINT key);
 
 	std::shared_ptr<std::function<void()>>& CompleteEvent(const wstring key);
@@ -153,13 +176,13 @@ public:
 	std::shared_ptr<std::function<void()>>& ProgressEvent(const UINT key);
 
 public:
-    virtual void SaveToLevelFile(FILE* _pFile) override;
-    virtual void LoadFromLevelFile(FILE* _pFile) override;
-    CLONE(CAnimator3D);
+	virtual void SaveToLevelFile(FILE* _pFile) override;
+	virtual void LoadFromLevelFile(FILE* _pFile) override;
+	CLONE(CAnimator3D);
 
 public:
-    CAnimator3D();
-    CAnimator3D(const CAnimator3D& _origin);
-    ~CAnimator3D();
+	CAnimator3D();
+	CAnimator3D(const CAnimator3D& _origin);
+	~CAnimator3D();
 };
 

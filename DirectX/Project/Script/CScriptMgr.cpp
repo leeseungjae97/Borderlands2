@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "CScriptMgr.h"
 
+#include "CAttackBurnScript.h"
+#include "CAttackNormalScript.h"
 #include "CBulletScript.h"
 #include "CCameraMoveScript.h"
 #include "CCrossHairScript.h"
@@ -20,6 +22,8 @@ void CScriptMgr::GetScriptInfo(vector<wstring>& _vec)
 	_vec.push_back(L"CWarriorScript");
 	_vec.push_back(L"CPlayerScript");
 	_vec.push_back(L"CGunScript");
+	_vec.push_back(L"CAttackBurnScript");
+	_vec.push_back(L"CAttackNormalScript");
 }
 
 CScript * CScriptMgr::GetScript(const wstring& _strScriptName)
@@ -40,6 +44,10 @@ CScript * CScriptMgr::GetScript(const wstring& _strScriptName)
 		return new CPlayerScript;
 	if (L"CGunScript" == _strScriptName)
 		return new CGunScript;
+	if (L"CAttackBurnScript" == _strScriptName)
+		return new CAttackBurnScript;
+	if (L"CAttackNormalScript" == _strScriptName)
+		return new CAttackNormalScript;
 	return nullptr;
 }
 
@@ -47,29 +55,35 @@ CScript * CScriptMgr::GetScript(UINT _iScriptType)
 {
 	switch (_iScriptType)
 	{
-	case (UINT)SCRIPT_TYPE::BULLETSCRIPT:
+	case (UINT)SCRIPT_TYPE::BULLET_SCRIPT:
 		return new CBulletScript;
 		break;
-	case (UINT)SCRIPT_TYPE::CAMERAMOVESCRIPT:
+	case (UINT)SCRIPT_TYPE::CAMERA_MOVE_SCRIPT:
 		return new CCameraMoveScript;
 		break;
-	case (UINT)SCRIPT_TYPE::CROSSHAIRSCRIPT:
+	case (UINT)SCRIPT_TYPE::CROSSHAIR_SCRIPT:
 		return new CCrossHairScript;
 		break;
-	case (UINT)SCRIPT_TYPE::MISSILESCRIPT:
+	case (UINT)SCRIPT_TYPE::MISSILE_SCRIPT:
 		return new CMissileScript;
 		break;
-	case (UINT)SCRIPT_TYPE::ENEMYSCRIPT:
+	case (UINT)SCRIPT_TYPE::ENEMY_SCRIPT:
 		return new CEnemyScript;
 		break;
-	case (UINT)SCRIPT_TYPE::WARRIORSCRIPT:
+	case (UINT)SCRIPT_TYPE::WARRIOR_SCRIPT:
 		return new CWarriorScript;
 		break;
-	case (UINT)SCRIPT_TYPE::PLAYERSCRIPT:
+	case (UINT)SCRIPT_TYPE::PLAYER_SCRIPT:
 		return new CPlayerScript;
 		break;
-	case (UINT)SCRIPT_TYPE::GUNSCRIPT:
+	case (UINT)SCRIPT_TYPE::GUN_SCRIPT:
 		return new CGunScript;
+		break;
+	case (UINT)SCRIPT_TYPE::ATTACK_BURN_SCRIPT:
+		return new CAttackBurnScript;
+		break;
+	case (UINT)SCRIPT_TYPE::ATTACK_NORMAL_SCRIPT:
+		return new CAttackNormalScript;
 		break;
 
 		//FIREBREATHSCRIPT
@@ -81,36 +95,44 @@ const wchar_t * CScriptMgr::GetScriptName(CScript * _pScript)
 {
 	switch ((SCRIPT_TYPE)_pScript->GetScriptType())
 	{
-	case SCRIPT_TYPE::BULLETSCRIPT:
+	case SCRIPT_TYPE::BULLET_SCRIPT:
 		return L"CBulletScript";
 		break;
 
-	case SCRIPT_TYPE::CAMERAMOVESCRIPT:
+	case SCRIPT_TYPE::CAMERA_MOVE_SCRIPT:
 		return L"CCameraMoveScript";
 		break;
 
-	case SCRIPT_TYPE::CROSSHAIRSCRIPT:
+	case SCRIPT_TYPE::CROSSHAIR_SCRIPT:
 		return L"CCrossHairScript";
 		break;
 
-	case SCRIPT_TYPE::MISSILESCRIPT:
+	case SCRIPT_TYPE::MISSILE_SCRIPT:
 		return L"CMissileScript";
 		break;
 
-	case SCRIPT_TYPE::ENEMYSCRIPT:
+	case SCRIPT_TYPE::ENEMY_SCRIPT:
 		return L"CEnemyScript";
 		break;
 
-	case SCRIPT_TYPE::WARRIORSCRIPT:
+	case SCRIPT_TYPE::WARRIOR_SCRIPT:
 		return L"CWarriorScript";
 		break;
 
-	case SCRIPT_TYPE::PLAYERSCRIPT:
+	case SCRIPT_TYPE::PLAYER_SCRIPT:
 		return L"CPlayerScript";
 		break;
 
-	case SCRIPT_TYPE::GUNSCRIPT:
+	case SCRIPT_TYPE::GUN_SCRIPT:
 		return L"CGunScript";
+		break;
+
+	case SCRIPT_TYPE::ATTACK_BURN_SCRIPT:
+		return L"CAttackBurnScript";
+		break;
+
+	case SCRIPT_TYPE::ATTACK_NORMAL_SCRIPT:
+		return L"CAttackNormalScript";
 		break;
 
 	}

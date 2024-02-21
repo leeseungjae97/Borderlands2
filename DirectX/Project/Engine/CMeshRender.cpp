@@ -27,6 +27,8 @@ void CMeshRender::render()
 	vector<int> renderSubsets;
 	for (int i = 0; i < GetMtrlCount(); ++i)
 	{
+		if (nullptr == GetMaterial(i)) continue;
+
 		if(GetMaterial(i)->GetShader()->GetDomain() == SHADER_DOMAIN::DOMAIN_DEFERRED)
 		{
 			continue;

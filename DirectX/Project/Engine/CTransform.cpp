@@ -73,7 +73,7 @@ void CTransform::SetRelativeRot(Vec3 _vRot)
 		col->SetColliderRot(_vRot);
 	}
 }
-//
+
 //void CTransform::AddRelativeRot(Vec3 _vAddRot)
 //{
 //	CRigidBody* _rb = GetOwner()->RigidBody();
@@ -128,8 +128,8 @@ void CTransform::finaltick()
 		//else
 		//Vec3 curPos = Vec3(trans.p.x, trans.p.y, trans.p.z);
 		//m_vRelativePos= XMVectorLerpV(m_vRelativePos, curPos, Vec3(_mt, _mt, _mt));
-
-		m_vRelativePos = Vec3(trans.p.x, trans.p.y, trans.p.z);
+		Vec3 tmp = Vec3(trans.p.x, trans.p.y, trans.p.z);
+		m_vRelativePos = tmp;
 		//m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
 		//Quat quat = Util::Vector3ToQuaternion(m_vRelativeRot);
 		//m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
@@ -139,7 +139,6 @@ void CTransform::finaltick()
 			m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
 			m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
 			m_Rot = Matrix::CreateFromQuaternion(m_qRotation);
-			
 		}
 		else
 		{
@@ -160,20 +159,25 @@ void CTransform::finaltick()
 		}
 	}
 	// Collider3D만 있는 경우
-	else if(_col && _col->IsColliderRigidCreate())
-	{
-		physx::PxTransform trans = _col->GetColliderPos();
-		m_vRelativePos = Vec3(trans.p.x, trans.p.y, trans.p.z);
-		m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
-		m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
-		m_Rot = Matrix::CreateFromQuaternion(m_qRotation);
-	}
+	// Collider만 있다면 중력을 받지 않고
+	// 움직일 일이 setPosition으로 밖에는 없음.
+	// 예외가 된다면 주석해제
+	//else if(_col && _col->IsColliderRigidCreate())
+	//{
+	//	physx::PxTransform trans = _col->GetColliderPos();
+	//	m_vRelativePos = Vec3(trans.p.x, trans.p.y, trans.p.z);
+	//	m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
+	//	m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
+	//	m_Rot = Matrix::CreateFromQuaternion(m_qRotation);
+	//}
 	// 둘다 없는 경우
 	else
 	{
-		m_Rot = XMMatrixRotationX(m_vRelativeRot.x);
-		m_Rot *= XMMatrixRotationY(m_vRelativeRot.y);
-		m_Rot *= XMMatrixRotationZ(m_vRelativeRot.z);
+		Quat quat = Util::Vector3ToQuaternion(m_vRelativeRot);
+		m_Rot = Matrix::CreateFromQuaternion(quat);
+		//m_Rot = XMMatrixRotationX(m_vRelativeRot.x);
+		//m_Rot *= XMMatrixRotationY(m_vRelativeRot.y);
+		//m_Rot *= XMMatrixRotationZ(m_vRelativeRot.z);
 	}
 
 	Vec3 vFinalPos = m_vRelativePos + m_vRelativePosOffset;
@@ -184,7 +188,6 @@ void CTransform::finaltick()
 	matTranslation = XMMatrixTranslation(vFinalPos.x, vFinalPos.y, vFinalPos.z);
 
 	//matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y, m_vRelativePos.z);
-
 
 	m_matWorld = m_matWorldScale * m_Rot * matTranslation;
 	m_noRotWorld = m_matWorldScale * matTranslation;

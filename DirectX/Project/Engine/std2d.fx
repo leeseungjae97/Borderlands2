@@ -17,6 +17,7 @@ struct VS_OUT
     float2 vUV : TEXCOORD;
 };
 
+#define UVY g_float_0
 // ============================
 // Std2DShader
 // RasterizerState      : None
@@ -49,14 +50,12 @@ float4 PS_Std2D(VS_OUT _in) : SV_Target
     {
         vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
     }
-    else
-    {
-        vOutColor = float4(1.f, 0.f, 1.f, 1.f);
-    }    
 
     if (0.f == vOutColor.a)
         discard;
-    
+    //if (_in.vUV.y < UVY)
+    //    discard;
+
     if(g_int_2 == 1)
         vOutColor = float4(1.f, 0.f, 0.f, 1.f);
     

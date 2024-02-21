@@ -9,11 +9,13 @@
 //#define VertexWeight g_vec4_2
 
 #define BoneIdx g_int_0
-#define IsVertexSkinning g_int_1
+//#define IsRotate g_int_1
+//#define IsPosition g_int_2
+//#define IsVertexSkinning g_int_1
 
 RWStructuredBuffer<matrix> animationBoneMatrix : register(u0);
-RWStructuredBuffer<matrix> boneMat : register(u1);
-RWStructuredBuffer<float4> animationPos : register(u2);
+RWStructuredBuffer<matrix> InputBoneMatrix : register(u1);
+//RWStructuredBuffer<float4> animationPos : register(u1);
 
 [numthreads(1, 1, 1)]
 void CS_IndividualBone(int3 _iThreadIdx : SV_DispatchThreadID)
@@ -29,16 +31,7 @@ void CS_IndividualBone(int3 _iThreadIdx : SV_DispatchThreadID)
   //      pos = mul(pos, boneMat[boneIdx]);
   //  else
 	//  VertexSkinning(pos, weight, indices, boneMat);
-
-    if (IsVertexSkinning)
-    {
-        pos = mul(pos, boneMat[boneIdx]);
-        animationPos[0] = pos;
-
-    }else
-    {
-        animationBoneMatrix[0] = boneMat[boneIdx];
-    }
+    animationBoneMatrix[0] = InputBoneMatrix[boneIdx];
 }
 
 

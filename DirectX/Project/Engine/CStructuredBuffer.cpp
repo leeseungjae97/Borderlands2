@@ -148,10 +148,58 @@ void CStructuredBuffer::GetData(void* _pDst)
 
 	// CPU ReadBuffer -> CPU
 	D3D11_MAPPED_SUBRESOURCE tSub = {};
-	CONTEXT->Map(m_SB_CPU_Read.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, &tSub);	
+	CONTEXT->Map(m_SB_CPU_Read.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, &tSub);
 	memcpy(_pDst, tSub.pData, GetBufferSize());
 	CONTEXT->Unmap(m_SB_CPU_Read.Get(), 0);
 }
+
+template <typename T>
+void CStructuredBuffer::GetArrData(T* _pDst)
+{
+	// Main Buffer -> CPU ReadBuffer
+	CONTEXT->CopyResource(m_SB_CPU_Read.Get(), m_SB.Get());
+
+	// CPU ReadBuffer -> CPU
+	D3D11_MAPPED_SUBRESOURCE tSub = {};
+	CONTEXT->Map(m_SB_CPU_Read.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, &tSub);
+	T* data = static_cast<T*>(tSub.pData);
+	for(int i = 0; i < m_iElementCount; ++i)
+	{
+		T t = data[i];
+	}
+	//memcpy(_pDst, tSub.pData, GetBufferSize());
+	CONTEXT->Unmap(m_SB_CPU_Read.Get(), 0);
+}
+
+
+void CStructuredBuffer::GetMatrixData(vector<Matrix>& _pDst)
+{
+	CONTEXT->CopyResource(m_SB_CPU_Read.Get(), m_SB.Get());
+
+	// CPU ReadBuffer -> CPU
+	D3D11_MAPPED_SUBRESOURCE tSub = {};
+	CONTEXT->Map(m_SB_CPU_Read.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, &tSub);
+	Matrix* data = static_cast<Matrix*>(tSub.pData);
+	for (int i = 0; i < m_iElementCount; ++i)
+	{
+		Matrix mat = data[i];
+		_pDst.push_back(mat);
+	}
+	CONTEXT->Unmap(m_SB_CPU_Read.Get(), 0);
+}
+
+void CStructuredBuffer::GetMatrixData(Matrix* mat, int _Idx)
+{
+	CONTEXT->CopyResource(m_SB_CPU_Read.Get(), m_SB.Get());
+
+	// CPU ReadBuffer -> CPU
+	D3D11_MAPPED_SUBRESOURCE tSub = {};
+	CONTEXT->Map(m_SB_CPU_Read.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, &tSub);
+	Matrix* data = static_cast<Matrix*>(tSub.pData);
+	*mat = data[_Idx];
+	CONTEXT->Unmap(m_SB_CPU_Read.Get(), 0);
+}
+
 
 void CStructuredBuffer::UpdateData(UINT _iRegisterNum, UINT _iPipeLineStage)
 {

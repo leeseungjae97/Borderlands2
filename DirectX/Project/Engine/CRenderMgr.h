@@ -68,6 +68,7 @@ public:
 
 	CCamera* GetEditorCam() { return m_pEditorCam; }
 	CCamera* GetMainCam();
+	CCamera* GetUICam();
 	
 	void CopyRenderTarget();
 

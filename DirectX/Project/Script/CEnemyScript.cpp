@@ -1,4 +1,5 @@
-﻿#include "CEnemyScript.h"
+﻿#include "pch.h"
+#include "CEnemyScript.h"
 
 #include <Engine/CameraMgr.h>
 #include <Engine/RaycastMgr.h>
@@ -13,7 +14,7 @@
 
 
 CEnemyScript::CEnemyScript()
-	: CScript((UINT)SCRIPT_TYPE::ENEMYSCRIPT)
+	: CScript((UINT)SCRIPT_TYPE::ENEMY_SCRIPT)
 	, fMonsterSpeed(100.f)
 	, fRotateSpeed(2.f)
 	, iMonsterHp(100.f)
@@ -282,7 +283,7 @@ void CEnemyScript::Shoot()
 	raycast.iID = pMonster->GetID();
 	raycast.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
 	raycast.matWorld = pMonster->Transform()->GetDrawRayMat();
-	if(RaycastMgr::GetInst()->DoRaycast(raycast))
+	if(RaycastMgr::GetInst()->DoOneHitRaycast(raycast))
 	{
 		fRateOfFireAcc = 0.0f;
 		--iAmmo;
@@ -313,7 +314,7 @@ void CEnemyScript::Look()
 	raycast.tRayType = (UINT)RAYCAST_TYPE::LOOK;
 	raycast.matWorld = pMonster->Transform()->GetDrawRayMat();
 	//RaycastMgr::GetInst()->AddRaycast(raycast);
-	RaycastMgr::GetInst()->DoRaycast(raycast);
+	RaycastMgr::GetInst()->DoOneHitRaycast(raycast);
 }
 
 bool CEnemyScript::IsDetect()

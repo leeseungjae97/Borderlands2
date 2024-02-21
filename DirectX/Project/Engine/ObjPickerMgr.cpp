@@ -18,14 +18,15 @@ ObjPickerMgr::~ObjPickerMgr()
 
 void ObjPickerMgr::tick()
 {
+	
 	if(CEventMgr::GetInst()->IsLevelChanged())
 	{
-		if(m_wsPickObjName != L"")
-		{
-			CLevel* curLevel = CLevelMgr::GetInst()->GetCurLevel();
-			m_pPickObj = curLevel->FindObjectByName(m_wsPickObjName);
-		}
-		//m_pPickObj = nullptr;
+		m_pPickObj = nullptr;
+	}
+	if (nullptr == m_pPickObj)
+	{
+		CLevel* curLevel = CLevelMgr::GetInst()->GetCurLevel();
+		m_pPickObj = curLevel->FindObjectByName(m_wsPickObjName);
 	}
 }
 

@@ -50,7 +50,8 @@ void RaycastMgr::AddRaycastDraw(Vec3 _vDir, Vec3 _vOrigin, Matrix matWorld, Vec4
 	m_vecRayDraw.push_back(drawRay);
 }
 
-bool RaycastMgr::DoRaycast(tRayInfo _RaycastInfo)
+
+bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo, Vec3* HitPosition)
 {
 	Vec3 _vDir = _RaycastInfo.vDir;
 	Vec3 _vOrigin = _RaycastInfo.vStart;
@@ -62,6 +63,7 @@ bool RaycastMgr::DoRaycast(tRayInfo _RaycastInfo)
 	PxOverlapBuffer OverLaphit;
 	PxRaycastBuffer hit;
 	PxQueryFilterData filterData;
+	filterData.data.word0 = (1 << 0);
 
 	filterData.flags |= PxQueryFlag::eDYNAMIC;
 	//filterData.flags |= PxQueryFlag::eSTATIC;
@@ -70,12 +72,13 @@ bool RaycastMgr::DoRaycast(tRayInfo _RaycastInfo)
 	{
 		iBulletLayoutIndex = (int)LAYER_TYPE::PlayerBullet;
 	}
-
+	
 	if (mScene->raycast(_vOr, _vDr, 100000.f, hit, PxHitFlag::eDEFAULT, filterData))
 	{
+		if (HitPosition)
+			*HitPosition = Vec3(hit.block.position.x, hit.block.position.y, hit.block.distance);
 		if (hit.block.actor->userData)
 		{
-			
 			CCollider3D* ohterCol = static_cast<CCollider3D*>(hit.block.actor->userData);
 
 			if (ohterCol)
@@ -96,6 +99,47 @@ bool RaycastMgr::DoRaycast(tRayInfo _RaycastInfo)
 					return false;
 				}
 			}
+		}
+	}
+
+	return false;
+}
+
+bool RaycastMgr::DoAllHitRaycast(tRayInfo _RaycastInfo, Vec3* HitPosition)
+{
+	Vec3 _vDir = _RaycastInfo.vDir;
+	Vec3 _vOrigin = _RaycastInfo.vStart;
+
+	PxScene* mScene = PhysXMgr::GetInst()->GCurScene();
+	PxVec3 _vOr = PxVec3(_vOrigin.x, _vOrigin.y, _vOrigin.z);
+	PxVec3 _vDr = PxVec3(_vDir.x, _vDir.y, _vDir.z);
+	_vDr.normalize();
+	PxOverlapBuffer OverLaphit;
+	PxRaycastBuffer hit;
+	PxQueryFilterData filterData;
+	filterData.data.word0 = (1 << 0);
+
+	filterData.flags |= PxQueryFlag::eDYNAMIC;
+	//filterData.flags |= PxQueryFlag::eSTATIC;
+	int iBulletLayoutIndex = (int)LAYER_TYPE::EnemyBullet;
+	if (_RaycastInfo.iLayerIdx == (int)LAYER_TYPE::Player)
+	{
+		iBulletLayoutIndex = (int)LAYER_TYPE::PlayerBullet;
+	}
+
+	const PxU32 bufferSize = 256;        // [in] size of 'hitBuffer'
+	PxRaycastHit hitBuffer[bufferSize];  // [out] User provided buffer for results
+	PxRaycastBuffer buf(hitBuffer, bufferSize); // [out] Blocking and touching hits stored here
+
+	// Raycast against all static & dynamic objects (no filtering)
+	// The main result from this call are all hits along the ray, stored in 'hitBuffer'
+	mScene->raycast(_vOr, _vDr, 100000.f, buf);
+	for (PxU32 i = 0; i < buf.nbTouches; i++)
+	{
+		if (_vOr != buf.touches[i].position)
+		{
+			if(HitPosition)
+				*HitPosition = Vec3(buf.touches[i].position.x, buf.touches[i].position.y, buf.touches[i].distance);
 		}
 	}
 	return false;

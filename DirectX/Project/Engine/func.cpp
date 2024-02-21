@@ -41,10 +41,13 @@ void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx)
 	CEventMgr::GetInst()->AddEvent(evn);
 }
 
-void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, LAYER_TYPE _Type)
+void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, LAYER_TYPE _Type, bool _IntergratedCollider)
 {
-	_NewObject->Transform()->SetRelativePos(_vWorldPos);
-
+	if(!_IntergratedCollider)
+	{
+		_NewObject->Transform()->SetRelativePos(_vWorldPos);
+	}
+	
 	tEvent evn = {};
 
 	evn.Type = EVENT_TYPE::CREATE_OBJECT;

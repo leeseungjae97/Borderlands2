@@ -274,6 +274,10 @@
     <ClInclude Include="UpSamplingShader.h">
       <Filter>Source\_Resource\Shader\ComputeShader\UpSamplerShader</Filter>
     </ClInclude>
+    <ClInclude Include="CUI.h">
+      <Filter>Source\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -531,6 +535,10 @@
     <ClCompile Include="UpSamplingShader.cpp">
       <Filter>Source\_Resource\Shader\ComputeShader\UpSamplerShader</Filter>
     </ClCompile>
+    <ClCompile Include="CUI.cpp">
+      <Filter>Source\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="MouseMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -793,6 +801,12 @@
     </Filter>
     <Filter Include="Source\_Resource\Shader\ComputeShader\UpSamplerShader">
       <UniqueIdentifier>{6dcdaef3-502b-49b5-a01a-62dc93e9f476}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\UI">
+      <UniqueIdentifier>{ef81d950-ea0c-46bf-805b-a2997f6b3822}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\MouseMgr">
+      <UniqueIdentifier>{404fbf16-7c4b-4da3-aa37-0cad8c0b0ec9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

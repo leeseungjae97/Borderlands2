@@ -105,7 +105,7 @@ public:
 
 	bool IsRigidBodyCreate();
 
-    Matrix GetRigidBodyMatrix();
+    Matrix GetRigidBodyMatrix(Vec3 _vOffset = Vec3::Zero);
 
 private:
     void convertMeshToGeom();

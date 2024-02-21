@@ -8,6 +8,7 @@
 #include "CLevel.h"
 #include "CLevelMgr.h"
 #include "CMeshRender.h"
+#include "CRigidBody.h"
 #include "CTransform.h"
 //#include <Script/CPlayerScript.h>
 
@@ -29,20 +30,13 @@ void PlayerMgr::tick()
 	if (CEventMgr::GetInst()->IsLevelChanged())
 	{
 		vector<CGameObject*> objects = CLevelMgr::GetInst()->GetCurLevel()->FindLayerByType(LAYER_TYPE::Player)->GetObjects();
-		bool p = false, b = false;
 		for (int i = 0; i < objects.size(); ++i)
 		{
 			if (objects[i]->GetName() == L"player")
 			{
 				m_pPlayer = objects[i];
-				p = true;
+				break;
 			}
-			if (objects[i]->GetName() == L"player body")
-			{
-				m_pPlayerBody = objects[i];
-				b = true;
-			}
-			if (p && b) break;
 		}
 	}
 }
@@ -53,11 +47,17 @@ Vec3 PlayerMgr::GetPlayerCameraPos()
 		return Vec3::Zero;
 
 	int iCameraIdx = m_pPlayer->Animator3D()->GetCameraIdx();
-	Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iCameraIdx, m_pPlayer->Animator3D());
+	CRigidBody* rb = m_pPlayer->RigidBody();
 
-	vPos = XMVector3TransformCoord(vPos, m_pPlayer->Transform()->GetWorldMat());
-	//Vec3 vFront = m_pPlayer->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
-	//vPos += vFront * 100.f;
+	Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iCameraIdx, m_pPlayer->Animator3D());
+	Vec3 vOffset = Vec3::Zero;
+	if(m_pPlayer->Animator3D())
+	{
+		vOffset.y -= ( m_pPlayer->Transform()->GetRelativeScale().y / 2.f);
+		vOffset += m_pPlayer->Transform()->GetRelativePosOffset();
+	}
+	
+	vPos = XMVector3TransformCoord(vPos, rb->GetRigidBodyMatrix(vOffset));
 	return vPos;
 }
 

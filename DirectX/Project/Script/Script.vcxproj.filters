@@ -45,7 +45,10 @@
     <ClInclude Include="CWarriorScript.h">
       <Filter>Script</Filter>
     </ClInclude>
-    <ClInclude Include="FireBreathScript.h">
+    <ClInclude Include="CAttackBurnScript.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="CAttackNormalScript.h">
       <Filter>Script</Filter>
     </ClInclude>
   </ItemGroup>
@@ -83,7 +86,10 @@
     <ClCompile Include="CWarriorScript.cpp">
       <Filter>Script</Filter>
     </ClCompile>
-    <ClCompile Include="FireBreathScript.cpp">
+    <ClCompile Include="CAttackBurnScript.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="CAttackNormalScript.cpp">
       <Filter>Script</Filter>
     </ClCompile>
   </ItemGroup>

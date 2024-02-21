@@ -24,6 +24,7 @@ CLevel::CLevel()
 	m_arrLayer[(int)LAYER_TYPE::Enemy]->SetName(L"Enemy");
 	m_arrLayer[(int)LAYER_TYPE::Player]->SetName(L"Player");
 	m_arrLayer[(int)LAYER_TYPE::Item]->SetName(L"Item");
+	m_arrLayer[(int)LAYER_TYPE::NoRaycastingCollider]->SetName(L"	NoRaycastingCollider");
 	m_arrLayer[(int)LAYER_TYPE::PlayerBullet]->SetName(L"PlayerBullet");
 	m_arrLayer[(int)LAYER_TYPE::EnemyBullet]->SetName(L"EnemyBullet");
 	m_arrLayer[(int)LAYER_TYPE::Missile]->SetName(L"Missile");
@@ -72,13 +73,13 @@ void CLevel::createScene()
 {
 	m_PxCollisionCallBack = new PxCollisionCallBack;
 	PxSceneDesc sceneDesc(PhysXMgr::GetInst()->GPhysics()->getTolerancesScale());
-	// 300, 300, 300이 1,1,1같은 물리연산이 되게
-	sceneDesc.gravity = PxVec3(0.0f, -2943, 0.0f);
+	
+	sceneDesc.gravity = PxVec3(0.0f, -98.1, 0.0f);
 	sceneDesc.cpuDispatcher = PhysXMgr::GetInst()->GDispatcher();
 	sceneDesc.filterShader = SimulationFilterShader;
 	sceneDesc.simulationEventCallback = m_PxCollisionCallBack;
 	//sceneDesc.filterCallback = m_PxTriggerCallBack;
-	//sceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
+	sceneDesc.flags |= PxSceneFlag::eENABLE_CCD;
 
 	m_PxScene = PhysXMgr::GetInst()->GPhysics()->createScene(sceneDesc);
 

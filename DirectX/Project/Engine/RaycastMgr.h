@@ -40,7 +40,8 @@ public:
 
 public:
 	void AddRaycastDraw(Vec3 _vDir, Vec3 _vOrigin, Matrix matWorld, Vec4 _vColor);
-	bool DoRaycast(tRayInfo _RaycastInfo);
+	bool DoOneHitRaycast(tRayInfo _RaycastInfo, Vec3* HitPosition = nullptr);
+	bool DoAllHitRaycast(tRayInfo _RaycastInfo, Vec3* HitPosition = nullptr);
 	PxVec3 GetShapeCenter(PxShape* shape, const PxTransform& pose);
 	
 public:

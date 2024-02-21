@@ -3,7 +3,7 @@
 
 #include <Engine\CRenderMgr.h>
 CBulletScript::CBulletScript()
-	: CScript((UINT)SCRIPT_TYPE::BULLETSCRIPT)
+	: CScript((UINT)SCRIPT_TYPE::BULLET_SCRIPT)
 	, m_fBulletSpeed(100.f)
 	, m_fAlive(5.f)
 	, m_fAliveAcc(0.0f)

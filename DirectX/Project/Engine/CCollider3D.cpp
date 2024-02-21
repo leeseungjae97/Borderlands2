@@ -6,7 +6,7 @@
 #include "PhysXMgr.h"
 #include "physx_util.h"
 
-CCollider3D::CCollider3D(bool _AttachRigid)
+CCollider3D::CCollider3D(bool _AttachRigid, bool _Intergrated)
 	: CComponent(COMPONENT_TYPE::COLLIDER3D)
 	, m_PxColliderShape(nullptr)
 	, m_bFirstInit(false)
@@ -14,6 +14,10 @@ CCollider3D::CCollider3D(bool _AttachRigid)
 	, m_tColliderShapeType(COLLIDER_SHAPE_TYPE::BOX)
 	, m_bAttachToRigidBody(_AttachRigid)
 	, m_vScale(Vec3(1.f, 1.f, 1.f))
+	, m_bBeginOverlap(false)
+	, m_bOnOverlap(false)
+	, m_bEndOverlap(false)
+	, m_bIntergrated(_Intergrated)
 {
 	m_PxMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(0.0f, 0.0f, 0.0f);
 
@@ -41,8 +45,19 @@ void CCollider3D::finaltick()
 	colliderDebugDraw();
 }
 
+Matrix CCollider3D::GetColliderWorldMat()
+{
+	PxTransform trans = m_PxColliderRigid->getGlobalPose();
+	
+	return physx::Util::WorldMatFromGlobalPose(trans, m_vScale);
+}
+
 void CCollider3D::EndOverlap(CCollider3D* _OhterCol)
 {
+	m_bBeginOverlap = false;
+	m_bOnOverlap = false;
+	m_bEndOverlap = true;
+
 	for (auto script : GetOwner()->GetScripts())
 	{
 		script->EndOverlap(_OhterCol);
@@ -51,6 +66,10 @@ void CCollider3D::EndOverlap(CCollider3D* _OhterCol)
 
 void CCollider3D::OnOverlap(CCollider3D* _OhterCol)
 {
+	m_bBeginOverlap = false;
+	m_bOnOverlap = true;
+	m_bEndOverlap = false;
+
 	for (auto script : GetOwner()->GetScripts())
 	{
 		script->OnOverlap(_OhterCol);
@@ -59,6 +78,10 @@ void CCollider3D::OnOverlap(CCollider3D* _OhterCol)
 
 void CCollider3D::BeginOverlap(CCollider3D* _OhterCol)
 {
+	m_bBeginOverlap = true;
+	m_bOnOverlap = false;
+	m_bEndOverlap = false;
+
 	for (auto script : GetOwner()->GetScripts())
 	{
 		script->BeginOverlap(_OhterCol);
@@ -91,8 +114,14 @@ void CCollider3D::setShapeToRigidBody()
 
 	if(!m_bAttachToRigidBody)
 	{
-		Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
-		Vec3 vRot = GetOwner()->Transform()->GetRelativeRot();
+		Vec3 vPos = Vec3::Zero;
+		Vec3 vRot = Vec3::Zero;
+		if(!m_bIntergrated)
+		{
+			vPos = GetOwner()->Transform()->GetRelativePos();
+			vRot = GetOwner()->Transform()->GetRelativeRot();
+		}
+		
 		//Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
 
 		Quat quat; quat = Vector3ToQuaternion(vRot);
@@ -107,7 +136,7 @@ void CCollider3D::setShapeToRigidBody()
 		m_PxColliderRigid = PhysXMgr::GetInst()->GPhysics()->createRigidStatic(localTm);
 
 		m_PxColliderRigid->userData = this;
-
+		m_PxColliderRigid->setActorFlags(PxActorFlag::eDISABLE_GRAVITY);
 		m_PxColliderRigid->attachShape(*m_PxColliderShape);
 		PhysXMgr::GetInst()->GCurScene()->addActor(*m_PxColliderRigid);
 	}else
@@ -141,8 +170,25 @@ void CCollider3D::createColliderShape()
 		physx::PxBoxGeometry(m_vScale.x / 2.f, m_vScale.y / 2.f, m_vScale.z / 2.f)
 		, *m_PxMaterial
 		, true);
-	PxFilterData triggerFilterData(0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff);
+	PxFilterData triggerFilterData;
+	if(GetOwner()->GetLayerIndex() == (int)LAYER_TYPE::NoRaycastingCollider)
+	{
+		//triggerFilterData.word0 = 0x0000000f;
+		//triggerFilterData.word1 = 0xf000000f;
+		triggerFilterData.word0 = (1 << 1);
+		triggerFilterData.word1 = 0x0000000f;
+		triggerFilterData.word2 = 0x0000000f;
+		triggerFilterData.word3 = 0x0000000f;
+	}else
+	{
+		triggerFilterData.word0 = (1 << 0);
+		triggerFilterData.word1 = 0x0000000f;
+		triggerFilterData.word2 = 0x0000000f;
+		triggerFilterData.word3 = 0x0000000f;
+	}
+	
 	m_PxColliderShape->setSimulationFilterData(triggerFilterData);
+	m_PxColliderShape->setQueryFilterData(triggerFilterData);
 }
 
 void CCollider3D::colliderDebugDraw()
@@ -193,6 +239,7 @@ void CCollider3D::LoadFromLevelFile(FILE* _FILE)
 	fread(&m_vScale, sizeof(Vec3), 1, _FILE);
 	fread(&m_vOffset, sizeof(Vec3), 1, _FILE);
 	fread(&m_bAttachToRigidBody, sizeof(bool), 1, _FILE);
+	fread(&m_bIntergrated, sizeof(bool), 1, _FILE);
 	fread(&m_bCenter, sizeof(bool), 1, _FILE);
 }
 
@@ -201,5 +248,6 @@ void CCollider3D::SaveToLevelFile(FILE* _File)
 	fwrite(&m_vScale, sizeof(Vec3), 1, _File);
 	fwrite(&m_vOffset, sizeof(Vec3), 1, _File);
 	fwrite(&m_bAttachToRigidBody, sizeof(bool), 1, _File);
+	fwrite(&m_bIntergrated, sizeof(bool), 1, _File);
 	fwrite(&m_bCenter, sizeof(bool), 1, _File);
 }

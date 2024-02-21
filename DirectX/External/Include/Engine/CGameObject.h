@@ -64,16 +64,15 @@ private:
     bool                    m_bWarrior;
 
 public:
-    void begin();
+    virtual void begin();
 
     void tick();        
     virtual void finaltick();
     void finaltick_module();
-    void render();
+    virtual void render();
     void render_shadowmap();
 
 public:
-
     void AddComponent(CComponent* _Component);
     void AddChild(CGameObject* _Object);
 

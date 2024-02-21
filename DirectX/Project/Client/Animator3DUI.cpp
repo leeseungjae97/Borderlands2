@@ -11,6 +11,7 @@
 
 Animator3DUI::Animator3DUI()
 	: ComponentUI("##Animator3D", COMPONENT_TYPE::ANIMATOR3D)
+	, m_pAnimOwner(nullptr)
 {
 	SetName("Animator3D");
 }
@@ -72,15 +73,12 @@ int Animator3DUI::render_update()
 	{
 		ImGui::Text("Manual idx : ");
 		ImGui::SameLine();
-		if(ImGui::Button("+##mupbtn"))
-		{
-			GetTarget()->Animator3D()->ManualIdxUp();
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("-##mdownbtn"))
-		{
-			GetTarget()->Animator3D()->ManualIdxDown();
-		}
+		int length = GetTarget()->Animator3D()->GetCurAnimClip()->GetClipLength();
+		int i = GetTarget()->Animator3D()->GetManualIdx();
+		ImGui::SliderInt("slider int", &i, 0, length);
+
+		GetTarget()->Animator3D()->SetAnimClipIdx(i);
+
 		if(GetTarget()->Animator3D()->IsManualRatio())
 		{
 			ImGui::Text("Manual Ratio : ");
@@ -112,6 +110,14 @@ int Animator3DUI::render_update()
 		sprintf_s(str, "Anim Bone : %d", GetTarget()->Animator3D()->GetBoneCount());
 		ImGui::Text(str);
 	}
+
+	//float fBlendTime = GetTarget()->Animator3D()->GetBlendTime();
+
+	//ImGui::Text("Blend Time : ");
+	//ImGui::SameLine();
+	//ImGui::InputFloat("##blendTime", &fBlendTime);
+
+	//GetTarget()->Animator3D()->SetBlend(true, fBlendTime);
 
 	wstring mChosen = L"";
 	string comboLabel = "";

@@ -44,45 +44,18 @@ CMesh::~CMesh()
 
 Vec3 CMesh::BoneRotSkinning(int idx, CAnimator3D* animator)
 {
-	CStructuredBuffer* pBoneMatBuffer = new CStructuredBuffer;
-	Matrix matBone;
+	//return Vec3::Zero;
+	if (!animator->IsUpdate())
+		return Vec3::Zero;
 
-	Vec3 vRot;
-	IndividualBoneSkinningShader* boneSkinningCS = (IndividualBoneSkinningShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"IBSCS").Get();
+	Matrix matBone = Matrix::Identity;
+	Vec3 vRot = Vec3::Zero;
 
-	CStructuredBuffer* pOutputBuffer = new CStructuredBuffer;
+	matBone = animator->GetRotMat(idx);
 
-	pOutputBuffer->Create(sizeof(Matrix), 1, SB_TYPE::READ_WRITE, true);
-	pOutputBuffer->SetData(&matBone, 1);
-
-	boneSkinningCS->SetBoneIdx(idx);
-	boneSkinningCS->SetOutputMatBuffer(pOutputBuffer);
-	boneSkinningCS->SetVertexSkinning(false);
-	animator->UpdateData(pBoneMatBuffer, true, false);
-	boneSkinningCS->SetBoneMat(pBoneMatBuffer);
-
-	boneSkinningCS->Execute();
-
-	pOutputBuffer->GetData(&matBone);
-
-	boneSkinningCS->Clear();
-
-	if (pOutputBuffer)
-	{
-		delete pOutputBuffer;
-		pOutputBuffer = nullptr;
-	}
-
-	if (pBoneMatBuffer)
-	{
-		delete pBoneMatBuffer;
-		pBoneMatBuffer = nullptr;
-	}
-
-	animator->ClearData();
 	Quat quat;
 	Vec3 vS, vT;
-
+	
 	matBone.Decompose(vS, quat, vT);
 
 	vRot = physx::Util::QuaternionToVector3(quat);
@@ -95,179 +68,21 @@ Vec3 CMesh::BoneRotSkinning(int idx, CAnimator3D* animator)
 
 Vec3 CMesh::BonePosSkinning(int idx, CAnimator3D* animator)
 {
-	CStructuredBuffer* pBoneMatBuffer = new CStructuredBuffer;
-	Matrix matBone;
+	//return Vec3::Zero;
+	if (!animator->IsUpdate())
+		return Vec3::Zero;
 
-	IndividualBoneSkinningShader* boneSkinningCS = (IndividualBoneSkinningShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"IBSCS").Get();
+	Matrix matBone = Matrix::Identity;
 
-	CStructuredBuffer* pOutputBuffer = new CStructuredBuffer;
+	matBone = animator->GetPosMat(idx);
 
-	pOutputBuffer->Create(sizeof(Matrix), 1, SB_TYPE::READ_WRITE, true);
-	pOutputBuffer->SetData(&matBone, 1);
+	Quat quat;
+	Vec3 vS, vT;
 
-	boneSkinningCS->SetBoneIdx(idx);
-	boneSkinningCS->SetVertexSkinning(false);
-	boneSkinningCS->SetOutputMatBuffer(pOutputBuffer);
-
-	animator->UpdateData(pBoneMatBuffer, false, true);
-	boneSkinningCS->SetBoneMat(pBoneMatBuffer);
-
-	boneSkinningCS->Execute();
-
-	pOutputBuffer->GetData(&matBone);
-
-	boneSkinningCS->Clear();
-
-	if (pOutputBuffer)
-	{
-		delete pOutputBuffer;
-		pOutputBuffer = nullptr;
-	}
-
-	if(pBoneMatBuffer)
-	{
-		delete pBoneMatBuffer;
-		pBoneMatBuffer = nullptr;
-	}
-
-	animator->ClearData();
+	matBone.Decompose(vS, quat, vT);
 
 	return Vec3(matBone._14, matBone._24, matBone._34);
-	//return vT;
 }
-
-Vec3 CMesh::VertexPosSkinning(Vec3 _vPos, int idx,  CAnimator3D* animator)
-{
-	Vec3 vPos;
-	CStructuredBuffer* pBoneMatBuffer = new CStructuredBuffer;
-	animator->UpdateData(pBoneMatBuffer, false, false);
-
-	IndividualBoneSkinningShader* boneSkinningCS = (IndividualBoneSkinningShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"IBSCS").Get();
-
-	CStructuredBuffer* pOutputBuffer = new CStructuredBuffer;
-	pOutputBuffer->Create(sizeof(Vec4), 1, SB_TYPE::READ_WRITE, true);
-	pOutputBuffer->SetData(&vPos, 1);
-
-	boneSkinningCS->SetVertexSkinning(true);
-	boneSkinningCS->SetPosition(Vec4(_vPos.x, _vPos.y, _vPos.z, 1.f));
-	boneSkinningCS->SetBoneIdx(idx);
-
-	boneSkinningCS->SetOutputVertexBuffer(pOutputBuffer);
-	boneSkinningCS->SetBoneMat(pBoneMatBuffer);
-
-	boneSkinningCS->Execute();
-
-	pOutputBuffer->GetData(&vPos);
-
-	boneSkinningCS->Clear();
-
-	if (pOutputBuffer)
-	{
-		delete pOutputBuffer;
-		pOutputBuffer = nullptr;
-	}
-
-	animator->ClearData();
-
-	return vPos;
-}
-
-Vec3 CMesh::VertexPosSkinning(int idx, CAnimator3D* animator)
-{
-	//Vtx* vv = (Vtx*)m_pVtxSys;
-
-	//tIndexInfo indexInfo = m_vecIdxInfo[0];
-
-	//vector<UINT> inds; inds.clear();
-	//vector<UINT>().swap(inds); inds.resize(indexInfo.iIdxCount);
-	//memcpy(inds.data(), indexInfo.pIdxSysMem, indexInfo.iIdxCount * sizeof(UINT));
-
-	//int vertexIdx = inds[idx]; Vtx v = vv[vertexIdx];
-	Vec4 vPos;
-
-	//CStructuredBuffer* pBoneMatBuffer = new CStructuredBuffer;
-	//animator->UpdateData(pBoneMatBuffer, false, false);
-
-	//IndividualBoneSkinningShader* boneSkinningCS = (IndividualBoneSkinningShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"IBSCS").Get();
-
-	//CStructuredBuffer* pOutputBuffer = new CStructuredBuffer;
-	//pOutputBuffer->Create(sizeof(Vec4), 1, SB_TYPE::READ_WRITE, true);
-	//pOutputBuffer->SetData(&vPos, 1);
-
-	//boneSkinningCS->SetVertexSkinning(false);
-	////boneSkinningCS->SetBoneIdx(idx);
-
-	//boneSkinningCS->SetWeight(v.vWeights);
-	//boneSkinningCS->SetIndices(v.vIndices);
-	//boneSkinningCS->SetPosition(Vec4(v.vPos.x, v.vPos.y, v.vPos.z, 1.f));
-	//boneSkinningCS->SetOutputMatBuffer(pOutputBuffer);
-	//boneSkinningCS->SetBoneMat(pBoneMatBuffer);
-
-	//boneSkinningCS->Execute();
-
-	//pOutputBuffer->GetData(&vPos);
-
-	//boneSkinningCS->Clear();
-
-	//if (pOutputBuffer)
-	//{
-	//	delete pOutputBuffer;
-	//	pOutputBuffer = nullptr;
-	//}
-
-	//animator->ClearData();
-
-	return vPos;
-}
-
-Vec3 CMesh::VertexRotSkinning(int idx, CAnimator3D* animator)
-{
-	//Vtx* vv = (Vtx*)m_pVtxSys;
-
-	//tIndexInfo indexInfo = m_vecIdxInfo[0];
-
-	//vector<UINT> inds; inds.clear();
-	//vector<UINT>().swap(inds); inds.resize(indexInfo.iIdxCount);
-	//memcpy(inds.data(), indexInfo.pIdxSysMem, indexInfo.iIdxCount * sizeof(UINT));
-
-	//int vertexIdx = inds[idx]; Vtx v = vv[vertexIdx];
-	Vec4 vPos;
-
-	//CStructuredBuffer* pBoneMatBuffer = new CStructuredBuffer;
-	//animator->UpdateData(pBoneMatBuffer, false, false);
-
-	//IndividualBoneSkinningShader* boneSkinningCS = (IndividualBoneSkinningShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"IBSCS").Get();
-
-	//CStructuredBuffer* pOutputBuffer = new CStructuredBuffer;
-	//pOutputBuffer->Create(sizeof(Vec4), 1, SB_TYPE::READ_WRITE, true);
-	//pOutputBuffer->SetData(&vPos, 1);
-
-	//boneSkinningCS->SetVertexSkinning(false);
-	////boneSkinningCS->SetBoneIdx(idx);
-
-	//boneSkinningCS->SetWeight(v.vWeights);
-	//boneSkinningCS->SetIndices(v.vIndices);
-	//boneSkinningCS->SetPosition(Vec4(v.vPos.x, v.vPos.y, v.vPos.z, 1.f));
-	//boneSkinningCS->SetOutputMatBuffer(pOutputBuffer);
-	//boneSkinningCS->SetBoneMat(pBoneMatBuffer);
-
-	//boneSkinningCS->Execute();
-
-	//pOutputBuffer->GetData(&vPos);
-
-	//boneSkinningCS->Clear();
-
-	//if (pOutputBuffer)
-	//{
-	//	delete pOutputBuffer;
-	//	pOutputBuffer = nullptr;
-	//}
-
-	//animator->ClearData();
-
-	return vPos;
-}
-
 CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 {
 	const tContainer* container = &_loader.GetContainer(0);

@@ -8,6 +8,8 @@ StructuredBuffer<tFrameTrans> g_blendFrameTrans : register(t15);
 StructuredBuffer<tFrameTrans> g_arrFrameTrans : register(t16);
 StructuredBuffer<matrix> g_arrOffset : register(t17);
 RWStructuredBuffer<matrix> g_arrFinelMat : register(u0);
+RWStructuredBuffer<matrix> g_arrFinelMatPos : register(u1);
+RWStructuredBuffer<matrix> g_arrFinelMatRot : register(u2);
 //RWStructuredBuffer<matrix> g_arrBoneIndividualMat : register(u1);
 
 #define BoneCount       g_int_0
@@ -28,7 +30,9 @@ void CS_Animation3D(int3 _iThreadIdx : SV_DispatchThreadID)
         return;
     
     float4 vQZero = float4(0.f, 0.f, 0.f, 1.f);
-    matrix matBone = (matrix) 0.f;
+    matrix matPosRotBone = (matrix) 0.f;
+    matrix matPosBone = (matrix) 0.f;
+    matrix matRotBone = (matrix) 0.f;
     
     const uint iFrameDataIndex      = BoneCount * CurIdx + _iThreadIdx.x;
     const uint iNextFrameDataIdx    = BoneCount * NextIdx + _iThreadIdx.x;
@@ -41,27 +45,20 @@ void CS_Animation3D(int3 _iThreadIdx : SV_DispatchThreadID)
     {
         const uint nextClipFrameDataIndex = BoneCount * NextClipIdx + _iThreadIdx.x;
 
-        vScale  = lerp(vScale, g_blendFrameTrans[nextClipFrameDataIndex].vScale, NextClipRatio);
-        vTrans  = lerp(vTrans, g_blendFrameTrans[nextClipFrameDataIndex].vTranslate, NextClipRatio);
+        vScale = lerp(vScale, g_blendFrameTrans[nextClipFrameDataIndex].vScale, NextClipRatio);
+        vTrans = lerp(vTrans, g_blendFrameTrans[nextClipFrameDataIndex].vTranslate, NextClipRatio);
         qRot = QuternionLerp(qRot, g_blendFrameTrans[nextClipFrameDataIndex].qRot, NextClipRatio);
     }
-    if (IsTransOnly)
-    {
-        MatrixAffineTranslate(vTrans, matBone);
-        g_arrFinelMat[_iThreadIdx.x] = matBone;
-    }
-    if (IsRotateOnly)
-    {
-        MatrixAffineRotate(vScale, vQZero, qRot, matBone);
-        g_arrFinelMat[_iThreadIdx.x] = matBone;
-    }
 
-    if (false == IsRotateOnly && false == IsTransOnly)
-    {
-        MatrixAffineTransformation(vScale, vQZero, qRot, vTrans, matBone);
-        matrix matOffset = transpose(g_arrOffset[_iThreadIdx.x]);
-        g_arrFinelMat[_iThreadIdx.x] = mul(matOffset, matBone);
-    }
+    MatrixAffineTranslate(vTrans, matPosBone);
+    g_arrFinelMatPos[_iThreadIdx.x] = matPosBone;
+
+    MatrixAffineRotate(vScale, vQZero, qRot, matRotBone);
+    g_arrFinelMatRot[_iThreadIdx.x] = matRotBone;
+
+    MatrixAffineTransformation(vScale, vQZero, qRot, vTrans, matPosRotBone);
+    matrix matOffset = transpose(g_arrOffset[_iThreadIdx.x]);
+    g_arrFinelMat[_iThreadIdx.x] = mul(matOffset, matPosRotBone);
     
     //MatrixAffineTransformation(g_arrFrameTrans[iFrameDataIndex].vScale, vQZero, g_arrFrameTrans[iFrameDataIndex].qRot, g_arrFrameTrans[iFrameDataIndex].vTranslate, matBone);
 }

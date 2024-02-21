@@ -25,6 +25,7 @@ CGameObject::CGameObject()
 	, m_bItem(false)
 	, m_bOwned(false)
 	, m_bWarrior(false)
+	, m_tState(OBJECT_STATE::VISIBLE)
 {
 }
 
@@ -43,6 +44,7 @@ CGameObject::CGameObject(const CGameObject& _Other)
 	, m_bItem(_Other.m_bItem)
 	, m_bOwned(_Other.m_bOwned)
 	, m_bWarrior(_Other.m_bWarrior)
+	, m_tState(_Other.m_tState)
 {
 	// Component บนป็
 	for (UINT i = 0; i < (UINT)COMPONENT_TYPE::END; ++i)

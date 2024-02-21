@@ -203,6 +203,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="CKeyMgr.h" />
     <ClInclude Include="CollisionMgr.h" />
     <ClInclude Include="EnemyMgr.h" />
+    <ClInclude Include="MouseMgr.h" />
     <ClInclude Include="PlayerMgr.h" />
     <ClInclude Include="LandScapeMgr.h" />
     <ClInclude Include="CLandScapePathShader.h" />
@@ -260,6 +261,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="SkillMgr.h" />
     <ClInclude Include="struct.h" />
+    <ClInclude Include="CUI.h" />
     <ClInclude Include="UpSamplingShader.h" />
     <ClInclude Include="WarriorMgr.h" />
     <ClInclude Include="WeaponMgr.h" />
@@ -299,6 +301,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CKeyMgr.cpp" />
     <ClCompile Include="CollisionMgr.cpp" />
     <ClCompile Include="EnemyMgr.cpp" />
+    <ClCompile Include="MouseMgr.cpp" />
     <ClCompile Include="PlayerMgr.cpp" />
     <ClCompile Include="LandScapeMgr.cpp" />
     <ClCompile Include="CLandScapePathShader.cpp" />
@@ -355,6 +358,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CRigidBody.cpp" />
     <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="SkillMgr.cpp" />
+    <ClCompile Include="CUI.cpp" />
     <ClCompile Include="UpSamplingShader.cpp" />
     <ClCompile Include="WarriorMgr.cpp" />
     <ClCompile Include="WeaponMgr.cpp" />

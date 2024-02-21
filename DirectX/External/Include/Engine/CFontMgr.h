@@ -23,7 +23,7 @@ private:
 public:
 	void init();
 	void DrawFont(const wchar_t* _pStr, float _fPosX, float _fPosY, float _fFontSize, UINT _Color);
-
+	Vec2 GetTextSize(const wchar_t* str, float size);
 public:
 	SINGLE(CFontMgr)
 };

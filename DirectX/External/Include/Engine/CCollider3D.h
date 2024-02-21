@@ -26,7 +26,13 @@ private:
     Vec3            m_vOffset;
     bool            m_bFirstInit;
     bool            m_bAttachToRigidBody;
+    bool            m_bIntergrated;
     bool            m_bCenter;
+
+    bool            m_bBeginOverlap;
+    bool            m_bOnOverlap;
+    bool            m_bEndOverlap;
+
 
 private:
     void setShapeToRigidBody();
@@ -63,6 +69,27 @@ public:
     PxTransform GetColliderPos() { return m_PxColliderRigid->getGlobalPose(); }
 
     bool IsColliderRigidCreate() { return m_PxColliderRigid; }
+
+    bool IsBeginOverlap()
+    {
+        bool tmp = m_bBeginOverlap;
+        m_bBeginOverlap = false;
+        return tmp;
+    }
+    bool IsOnOverlap()
+    {
+        bool tmp = m_bOnOverlap;
+        m_bOnOverlap = false;
+        return tmp;
+    }
+    bool IsEndOverlap()
+    {
+        bool tmp = m_bEndOverlap;
+        m_bEndOverlap = false;
+        return tmp;
+    }
+
+    Matrix GetColliderWorldMat();
 public:
     void EndOverlap(CCollider3D* _OhterCol);
     void OnOverlap(CCollider3D* _OhterCol);
@@ -78,7 +105,7 @@ public:
     CLONE(CCollider3D);
 
 public:
-    CCollider3D(bool _AttachRigid = true);
+    CCollider3D(bool _AttachRigid = true, bool _Intergrated = false);
     virtual ~CCollider3D();
 };
 
