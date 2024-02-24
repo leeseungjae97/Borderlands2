@@ -14,6 +14,7 @@ public:
     void SelectMaterial(DWORD_PTR _Key);
 
     void SelectTexture(DWORD_PTR _Key);
+    void SelectShader(DWORD_PTR _Key);
 
 public:
     MeshRenderUI();

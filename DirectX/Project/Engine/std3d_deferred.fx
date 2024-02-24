@@ -196,38 +196,6 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
         
         vViewNormal = normalize(mul(vNormal, vRotateMat));
     }
-    if(g_btex_2)
-    {
-
-        if (g_btex_2_flow)
-        {
-            vEmissiveCoeff = g_tex_2.Sample(g_sam_anti_0, moveUV);
-        }
-        else
-            vEmissiveCoeff = g_tex_2.Sample(g_sam_anti_0, _in.vUV);
-        
-        if (vEmissiveCoeff.r > 0.0f)
-        {
-            output.vEmissive += vEmissiveCoeff * g_fEmisCoeff;
-        }
-        if (vEmissiveCoeff.g > 0.0f)
-        {
-            output.vEmissive += output.vColor * vEmissiveCoeff.g * g_fEmisCoeff;
-        }
-        if (vEmissiveCoeff.b > 0.0f)
-        {
-            output.vEmissive += output.vColor * vEmissiveCoeff.b * g_fEmisCoeff;
-        }
-
-        //tLightColor LightColor;
-        //CalcLight3D(_in.vViewPos, vViewNormal, 1, LightColor, 0.5f);
-
-        //output.vColor = LightColor.vDiffuse + LightColor.vAmbient;
-        //output.vSpecular = g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
-        
-        //output.vDiffuse.a = 1.f;
-        //output.vSpecular.a = 1.f;
-    }
     if (g_btex_3)
     {
         if (g_btex_3_flow)
@@ -289,6 +257,29 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
                 output.vEmissive += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
             else
                 output.vColor += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
+        }
+    }
+    if (g_btex_2)
+    {
+
+        if (g_btex_2_flow)
+        {
+            vEmissiveCoeff = g_tex_2.Sample(g_sam_anti_0, moveUV);
+        }
+        else
+            vEmissiveCoeff = g_tex_2.Sample(g_sam_anti_0, _in.vUV);
+        
+        if (vEmissiveCoeff.r > 0.0f)
+        {
+            output.vEmissive.r += output.vColor * vEmissiveCoeff.r * g_fEmisCoeff;
+        }
+        if (vEmissiveCoeff.g > 0.0f)
+        {
+            output.vEmissive += vEmissiveCoeff.g * g_fEmisCoeff;
+        }
+        if (vEmissiveCoeff.b > 0.0f)
+        {
+            output.vEmissive += output.vColor * vEmissiveCoeff.b * g_fEmisCoeff;
         }
     }
     output.vNormal = float4(vViewNormal, 1.f);

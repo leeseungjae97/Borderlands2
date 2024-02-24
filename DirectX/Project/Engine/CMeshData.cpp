@@ -22,7 +22,9 @@ CMeshData* CMeshData::LoadFromFBX(const wstring& _strFilePath)
 {
 	wstring strFullPath = CPathMgr::GetInst()->GetContentPath();
 	strFullPath += _strFilePath;
-	
+
+	std::thread loadFbx(
+		);
 	FBXLoader loader;
 	loader.init();
 	loader.LoadFbx(strFullPath);

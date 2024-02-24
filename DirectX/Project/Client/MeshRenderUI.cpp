@@ -124,13 +124,14 @@ int MeshRenderUI::render_update()
 		Ptr<CMaterial> mtrl = pMeshRender->GetMaterial(i);
 		if (nullptr == mtrl)
 			continue;
-
+		string str = "";
 		tMtrlConst mtrlConst = mtrl->GetConst();
 
 		float fTexFlowSpeed = mtrlConst.fTexFlowSpeed;
 		ImGui::Text("Tex Flow Speed : ");
 		ImGui::SameLine();
-		ImGui::InputFloat("##texflowspeed", &fTexFlowSpeed);
+		str = "##texflowspeed" + std::to_string(i);
+		ImGui::InputFloat(str.c_str(), &fTexFlowSpeed);
 		mtrl->SetFlowSpeed(fTexFlowSpeed);
 		
 		Vec2 vTexFlowDir = mtrlConst.vTexDir;
@@ -139,7 +140,8 @@ int MeshRenderUI::render_update()
 		float dir[2];
 		dir[0] = vTexFlowDir.x;
 		dir[1] = vTexFlowDir.y;
-		ImGui::InputFloat2("##texflowdir", dir);
+		str = "##texflowdir" + std::to_string(i);
+		ImGui::InputFloat2(str.c_str(), dir);
 		vTexFlowDir.x = dir[0];
 		vTexFlowDir.y = dir[1];
 		mtrl->SetFlowDir(vTexFlowDir);
@@ -147,26 +149,41 @@ int MeshRenderUI::render_update()
 		float fEmisCoef = mtrlConst.fEmisCoeff;
 		ImGui::Text("Emissive Coeff : ");
 		ImGui::SameLine();
-		ImGui::InputFloat("##emiscoeff", &fEmisCoef);
+		str = "##emiscoeff" + std::to_string(i);
+		ImGui::InputFloat(str.c_str(), &fEmisCoef);
 		mtrl->SetEmissiveCoeff(fEmisCoef);
 
-		string str = "";
-		//if (mtrl->GetShader()->GetDomain() == SHADER_DOMAIN::DOMAIN_DEFERRED)
-		//{
-		//	str = "TO FORWARD##" + std::to_string(i) + "mtrlforward";
-		//	if (ImGui::Button(str.c_str()))
-		//	{
-		//		mtrl->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3DShader"));
-		//	}
-		//}
-		//else
-		//{
-		//	str = "TO DEFERRED##" + std::to_string(i) + "mtrlDeferred";
-		//	if (ImGui::Button(str.c_str()))
-		//	{
-		//		mtrl->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3D_DeferredShader"));
-		//	}
-		//}
+		
+		ImGui::Text("Set Material Shader");
+		ImGui::SameLine();
+
+		Ptr<CGraphicsShader> pShader = mtrl->GetShader();
+		str = "##ShaderUIName" + std::to_string(i);
+		if (nullptr != pShader)
+		{
+			string strKey = string(pShader->GetKey().begin(), pShader->GetKey().end());
+			ImGui::InputText(str.c_str(), (char*)strKey.c_str(), strKey.length(), ImGuiInputTextFlags_::ImGuiInputTextFlags_ReadOnly);
+		}
+		else
+		{
+			char szEmtpy[10] = {};
+			ImGui::InputText(str.c_str(), szEmtpy, 10, ImGuiInputTextFlags_::ImGuiInputTextFlags_ReadOnly);
+		}
+		str = "##ShaderSelectBtn" + std::to_string(i);
+		if (ImGui::Button(str.c_str(), ImVec2(18, 18)))
+		{
+			const map<wstring, Ptr<CRes>>& mapShader = CResMgr::GetInst()->GetResources(RES_TYPE::GRAPHICS_SHADER);
+
+			ListUI* pListUI = (ListUI*)ImGuiMgr::GetInst()->FindUI("##List");
+			pListUI->Reset("GraphicsShader List", ImVec2(300.f, 500.f));
+			for (const auto& pair : mapShader)
+			{
+				pListUI->AddItem(string(pair.first.begin(), pair.first.end()));
+			}
+			iInst1 = i;
+			// 항목 선택시 호출받을 델리게이트 등록
+			pListUI->AddDynamic_Select(this, (UI_DELEGATE_1)&MeshRenderUI::SelectShader);
+		}
 
 		bool bTexFlow = false;
 		for(int j = 0 ; j < TEX_PARAM::TEX_7 + 1; ++j)
@@ -271,4 +288,11 @@ void MeshRenderUI::SelectTexture(DWORD_PTR _Key)
 	int texParamIdx = iInst0;
 	Ptr<CTexture> pTex= CResMgr::GetInst()->FindRes<CTexture>(wstring(strKey.begin(), strKey.end()));
 	GetTarget()->MeshRender()->GetMaterial(iInst1)->SetTexParam((TEX_PARAM)texParamIdx, pTex);
+}
+
+void MeshRenderUI::SelectShader(DWORD_PTR _Key)
+{
+	string strKey = (char*)_Key;
+	Ptr<CGraphicsShader> pShader = CResMgr::GetInst()->FindRes<CGraphicsShader>(wstring(strKey.begin(), strKey.end()));
+	GetTarget()->MeshRender()->GetMaterial(iInst1)->SetShader(pShader);
 }

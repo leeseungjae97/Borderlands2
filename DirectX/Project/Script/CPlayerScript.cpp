@@ -47,24 +47,25 @@ void CPlayerScript::begin()
 	CGameObject* pPlayer = GetOwner();
 
 	CreateUI();
-	//for (int i = 0; i < 3; ++i)
-	//{
-	//	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD + i)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				tState = PlayerMgr::PLAYER_STATE::IDLE;
-	//			});
-	//	pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				tState = PlayerMgr::PLAYER_STATE::DRAW;
-	//			});
-	//	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				tState = PlayerMgr::PLAYER_STATE::IDLE;
-	//			});
-	//}
+	for (int i = 0; i < 3; ++i)
+	{
+		pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD + i)
+			= std::make_shared<std::function<void()>>([=]()
+				{
+					tState = PlayerMgr::PLAYER_STATE::IDLE;
+					iAmmo = 30;
+				});
+		pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
+			= std::make_shared<std::function<void()>>([=]()
+				{
+					tState = PlayerMgr::PLAYER_STATE::DRAW;
+				});
+		pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
+			= std::make_shared<std::function<void()>>([=]()
+				{
+					tState = PlayerMgr::PLAYER_STATE::IDLE;
+				});
+	}
 	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::SNIPER_FIRE)
 	//	= std::make_shared<std::function<void()>>([=]()
 	//		{
@@ -74,17 +75,17 @@ void CPlayerScript::begin()
 	makeCollider();
 
 	// Test code
-	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD)
-		= std::make_shared<std::function<void()>>([=]()
-			{
-				tState = PlayerMgr::PLAYER_STATE::IDLE;
-	iAmmo = 30;
-			});
-	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW)
-		= std::make_shared<std::function<void()>>([=]()
-			{
-				tState = PlayerMgr::PLAYER_STATE::IDLE;
-			});
+	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD)
+	//	= std::make_shared<std::function<void()>>([=]()
+	//		{
+	//			tState = PlayerMgr::PLAYER_STATE::IDLE;
+	//iAmmo = 30;
+	//		});
+	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW)
+	//	= std::make_shared<std::function<void()>>([=]()
+	//		{
+	//			tState = PlayerMgr::PLAYER_STATE::IDLE;
+	//		});
 }
 
 void CPlayerScript::tick()

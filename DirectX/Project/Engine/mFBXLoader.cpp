@@ -160,33 +160,38 @@ void FBXLoader::LoadMesh(FbxMesh* _pFbxMesh)
 	}
 
 	int iPolyCnt = _pFbxMesh->GetPolygonCount();
-
+	//_pFbxMesh->GetUV
 	int iMtrlCnt = _pFbxMesh->GetNode()->GetMaterialCount();
 	Container.vecIdx.resize(iMtrlCnt);
 
 	FbxGeometryElementMaterial* pMtrl = _pFbxMesh->GetElementMaterial();
 
-	int iPolySize = _pFbxMesh->GetPolygonSize(0);
-	if (3 != iPolySize)
-		assert(NULL);
-
-	UINT arrIdx[3] = {};
 	UINT iVtxOrder = 0;
+	UINT arrIdx[3] = {};
+
+	//FbxStringList* list = new FbxStringList;
+	//_pFbxMesh->GetUVSetNames(*list);
+
+	//delete list;
 
 	for (int i = 0; i < iPolyCnt; ++i)
 	{
+		int iPolySize = _pFbxMesh->GetPolygonSize(i);
+
+		if (3 != iPolySize)
+			assert(NULL);
+
 		for (int j = 0; j < iPolySize; ++j)
 		{
 			int iIdx = _pFbxMesh->GetPolygonVertex(i, j);
+			
 			arrIdx[j] = iIdx;
 
-			GetTangent(_pFbxMesh, &Container, iIdx, iVtxOrder);
-			GetBinormal(_pFbxMesh, &Container, iIdx, iVtxOrder);
-			//if (1 == _pFbxMesh->GetElementTangentCount())
-			GetNormal(_pFbxMesh, &Container, iIdx, iVtxOrder);
-
-
 			GetUV(_pFbxMesh, &Container, iIdx, _pFbxMesh->GetTextureUVIndex(i, j));
+
+			GetNormal(_pFbxMesh, &Container, iIdx, iVtxOrder);
+			GetBinormal(_pFbxMesh, &Container, iIdx, iVtxOrder);
+			GetTangent(_pFbxMesh, &Container, iIdx, iVtxOrder);
 
 			++iVtxOrder;
 		}
@@ -195,7 +200,7 @@ void FBXLoader::LoadMesh(FbxMesh* _pFbxMesh)
 		Container.vecIdx[iSubsetIdx].push_back(arrIdx[2]);
 		Container.vecIdx[iSubsetIdx].push_back(arrIdx[1]);
 	}
-
+	
 	LoadAnimationData(_pFbxMesh, &Container);
 }
 
@@ -422,24 +427,31 @@ void FBXLoader::GetNormal(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx, i
 
 void FBXLoader::GetUV(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx, int _iUVIndex)
 {
-	FbxGeometryElementUV* pUV = _pMesh->GetElementUV(0);
+	FbxGeometryElementUV* pUV = _pMesh->GetElementUV();
+	//_pMesh->GetControlPointAt(_iIdx).mData;
 
-	UINT iUVIdx = 0;
-	if (pUV->GetReferenceMode() == FbxGeometryElement::eDirect)
-		iUVIdx = _iIdx;
-	else
-		iUVIdx = pUV->GetIndexArray().GetAt(_iIdx);
-
-	//iUVIdx = _iUVIndex;
+	UINT iUVIdx = _iUVIndex;
+	if (pUV->GetMappingMode() == FbxGeometryElement::eByControlPoint)
+	{
+		switch (pUV->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+			iUVIdx = _iIdx;
+			break;
+		case FbxGeometryElement::eIndexToDirect:
+			iUVIdx = pUV->GetIndexArray().GetAt(_iIdx);
+			break;
+		}
+	}else if(pUV->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+	{
+		iUVIdx = _iUVIndex;
+	}
 
 	FbxVector2 vUV = pUV->GetDirectArray().GetAt(iUVIdx);
-
+	
 	FbxLayerElement::EMappingMode mapping = pUV->GetMappingMode();
-
-
+	
 	_pContainer->vecUV[_iIdx].x = (float)vUV.mData[0];
-	//_pContainer->vecUV[_iIdx].x = 1.f - (float)vUV.mData[0];
-	//_pContainer->vecUV[_iIdx].y = 1.f - (float)vUV.mData[1];
 	_pContainer->vecUV[_iIdx].y = 1.f - (float)vUV.mData[1];
 }
 
@@ -723,12 +735,12 @@ void FBXLoader::Triangulate(FbxNode* _pNode)
 		converter.Triangulate(pAttr, true);
 	}
 
-	int iChildCount = _pNode->GetChildCount();
+	//int iChildCount = _pNode->GetChildCount();
 
-	for (int i = 0; i < iChildCount; ++i)
-	{
-		Triangulate(_pNode->GetChild(i));
-	}
+	//for (int i = 0; i < iChildCount; ++i)
+	//{
+	//	Triangulate(_pNode->GetChild(i));
+	//}
 }
 
 void FBXLoader::LoadAnimationData(FbxMesh* _pMesh, tContainer* _pContainer)

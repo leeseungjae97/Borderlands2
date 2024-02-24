@@ -327,10 +327,8 @@ void CMesh::TransKeyFrame(CMesh* mesh)
 
 		mesh->m_vecBoneOffset.push_back(_bone.matOffset);
 
-		//for (size_t k = 0; k < mesh->m_mapAnimClip.size(); ++k)
 		for (auto& pair : mesh->m_mapAnimClip)
 		{
-			//tMTAnimClip clip = mesh->m_mapAnimClip[k];
 			tMTAnimClip clip = pair.second;
 			wstring animName = clip.strAnimName;
 
@@ -349,7 +347,6 @@ void CMesh::TransKeyFrame(CMesh* mesh)
 					vecMTKeyFrame[j].qRot
 				};
 			}
-			//mesh->m_mapAnimClip[k] = clip;
 			pair.second = clip;
 		}
 	}

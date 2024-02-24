@@ -50,6 +50,8 @@ typedef DirectX::SimpleMath::Quaternion Quat;
 
 #ifdef _DEBUG
 #pragma comment(lib, "FBXLoader/x64/debug/libfbxsdk-md.lib")
+#pragma comment(lib, "FBXLoader/x64/debug/libxml2-md.lib")
+#pragma comment(lib, "FBXLoader/x64/debug/zlib-md.lib")
 
 #pragma comment(lib, "Recast/x64/debug/Recast.lib")
 #pragma comment(lib, "Recast/x64/debug/Detour.lib")
