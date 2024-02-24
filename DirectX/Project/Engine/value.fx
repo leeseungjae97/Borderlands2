@@ -94,6 +94,11 @@ cbuffer MATERIAL : register(b1)
     int g_btex_6_flow;
     int g_btex_7_flow;
 
+    int g_btex_8_flow;
+    int g_btex_9_flow;
+    int g_btex_10_flow;
+    int g_btex_11_flow;
+
     int g_btex_0_emis;
     int g_btex_1_emis;
     int g_btex_2_emis;
@@ -103,6 +108,11 @@ cbuffer MATERIAL : register(b1)
     int g_btex_5_emis;
     int g_btex_6_emis;
     int g_btex_7_emis;
+
+    int g_btex_8_emis;
+    int g_btex_9_emis;
+    int g_btex_10_emis;
+    int g_btex_11_emis;
     
     int pad;
 };

@@ -177,6 +177,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="CAnimator2D.h" />
     <ClInclude Include="CAnimSprite.h" />
     <ClInclude Include="DownSamplingShader.h" />
+    <ClInclude Include="FieldUIMgr.h" />
     <ClInclude Include="IndividualBoneSkinningShader.h" />
     <ClInclude Include="CameraMgr.h" />
     <ClInclude Include="CAnimClip.h" />
@@ -272,6 +273,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CAnimator2D.cpp" />
     <ClCompile Include="CAnimSprite.cpp" />
     <ClCompile Include="DownSamplingShader.cpp" />
+    <ClCompile Include="FieldUIMgr.cpp" />
     <ClCompile Include="IndividualBoneSkinningShader.cpp" />
     <ClCompile Include="CameraMgr.cpp" />
     <ClCompile Include="CAnimClip.cpp" />

@@ -152,6 +152,11 @@ void CRigidBody::convertMeshToGeom()
 	Ptr<CMesh> pMesh = GetOwner()->MeshRender()->GetMesh();
 	Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
 	m_debugMeshName = pMesh->GetKey();
+
+	if(pMesh->GetSubsetCount() > 1 )
+	{
+		int a = 0;
+	}
 	for (auto indexInfo : pMesh->GetIndexInfo())
 	{
 		inds.clear();

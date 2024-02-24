@@ -135,8 +135,15 @@ void CRenderComponent::render_shadowmap()
 
 void CRenderComponent::SetMaterial(Ptr<CMaterial> _Mtrl, UINT _Idx)
 {
-	if (m_vecMtrls.empty())	
+	if (m_pMesh->GetSubsetCount() < _Idx)
 		assert(nullptr);
+	//if (m_vecMtrls.empty())	
+	//	assert(nullptr);
+
+	if(m_vecMtrls.empty())
+	{
+		m_vecMtrls.resize(m_pMesh->GetSubsetCount());
+	}
 
 	m_vecMtrls[_Idx].pSharedMtrl = _Mtrl;
 	m_vecMtrls[_Idx].pCurrentMtrl = _Mtrl;

@@ -129,7 +129,16 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
     
     if (g_btex_1)
     {
-        float3 vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV).xyz;
+        float3 vNormal = (float3) 0.f;
+        if (g_btex_1_flow)
+        {
+            vNormal = g_tex_1.Sample(g_sam_anti_0, moveUV).xyz;
+        }
+        else
+        {
+        	vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV).xyz;
+        }
+        
         
         // 0 ~ 1 범위의 값을 -1 ~ 1 로 확장        
         vNormal = vNormal * 2.f - 1.f;

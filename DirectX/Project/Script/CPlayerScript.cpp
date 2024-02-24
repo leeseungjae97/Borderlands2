@@ -15,7 +15,9 @@
 #include <Engine\CFontMgr.h>
 
 #include "CBulletScript.h"
+#include "CEnemyScript.h"
 #include "CMissileScript.h"
+#include "CWarriorScript.h"
 
 
 CPlayerScript::CPlayerScript()
@@ -27,6 +29,7 @@ CPlayerScript::CPlayerScript()
 	, fMouseAcces(1.f)
 	, iPlayerHp(5000.f)
 	, iAmmo(30)
+	, iAmmoCapa(30)
 	, fBurnTime(0.0f)
 	, tState(PlayerMgr::PLAYER_STATE::IDLE)
 {
@@ -44,64 +47,82 @@ void CPlayerScript::begin()
 	CGameObject* pPlayer = GetOwner();
 
 	CreateUI();
-	for (int i = 0; i < 3; ++i)
-	{
-		pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD + i)
-			= std::make_shared<std::function<void()>>([=]()
-				{
-					tState = PlayerMgr::PLAYER_STATE::IDLE;
-				});
-		pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
-			= std::make_shared<std::function<void()>>([=]()
-				{
-					tState = PlayerMgr::PLAYER_STATE::DRAW;
-				});
-		pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
-			= std::make_shared<std::function<void()>>([=]()
-				{
-					tState = PlayerMgr::PLAYER_STATE::IDLE;
-				});
-	}
-	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::SNIPER_FIRE)
+	//for (int i = 0; i < 3; ++i)
+	//{
+	//	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD + i)
+	//		= std::make_shared<std::function<void()>>([=]()
+	//			{
+	//				tState = PlayerMgr::PLAYER_STATE::IDLE;
+	//			});
+	//	pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
+	//		= std::make_shared<std::function<void()>>([=]()
+	//			{
+	//				tState = PlayerMgr::PLAYER_STATE::DRAW;
+	//			});
+	//	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
+	//		= std::make_shared<std::function<void()>>([=]()
+	//			{
+	//				tState = PlayerMgr::PLAYER_STATE::IDLE;
+	//			});
+	//}
+	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::SNIPER_FIRE)
+	//	= std::make_shared<std::function<void()>>([=]()
+	//		{
+	//			tState = PlayerMgr::PLAYER_STATE::IDLE;
+	//		});
+
+	makeCollider();
+
+	// Test code
+	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				tState = PlayerMgr::PLAYER_STATE::IDLE;
+	iAmmo = 30;
+			});
+	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW)
 		= std::make_shared<std::function<void()>>([=]()
 			{
 				tState = PlayerMgr::PLAYER_STATE::IDLE;
 			});
-
-	// Test code
-	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD)
-	//	= std::make_shared<std::function<void()>>([=]()
-	//		{
-	//			tState = PlayerMgr::PLAYER_STATE::IDLE;
-	//			iAmmo = 30;
-	//		});
-	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW)
-	//	= std::make_shared<std::function<void()>>([=]()
-	//		{
-	//			tState = PlayerMgr::PLAYER_STATE::IDLE;
-	//		});
 }
 
 void CPlayerScript::tick()
 {
-	//Look();
+	Look();
 	//CatchRaycast();
 	Movement();
 	Burn();
+
 	if (m_pAmmoText)
 		m_pAmmoText->SetText(std::to_wstring(iAmmo) + L"/ 30");
 	if (m_pHPText)
 		m_pHPText->SetText(std::to_wstring(iPlayerHp));
+
+	//float ratio = (1.f - (float)iAmmo / (float)iAmmoCapa);
+	//m_pUI_EnemyHp->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &ratio);
 }
 
 void CPlayerScript::finaltick()
 {
 	//Movement();
+
+	//if (pHeadCollider)
+	//{
+	//	CGameObject* pPlayer = GetOwner();
+	//	int headIdx = pPlayer->Animator3D()->GetHeadIdx();
+	//	Vec3 vPos = AnimationMgr::GetInst()->BonePos(headIdx, pPlayer);
+	//	Vec3 vRot = AnimationMgr::GetInst()->BoneRot(headIdx, pPlayer);
+
+	//	pHeadCollider->Collider3D()->SetColliderPos(vPos);
+	//	pHeadCollider->Collider3D()->SetColliderRot(vRot);
+	//}
 }
 
 void CPlayerScript::CreateUI()
 {
-	Ptr<CGraphicsShader> uiShader = (CGraphicsShader*)CResMgr::GetInst()->FindRes<CGraphicsShader>(L"UI2DShader").Get();
+	Ptr<CGraphicsShader> UIShader = (CGraphicsShader*)CResMgr::GetInst()->FindRes<CGraphicsShader>(L"UI2DShader").Get();
+	Ptr<CGraphicsShader> adjustUIShader = (CGraphicsShader*)CResMgr::GetInst()->FindRes<CGraphicsShader>(L"AdjustUI2DShader").Get();
 	Ptr<CMaterial> pMtrl = nullptr;
 	Ptr<CTexture> pTex = nullptr;
 	Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
@@ -113,7 +134,7 @@ void CPlayerScript::CreateUI()
 	m_pAmmoText->AddComponent(new CTransform);
 	m_pAmmoText->AddComponent(new CMeshRender);
 	m_pAmmoText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	m_pAmmoText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UI2DShaderMtrl"), 0);
+	m_pAmmoText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
 	m_pAmmoText->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
 	m_pAmmoText->SetTextSize(20.f);
 	m_pAmmoText->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
@@ -126,7 +147,7 @@ void CPlayerScript::CreateUI()
 	m_pHPText->AddComponent(new CTransform);
 	m_pHPText->AddComponent(new CMeshRender);
 	m_pHPText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	m_pHPText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UI2DShaderMtrl"), 0);
+	m_pHPText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
 	m_pHPText->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
 
 	m_pHPText->SetTextSize(20.f);
@@ -228,7 +249,7 @@ void CPlayerScript::CreateUI()
 
 	{
 		pMtrl = new CMaterial(true);
-		pMtrl->SetShader(uiShader);
+		pMtrl->SetShader(UIShader);
 		CResMgr::GetInst()->AddRes(L"CrossHairMtrl", pMtrl);
 
 		CGameObject* pCrossHair = new CGameObject;
@@ -238,11 +259,52 @@ void CPlayerScript::CreateUI()
 		pCrossHair->AddComponent(new CMeshRender);
 
 		pCrossHair->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-		pCrossHair->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"CrossHairMtrl"), 0);
+		pCrossHair->MeshRender()->SetMaterial(pMtrl, 0);
 		pCrossHair->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\Crosshair.png"));
 		pCrossHair->Transform()->SetRelativeScale(Vec3(80.f, 80.f, 1.f));
 		SpawnGameObject(pCrossHair, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::ViewPortUI);
 	}
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(adjustUIShader);
+		CResMgr::GetInst()->AddRes(L"EnemyHpMtrl", pMtrl);
+
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\enemy_hp_front.png");
+		m_pUI_EnemyHp = new CGameObject;
+
+		m_pUI_EnemyHp->SetName(L"UI Enemy Hp");
+		m_pUI_EnemyHp->AddComponent(new CTransform);
+		m_pUI_EnemyHp->AddComponent(new CMeshRender);
+
+		m_pUI_EnemyHp->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_EnemyHp->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_EnemyHp->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_EnemyHp->Transform()->SetRelativeScale(Vec3(pTex->Width(), pTex->Height(), 1.f));
+		SpawnGameObject(m_pUI_EnemyHp, Vec3(0.f, 50.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+	}
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(UIShader);
+		CResMgr::GetInst()->AddRes(L"EnemyHpBack", pMtrl);
+
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\enemy_hp_back.png");
+		m_pUI_EnemyHp_Back = new CGameObject;
+
+		m_pUI_EnemyHp_Back->SetName(L"UI Enemy Hp Back");
+		m_pUI_EnemyHp_Back->AddComponent(new CTransform);
+		m_pUI_EnemyHp_Back->AddComponent(new CMeshRender);
+
+		m_pUI_EnemyHp_Back->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_EnemyHp_Back->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_EnemyHp_Back->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_EnemyHp_Back->Transform()->SetRelativeScale(Vec3(pTex->Width(), pTex->Height(), 1.f));
+		SpawnGameObject(m_pUI_EnemyHp_Back, Vec3(0.f, 50.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+	}
+
 }
 
 void CPlayerScript::Look()
@@ -254,16 +316,49 @@ void CPlayerScript::Look()
 	tRayInfo rayInfo{};
 	rayInfo.fDamage = 0.f;
 	rayInfo.iLayerIdx = GetOwner()->GetLayerIndex();
-	rayInfo.vDir = MainCam->Transform()->GetRelativeDir(DIR_TYPE::FRONT);;
+	rayInfo.vDir = MainCam->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
 	rayInfo.vStart = MainCam->Transform()->GetRelativePos();
 	rayInfo.matWorld = MainCam->Transform()->GetDrawRayMat();
 	rayInfo.tRayType = (UINT)RAYCAST_TYPE::LOOK;
-	RaycastMgr::GetInst()->SetPlayerRayInfo(rayInfo);
+	//RaycastMgr::GetInst()->SetPlayerRayInfo(rayInfo);
+
+	CGameObject* hoverEnemy = nullptr;
+	RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo, &hoverEnemy);
+	if(hoverEnemy)
+	{
+		if (hoverEnemy->GetScript<CEnemyScript>())
+		{
+			m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			hoverEnemy->GetName();
+
+			float hpRatio = 1.f - hoverEnemy->GetScript<CEnemyScript>()->GetHpRatio();
+			m_pUI_EnemyHp->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &hpRatio);
+
+		}
+		else if (hoverEnemy->GetScript<CWarriorScript>())
+		{
+			m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+
+			float hpRatio = 1.f - hoverEnemy->GetScript<CWarriorScript>()->GetHpRatio();
+			m_pUI_EnemyHp->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &hpRatio);
+		}
+		else
+		{
+			m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		}
+	}else
+	{
+		m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
 }
 
 void CPlayerScript::ShootBullet()
 {
-	if (tState == PlayerMgr::PLAYER_STATE::RELOAD || tState == PlayerMgr::PLAYER_STATE::DRAW 
+	if (tState == PlayerMgr::PLAYER_STATE::RELOAD || tState == PlayerMgr::PLAYER_STATE::DRAW
 		|| tState == PlayerMgr::PLAYER_STATE::FIRE || iAmmo <= 0)
 		return;
 
@@ -272,7 +367,7 @@ void CPlayerScript::ShootBullet()
 		MainCam = CameraMgr::GetInst()->GetCamObj(L"MainCamera")->Camera();
 	CGameObject* pPlayer = GetOwner();
 
-	//--iAmmo;
+	--iAmmo;
 
 	tRayInfo rayInfo{};
 	rayInfo.fDamage = 10.f;
@@ -287,18 +382,18 @@ void CPlayerScript::ShootBullet()
 	Vec3 vRot = WeaponMgr::GetInst()->GetCurWeapon()->Transform()->GetRelativeRot();
 
 	WeaponMgr::GetInst()->MuzzleFlash(vPos, vRot);
-	
+
 	WeaponMgr::GetInst()->Play(GUN_ANIMATION_TYPE::FIRE, false);
 	CGameObject* pGun = WeaponMgr::GetInst()->GetCurWeapon();
 	int weaponIdx = WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::FIRE);
 
-	if(weaponIdx == (int)PLAYER_ANIMATION_TYPE::SNIPER_FIRE)
+	if (weaponIdx == (int)PLAYER_ANIMATION_TYPE::SNIPER_FIRE)
 	{
 		tState = PlayerMgr::PLAYER_STATE::FIRE;
 		pPlayer->Animator3D()->Play(weaponIdx, false);
 		AnimationMgr::GetInst()->AnimationSync(pGun->Animator3D(), pPlayer->Animator3D());
 	}
-	
+
 }
 
 void CPlayerScript::ShootMissile()
@@ -342,7 +437,7 @@ void CPlayerScript::Draw(int _Idx)
 {
 	CGameObject* pPlayer = GetOwner();
 
-	if(WeaponMgr::GetInst()->ChangeWeapon(_Idx))
+	if (WeaponMgr::GetInst()->ChangeWeapon(_Idx))
 	{
 		pPlayer->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::DRAW), false);
 		tState = PlayerMgr::PLAYER_STATE::DRAW;
@@ -360,15 +455,15 @@ void CPlayerScript::Movement()
 	CGameObject* pPlayerFbx = GetOwner();
 
 	Vec3 vPlayerPos = PlayerMgr::GetInst()->GetPlayerCameraPos();
-	Vec3 vCamRot	= pCamObj->Transform()->GetRelativeRot();
+	Vec3 vCamRot = pCamObj->Transform()->GetRelativeRot();
 
-	Vec3 vPlayerBodyFront	= pPlayerFbx->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
-	Vec3 vPlayerBodyUp		= pPlayerFbx->Transform()->GetRelativeDir(DIR_TYPE::UP);
-	Vec3 vPlayerBodyRight	= pPlayerFbx->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+	Vec3 vPlayerBodyFront = pPlayerFbx->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+	Vec3 vPlayerBodyUp = pPlayerFbx->Transform()->GetRelativeDir(DIR_TYPE::UP);
+	Vec3 vPlayerBodyRight = pPlayerFbx->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
 
-	CRigidBody* pPlayerRB	= pPlayerFbx->RigidBody();
+	CRigidBody* pPlayerRB = pPlayerFbx->RigidBody();
 
-	Vec2 vMouseDir		= CKeyMgr::GetInst()->GetMouseDir();
+	Vec2 vMouseDir = CKeyMgr::GetInst()->GetMouseDir();
 
 	vCamRot.y += (DT * vMouseDir.x * 0.2f);
 	vCamRot.x -= (DT * vMouseDir.y * 0.2f);
@@ -376,17 +471,17 @@ void CPlayerScript::Movement()
 
 	pPlayerFbx->Transform()->SetRelativeRot(vCamRot);
 	pCamObj->Transform()->SetRelativeRot(vCamRot);
-	
+
 	pCamObj->Transform()->SetRelativePos(vPlayerPos);
 
-	float _fSpeed		= fSpeed;
+	float _fSpeed = fSpeed;
 	Vec3 final_velocity = Vec3(0.0f, 0.0f, 0.0f);
 
-	UINT uiFront	= (1 << 0);
-	UINT uiBack		= (1 << 0);
-	UINT uiRight	= (1 << 1);
-	UINT uiLeft		= (1 << 1);
-	UINT uiIdle		= (1 << 2);
+	UINT uiFront = (1 << 0);
+	UINT uiBack = (1 << 0);
+	UINT uiRight = (1 << 1);
+	UINT uiLeft = (1 << 1);
+	UINT uiIdle = (1 << 2);
 	UINT flag = uiIdle;
 
 	if (KEY_PRESSED(KEY::_1))
@@ -478,7 +573,7 @@ void CPlayerScript::Movement()
 	}
 }
 
-void CPlayerScript::Attacked(float _Damage)
+void CPlayerScript::Attacked(int _Damage)
 {
 	if (iPlayerHp < _Damage)
 		iPlayerHp = 0;
@@ -530,11 +625,12 @@ void CPlayerScript::CatchRaycast()
 			stride, queryFlags, threadContext);
 		if (hitCount != 0)
 		{
-			if(rayInfo.tRayType == (UINT)RAYCAST_TYPE::SHOOT)
+			if (rayInfo.tRayType == (UINT)RAYCAST_TYPE::SHOOT)
 			{
 				Attacked(rayInfo.fDamage);
 				RaycastMgr::GetInst()->AddRaycastDraw(vFront, vStart, rayInfo.matWorld, Vec4(1.f, 1.f, 0.f, 1.f));
-			}else
+			}
+			else
 			{
 				tRayInfo rayReply{};
 				rayReply.fDamage = 0.0f;
@@ -556,22 +652,36 @@ void CPlayerScript::CatchRaycast()
 
 void CPlayerScript::Burn()
 {
-	if(bBurn)
+	if (bBurn)
 	{
 		fBurnTickAcc += DT;
 		fBurnAcc += DT;
-		if(fBurnTickAcc > 1.f)
+		if (fBurnTickAcc > 1.f)
 		{
 			Attacked(10.f);
 			fBurnTickAcc = 0.f;
 		}
-		if(fBurnAcc >= fBurnTime)
+		if (fBurnAcc >= fBurnTime)
 		{
 			fBurnTickAcc = 0.0f;
 			fBurnAcc = 0.0f;
 			fBurnTime = 0.0f;
 			bBurn = false;
 		}
+	}
+}
+
+void CPlayerScript::makeCollider()
+{
+	{
+		CGameObject* pObj = new CGameObject;
+		pObj->AddComponent(new CCollider3D(false, true));
+		pObj->Collider3D()->SetScale(Vec3(200.f, 200.f, 200.f));
+
+		pObj->SetName(L"fbx player head collider");
+
+		SpawnGameObject(pObj, Vec3(0.f, 100.f, 0.f), LAYER_TYPE::NoRaycastingCollider, true);
+		pHeadCollider = pObj;
 	}
 }
 

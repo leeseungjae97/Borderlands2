@@ -184,8 +184,8 @@ void FBXLoader::LoadMesh(FbxMesh* _pFbxMesh)
 			GetBinormal(_pFbxMesh, &Container, iIdx, iVtxOrder);
 			//if (1 == _pFbxMesh->GetElementTangentCount())
 			GetNormal(_pFbxMesh, &Container, iIdx, iVtxOrder);
-				
-				
+
+
 			GetUV(_pFbxMesh, &Container, iIdx, _pFbxMesh->GetTextureUVIndex(i, j));
 
 			++iVtxOrder;
@@ -238,44 +238,15 @@ void FBXLoader::LoadMaterial(FbxSurfaceMaterial* _pMtrlSur)
 
 void FBXLoader::GetTangent(FbxMesh* _pMesh
 	, tContainer* _pContainer
-	, int _iIdx		 
+	, int _iIdx
 	, int _iVtxOrder)
 {
 	int iTangentCnt = _pMesh->GetElementTangentCount();
 	if (1 < iTangentCnt)
 	{
 		assert(NULL);
-		//_pMesh->InitNormals(0);
-		//_pMesh->GenerateNormals();
-		//_pMesh->InitTangents(0);
-		//_pMesh->GenerateTangentsData(0, true);
-		//_pMesh->InitBinormals(0);
-		//_pMesh->CreateElementBinormal();
-
-		//FbxGeometryElementTangent* pTangent = _pMesh->GetElementTangent();
-		//UINT iTangentIdx = 0;
-		//if (pTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
-		//{
-		//	if (pTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
-		//		iTangentIdx = _iVtxOrder;
-		//	else
-		//		iTangentIdx = pTangent->GetIndexArray().GetAt(_iVtxOrder);
-		//}
-		//else if (pTangent->GetMappingMode() == FbxGeometryElement::eByControlPoint)
-		//{
-		//	if (pTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
-		//		iTangentIdx = _iIdx;
-		//	else
-		//		iTangentIdx = pTangent->GetIndexArray().GetAt(_iIdx);
-		//}
-
-		//FbxVector4 vTangent = pTangent->GetDirectArray().GetAt(iTangentIdx);
-
-		//_pContainer->vecTangent[_iIdx].x = (float)vTangent.mData[0];
-		//_pContainer->vecTangent[_iIdx].y = (float)vTangent.mData[2];
-		//_pContainer->vecTangent[_iIdx].z = (float)vTangent.mData[1];
 	}
-		
+
 
 	if (1 == iTangentCnt)
 	{
@@ -283,6 +254,34 @@ void FBXLoader::GetTangent(FbxMesh* _pMesh
 		FbxGeometryElementTangent* pTangent = _pMesh->GetElementTangent();
 		UINT iTangentIdx = 0;
 
+		if (pTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+		{
+			if (pTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
+				iTangentIdx = _iVtxOrder;
+			else
+				iTangentIdx = pTangent->GetIndexArray().GetAt(_iVtxOrder);
+		}
+		else if (pTangent->GetMappingMode() == FbxGeometryElement::eByControlPoint)
+		{
+			if (pTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
+				iTangentIdx = _iIdx;
+			else
+				iTangentIdx = pTangent->GetIndexArray().GetAt(_iIdx);
+		}
+
+		FbxVector4 vTangent = pTangent->GetDirectArray().GetAt(iTangentIdx);
+
+		_pContainer->vecTangent[_iIdx].x = (float)vTangent.mData[0];
+		_pContainer->vecTangent[_iIdx].y = (float)vTangent.mData[2];
+		_pContainer->vecTangent[_iIdx].z = (float)vTangent.mData[1];
+	}
+	if (0 == iTangentCnt)
+	{
+		_pMesh->InitTangents();
+		_pMesh->GenerateTangentsData(0, true);
+
+		FbxGeometryElementTangent* pTangent = _pMesh->GetElementTangent();
+		UINT iTangentIdx = 0;
 		if (pTangent->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
 		{
 			if (pTangent->GetReferenceMode() == FbxGeometryElement::eDirect)
@@ -317,7 +316,7 @@ void FBXLoader::GetBinormal(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx,
 	int iBinormalCnt = _pMesh->GetElementBinormalCount();
 	if (1 < iBinormalCnt)
 	{
-		assert(NULL); 
+		assert(NULL);
 		//_pMesh->InitBinormals();
 		//_pMesh->CreateElementBinormal();
 
@@ -393,7 +392,7 @@ void FBXLoader::GetNormal(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx, i
 	{
 		assert(NULL);
 	}
-		
+
 
 	// 종법선 data 의 시작 주소
 	FbxGeometryElementNormal* pNormal = _pMesh->GetElementNormal();
@@ -423,7 +422,7 @@ void FBXLoader::GetNormal(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx, i
 
 void FBXLoader::GetUV(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx, int _iUVIndex)
 {
-	FbxGeometryElementUV* pUV = _pMesh->GetElementUV();
+	FbxGeometryElementUV* pUV = _pMesh->GetElementUV(0);
 
 	UINT iUVIdx = 0;
 	if (pUV->GetReferenceMode() == FbxGeometryElement::eDirect)
@@ -431,14 +430,16 @@ void FBXLoader::GetUV(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx, int _
 	else
 		iUVIdx = pUV->GetIndexArray().GetAt(_iIdx);
 
-	
-	iUVIdx = _iUVIndex;
+	//iUVIdx = _iUVIndex;
+
 	FbxVector2 vUV = pUV->GetDirectArray().GetAt(iUVIdx);
+
 	FbxLayerElement::EMappingMode mapping = pUV->GetMappingMode();
 
 
-
 	_pContainer->vecUV[_iIdx].x = (float)vUV.mData[0];
+	//_pContainer->vecUV[_iIdx].x = 1.f - (float)vUV.mData[0];
+	//_pContainer->vecUV[_iIdx].y = 1.f - (float)vUV.mData[1];
 	_pContainer->vecUV[_iIdx].y = 1.f - (float)vUV.mData[1];
 }
 
@@ -485,7 +486,7 @@ wstring FBXLoader::GetMtrlTextureName(FbxSurfaceMaterial* _pSurface, const char*
 FbxVector4 FBXLoader::GetBoneWorldTransform(int idx)
 {
 	FbxNode* pNode = m_pScene->GetRootNode();
-	for(int i = 0 ; i < pNode->GetChildCount(); ++i)
+	for (int i = 0; i < pNode->GetChildCount(); ++i)
 	{
 		FbxNode* child = pNode->GetChild(i);
 		string str = child->GetName();
@@ -587,19 +588,21 @@ void FBXLoader::CreateMaterial()
 			// 상대경로가 곧 키
 			pMaterial->SetKey(strPath);
 			pMaterial->SetRelativePath(strPath);
-			if(j == 3) // 4번째 Material 투명으로 사용
-				pMaterial->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3DShader"));
-			else
-				pMaterial->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3D_DeferredShader"));
 
+			//if(j == 3) // 4번째 Material 투명으로 사용
+			//	pMaterial->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3DShader"));
+			//else
+
+
+			pMaterial->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3D_DeferredShader"));
 			wstring strTexKey = m_vecContainer[i].vecMtrl[j].strDiff;
 			Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(strTexKey);
 
-			
+
 
 			if (NULL != pTex)
 			{
-				pTex->GenerateMip(8);
+				//pTex->GenerateMip(8);
 				pMaterial->SetTexParam(TEX_PARAM::TEX_0, pTex);
 			}
 
@@ -607,7 +610,7 @@ void FBXLoader::CreateMaterial()
 			pTex = CResMgr::GetInst()->FindRes<CTexture>(strTexKey);
 			if (NULL != pTex)
 			{
-				pTex->GenerateMip(8);
+				//pTex->GenerateMip(8);
 				pMaterial->SetTexParam(TEX_PARAM::TEX_1, pTex);
 			}
 
@@ -615,7 +618,7 @@ void FBXLoader::CreateMaterial()
 			pTex = CResMgr::GetInst()->FindRes<CTexture>(strTexKey);
 			if (NULL != pTex)
 			{
-				pTex->GenerateMip(8);
+				//pTex->GenerateMip(8);
 				pMaterial->SetTexParam(TEX_PARAM::TEX_2, pTex);
 			}
 
@@ -623,7 +626,7 @@ void FBXLoader::CreateMaterial()
 			pTex = CResMgr::GetInst()->FindRes<CTexture>(strTexKey);
 			if (NULL != pTex)
 			{
-				pTex->GenerateMip(8);
+				//pTex->GenerateMip(8);
 				pMaterial->SetTexParam(TEX_PARAM::TEX_3, pTex);
 			}
 
@@ -669,7 +672,7 @@ void FBXLoader::LoadSkeleton_Re(FbxNode* _pNode, int _iDepth, int _iIdx, int _iP
 		pBone->vBonePos = _pNode->EvaluateGlobalTransform(tTime).GetT();
 		//pBone->vBonePos = _pNode->EvaluateLocalTransform().GetT();
 		//pBone->vBonePos = _pNode->LclTranslation.Get();
-		
+
 		m_vecBone.push_back(pBone);
 	}
 
@@ -739,7 +742,7 @@ void FBXLoader::LoadAnimationData(FbxMesh* _pMesh, tContainer* _pContainer)
 	//{
 	//	m_vecAryKeyFrames[i].resize(m_vecBone.size());
 	//}
-	
+
 	_pContainer->bAnimation = true;
 
 	for (int i = 0; i < iSkinCount; ++i)
@@ -790,9 +793,9 @@ void FBXLoader::CheckWeightAndIndices(FbxMesh* _pMesh, tContainer* _pContainer)
 		{
 			sort((*iter).begin(), (*iter).end()
 				, [](const tWeightsAndIndices& left, const tWeightsAndIndices& right)
-			{
-				return left.dWeight > right.dWeight;
-			}
+				{
+					return left.dWeight > right.dWeight;
+				}
 			);
 
 			double dWeight = 0.f;
@@ -845,7 +848,7 @@ void FBXLoader::LoadKeyframeTransform(FbxNode* _pNode, FbxCluster* _pCluster
 	matReflect.mData[3] = v4;
 
 	FbxTime::EMode eTimeMode = m_pScene->GetGlobalSettings().GetTimeMode();
-	for(int i = 0 ; i < m_vecAnimClip.size(); ++i)
+	for (int i = 0; i < m_vecAnimClip.size(); ++i)
 	{
 		FbxAnimStack* pAnimStack = m_pScene->FindMember<FbxAnimStack>(m_arrAnimName[i]->Buffer());
 		m_pScene->SetCurrentAnimationStack(pAnimStack);
@@ -875,7 +878,7 @@ void FBXLoader::LoadKeyframeTransform(FbxNode* _pNode, FbxCluster* _pCluster
 		m_vecBone[_iBoneIdx]->vecKeyFrame.insert(make_pair(m_vecAnimClip[i]->strName, keyFrames));
 	}
 
-	
+
 }
 
 void FBXLoader::LoadOffsetMatrix(FbxCluster* _pCluster

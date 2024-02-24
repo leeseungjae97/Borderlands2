@@ -26,13 +26,16 @@ private:
     Vec3            m_vOffset;
     bool            m_bFirstInit;
     bool            m_bAttachToRigidBody;
-    bool            m_bIntergrated;
+    bool            m_bUnity;
     bool            m_bCenter;
 
     bool            m_bBeginOverlap;
     bool            m_bOnOverlap;
     bool            m_bEndOverlap;
 
+    bool            m_bRaycast;
+
+    CGameObject*    m_pUnityOwner;
 
 private:
     void setShapeToRigidBody();
@@ -45,6 +48,9 @@ public:
     PxMaterial* GetMaterial() const { return m_PxMaterial; }
     PxRigidStatic* GetColliderRigid() const { return m_PxColliderRigid; }
     COLLIDER_SHAPE_TYPE GetColliderShape() { return m_tColliderShapeType; }
+
+    void SetUnityOwner(CGameObject* _UOwner) { m_pUnityOwner = _UOwner; }
+    bool IsUnityCollider() { return m_bUnity; }
 
     //PxTransform GetColliderPos() { return m_PxColliderShape->Get}
     void SetColliderPos(Vec3 _vPos);
@@ -65,6 +71,8 @@ public:
 
     void SetCenter(bool _Center) { m_bCenter = _Center; }
     bool GetCenter() { return m_bCenter; }
+
+    CGameObject* GetColOwner();
 
     PxTransform GetColliderPos() { return m_PxColliderRigid->getGlobalPose(); }
 
@@ -88,6 +96,13 @@ public:
         m_bEndOverlap = false;
         return tmp;
     }
+    bool IsRaycast()
+    {
+        bool tmp = m_bRaycast;
+        m_bRaycast = false;
+        return tmp;
+    }
+
 
     Matrix GetColliderWorldMat();
 public:
@@ -105,7 +120,8 @@ public:
     CLONE(CCollider3D);
 
 public:
-    CCollider3D(bool _AttachRigid = true, bool _Intergrated = false);
+    // Transform 없이 단독으로 쓸 때 Unity = true
+    CCollider3D(bool _AttachRigid = true, bool _Unity = false);
     virtual ~CCollider3D();
 };
 

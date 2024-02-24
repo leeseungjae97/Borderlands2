@@ -86,11 +86,20 @@ VS_OUT VS_Distortion(VS_IN _in)
 float4 PS_Distortion(VS_OUT _in) : SV_Target
 {
     float2 vUV = _in.vPosition.xy / g_Resolution;
-	
-	// Noise Texture 가 세팅이 되어 있다면
+
     if (g_btex_1)
     {
-        float2 vNoiseUV = float2(_in.vUV.x - (g_AccTime * 0.2f), _in.vUV.y);
+
+        float2 vNoiseUV = _in.vUV;
+        if(g_vTexFlowDir.x != 0.0f)
+        {
+            vNoiseUV.x = _in.vUV.x + (g_AccTime * g_vTexFlowDir.x);
+        }
+        if (g_vTexFlowDir.y != 0.0f)
+        {
+            vNoiseUV.y = _in.vUV.y + (g_AccTime * g_vTexFlowDir.y);
+        }
+
         float4 vNoise = g_tex_1.Sample(g_sam_anti_0, vNoiseUV);
 
         vNoise = (vNoise - 0.5f) * 0.02f;

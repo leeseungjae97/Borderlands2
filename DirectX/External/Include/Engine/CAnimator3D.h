@@ -73,7 +73,6 @@ public:
 	void CustomEvent(CAnimClip* _AnimClip);
 	virtual void finaltick() override;
 	void UpdateData();
-	void UpdateData(CStructuredBuffer* structuredBuffer, bool IsRotate, bool IsTrans);
 
 public:
 	void SetBones(const vector<tMTBone>* _vecBones);

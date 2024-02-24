@@ -21,6 +21,8 @@ CWarriorScript::CWarriorScript()
 	, pMouseCollider(nullptr)
 	, pChestCollider(nullptr)
 	, pStomachCollider(nullptr)
+	, iWarriorHp(5000)
+	, iWarriorHpCapa(5000)
 {
 	AddScriptParam(SCRIPT_PARAM::VEC4, &m_vRot, "offset rotate");
 	AddScriptParam(SCRIPT_PARAM::VEC4, &m_R, "rotate r");
@@ -28,6 +30,46 @@ CWarriorScript::CWarriorScript()
 
 CWarriorScript::~CWarriorScript()
 {
+	if (pTailBeam)
+	{
+		DestroyObject(pTailBeam);
+	}
+	if (pRock)
+	{
+		DestroyObject(pRock);
+	}
+	if (pBreath)
+	{
+		DestroyObject(pBreath);
+	}
+	if (pBreathCollisionPoint)
+	{
+		DestroyObject(pBreathCollisionPoint);
+	}
+	if (pTailBeamCollisionPoint)
+	{
+		DestroyObject(pTailBeamCollisionPoint);
+	}
+	if (pTailCollisionPoint)
+	{
+		DestroyObject(pTailCollisionPoint);
+	}
+	if (pHeadCollider)
+	{
+		DestroyObject(pHeadCollider);
+	}
+	if (pMouseCollider)
+	{
+		DestroyObject(pMouseCollider);
+	}
+	if (pChestCollider)
+	{
+		DestroyObject(pChestCollider);
+	}
+	if (pStomachCollider)
+	{
+		DestroyObject(pStomachCollider);
+	}
 }
 
 void CWarriorScript::begin()
@@ -41,7 +83,7 @@ void CWarriorScript::DoFarBreath()
 		|| tState == WarriorMgr::WARRIOR_STATE::MID_BREATH
 		|| tState == WarriorMgr::WARRIOR_STATE::NEAR_BREATH)
 		return;
-	
+
 	CGameObject* pWarrior = GetOwner();
 
 	pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::FAR_BREATH, false);
@@ -54,7 +96,7 @@ void CWarriorScript::DoMidBreath()
 		|| tState == WarriorMgr::WARRIOR_STATE::MID_BREATH
 		|| tState == WarriorMgr::WARRIOR_STATE::NEAR_BREATH)
 		return;
-	
+
 	CGameObject* pWarrior = GetOwner();
 
 	pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH, false);
@@ -67,7 +109,7 @@ void CWarriorScript::DoNearBreath()
 		|| tState == WarriorMgr::WARRIOR_STATE::MID_BREATH
 		|| tState == WarriorMgr::WARRIOR_STATE::NEAR_BREATH)
 		return;
-	
+
 	CGameObject* pWarrior = GetOwner();
 
 	pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::NEAR_BREATH, false);
@@ -114,58 +156,64 @@ void CWarriorScript::makeCollider()
 	{
 		CGameObject* pObj = new CGameObject;
 		pObj->AddComponent(new CCollider3D(false, true));
+		pObj->Collider3D()->SetUnityOwner(GetOwner());
 		pObj->Collider3D()->SetScale(Vec3(1000.f, 1000.f, 1000.f));
 
 		pObj->SetName(L"fbx warrior head collider");
 
-		SpawnGameObject(pObj, Vec3(0.f, 100.f, 0.f), LAYER_TYPE::NoRaycastingCollider, true);
+		SpawnGameObject(pObj, Vec3(0.f, 100.f, 0.f), LAYER_TYPE::Enemy, true);
 		pHeadCollider = pObj;
 	}
 	{
 		CGameObject* pObj = new CGameObject;
 		pObj->AddComponent(new CCollider3D(false, true));
+		pObj->Collider3D()->SetUnityOwner(GetOwner());
 		pObj->Collider3D()->SetScale(Vec3(500.f, 500.f, 500.f));
 
 		pObj->SetName(L"fbx warrior mouse collider");
 
-		SpawnGameObject(pObj, Vec3(0.f, 100.f, 0.f), LAYER_TYPE::NoRaycastingCollider, true);
+		SpawnGameObject(pObj, Vec3(0.f, 100.f, 0.f), LAYER_TYPE::Enemy, true);
 		pMouseCollider = pObj;
 	}
 	{
 		CGameObject* pObj = new CGameObject;
 		pObj->AddComponent(new CCollider3D(false, true));
+		pObj->Collider3D()->SetUnityOwner(GetOwner());
 		pObj->Collider3D()->SetScale(Vec3(3000.f, 3000.f, 3000.f));
 
 		pObj->SetName(L"fbx warrior stomach collider");
 
-		SpawnGameObject(pObj, Vec3(0.f, 100.f, 0.f), LAYER_TYPE::NoRaycastingCollider, true);
+		SpawnGameObject(pObj, Vec3(0.f, 100.f, 0.f), LAYER_TYPE::Enemy, true);
 		pStomachCollider = pObj;
 	}
 	{
 		CGameObject* pObj = new CGameObject;
 		pObj->AddComponent(new CCollider3D(false, true));
+		pObj->Collider3D()->SetUnityOwner(GetOwner());
 		pObj->Collider3D()->SetScale(Vec3(1000.f, 1000.f, 1000.f));
 
 		pObj->SetName(L"fbx warrior chest collider");
 
-		SpawnGameObject(pObj, Vec3(0.f, 100.f, 0.f), LAYER_TYPE::NoRaycastingCollider, true);
+		SpawnGameObject(pObj, Vec3(0.f, 100.f, 0.f), LAYER_TYPE::Enemy, true);
 		pChestCollider = pObj;
 	}
 	{
 		CGameObject* pObj = new CGameObject;
 		pObj->AddComponent(new CCollider3D(false, true));
+		pObj->Collider3D()->SetUnityOwner(GetOwner());
 		pObj->Collider3D()->SetScale(Vec3(3000.f, 300.f, 3000.f));
 		pObj->AddComponent(new CGizmo(true));
 		pObj->AddComponent(new CAttackNormalScript);
 
 		pObj->SetName(L"fbx tail attack collider");
-		
+
 		SpawnGameObject(pObj, Vec3(0.f, 100.f, 0.f), LAYER_TYPE::NoRaycastingCollider, true);
 		pTailCollisionPoint = pObj;
 	}
 	{
 		CGameObject* pObj = new CGameObject;
 		pObj->AddComponent(new CCollider3D(false, true));
+		pObj->Collider3D()->SetUnityOwner(GetOwner());
 		pObj->Collider3D()->SetScale(Vec3(1000.f, 300.f, 1000.f));
 		pObj->AddComponent(new CGizmo(true));
 		pObj->AddComponent(new CAttackBurnScript);
@@ -178,6 +226,7 @@ void CWarriorScript::makeCollider()
 	{
 		CGameObject* pObj = new CGameObject;
 		pObj->AddComponent(new CCollider3D(false, true));
+		pObj->Collider3D()->SetUnityOwner(GetOwner());
 		pObj->Collider3D()->SetScale(Vec3(500.f, 500.f, 500.f));
 		pObj->AddComponent(new CGizmo(true));
 		pObj->AddComponent(new CAttackNormalScript);
@@ -313,16 +362,15 @@ void CWarriorScript::breathMove()
 		rayInfo.matWorld = pBreath->Transform()->GetDrawRayMat();
 		rayInfo.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
 
-		Vec3* vPosition = new Vec3;
-		RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo, vPosition);
+		Vec3 vPosition;
+		RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo, &vPosition);
 		Vec3 vCurPos = pBreath->Transform()->GetRelativePos();
 
 		Vec3 vScale = pBreath->Transform()->GetRelativeScale();
-		vScale.z = fabs((*vPosition).z);
+		vScale.z = fabs(vPosition.z);
 		pBreath->Transform()->SetRelativeScale(vScale);
 
-		pBreathCollisionPoint->Collider3D()->SetColliderPos(vCurPos + (rayInfo.vDir * (*vPosition).z));
-		delete vPosition;
+		pBreathCollisionPoint->Collider3D()->SetColliderPos(vCurPos + (rayInfo.vDir * vPosition.z));
 	}
 }
 
@@ -349,17 +397,16 @@ void CWarriorScript::beamMove()
 		rayInfo.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
 
 
-		Vec3* vPosition = new Vec3;
-		RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo, vPosition);
+		Vec3 vPosition;
+		RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo, &vPosition);
 		Vec3 vCurPos = pTailBeam->Transform()->GetRelativePos();
 		//Vec3 vLength = (*vPosition) - vCurPos;
 
 		Vec3 vScale = pTailBeam->Transform()->GetRelativeScale();
-		vScale.z = fabs((*vPosition).z);
+		vScale.z = fabs(vPosition.z);
 		pTailBeam->Transform()->SetRelativeScale(vScale);
 
-		pTailBeamCollisionPoint->Collider3D()->SetColliderPos(vCurPos + (rayInfo.vDir * (*vPosition).z));
-		delete vPosition;
+		pTailBeamCollisionPoint->Collider3D()->SetColliderPos(vCurPos + (rayInfo.vDir * vPosition.z));
 	}
 }
 
@@ -396,7 +443,7 @@ void CWarriorScript::rockMove()
 		}
 
 	}
-	
+
 }
 
 void CWarriorScript::tailMove()
@@ -542,25 +589,65 @@ void CWarriorScript::tick()
 		{
 			GetOwner()->MeshRender()->GetMaterial(3)->SetTexFlow(true);
 		}
-		binit = true;
-
-	}
-}
-
-void CWarriorScript::finaltick()
-{
-	static bool binit = false;
-	if (!binit)
-	{
-		if (GetOwner()->MeshRender()->GetMaterial(3) != nullptr)
-		{
-			GetOwner()->MeshRender()->GetMaterial(3)->SetTexFlow(true);
-		}
-
 		makeAttackObject();
 		makeCollider();
 		binit = true;
 	}
+
+	if (KEY_PRESSED(KEY::R))
+	{
+		//DoThrowRock();
+	}
+	if (KEY_PRESSED(KEY::F))
+	{
+
+	}
+
+	tailMove();
+	colliderMove();
+	collision();
+
+	if (iWarriorHp == 0)
+	{
+		tState = WarriorMgr::WARRIOR_STATE::DIE;
+	}
+	if (tState == WarriorMgr::WARRIOR_STATE::DIE)
+	{
+		pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::DIE, false);
+	}
+	if (tState == WarriorMgr::WARRIOR_STATE::IDLE)
+	{
+		pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::IDLE, true);
+	}
+	if (tState == WarriorMgr::WARRIOR_STATE::TAIL_BEAM_IDLE)
+	{
+		GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_IDLE, false, false);
+	}
+	if (tState == WarriorMgr::WARRIOR_STATE::TAIL_BEAM_EXIT)
+	{
+		GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_EXIT, false, false);
+	}
+}
+
+void CWarriorScript::collision()
+{
+
+}
+
+void CWarriorScript::finaltick()
+{
+	//static bool binit = false;
+	//if (!binit)
+	//{
+	//	if (GetOwner()->MeshRender()->GetMaterial(3) != nullptr)
+	//	{
+	//		GetOwner()->MeshRender()->GetMaterial(3)->SetTexFlow(true);
+	//	}
+
+	//	//makeAttackObject();
+	//	//makeCollider();
+	//	binit = true;
+	//}
 
 	//if (KEY_PRESSED(KEY::Q))
 	//{
@@ -574,44 +661,57 @@ void CWarriorScript::finaltick()
 	//{
 	//	DoNearBreath();
 	//}
-	if (KEY_PRESSED(KEY::R))
-	{
-		//DoThrowRock();
-	}
-	CGameObject* pWarrior = GetOwner();
-	if(KEY_PRESSED(KEY::F))
-	{
-		
-	}
+
 
 	//beamMove();
 	//breathMove();
 	//rockMove();
-	tailMove();
-	colliderMove();
+}
 
-	if (tState == WarriorMgr::WARRIOR_STATE::IDLE)
-	{
-		pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::IDLE, true);
-	}
-	if (tState == WarriorMgr::WARRIOR_STATE::TAIL_BEAM_IDLE)
-	{
-		GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_IDLE, false, false);
-	}
-	if (tState == WarriorMgr::WARRIOR_STATE::TAIL_BEAM_EXIT)
-	{
-		GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_EXIT, false, false);
-	}
-	
+void CWarriorScript::Attacked(int _Damage)
+{
+	if (iWarriorHp < _Damage)
+		iWarriorHp = 0;
+	else
+		iWarriorHp -= _Damage;
 }
 
 void CWarriorScript::Raycast(tRayInfo _RaycastInfo)
 {
+	if (pHeadCollider)
+	{
+		if (pHeadCollider->Collider3D()->IsRaycast())
+		{
+			Attacked(_RaycastInfo.fDamage * 2);
+		}
+	}
+	if (pStomachCollider)
+	{
+		if (pStomachCollider->Collider3D()->IsRaycast())
+		{
+			Attacked(_RaycastInfo.fDamage);
+		}
+	}
+	if (pMouseCollider)
+	{
+		if (pMouseCollider->Collider3D()->IsRaycast())
+		{
+			Attacked(_RaycastInfo.fDamage * 3);
+		}
+	}
+	if (pChestCollider)
+	{
+		if (pChestCollider->Collider3D()->IsRaycast())
+		{
+			Attacked(_RaycastInfo.fDamage * 2);
+		}
+	}
 }
 
 void CWarriorScript::LoadFromLevelFile(FILE* _FILE)
 {
-
+	//makeCollider();
+	//makeAttackObject();
 }
 
 void CWarriorScript::SaveToLevelFile(FILE* _File)

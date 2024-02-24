@@ -172,8 +172,6 @@ void DestroyObject(CGameObject* _DeletObject)
 	CEventMgr::GetInst()->AddEvent(evn);
 }
 
-
-
 void DrawDebugRect(Vec3 _vWorldPos, Vec2 _vWorldScale, Vec4 _vColor
 	, Vec3 _vRotation, float _fTime, bool DepthTest)
 {

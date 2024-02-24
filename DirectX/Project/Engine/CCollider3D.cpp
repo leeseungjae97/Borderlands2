@@ -6,7 +6,7 @@
 #include "PhysXMgr.h"
 #include "physx_util.h"
 
-CCollider3D::CCollider3D(bool _AttachRigid, bool _Intergrated)
+CCollider3D::CCollider3D(bool _AttachRigid, bool _Unity)
 	: CComponent(COMPONENT_TYPE::COLLIDER3D)
 	, m_PxColliderShape(nullptr)
 	, m_bFirstInit(false)
@@ -17,7 +17,8 @@ CCollider3D::CCollider3D(bool _AttachRigid, bool _Intergrated)
 	, m_bBeginOverlap(false)
 	, m_bOnOverlap(false)
 	, m_bEndOverlap(false)
-	, m_bIntergrated(_Intergrated)
+	, m_bRaycast(false)
+	, m_bUnity(_Unity)
 {
 	m_PxMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(0.0f, 0.0f, 0.0f);
 
@@ -33,8 +34,11 @@ CCollider3D::~CCollider3D()
 		m_PxColliderRigid->userData = nullptr;
 		PX_RELEASE(m_PxColliderRigid);
 	}
-	
-	//PX_RELEASE(m_PxRigidBodyShape);
+	if(m_PxColliderShape)
+	{
+		PX_RELEASE(m_PxColliderShape);
+	}
+	//
 }
 
 void CCollider3D::finaltick()
@@ -43,6 +47,14 @@ void CCollider3D::finaltick()
 	//if (CLevelMgr::GetInst()->GetCurLevel()->GetState() != LEVEL_STATE::PLAY)
 
 	colliderDebugDraw();
+}
+
+CGameObject* CCollider3D::GetColOwner()
+{
+	if (m_bUnity)
+		return m_pUnityOwner;
+	else
+		return GetOwner();
 }
 
 Matrix CCollider3D::GetColliderWorldMat()
@@ -90,6 +102,7 @@ void CCollider3D::BeginOverlap(CCollider3D* _OhterCol)
 
 void CCollider3D::Raycast(tRayInfo _RaycastInfo)
 {
+	m_bRaycast = true;
 	for (auto script : GetOwner()->GetScripts())
 	{
 		script->Raycast(_RaycastInfo);
@@ -116,7 +129,7 @@ void CCollider3D::setShapeToRigidBody()
 	{
 		Vec3 vPos = Vec3::Zero;
 		Vec3 vRot = Vec3::Zero;
-		if(!m_bIntergrated)
+		if(!m_bUnity)
 		{
 			vPos = GetOwner()->Transform()->GetRelativePos();
 			vRot = GetOwner()->Transform()->GetRelativeRot();
@@ -239,7 +252,7 @@ void CCollider3D::LoadFromLevelFile(FILE* _FILE)
 	fread(&m_vScale, sizeof(Vec3), 1, _FILE);
 	fread(&m_vOffset, sizeof(Vec3), 1, _FILE);
 	fread(&m_bAttachToRigidBody, sizeof(bool), 1, _FILE);
-	fread(&m_bIntergrated, sizeof(bool), 1, _FILE);
+	fread(&m_bUnity, sizeof(bool), 1, _FILE);
 	fread(&m_bCenter, sizeof(bool), 1, _FILE);
 }
 
@@ -248,6 +261,6 @@ void CCollider3D::SaveToLevelFile(FILE* _File)
 	fwrite(&m_vScale, sizeof(Vec3), 1, _File);
 	fwrite(&m_vOffset, sizeof(Vec3), 1, _File);
 	fwrite(&m_bAttachToRigidBody, sizeof(bool), 1, _File);
-	fwrite(&m_bIntergrated, sizeof(bool), 1, _File);
+	fwrite(&m_bUnity, sizeof(bool), 1, _File);
 	fwrite(&m_bCenter, sizeof(bool), 1, _File);
 }

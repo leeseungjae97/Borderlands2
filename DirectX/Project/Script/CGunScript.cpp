@@ -51,6 +51,8 @@ void CGunScript::SetWeaponPos()
 		pOwner = PlayerMgr::GetInst()->GetPlayer();
 		//pOwner = CRenderMgr::GetInst()->GetMainCam()->GetOwner();
 	}
+	if (nullptr == pOwner)
+		return;
 
 	CGameObject* pCamObj = GetOwner()->GetFollowObj();
 	if (nullptr == pCamObj)

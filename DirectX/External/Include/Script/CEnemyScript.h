@@ -6,19 +6,25 @@ class CEnemyScript :
     public CScript
 {
 private:
-    float fMonsterSpeed;
+    float fEnemySpeed;
     float fRotateSpeed;
     float fRateOfFire;
     float fRateOfFireAcc;
-    int   iMonsterHp;
+    int   iEnemyHp;
+    int   iEnemyHpCapa;
     int   iAmmo;
     bool  bRotate;
 
+    CGameObject* pHeadCollider;
+
     EnemyMgr::ENEMY_STATE tState;
-public:
+private:
     void Move();
     bool Rotate();
     void Reload();
+
+    void makeCollider();
+    void moveCollider();
 
 public:
     void begin() override;
@@ -35,9 +41,14 @@ public:
 public:
     void SetRotate(bool _Rotate) { bRotate = _Rotate; }
     void SetRotateSpeed(float _Speed) { fRotateSpeed = _Speed; }
-    void SetSpeed(float _Speed) { fMonsterSpeed = _Speed; }
-    void SetMonsterHp(int _Hp) { iMonsterHp = _Hp; }
+    void SetSpeed(float _Speed) { fEnemySpeed = _Speed; }
+    void SetMonsterHp(int _Hp) { iEnemyHp = _Hp; }
     void SetRateOfFire(float _ROF) { fRateOfFire = _ROF; }
+
+    int GetHp() { return iEnemyHp; }
+    int GetHpCapacity() { return iEnemyHpCapa; }
+
+    float GetHpRatio() { return (float)iEnemyHp / (float)iEnemyHpCapa; }
 
     CLONE(CEnemyScript);
 public:

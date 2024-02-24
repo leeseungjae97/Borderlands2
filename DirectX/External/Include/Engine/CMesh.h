@@ -60,9 +60,6 @@ public:
 
 	Vec3 BonePosSkinning(int idx, class CAnimator3D* animator);
 	Vec3 BoneRotSkinning(int idx, class CAnimator3D* animator);
-	Vec3 VertexPosSkinning(Vec3 _vPos, int idx, class CAnimator3D* animator);
-	Vec3 VertexPosSkinning(int idx, class CAnimator3D* animator);
-	Vec3 VertexRotSkinning(int idx, class CAnimator3D* animator);
 
 	void SetFbxMesh(FbxMesh* mesh) { m_pFbxMesh = mesh; }
 

@@ -25,6 +25,9 @@ private:
     bool        m_bRockThrow;
     bool        m_bRockFollow;
 
+    int         iWarriorHp;
+    int         iWarriorHpCapa;
+
 public:
     void DoFarBreath();
     void DoMidBreath();
@@ -43,17 +46,23 @@ private:
 
     void colliderMove();
     void makeAttackObject();
+    void collision();
 
 public:
     void begin() override;
     void tick() override;
+    
     void finaltick() override;
-
+    void Attacked(int _Damage);
 
     void Raycast(tRayInfo _RaycastInfo) override;
     void LoadFromLevelFile(FILE* _FILE) override;
     void SaveToLevelFile(FILE* _File) override;
 
+    int GetHp() { return iWarriorHp; }
+    int GetHpCapacity() { return iWarriorHpCapa; }
+
+    float GetHpRatio() { return (float)iWarriorHp / (float)iWarriorHpCapa; }
 public:
     CLONE(CWarriorScript);
 public:

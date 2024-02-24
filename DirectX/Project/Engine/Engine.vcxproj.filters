@@ -277,7 +277,12 @@
     <ClInclude Include="CUI.h">
       <Filter>Source\UI</Filter>
     </ClInclude>
-    <ClInclude Include="MouseMgr.h" />
+    <ClInclude Include="MouseMgr.h">
+      <Filter>Source\_Manager\MouseMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="FieldUIMgr.h">
+      <Filter>Source\_Manager\FieldUIMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -538,7 +543,12 @@
     <ClCompile Include="CUI.cpp">
       <Filter>Source\UI</Filter>
     </ClCompile>
-    <ClCompile Include="MouseMgr.cpp" />
+    <ClCompile Include="MouseMgr.cpp">
+      <Filter>Source\_Manager\MouseMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="FieldUIMgr.cpp">
+      <Filter>Source\_Manager\FieldUIMgr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -807,6 +817,9 @@
     </Filter>
     <Filter Include="Source\_Manager\MouseMgr">
       <UniqueIdentifier>{404fbf16-7c4b-4da3-aa37-0cad8c0b0ec9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\FieldUIMgr">
+      <UniqueIdentifier>{d339d0a0-051d-448c-aa08-f8ce72c7b775}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -73,20 +73,6 @@ Vec3 PlayerMgr::GetPlayerWeaponRot()
 	return vRot;
 }
 
-Vec3 PlayerMgr::GetConvertAnimationPos(Vec3 _vPos)
-{
-	if (nullptr == m_pPlayer)
-		return Vec3::Zero;
-
-	int iWeaponHandIdx = m_pPlayer->Animator3D()->GetWeaponHandIdx();
-	Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->VertexPosSkinning(_vPos, iWeaponHandIdx, m_pPlayer->Animator3D());
-	//Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->VertexPosSkinning(_vPos, m_pPlayer->Animator3D());
-
-	vPos = XMVector3TransformCoord(vPos, m_pPlayer->Transform()->GetWorldMat());
-
-	return vPos;
-}
-
 Vec3 PlayerMgr::GetPlayerWeaponPos()
 {
 	if (nullptr == m_pPlayer)

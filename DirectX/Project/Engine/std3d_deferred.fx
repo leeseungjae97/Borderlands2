@@ -118,7 +118,6 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
     float4 vEmissiveCoeff = (float4) 0.f;
     if (g_iTexAnim)
     {
-       
         if (g_vTexFlowDir.x != 0.0f)
         {
             moveUV.x = _in.vUV.x + (g_AccTime * g_fTexFlowSpeed) * g_vTexFlowDir.x;
@@ -146,8 +145,8 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
             moveUV += vNoise.r;
         }
             
-        output.vColor = g_tex_0.SampleGrad(g_sam_anti_0, float3(moveUV, 1.f), derivX, derivY);
-        output.vColor.a = 1.f;
+        //output.vColor = g_tex_0.SampleGrad(g_sam_anti_0, float3(moveUV, 1.f), derivX, derivY);
+        //output.vColor.a = 1.f;
     }
 
     if (g_btex_0)
@@ -174,7 +173,16 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
     if (g_btex_1)
     {
         //float3 vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV).xyz;
-        float3 vNormal = g_tex_1.SampleGrad(g_sam_anti_0, float3(_in.vUV, 1.f), derivX, derivY);
+        float3 vNormal = (float3) 0.f;
+        if (g_btex_1_flow)
+        {
+            //vNormal = g_tex_1.SampleGrad(g_sam_anti_0, float3(moveUV, 1.f), derivX, derivY);
+            vNormal = g_tex_1.Sample(g_sam_anti_0, float2(moveUV));
+        }else
+        {
+            //vNormal = g_tex_1.SampleGrad(g_sam_anti_0, float3(_in.vUV, 1.f), derivX, derivY);
+            vNormal = g_tex_1.Sample(g_sam_anti_0, float2(_in.vUV));
+        }
         
         // 0 ~ 1 범위의 값을 -1 ~ 1 로 확장        
         vNormal = vNormal * 2.f - 1.f;

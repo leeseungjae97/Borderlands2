@@ -36,7 +36,6 @@ public:
 	Vec3 GetPlayerCameraPos();
 	Vec3 GetPlayerWeaponPos();
 	Vec3 GetPlayerWeaponRot();
-	Vec3 GetConvertAnimationPos(Vec3 _vPos);
 	
 public:
 	PlayerMgr();

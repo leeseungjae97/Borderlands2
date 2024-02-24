@@ -235,47 +235,6 @@ void CAnimator3D::UpdateData()
 	m_pBoneFinalMatBuffer->UpdateData(30, PIPELINE_STAGE::PS_VERTEX);
 }
 
-void CAnimator3D::UpdateData(CStructuredBuffer* structuredBuffer, bool IsRotate, bool IsTrans)
-{
-	CAnimation3DShader* pUpdateShader = (CAnimation3DShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"Animation3DUpdateCS").Get();
-
-	Ptr<CMesh> pMesh = MeshRender()->GetMesh();
-	check_mesh(pMesh, structuredBuffer);
-
-	pUpdateShader->SetFrameDataBuffer(pMesh->GetBoneFrameDataBuffer(m_pCurClip->GetAnimName()));
-	pUpdateShader->SetOffsetMatBuffer(pMesh->GetBoneOffsetBuffer());
-	pUpdateShader->SetIsTransOnly(IsTrans);
-	pUpdateShader->SetIsRotateOnly(IsRotate);
-
-	pUpdateShader->SetOutputBuffer(structuredBuffer);
-
-	pUpdateShader->SetIsBlend(m_bBlend);
-
-	if (m_bBlend && m_pNextClip)
-	{
-		pUpdateShader->SetBlendFrameDataBuffer(pMesh->GetBlendFrameDataBuffer(m_pNextClip->GetAnimName()));
-		pUpdateShader->SetNextClipFrameIndex(m_pNextClip->GetClipIdx());
-		pUpdateShader->SetBlendRatio(m_fBRatio);
-	}
-
-	UINT iBoneCount = (UINT)m_pVecBones.size();
-	pUpdateShader->SetBoneCount(iBoneCount);
-	if (m_bStop)
-	{
-		pUpdateShader->SetFrameIndex(m_iManualIdx);
-		pUpdateShader->SetFrameRatio(m_bMaRatio ? m_iManualRatio : m_pCurClip->GetRatio());
-		pUpdateShader->SetFrameNextIndex(m_iManualIdx + 1 > m_pCurClip->GetClipLength() ? 0 : m_iManualIdx + 1);
-	}
-	else
-	{
-		pUpdateShader->SetFrameIndex(m_pCurClip->GetClipIdx());
-		pUpdateShader->SetFrameRatio(m_pCurClip->GetRatio());
-		pUpdateShader->SetFrameNextIndex(m_pCurClip->GetClipNextIdx());
-	}
-
-	pUpdateShader->Execute();
-}
-
 void CAnimator3D::SetBones(const vector<tMTBone>* _vecBones)
 {
 	m_pVecBones = *_vecBones;
@@ -299,7 +258,7 @@ void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 		{
 			m_iChestIdx = i;
 		}
-		if (bone.strBoneName == L"FireBreath")
+		if (bone.strBoneName == L"InnerJaw")
 		{
 			m_iMouseIdx = i;
 		}
@@ -848,10 +807,18 @@ void CAnimator3D::SaveToLevelFile(FILE* _pFile)
 	fwrite(&m_bFinalMatUpdate, sizeof(bool), 1, _pFile);
 	fwrite(&m_bLoop, sizeof(bool), 1, _pFile);
 	fwrite(&m_bMultipleClip, sizeof(bool), 1, _pFile);
+
 	fwrite(&m_iHeadIdx, sizeof(int), 1, _pFile);
 	fwrite(&m_iCameraIdx, sizeof(int), 1, _pFile);
 	fwrite(&m_iWeaponHandIdx, sizeof(int), 1, _pFile);
 	fwrite(&m_iWeaponMuzzleIdx, sizeof(int), 1, _pFile);
+
+	fwrite(&m_iFireBreathIdx, sizeof(int), 1, _pFile);
+	fwrite(&m_iTailWeaponIdx, sizeof(int), 1, _pFile);
+	fwrite(&m_iKnuckleIdx, sizeof(int), 1, _pFile);
+	fwrite(&m_iStomachIdx, sizeof(int), 1, _pFile);
+	fwrite(&m_iMouseIdx, sizeof(int), 1, _pFile);
+	fwrite(&m_iChestIdx, sizeof(int), 1, _pFile);
 
 	fwrite(&m_vMuzzlePos, sizeof(Vec4), 1, _pFile);
 
@@ -940,6 +907,13 @@ void CAnimator3D::LoadFromLevelFile(FILE* _pFile)
 	fread(&m_iCameraIdx, sizeof(int), 1, _pFile);
 	fread(&m_iWeaponHandIdx, sizeof(int), 1, _pFile);
 	fread(&m_iWeaponMuzzleIdx, sizeof(int), 1, _pFile);
+
+	fread(&m_iFireBreathIdx, sizeof(int), 1, _pFile);
+	fread(&m_iTailWeaponIdx, sizeof(int), 1, _pFile);
+	fread(&m_iKnuckleIdx, sizeof(int), 1, _pFile);
+	fread(&m_iStomachIdx, sizeof(int), 1, _pFile);
+	fread(&m_iMouseIdx, sizeof(int), 1, _pFile);
+	fread(&m_iChestIdx, sizeof(int), 1, _pFile);
 
 	fread(&m_vMuzzlePos, sizeof(Vec4), 1, _pFile);
 

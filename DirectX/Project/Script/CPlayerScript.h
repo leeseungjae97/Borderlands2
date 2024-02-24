@@ -13,6 +13,9 @@ private:
     float       fMouseAcces;
     int         iPlayerHp;
     int         iAmmo;
+    int         iAmmoCapa;
+
+    CGameObject* pHeadCollider;
 
     PlayerMgr::PLAYER_STATE tState;
 
@@ -24,6 +27,8 @@ private:
 
     CGameObject* m_pUI_HP;
     CGameObject* m_pUI_AMMO;
+    CGameObject* m_pUI_EnemyHp;
+    CGameObject* m_pUI_EnemyHp_Back;
 
     class CUI*        m_pAmmoText;
     class CUI*        m_pHPText;
@@ -44,8 +49,10 @@ private:
     virtual void CatchRaycast() override;
     void Burn();
 
+    void makeCollider();
+
 public:
-    void Attacked(float _Damage);
+    void Attacked(int _Damage);
     bool IsBurn() { return bBurn; }
     void SetBurn(bool _Burn) { bBurn = _Burn; }
     void SetBurnTime(float _Time) { fBurnTime = _Time; }
