@@ -49,7 +49,7 @@ void RaycastMgr::AddRaycastDraw(Vec3 _vDir, Vec3 _vOrigin, Matrix matWorld, Vec4
 	//matWorld *= ;
 	m_vecRayDraw.push_back(drawRay);
 }
-bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo)
+bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo, RAYCAST_GROUP_TYPE _Except)
 {
 	Vec3 _vDir = _RaycastInfo.vDir;
 	Vec3 _vOrigin = _RaycastInfo.vStart;
@@ -61,7 +61,8 @@ bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo)
 	PxOverlapBuffer OverLaphit;
 	PxRaycastBuffer hit;
 	PxQueryFilterData filterData;
-	filterData.data.word0 = (1 << 0);
+	int filter = (int)RAYCAST_GROUP_TYPE::AllRaycastingCollider ^ (int)_Except;
+	filterData.data.word0 = filter;
 
 	filterData.flags |= PxQueryFlag::eDYNAMIC;
 	//filterData.flags |= PxQueryFlag::eSTATIC;
@@ -109,7 +110,7 @@ bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo)
 
 	return false;
 }
-bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo, Vec3* HitPosition)
+bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo, Vec3* HitPosition, RAYCAST_GROUP_TYPE _Except)
 {
 	Vec3 _vDir = _RaycastInfo.vDir;
 	Vec3 _vOrigin = _RaycastInfo.vStart;
@@ -121,7 +122,8 @@ bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo, Vec3* HitPosition)
 	PxOverlapBuffer OverLaphit;
 	PxRaycastBuffer hit;
 	PxQueryFilterData filterData;
-	filterData.data.word0 = (1 << 0);
+	int filter = (int)RAYCAST_GROUP_TYPE::AllRaycastingCollider ^ (int)_Except;
+	filterData.data.word0 = filter;
 
 	filterData.flags |= PxQueryFlag::eDYNAMIC;
 	//filterData.flags |= PxQueryFlag::eSTATIC;
@@ -171,7 +173,7 @@ bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo, Vec3* HitPosition)
 
 	return false;
 }
-bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo, CGameObject** _Hover)
+bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo, CGameObject** _Hover, RAYCAST_GROUP_TYPE _Except)
 {
 	Vec3 _vDir = _RaycastInfo.vDir;
 	Vec3 _vOrigin = _RaycastInfo.vStart;
@@ -183,7 +185,8 @@ bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo, CGameObject** _Hover)
 	PxOverlapBuffer OverLaphit;
 	PxRaycastBuffer hit;
 	PxQueryFilterData filterData;
-	filterData.data.word0 = (1 << 0);
+	int filter = (int)RAYCAST_GROUP_TYPE::AllRaycastingCollider ^ (int)_Except;
+	filterData.data.word0 = filter;
 
 	filterData.flags |= PxQueryFlag::eDYNAMIC;
 	//filterData.flags |= PxQueryFlag::eSTATIC;

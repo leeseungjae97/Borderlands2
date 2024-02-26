@@ -27,17 +27,11 @@ CRenderMgr::CRenderMgr()
                                                     , DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE
                                                     , D3D11_USAGE_DEFAULT);
 
-    
-    //Ptr<CTexture> DHDR = CResMgr::GetInst()->CreateTexture(L"DHDRTargetTex", vResolution.x / 4.f, vResolution.y / 4.f
-    //    , DXGI_FORMAT_R32G32B32A32_FLOAT
-    //    , D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
-
-    //Ptr<CTexture> BDHDR = CResMgr::GetInst()->CreateTexture(L"BDHDRTargetTex", vResolution.x / 4.f, vResolution.y / 4.f
-    //    , DXGI_FORMAT_R32G32B32A32_FLOAT
-    //    , D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+    m_DownScaleTex = CResMgr::GetInst()->CreateTexture(L"DownScaleTex", vResolution.x / 4.f, vResolution.y / 4.f
+        , DXGI_FORMAT_R8G8B8A8_UNORM
+        , D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
 
     CResMgr::GetInst()->FindRes<CMaterial>(L"GrayMtrl")->SetTexParam(TEX_0, m_RTCopyTex);
-
     CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl")->SetTexParam(TEX_0, m_RTCopyTex);
 }
 
@@ -171,6 +165,21 @@ void CRenderMgr::CopyRenderTarget()
     CONTEXT->CopyResource(m_RTCopyTex->GetTex2D().Get(), pRTTex->GetTex2D().Get());
 }
 
+MRT* CRenderMgr::GetMRT(MRT_TYPE _Type)
+{
+    //for(int i =0 ; i < (int)MRT_TYPE::END; ++i)
+    //{
+    //    if (i == (int)_Type)
+    //        continue;
+    //    else
+    //    {
+    //        m_MRT[i]->SetRenderTarget(false);
+    //    }
+    //}
+    m_CurMRT = m_MRT[(UINT)_Type];
+    return m_MRT[(UINT)_Type];
+}
+
 void CRenderMgr::UpdateData()
 {
     // GlobalData 에 광원 개수정보 세팅
@@ -225,32 +234,87 @@ void CRenderMgr::Clear()
 
 void CRenderMgr::CreateMRT()
 {
+    Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
     // ====================
-    // SwapChain MRT 만들기
+    // SwapChain MRT
     // ====================
     {
         m_MRT[(UINT)MRT_TYPE::SWAPCHAIN] = new MRT;
-        Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
+
         Ptr<CTexture> arrRTTex[8] = {};
         arrRTTex[0] = CResMgr::GetInst()->FindRes<CTexture>(L"RenderTargetTex");
 
-        arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"HDRTargetTex", vResol.x, vResol.y
+        Ptr<CTexture> pDSTex = CResMgr::GetInst()->FindRes<CTexture>(L"DepthStencilTex");
+        
+        m_MRT[(UINT)MRT_TYPE::SWAPCHAIN]->Create(arrRTTex, 1, pDSTex);
+        m_MRT[(UINT)MRT_TYPE::SWAPCHAIN]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
+    }
+    // ====================
+	// HDR MRT
+	// ====================
+    {
+        m_MRT[(UINT)MRT_TYPE::HDR] = new MRT;
+        
+
+        Ptr<CTexture> arrRTTex[8] = {};
+        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"HDRTargetTex", vResol.x, vResol.y
             , DXGI_FORMAT_R32G32B32A32_FLOAT
             , D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
 
-        Ptr<CTexture> pDSTex = CResMgr::GetInst()->FindRes<CTexture>(L"DepthStencilTex");
+        m_MRT[(UINT)MRT_TYPE::HDR]->Create(arrRTTex, 1, nullptr);
+    }
+    {
+        m_MRT[(UINT)MRT_TYPE::HDR_LINE] = new MRT;
+
+
+        Ptr<CTexture> arrRTTex[8] = {};
+        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"OutlineHDRTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R32G32B32A32_FLOAT
+            , D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+
+        m_MRT[(UINT)MRT_TYPE::HDR_LINE]->Create(arrRTTex, 1, nullptr);
+    }
+
+    {
+        m_MRT[(UINT)MRT_TYPE::OUT_LINE] = new MRT;
+
+        Ptr<CTexture> arrRTTex[8] = {};
+        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"OutlineTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R32_FLOAT
+            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+        m_MRT[(UINT)MRT_TYPE::OUT_LINE]->Create(arrRTTex, 1, nullptr);
+    }
+    {
+        m_MRT[(UINT)MRT_TYPE::OUT_LINE_PLUS] = new MRT;
+
+        Ptr<CTexture> arrRTTex[8] = {};
+        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"OutlinePlusSizeTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R32_FLOAT
+            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+        m_MRT[(UINT)MRT_TYPE::OUT_LINE_PLUS]->Create(arrRTTex, 1, nullptr);
         
-        m_MRT[(UINT)MRT_TYPE::SWAPCHAIN]->Create(arrRTTex, 2, pDSTex);
-        m_MRT[(UINT)MRT_TYPE::SWAPCHAIN]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
+    }
+    // ====================
+	// Bloomed HDR MRT
+	// ====================
+    {
+        m_MRT[(UINT)MRT_TYPE::BLOOMED_HDR] = new MRT;
+
+        Ptr<CTexture> arrRTTex[8] = {};
+        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"BloomedHDRTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R32G32B32A32_FLOAT
+            , D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+
+        m_MRT[(UINT)MRT_TYPE::BLOOMED_HDR]->Create(arrRTTex, 1, nullptr);
     }
 
     // ====================
-    // Light MRT 만들기
+    // Light MRT
     // ====================
     {
         m_MRT[(UINT)MRT_TYPE::LIGHT] = new MRT;
-
-        Vec2 vResol = CDevice::GetInst()->GetRenderResolution();
 
         Ptr<CTexture> arrRTTex[8] = {};
         arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"DiffuseTargetTex", vResol.x, vResol.y
@@ -270,12 +334,10 @@ void CRenderMgr::CreateMRT()
         //m_MRT[(UINT)MRT_TYPE::LIGHT]->SetClearColor(Vec4(0.f, 1.f, 0.f, 1.f), 0);
     }
     // ====================
-	// Deferred MRT 만들기
+	// Deferred MRT
 	// ====================
     {
         m_MRT[(UINT)MRT_TYPE::DEFERRED] = new MRT;
-
-        Vec2 vResol = CDevice::GetInst()->GetRenderResolution();
 
         Ptr<CTexture> arrRTTex[8] = {};
         arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"ColorTargetTex", vResol.x, vResol.y
@@ -305,7 +367,25 @@ void CRenderMgr::CreateMRT()
         m_MRT[(UINT)MRT_TYPE::DEFERRED]->Create(arrRTTex, 7, nullptr);
     }
     // ====================
-    // Decal MRT 만들기
+	// Luminance MRT
+	// ====================
+    {
+        m_MRT[(UINT)MRT_TYPE::LUMINANCE] = new MRT;
+
+        Ptr<CTexture> arrRTTex[8] = {};
+
+        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"EmissiveBlurredTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R8G8B8A8_UNORM
+            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+        arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"SpecularBlurredTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R8G8B8A8_UNORM
+            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+        m_MRT[(UINT)MRT_TYPE::LUMINANCE]->Create(arrRTTex, 2, nullptr);
+    }
+    // ====================
+    // Decal MRT
     // ====================
     {
         m_MRT[(UINT)MRT_TYPE::DEFERRED_DECAL] = new MRT;
@@ -317,20 +397,20 @@ void CRenderMgr::CreateMRT()
         m_MRT[(UINT)MRT_TYPE::DEFERRED_DECAL]->Create(arrRTTex, 2, nullptr);
     }
     // ====================
-    // ShadowMap MRT 만들기
+    // ShadowMap MRT
     // ====================
     {
         m_MRT[(UINT)MRT_TYPE::SHADOWMAP] = new MRT;
     
         //Vec2 vResol = Vec2(8192, 8192);
-        Vec2 vResol = Vec2(4096, 4096);
+        Vec2 vTexResol = Vec2(4096, 4096);
 
         Ptr<CTexture> arrRTTex[8] = {};
-        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"DynamicShadowMapTex", vResol.x, vResol.y
+        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"DynamicShadowMapTex", vTexResol.x, vTexResol.y
                                                     , DXGI_FORMAT_R32_FLOAT
                                                     , D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
             
-        Ptr<CTexture> pDSTex = CResMgr::GetInst()->CreateTexture(L"DynamicShadowMapDepthTex", vResol.x, vResol.y
+        Ptr<CTexture> pDSTex = CResMgr::GetInst()->CreateTexture(L"DynamicShadowMapDepthTex", vTexResol.x, vTexResol.y
                                                     , DXGI_FORMAT_D32_FLOAT
                                                     , D3D11_BIND_DEPTH_STENCIL);
 
@@ -338,45 +418,31 @@ void CRenderMgr::CreateMRT()
         m_MRT[(UINT)MRT_TYPE::SHADOWMAP]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
     }
     //{
-    //    m_MRT[(UINT)MRT_TYPE::TONE_MAPPING] = new MRT;
-
-    //    //Vec2 vResol = Vec2(8192, 8192);
-    //    Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
+	   // m_MRT[(UINT)MRT_TYPE::STENCIL_CULL] = new MRT;
+    //
+    //    Vec2 vResol = CDevice::GetInst()->GetRenderResolution();
 
     //    Ptr<CTexture> arrRTTex[8] = {};
+    //    Ptr<CTexture> pDSTex = CResMgr::GetInst()->CreateTexture(L"DepthCullingStencilTex", vResol.x, vResol.y
+    //                                                , DXGI_FORMAT_D32_FLOAT
+    //                                                , D3D11_BIND_DEPTH_STENCIL);
 
-
-
-
-    //    m_MRT[(UINT)MRT_TYPE::TONE_MAPPING]->Create(arrRTTex, 1, nullptr);
-    //    m_MRT[(UINT)MRT_TYPE::TONE_MAPPING]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
+    //    m_MRT[(UINT)MRT_TYPE::STENCIL_CULL]->Create(nullptr, 0, pDSTex);
+    //    m_MRT[(UINT)MRT_TYPE::STENCIL_CULL]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
     //}
-    {
-	    m_MRT[(UINT)MRT_TYPE::STENCIL_CULL] = new MRT;
-    
-        Vec2 vResol = CDevice::GetInst()->GetRenderResolution();
+    //{
+	   // m_MRT[(UINT)MRT_TYPE::STENCIL_CULL_DEPLOY] = new MRT;
+    //
+    //    Vec2 vResol = CDevice::GetInst()->GetRenderResolution();
 
-        Ptr<CTexture> arrRTTex[8] = {};
-        Ptr<CTexture> pDSTex = CResMgr::GetInst()->CreateTexture(L"DepthCullingStencilTex", vResol.x, vResol.y
-                                                    , DXGI_FORMAT_D32_FLOAT
-                                                    , D3D11_BIND_DEPTH_STENCIL);
+    //    Ptr<CTexture> arrRTTex[8] = {};
+    //    Ptr<CTexture> pDSTex = CResMgr::GetInst()->CreateTexture(L"DepthStencilDeployTex", vResol.x, vResol.y
+    //                                                , DXGI_FORMAT_D32_FLOAT
+    //                                                , D3D11_BIND_DEPTH_STENCIL);
 
-        m_MRT[(UINT)MRT_TYPE::STENCIL_CULL]->Create(nullptr, 0, pDSTex);
-        m_MRT[(UINT)MRT_TYPE::STENCIL_CULL]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
-    }
-    {
-	    m_MRT[(UINT)MRT_TYPE::STENCIL_CULL_DEPLOY] = new MRT;
-    
-        Vec2 vResol = CDevice::GetInst()->GetRenderResolution();
-
-        Ptr<CTexture> arrRTTex[8] = {};
-        Ptr<CTexture> pDSTex = CResMgr::GetInst()->CreateTexture(L"DepthStencilDeployTex", vResol.x, vResol.y
-                                                    , DXGI_FORMAT_D32_FLOAT
-                                                    , D3D11_BIND_DEPTH_STENCIL);
-
-        m_MRT[(UINT)MRT_TYPE::STENCIL_CULL_DEPLOY]->Create(nullptr, 0, pDSTex);
-        m_MRT[(UINT)MRT_TYPE::STENCIL_CULL_DEPLOY]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
-    }
+    //    m_MRT[(UINT)MRT_TYPE::STENCIL_CULL_DEPLOY]->Create(nullptr, 0, pDSTex);
+    //    m_MRT[(UINT)MRT_TYPE::STENCIL_CULL_DEPLOY]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
+    //}
 }
 
 void CRenderMgr::ClearMRT()

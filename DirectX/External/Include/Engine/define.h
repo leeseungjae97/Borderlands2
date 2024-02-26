@@ -144,6 +144,15 @@ enum class RAYCAST_TYPE
 	REPLY,
 	END,
 };
+
+enum class RAYCAST_GROUP_TYPE {
+	NoRaycastingCollider = 0x0,
+	Enemy = 0x1,
+	Player = 0x2,
+	DefaultRaycastingCollider = 0x4,
+	AllRaycastingCollider = 0xf,
+};
+
 enum class COMPONENT_TYPE
 {
 	TRANSFORM,
@@ -320,10 +329,6 @@ enum class BS_TYPE
 	END,
 };
 
-
-
-
-
 enum class DIR_TYPE
 {
 	RIGHT,
@@ -453,19 +458,25 @@ enum class MRT_TYPE
 {
 	SWAPCHAIN,
 
+	HDR,
+
+	HDR_LINE,
+
+	BLOOMED_HDR,
+
+	OUT_LINE,
+
+	OUT_LINE_PLUS,
+
 	DEFERRED,
 
 	DEFERRED_DECAL,
 
 	LIGHT,
 
-	TONE_MAPPING,
+	LUMINANCE,
 
 	SHADOWMAP,
-
-	STENCIL_CULL,
-
-	STENCIL_CULL_DEPLOY,
 
 	END,
 };

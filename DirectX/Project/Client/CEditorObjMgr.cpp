@@ -164,7 +164,10 @@ void CEditorObjMgr::render()
 		if(iter->eShape == SHAPE_TYPE::MESH)
 		{
 			pShapeObj->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(iter->wsDebugShapeName));
-			pShapeObj->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugShapeMtrl"), 0);
+			for(int i = 0 ; i < iter->iMtrlCount; ++i)
+			{
+				pShapeObj->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugShapeMtrl"), i);
+			}
 		}
 
 		if (iter->matWorld != XMMatrixIdentity())
@@ -178,13 +181,27 @@ void CEditorObjMgr::render()
 			pShapeObj->Transform()->SetRelativeRot(iter->vWorldRotation);
 			pShapeObj->finaltick();
 		}
+
+		for (int i = 0; i < iter->iMtrlCount; ++i)
+		{
+			pShapeObj->MeshRender()->GetMaterial(i)->SetScalarParam(VEC4_0, &iter->vColor);
+		}
 		
-		pShapeObj->MeshRender()->GetMaterial(0)->SetScalarParam(VEC4_0, &iter->vColor);
 
 		if (iter->bDepthTest)
-			pShapeObj->MeshRender()->GetMaterial(0)->GetShader()->SetDSType(DS_TYPE::LESS);
+		{
+			for (int i = 0; i < iter->iMtrlCount; ++i)
+			{
+				pShapeObj->MeshRender()->GetMaterial(i)->GetShader()->SetDSType(DS_TYPE::LESS);
+			}
+		}
 		else
-			pShapeObj->MeshRender()->GetMaterial(0)->GetShader()->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+		{
+			for (int i = 0; i < iter->iMtrlCount; ++i)
+			{
+				pShapeObj->MeshRender()->GetMaterial(i)->GetShader()->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+			}	
+		}
 
 
 		pShapeObj->render();

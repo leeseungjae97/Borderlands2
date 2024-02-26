@@ -17,12 +17,16 @@ private:
 
     D3D11_VIEWPORT  m_Viewport;
 
+    bool            m_bRenderTarget;
+
 public:
     void Create(Ptr<CTexture>* _arrRTTex, UINT _RTCount, Ptr<CTexture> _DSTex);
     void SetClearColor(Vec4 _ClearColor, UINT _RTIdx) { m_ClearColor[_RTIdx] = _ClearColor; }
+    Ptr<CTexture> GetTexture(int _Idx) { return m_arrRT[_Idx]; }
     void ClearTarget();
     void OMSet(bool _bStay = false);
 
+    void SetRenderTarget(bool _RenderTarget) { m_bRenderTarget = _RenderTarget; }
     const D3D11_VIEWPORT& GetViewPort() { return m_Viewport; }
 
 public:

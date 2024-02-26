@@ -40,9 +40,9 @@ public:
 
 public:
 	void AddRaycastDraw(Vec3 _vDir, Vec3 _vOrigin, Matrix matWorld, Vec4 _vColor);
-	bool DoOneHitRaycast(tRayInfo _RaycastInfo);
-	bool DoOneHitRaycast(tRayInfo _RaycastInfo, Vec3* HitPosition);
-	bool DoOneHitRaycast(tRayInfo _RaycastInfo, CGameObject** _Hover);
+	bool DoOneHitRaycast(tRayInfo _RaycastInfo, RAYCAST_GROUP_TYPE _Except);
+	bool DoOneHitRaycast(tRayInfo _RaycastInfo, Vec3* HitPosition, RAYCAST_GROUP_TYPE _Except);
+	bool DoOneHitRaycast(tRayInfo _RaycastInfo, CGameObject** _Hover, RAYCAST_GROUP_TYPE _Except);
 
 	bool DoAllHitRaycast(tRayInfo _RaycastInfo, Vec3* HitPosition);
 	bool DoAllHitRaycast(tRayInfo _RaycastInfo);

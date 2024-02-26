@@ -2,8 +2,10 @@
 #include "CRenderComponent.h"
 
 #include "CAnimator3D.h"
+#include "CRenderMgr.h"
 #include "CResMgr.h"
 #include "CTransform.h"
+#include "mMRT.h"
 
 CRenderComponent::CRenderComponent(COMPONENT_TYPE _type)
 	: CComponent(_type)
@@ -112,12 +114,11 @@ void CRenderComponent::render_shadowmap()
 	}
 
 	Transform()->UpdateData();
-
+	
 	for (int i = 0; i < GetMesh()->GetSubsetCount(); ++i)
 	{
 		// 재질 업데이트
 		pShadowMapMtrl->UpdateData();
-
 		// 렌더
 		GetMesh()->render(i);
 	}

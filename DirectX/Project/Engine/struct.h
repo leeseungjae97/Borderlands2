@@ -123,6 +123,7 @@ struct tDebugShapeInfo
 	wstring		wsDebugShapeName;
 	float		fMaxTime;
 	float		fCurTime;
+	int			iMtrlCount;
 	bool		bDepthTest;
 };
 

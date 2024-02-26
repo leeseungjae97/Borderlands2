@@ -318,36 +318,38 @@ void CRigidBody::setUserData()
 
 void CRigidBody::drawDebugRigid()
 {
-	//if (CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
-	//	return;
+	if (CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
+		return;
 
-	//Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
-	//PxTransform trans;
-	//if (m_pDynamicBody)
-	//	trans = m_pDynamicBody->getGlobalPose();
-	//else
-	//	trans = m_pStaticBody->getGlobalPose();
+	Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
+	PxTransform trans;
+	if (m_pDynamicBody)
+		trans = m_pDynamicBody->getGlobalPose();
+	else
+		trans = m_pStaticBody->getGlobalPose();
 
-	//Matrix worldMat = physx::Util::WorldMatFromGlobalPose(trans, vScale);
-	//switch (m_tRigidShapeType)
-	//{
-	//case RIGID_BODY_SHAPE_TYPE::BOX:
-	//case RIGID_BODY_SHAPE_TYPE::RECT:
-	//{
-	//	DrawDebugCube(worldMat, Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
-	//}
-	//break;
-	//case RIGID_BODY_SHAPE_TYPE::SPHERE:
-	//{
-	//	DrawDebugSphere(worldMat, Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
-	//}
-	//break;
-	//case RIGID_BODY_SHAPE_TYPE::MESH:
-	//{
-	//	DrawDebugMesh(worldMat, m_debugMeshName, Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
-	//}
-	//break;
-	//}
+	Matrix worldMat = physx::Util::WorldMatFromGlobalPose(trans, vScale);
+	switch (m_tRigidShapeType)
+	{
+	case RIGID_BODY_SHAPE_TYPE::BOX:
+	case RIGID_BODY_SHAPE_TYPE::RECT:
+	{
+		DrawDebugCube(worldMat, Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
+	}
+	break;
+	case RIGID_BODY_SHAPE_TYPE::SPHERE:
+	{
+		DrawDebugSphere(worldMat, Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
+	}
+	break;
+	case RIGID_BODY_SHAPE_TYPE::MESH:
+	{
+		Ptr<CMesh> pMesh = GetOwner()->MeshRender()->GetMesh();
+		
+		DrawDebugMesh(worldMat, m_debugMeshName, GetOwner()->MeshRender()->GetMtrlCount(), Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
+	}
+	break;
+	}
 }
 
 void CRigidBody::LoadFromLevelFile(FILE* _FILE)

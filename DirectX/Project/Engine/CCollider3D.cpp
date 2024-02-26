@@ -186,15 +186,28 @@ void CCollider3D::createColliderShape()
 	PxFilterData triggerFilterData;
 	if(GetOwner()->GetLayerIndex() == (int)LAYER_TYPE::NoRaycastingCollider)
 	{
-		//triggerFilterData.word0 = 0x0000000f;
-		//triggerFilterData.word1 = 0xf000000f;
-		triggerFilterData.word0 = (1 << 1);
+		triggerFilterData.word0 = (PxU32)RAYCAST_GROUP_TYPE::NoRaycastingCollider;
 		triggerFilterData.word1 = 0x0000000f;
 		triggerFilterData.word2 = 0x0000000f;
 		triggerFilterData.word3 = 0x0000000f;
-	}else
+	}
+	else if (GetOwner()->GetLayerIndex() == (int)LAYER_TYPE::Player)
 	{
-		triggerFilterData.word0 = (1 << 0);
+		triggerFilterData.word0 = (PxU32)RAYCAST_GROUP_TYPE::Player;
+		triggerFilterData.word1 = 0x0000000f;
+		triggerFilterData.word2 = 0x0000000f;
+		triggerFilterData.word3 = 0x0000000f;
+	}
+	else if (GetOwner()->GetLayerIndex() == (int)LAYER_TYPE::Enemy)
+	{
+		triggerFilterData.word0 = (PxU32)RAYCAST_GROUP_TYPE::Enemy;
+		triggerFilterData.word1 = 0x0000000f;
+		triggerFilterData.word2 = 0x0000000f;
+		triggerFilterData.word3 = 0x0000000f;
+	}
+	else
+	{
+		triggerFilterData.word0 = (PxU32)RAYCAST_GROUP_TYPE::DefaultRaycastingCollider;
 		triggerFilterData.word1 = 0x0000000f;
 		triggerFilterData.word2 = 0x0000000f;
 		triggerFilterData.word3 = 0x0000000f;

@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "CCamera.h"
 
-
-#include "BlurShader.h"
 #include "CameraMgr.h"
 #include "CAnimator2D.h"
 #include "CAnimator3D.h"
@@ -22,9 +20,7 @@
 #include "CKeyMgr.h"
 #include "CLight3D.h"
 #include "CResMgr.h"
-#include "DownSamplingShader.h"
 #include "mMRT.h"
-#include "UpSamplingShader.h"
 
 
 CCamera::CCamera()
@@ -43,6 +39,8 @@ CCamera::CCamera()
 	, m_bESM(false)
 	, m_HDR(false)
 	, m_Bloom(false)
+	, m_Blur(false)
+	, f_blurFactor(0.f)
 	, m_fT{}
 	, m_ray{}
 {
@@ -392,97 +390,89 @@ void CCamera::render()
 			vecLight3D[i]->render();
 		}
 
-		// SwapChain MRT 로 변경
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();	
+		static Ptr<CMesh> pScreen = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
 
-		static Ptr<CMesh> pRectMesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
-		static Ptr<CMaterial> pMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
+		static Ptr<CMaterial> pMerge = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
+		static Ptr<CMaterial> pBlurV = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurVMtrl");
+		static Ptr<CMaterial> pBlurH = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurHMtrl");
+		static Ptr<CMaterial> pGaussianBlur = CResMgr::GetInst()->FindRes<CMaterial>(L"GaussianBlurMtrl");
+		static Ptr<CMaterial> pEmissiveBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
+		static Ptr<CMaterial> pSpecularBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
+		static Ptr<CMaterial> pToneMapping = CResMgr::GetInst()->FindRes<CMaterial>(L"ToneMappingMtrl");
+		static Ptr<CMaterial> pOutline = CResMgr::GetInst()->FindRes<CMaterial>(L"OutlineMtrl");
+		static Ptr<CMaterial> pCompareOutline = CResMgr::GetInst()->FindRes<CMaterial>(L"CompareOutlineMtrl");
 
-		static bool bSet = false;
-		if (!bSet)
-		{
-			bSet = true;
+		// Blur
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LUMINANCE)->OMSet();
 
-			{
-				pMtrl->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ColorTargetTex"));
-				pMtrl->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
-				pMtrl->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
-				pMtrl->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-				pMtrl->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
-				//pMtrl->SetTexParam(TEX_5, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
-			}
-		}
-		pMtrl->UpdateData();
-		pRectMesh->render(0);
+		pBlurV->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+		//pBlurV->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
+		//BlurV->SetScalarParam(FLOAT_0, &f_blurFactor);
 
-		//Ptr<CTexture> emisTex = CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex");
+		pBlurH->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+		//pBlurH->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
+		//BlurH->SetScalarParam(FLOAT_0, &f_blurFactor);
 
-		//Ptr<CTexture> HDR = CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex");
-		//Ptr<CTexture> DHDR = CResMgr::GetInst()->FindRes<CTexture>(L"DHDRTargetTex");
-		//Ptr<CTexture> BDHDR = CResMgr::GetInst()->FindRes<CTexture>(L"BDHDRTargetTex");
+		// X
+		pBlurV->UpdateData();
+		pScreen->render(0);
 
-		//DownSamplingShader* down = (DownSamplingShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"DownSamplingCS").Get();
+		// Y
+		pBlurH->UpdateData();
+		pScreen->render(0);
 
-		//down->SetThreshold(0.5f);
-		//down->SetInput(HDR);
-		//down->SetOutput(DHDR);
-		//down->UpdateData();
+		// HDR
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR)->OMSet();
 
-		//down->Execute();
+		pMerge->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ColorTargetTex"));
+		pMerge->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
+		pMerge->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+		pMerge->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
+		pMerge->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
 
-		//down->Clear();
+		pMerge->UpdateData();
+		pScreen->render(0);
 
-		//static Ptr<CMesh> pRectMesh2 = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
-		//static Ptr<CMaterial> pMtrl2 = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomCurveMtrl");
-		//pMtrl2->SetTexParam(TEX_0, DHDR);
+		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::OUT_LINE)->OMSet();
+		//pOutline->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
+		//pOutline->UpdateData();
+		//pScreen->render(0);
 
-		//pMtrl2->UpdateData();
-		//pRectMesh2->render(0);
-		//
-		//BlurShader* blur = (BlurShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"BlurCS").Get();
+		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::OUT_LINE_PLUS)->OMSet();
+		//pOutline->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
+		//pOutline->UpdateData();
+		//pScreen->render(0);
 
-		//blur->SetInput(DHDR);
-		//blur->SetOutput(BDHDR);
-		//blur->UpdateData();
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR_LINE)->OMSet();
+		pCompareOutline->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+		pCompareOutline->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"OutlineTargetTex"));
+		pCompareOutline->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"OutlinePlusSizeTargetTex"));
+		pCompareOutline->UpdateData();
+		pScreen->render(0);
 
-		//blur->Execute();
+		// Bloom
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLOOMED_HDR)->OMSet();
 
-		//blur->Clear();
+		pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"OutlineHDRTargetTex"));
+		pEmissiveBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveBlurredTargetTex"));
+		pEmissiveBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
 
-		//static Ptr<CMesh> pRectMesh3 = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
-		//static Ptr<CMaterial> pMtrl3 = CResMgr::GetInst()->FindRes<CMaterial>(L"QuadCompositeMtrl");
-		//pMtrl3->SetTexParam(TEX_0, HDR);
-		//pMtrl3->SetTexParam(TEX_1, BDHDR);
+		pEmissiveBloom->UpdateData();
+		pScreen->render(0);
 
-		//pMtrl3->UpdateData();
-		//pRectMesh3->render(0);
+		//pSpecularBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+		//pSpecularBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularBlurredTargetTex"));
+		//pSpecularBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
+		//pSpecularBloom->UpdateData();
+		//pScreen->render(0);
 
-		//UpSamplingShader* up = (UpSamplingShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"UpSamplingCS").Get();
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+		// Bloomed HDR ToneMapping -> LDR
+		pToneMapping->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"BloomedHDRTargetTex"));
 
-		//up->SetThreshold(0.5f);
-		//up->SetInput(BDHDR);
-		//up->SetOutput(HDR);
-		//up->UpdateData();
+		pToneMapping->UpdateData();
+		pScreen->render(0);
 
-		//up->Execute();
-
-
-		//pMtrl->SetScalarParam(INT_0, &m_HDR);
-		//pMtrl->SetScalarParam(INT_1, &m_Bloom);
-
-		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
-		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::TONE_MAPPING)->OMSet(true);
-
-		//pMtrl->UpdateData();
-		//pRectMesh->render(0);
-
-		//ToneMapping();
-		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
-
-
-		// 쉐이더 도메인에 따라서 순차적으로 그리기
-		//render_opaque();
-		//render_mask();
 		render_forward();
 		render_decal();
 		render_transparent();

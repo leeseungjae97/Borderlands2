@@ -42,7 +42,8 @@ private:
 
     bool        m_HDR;
     bool        m_Bloom;
-
+    bool        m_Blur;
+    float       f_blurFactor;
     map<ULONG64, vector<tInstObj>>		m_mapInstGroup_D;	    // Deferred
     map<ULONG64, vector<tInstObj>>		m_mapInstGroup_F;	    // Foward ( Opaque, Mask )	
     map<INT_PTR, vector<tInstObj>>		m_mapSingleObj;		    // Single Object
@@ -104,6 +105,10 @@ public:
     void SetHDR(bool _HDR) { m_HDR = _HDR; }
 
     void SetBloom(bool _Bloom) { m_Bloom = _Bloom; }
+    void SetBlur(bool blur) { m_Blur = blur; }
+
+    void SetFactor(float factor) { f_blurFactor = factor; }
+    float GetFactor() { return f_blurFactor; }
 
 protected:
     void CalRay();

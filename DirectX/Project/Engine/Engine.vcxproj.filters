@@ -265,15 +265,6 @@
     <ClInclude Include="SkillMgr.h">
       <Filter>Source\_Manager\SkillMgr</Filter>
     </ClInclude>
-    <ClInclude Include="DownSamplingShader.h">
-      <Filter>Source\_Resource\Shader\ComputeShader\DownSamplerShader</Filter>
-    </ClInclude>
-    <ClInclude Include="BlurShader.h">
-      <Filter>Source\_Resource\Shader\ComputeShader\BlurShader</Filter>
-    </ClInclude>
-    <ClInclude Include="UpSamplingShader.h">
-      <Filter>Source\_Resource\Shader\ComputeShader\UpSamplerShader</Filter>
-    </ClInclude>
     <ClInclude Include="CUI.h">
       <Filter>Source\UI</Filter>
     </ClInclude>
@@ -531,15 +522,6 @@
     <ClCompile Include="SkillMgr.cpp">
       <Filter>Source\_Manager\SkillMgr</Filter>
     </ClCompile>
-    <ClCompile Include="DownSamplingShader.cpp">
-      <Filter>Source\_Resource\Shader\ComputeShader\DownSamplerShader</Filter>
-    </ClCompile>
-    <ClCompile Include="BlurShader.cpp">
-      <Filter>Source\_Resource\Shader\ComputeShader\BlurShader</Filter>
-    </ClCompile>
-    <ClCompile Include="UpSamplingShader.cpp">
-      <Filter>Source\_Resource\Shader\ComputeShader\UpSamplerShader</Filter>
-    </ClCompile>
     <ClCompile Include="CUI.cpp">
       <Filter>Source\UI</Filter>
     </ClCompile>
@@ -782,9 +764,6 @@
     <Filter Include="Source\_Resource\Shader\ComputeShader\LandScapePathShader">
       <UniqueIdentifier>{6f3947b0-018a-433e-9e77-d7f6046c59ef}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\_Resource\Shader\ComputeShader\DownSamplerShader">
-      <UniqueIdentifier>{7210d9a8-ac70-42aa-bf9c-06e1f2d052a1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\_Resource\Shader\ComputeShader\ParticleShader">
       <UniqueIdentifier>{9fad93fe-4fb8-4d90-8aa2-09968ae6cd9c}</UniqueIdentifier>
     </Filter>
@@ -800,17 +779,11 @@
     <Filter Include="Source\_Resource\Shader\ComputeShader\WeightMapShader">
       <UniqueIdentifier>{68f83462-b4d8-4d1a-b934-5abf68f8409f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\_Resource\Shader\ComputeShader\BlurShader">
-      <UniqueIdentifier>{4c47e72e-c6f6-4328-88b2-89516c30ad57}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\_ShaderCode\Animation">
       <UniqueIdentifier>{d3e03e0c-1695-4f5f-b2db-86b96be072b4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\_ShaderCode\Effect">
       <UniqueIdentifier>{9bc5a1a2-09e2-4635-9b8d-4a7be00afff6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_Resource\Shader\ComputeShader\UpSamplerShader">
-      <UniqueIdentifier>{6dcdaef3-502b-49b5-a01a-62dc93e9f476}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\UI">
       <UniqueIdentifier>{ef81d950-ea0c-46bf-805b-a2997f6b3822}</UniqueIdentifier>
@@ -885,12 +858,6 @@
     </FxCompile>
     <FxCompile Include="copybone.fx">
       <Filter>Source\_ShaderCode</Filter>
-    </FxCompile>
-    <FxCompile Include="blur.fx">
-      <Filter>Source\_ShaderCode\Effect</Filter>
-    </FxCompile>
-    <FxCompile Include="down_sampling.fx">
-      <Filter>Source\_ShaderCode\Effect</Filter>
     </FxCompile>
     <FxCompile Include="animation2d.fx">
       <Filter>Source\_ShaderCode\Animation</Filter>

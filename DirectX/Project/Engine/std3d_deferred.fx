@@ -282,6 +282,7 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
             output.vEmissive += output.vColor * vEmissiveCoeff.b * g_fEmisCoeff;
         }
     }
+    //output.vEmissive
     output.vNormal = float4(vViewNormal, 1.f);
     output.vPosition = float4(_in.vViewPos, 1.f);
     output.vData = float4(0.f, 0.f, 0.f, 1.f);

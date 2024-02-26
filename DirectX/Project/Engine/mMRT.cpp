@@ -8,6 +8,7 @@ MRT::MRT()
 	: m_arrRT{}
 	, m_RTCount(0)
 	, m_ClearColor{}
+	, m_bRenderTarget(false)
 	, m_Viewport{}
 {
 }
@@ -61,6 +62,8 @@ void MRT::ClearTarget()
 
 void MRT::OMSet(bool _bStay)
 {
+	//m_bRenderTarget = true;
+
 	ID3D11RenderTargetView* arrRTV[8] = {};
 	for (UINT i = 0; i < m_RTCount; ++i)
 	{

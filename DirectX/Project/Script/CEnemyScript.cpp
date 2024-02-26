@@ -51,7 +51,6 @@ void CEnemyScript::begin()
 	pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::DIE)
 		= std::make_shared<std::function<void()>>([=]()
 			{
-				pEnemy->SetDead(true);
 				DestroyObject(pEnemy);
 				if(pEnemy->GetGuns().size() != 0)
 				{
@@ -60,7 +59,8 @@ void CEnemyScript::begin()
 						DestroyObject(pEnemy->GetGuns()[i]);
 					}
 				}
-				DestroyObject(pHeadCollider);
+				if(pHeadCollider)
+					DestroyObject(pHeadCollider);
 			});
 
 	makeCollider();
@@ -340,7 +340,7 @@ void CEnemyScript::Shoot()
 	raycast.iID = pEnemy->GetID();
 	raycast.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
 	raycast.matWorld = pEnemy->Transform()->GetDrawRayMat();
-	if(RaycastMgr::GetInst()->DoOneHitRaycast(raycast))
+	if(RaycastMgr::GetInst()->DoOneHitRaycast(raycast, RAYCAST_GROUP_TYPE::Enemy))
 	{
 		fRateOfFireAcc = 0.0f;
 		--iAmmo;
@@ -371,7 +371,7 @@ void CEnemyScript::Look()
 	raycast.tRayType = (UINT)RAYCAST_TYPE::LOOK;
 	raycast.matWorld = pEnemy->Transform()->GetDrawRayMat();
 	//RaycastMgr::GetInst()->AddRaycast(raycast);
-	RaycastMgr::GetInst()->DoOneHitRaycast(raycast);
+	RaycastMgr::GetInst()->DoOneHitRaycast(raycast, RAYCAST_GROUP_TYPE::Enemy);
 }
 
 bool CEnemyScript::IsDetect()

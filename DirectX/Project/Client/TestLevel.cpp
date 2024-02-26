@@ -348,17 +348,17 @@ void CreateTestLevel()
 		WeaponMgr::GetInst()->ChangeWeapon(SMG_IDX);
 	}
 	{
-		//CGameObject* pDistortion = new CGameObject;
-		//pDistortion->SetName(L"Lava Distortion");
-		//pDistortion->AddComponent(new CTransform);
-		//pDistortion->AddComponent(new CMeshRender);
-		//pDistortion->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
+		CGameObject* pDistortion = new CGameObject;
+		pDistortion->SetName(L"Lava Distortion");
+		pDistortion->AddComponent(new CTransform);
+		pDistortion->AddComponent(new CMeshRender);
+		pDistortion->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
 
-		//pDistortion->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"mesh\\lava.mesh"));
-		//pDistortion->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl"), 0);
-		//pDistortion->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\noise\\noise_03.jpg"));
+		pDistortion->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"mesh\\lava.mesh"));
+		pDistortion->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl"), 0);
+		pDistortion->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\noise\\noise_03.jpg"));
 
-		//PreloadGameObject(pDistortion, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Default);
+		PreloadGameObject(pDistortion, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Default);
 
 		Ptr<CMeshData> pMeshData = nullptr;
 		CGameObject* pObj = nullptr;
@@ -374,6 +374,19 @@ void CreateTestLevel()
 
 		PreloadGameObject(pObj, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Environment);
 	}
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
+
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\volume_lava.fbx");
+		pObj = pMeshData->Instantiate(Vec3(10.f, 10.f, 10.f));
+		//pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
+		//pObj->AddComponent(new CCollider3D);
+
+		pObj->SetName(L"fbx volume lava");
+		PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Environment);
+	}
+
 	//{
 	//	Ptr<CMeshData> pMeshData = nullptr;
 	//	CGameObject* pObj = nullptr;
@@ -553,18 +566,18 @@ void CreateTestLevel()
 	//	pObj->SetName(L"fbx map");
 	//	PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Environment);
 	//}
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
 
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\map_statics_subdivision.fbx");
-	//	pObj = pMeshData->Instantiate(Vec3(10.f, 10.f, 10.f));
-	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
-	//	//pObj->AddComponent(new CCollider3D);
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\map_statics_subdivision.fbx");
+		pObj = pMeshData->Instantiate(Vec3(10.f, 10.f, 10.f));
+		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
+		//pObj->AddComponent(new CCollider3D);
 
-	//	pObj->SetName(L"fbx map2");
-	//	PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Environment);
-	//}
+		pObj->SetName(L"fbx map2");
+		PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Environment);
+	}
 	//{
 	//	Ptr<CMeshData> pMeshData = nullptr;
 	//	CGameObject* pObj = nullptr;
@@ -577,51 +590,39 @@ void CreateTestLevel()
 	//	pObj->SetName(L"fbx map3");
 	//	PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Environment);
 	//}
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
 
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\volume_lava.fbx");
-	//	pObj = pMeshData->Instantiate(Vec3(10.f, 10.f, 10.f));
-	//	//pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
-	//	//pObj->AddComponent(new CCollider3D);
+		for(int i =0 ; i < 2 ; ++i)
+		{
+			Ptr<CMeshData> pMeshData = nullptr;
+			CGameObject* pObj = nullptr;
 
-	//	pObj->SetName(L"fbx volume lava");
-	//	PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Environment);
-	//}
+			pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+			pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
 
-		//for(int i =0 ; i < 2 ; ++i)
-		//{
-		//	Ptr<CMeshData> pMeshData = nullptr;
-		//	CGameObject* pObj = nullptr;
+			pObj->SetName(L"fbx nomad");
 
-		//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
-		//	pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
+			pObj->AddComponent(new CEnemyScript);
+			pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
+			pObj->AddComponent(new CCollider3D);
+			pObj->AddComponent(new CGizmo);
 
-		//	pObj->SetName(L"fbx nomad");
+			PreloadGameObject(pObj, Vec3(500.f, 100.f, 1000.f + (i * 150.f)), LAYER_TYPE::Enemy);
 
-		//	pObj->AddComponent(new CEnemyScript);
-		//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
-		//	pObj->AddComponent(new CCollider3D);
-		//	pObj->AddComponent(new CGizmo);
+			{
+				Ptr<CMeshData> pMeshData = nullptr;
+				CGameObject* pGun = nullptr;
+				pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\dahl.fbx");
+				pGun = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
+				pGun->SetName(L"enemy_gun");
 
-		//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 1000.f + (i * 150.f)), LAYER_TYPE::Enemy);
+				pGun->AddComponent(new CGunScript);
+				pGun->AddComponent(new CGizmo);
+				pGun->SetIsItem(true);
+				pObj->AddGun(pGun);
 
-		//	{
-		//		Ptr<CMeshData> pMeshData = nullptr;
-		//		CGameObject* pGun = nullptr;
-		//		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\dahl.fbx");
-		//		pGun = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
-		//		pGun->SetName(L"enemy_gun");
-
-		//		pGun->AddComponent(new CGunScript);
-		//		pGun->AddComponent(new CGizmo);
-		//		pGun->SetIsItem(true);
-		//		pObj->AddGun(pGun);
-
-		//		PreloadGameObject(pGun, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
-		//	}
-		//}
+				PreloadGameObject(pGun, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
+			}
+		}
 
 
 		//}

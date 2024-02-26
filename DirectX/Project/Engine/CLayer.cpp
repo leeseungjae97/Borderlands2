@@ -38,23 +38,23 @@ void CLayer::finaltick()
 	vector<CGameObject*> vecDead;
 	for (; iter != m_vecParentObj.end(); )
 	{
-		if ((*iter)->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
-			++iter;
-		else
+		if ((*iter)->GetObjectState() != CGameObject::OBJECT_STATE::INVISIBLE)
 		{
 			(*iter)->finaltick();
+		}
 
-			if ((*iter)->IsDead())
-			{
-				vecDead.push_back(*iter);
-				iter = m_vecParentObj.erase(iter);
-			}
-			else
-			{
-				++iter;
-			}
+		if ((*iter)->IsDead())
+		{
+			vecDead.push_back(*iter);
+			iter = m_vecParentObj.erase(iter);
+		}
+		else
+		{
+			++iter;
 		}
 	}
+
+
 
 	//for(int i =0  ; i < vecDead.size(); ++i)
 	//{

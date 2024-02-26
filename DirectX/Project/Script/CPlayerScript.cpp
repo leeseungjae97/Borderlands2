@@ -324,7 +324,7 @@ void CPlayerScript::Look()
 	//RaycastMgr::GetInst()->SetPlayerRayInfo(rayInfo);
 
 	CGameObject* hoverEnemy = nullptr;
-	RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo, &hoverEnemy);
+	RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo, &hoverEnemy, RAYCAST_GROUP_TYPE::Player);
 	if(hoverEnemy)
 	{
 		if (hoverEnemy->GetScript<CEnemyScript>())
@@ -378,22 +378,23 @@ void CPlayerScript::ShootBullet()
 	rayInfo.matWorld = MainCam->Transform()->GetDrawRayMat();
 	rayInfo.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
 	//RaycastMgr::GetInst()->SetPlayerRayInfo(rayInfo);
-	RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo);
+	RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo, RAYCAST_GROUP_TYPE::Player);
 	Vec3 vPos = WeaponMgr::GetInst()->GetCurWeaponMuzzlePos();
 	Vec3 vRot = WeaponMgr::GetInst()->GetCurWeapon()->Transform()->GetRelativeRot();
 
 	WeaponMgr::GetInst()->MuzzleFlash(vPos, vRot);
 
 	WeaponMgr::GetInst()->Play(GUN_ANIMATION_TYPE::FIRE, false);
+
 	CGameObject* pGun = WeaponMgr::GetInst()->GetCurWeapon();
 	int weaponIdx = WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::FIRE);
 
-	if (weaponIdx == (int)PLAYER_ANIMATION_TYPE::SNIPER_FIRE)
-	{
-		tState = PlayerMgr::PLAYER_STATE::FIRE;
-		pPlayer->Animator3D()->Play(weaponIdx, false);
-		AnimationMgr::GetInst()->AnimationSync(pGun->Animator3D(), pPlayer->Animator3D());
-	}
+	//if (weaponIdx == (int)PLAYER_ANIMATION_TYPE::SNIPER_FIRE)
+	//{
+	//	tState = PlayerMgr::PLAYER_STATE::FIRE;
+	//	pPlayer->Animator3D()->Play(weaponIdx, false);
+	//	AnimationMgr::GetInst()->AnimationSync(pGun->Animator3D(), pPlayer->Animator3D());
+	//}
 
 }
 

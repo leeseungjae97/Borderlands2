@@ -351,7 +351,7 @@ void DrawDebugLine(DIR_TYPE _dirType, const Matrix& _matWorld, Vec4 _vColor, flo
 	CRenderMgr::GetInst()->AddDebugShapeInfo(info);
 }
 
-void DrawDebugMesh(const Matrix& _matWorld, const wstring& _wsDebugShapeName,Vec4 _vColor, float _fTime, bool DepthTest)
+void DrawDebugMesh(const Matrix& _matWorld, const wstring& _wsDebugShapeName, int _iMtrlCnt, Vec4 _vColor, float _fTime, bool DepthTest)
 {
 	tDebugShapeInfo info = {};
 
@@ -360,6 +360,7 @@ void DrawDebugMesh(const Matrix& _matWorld, const wstring& _wsDebugShapeName,Vec
 	info.fMaxTime = _fTime;
 	info.vColor = _vColor;
 	info.bDepthTest = DepthTest;
+	info.iMtrlCount = _iMtrlCnt;
 	info.wsDebugShapeName = _wsDebugShapeName;
 
 	CRenderMgr::GetInst()->AddDebugShapeInfo(info);

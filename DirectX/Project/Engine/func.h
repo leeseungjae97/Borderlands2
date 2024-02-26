@@ -38,7 +38,7 @@ void DrawDebugLine(const Matrix& matWorld, Vec3 _vWorldPos, float _fRadius, Vec4
 void DrawDebugLine(DIR_TYPE _dirType, Vec3 _vWorldPos, float _fRadius, Vec4 _vColor, Vec3 _vRotation, float _fTime = 0.f, bool DepthTest = false);
 void DrawDebugLine(DIR_TYPE _dirType, const Matrix& _matWorld, Vec4 _vColor, float _fTime = 0.f, bool DepthTest = false);
 
-void DrawDebugMesh(const Matrix& _matWorld, const wstring& _wsDebugShapeName, Vec4 _vColor, float _fTime = 0.f, bool DepthTest = false);
+void DrawDebugMesh(const Matrix& _matWorld, const wstring& _wsDebugShapeName, int _iMtrlCnt, Vec4 _vColor, float _fTime = 0.f, bool DepthTest = false);
 
 static void Strtrim(char* s) { char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0; }
 static int  Stricmp(const char* s1, const char* s2) { int d; while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1) { s1++; s2++; } return d; }

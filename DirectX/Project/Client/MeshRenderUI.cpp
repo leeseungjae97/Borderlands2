@@ -74,47 +74,51 @@ int MeshRenderUI::render_update()
 		pListUI->AddDynamic_Select(this, (UI_DELEGATE_1)&MeshRenderUI::SelectMesh);
 	}
 
-	for(int i = 0 ; i < pMeshRender->GetMesh()->GetSubsetCount(); ++i)
+	if(nullptr != pMeshRender->GetMesh())
 	{
-		Ptr<CMaterial> pMtrl = pMeshRender->GetMaterial(i);
-
-		ImGui::Text("Material");
-		ImGui::SameLine();
-		GetResKey(pMtrl.Get(), szBuff, 50);
-		ImGui::InputText("##MtrlName", szBuff, 50, ImGuiInputTextFlags_ReadOnly);
-
-		if (ImGui::BeginDragDropTarget())
+		for (int i = 0; i < pMeshRender->GetMesh()->GetSubsetCount(); ++i)
 		{
-			const ImGuiPayload* pPayLoad = ImGui::AcceptDragDropPayload("Resource");
-			if (pPayLoad)
+			Ptr<CMaterial> pMtrl = pMeshRender->GetMaterial(i);
+
+			ImGui::Text("Material");
+			ImGui::SameLine();
+			GetResKey(pMtrl.Get(), szBuff, 50);
+			ImGui::InputText("##MtrlName", szBuff, 50, ImGuiInputTextFlags_ReadOnly);
+
+			if (ImGui::BeginDragDropTarget())
 			{
-				TreeNode* pNode = (TreeNode*)pPayLoad->Data;
-				CRes* pRes = (CRes*)pNode->GetData();
-				if (RES_TYPE::MATERIAL == pRes->GetType())
+				const ImGuiPayload* pPayLoad = ImGui::AcceptDragDropPayload("Resource");
+				if (pPayLoad)
 				{
-					pMeshRender->SetMaterial((CMaterial*)pRes, i);
+					TreeNode* pNode = (TreeNode*)pPayLoad->Data;
+					CRes* pRes = (CRes*)pNode->GetData();
+					if (RES_TYPE::MATERIAL == pRes->GetType())
+					{
+						pMeshRender->SetMaterial((CMaterial*)pRes, i);
+					}
 				}
+
+				ImGui::EndDragDropTarget();
 			}
 
-			ImGui::EndDragDropTarget();
-		}
+			ImGui::SameLine();
 
-		ImGui::SameLine();
-
-		if (ImGui::Button("##MtrlSelectBtn", ImVec2(18, 18)))
-		{
-			const map<wstring, Ptr<CRes>>& mapMtrl = CResMgr::GetInst()->GetResources(RES_TYPE::MATERIAL);
-
-			ListUI* pListUI = (ListUI*)ImGuiMgr::GetInst()->FindUI("##List");
-			pListUI->Reset("Material", ImVec2(300.f, 500.f));
-			for (const auto& pair : mapMtrl)
+			if (ImGui::Button("##MtrlSelectBtn", ImVec2(18, 18)))
 			{
-				pListUI->AddItem(string(pair.first.begin(), pair.first.end()));
+				const map<wstring, Ptr<CRes>>& mapMtrl = CResMgr::GetInst()->GetResources(RES_TYPE::MATERIAL);
+
+				ListUI* pListUI = (ListUI*)ImGuiMgr::GetInst()->FindUI("##List");
+				pListUI->Reset("Material", ImVec2(300.f, 500.f));
+				for (const auto& pair : mapMtrl)
+				{
+					pListUI->AddItem(string(pair.first.begin(), pair.first.end()));
+				}
+
+				iInst0 = i;
+				pListUI->AddDynamic_Select(this, (UI_DELEGATE_1)&MeshRenderUI::SelectMaterial);
 			}
-			
-			iInst0 = i;
-			pListUI->AddDynamic_Select(this, (UI_DELEGATE_1)&MeshRenderUI::SelectMaterial);
 		}
+
 	}
 	
 

@@ -173,10 +173,8 @@ call EngineCopy.bat</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AnimationMgr.h" />
-    <ClInclude Include="BlurShader.h" />
     <ClInclude Include="CAnimator2D.h" />
     <ClInclude Include="CAnimSprite.h" />
-    <ClInclude Include="DownSamplingShader.h" />
     <ClInclude Include="FieldUIMgr.h" />
     <ClInclude Include="IndividualBoneSkinningShader.h" />
     <ClInclude Include="CameraMgr.h" />
@@ -263,16 +261,13 @@ call EngineCopy.bat</Command>
     <ClInclude Include="SkillMgr.h" />
     <ClInclude Include="struct.h" />
     <ClInclude Include="CUI.h" />
-    <ClInclude Include="UpSamplingShader.h" />
     <ClInclude Include="WarriorMgr.h" />
     <ClInclude Include="WeaponMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationMgr.cpp" />
-    <ClCompile Include="BlurShader.cpp" />
     <ClCompile Include="CAnimator2D.cpp" />
     <ClCompile Include="CAnimSprite.cpp" />
-    <ClCompile Include="DownSamplingShader.cpp" />
     <ClCompile Include="FieldUIMgr.cpp" />
     <ClCompile Include="IndividualBoneSkinningShader.cpp" />
     <ClCompile Include="CameraMgr.cpp" />
@@ -361,7 +356,6 @@ call EngineCopy.bat</Command>
     <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="SkillMgr.cpp" />
     <ClCompile Include="CUI.cpp" />
-    <ClCompile Include="UpSamplingShader.cpp" />
     <ClCompile Include="WarriorMgr.cpp" />
     <ClCompile Include="WeaponMgr.cpp" />
   </ItemGroup>
@@ -381,14 +375,6 @@ call EngineCopy.bat</Command>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="blur.fx">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="down_sampling.fx">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="individual_bone_skinning.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>

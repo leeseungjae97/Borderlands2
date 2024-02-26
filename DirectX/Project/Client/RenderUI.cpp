@@ -48,5 +48,22 @@ int RenderUI::render_update()
 		mainCame->SetBloom(false);
 	}
 
+	ImGui::Text("Blur");
+	if (ImGui::Button("ON##Blur_ON"))
+	{
+		mainCame->SetBlur(true);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("OFF##Blur_OFF"))
+	{
+		mainCame->SetBlur(false);
+	}
+
+	float factor= mainCame->GetFactor();
+	ImGui::Text("Blur Factor");
+	ImGui::InputFloat("##factor", &factor);
+
+	mainCame->SetFactor(factor);
+
 	return TRUE;
 }

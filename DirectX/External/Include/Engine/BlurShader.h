@@ -1,9 +1,8 @@
 #pragma once
 #include "CTexture.h"
-
 #include "ptr.h"
-
 #include "CComputeShader.h"
+
 class BlurShader :
     public CComputeShader
 {
