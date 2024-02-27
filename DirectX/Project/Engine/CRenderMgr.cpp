@@ -274,28 +274,6 @@ void CRenderMgr::CreateMRT()
 
         m_MRT[(UINT)MRT_TYPE::HDR_LINE]->Create(arrRTTex, 1, nullptr);
     }
-
-    {
-        m_MRT[(UINT)MRT_TYPE::OUT_LINE] = new MRT;
-
-        Ptr<CTexture> arrRTTex[8] = {};
-        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"OutlineTargetTex", vResol.x, vResol.y
-            , DXGI_FORMAT_R32_FLOAT
-            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
-
-        m_MRT[(UINT)MRT_TYPE::OUT_LINE]->Create(arrRTTex, 1, nullptr);
-    }
-    {
-        m_MRT[(UINT)MRT_TYPE::OUT_LINE_PLUS] = new MRT;
-
-        Ptr<CTexture> arrRTTex[8] = {};
-        arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"OutlinePlusSizeTargetTex", vResol.x, vResol.y
-            , DXGI_FORMAT_R32_FLOAT
-            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
-
-        m_MRT[(UINT)MRT_TYPE::OUT_LINE_PLUS]->Create(arrRTTex, 1, nullptr);
-        
-    }
     // ====================
 	// Bloomed HDR MRT
 	// ====================

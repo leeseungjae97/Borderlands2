@@ -19,6 +19,7 @@
 #include "CInstancingBuffer.h"
 #include "CKeyMgr.h"
 #include "CLight3D.h"
+#include "CMeshRender.h"
 #include "CResMgr.h"
 #include "mMRT.h"
 
@@ -199,22 +200,6 @@ void CCamera::CalRay()
 	m_ray.vDir.Normalize();
 }
 
-void CCamera::Scale(Ptr<CTexture> _In, Ptr<CTexture> _Out)
-{
-	//D3D11_VIEWPORT viewport;
-	//viewport.Width = CEngine::GetInst()->GetWindowResolution().x;
-	//viewport.Height = CEngine::GetInst()->GetWindowResolution().y;
-
-	//FLOAT rgba[4] = {0.f,0.f, 0.f, 1.f};
-
-	//CONTEXT->ClearRenderTargetView(_Out->GetRTV().Get(), rgba);
-
-	//ComPtr<ID3D11RenderTargetView> renderTargetView [] = {_Out->GetRTV()};
-	//CONTEXT->OMSetRenderTargets(1, &renderTargetView[0], 0);
-
-	//CONTEXT->RSSetViewports(1, &viewport);
-}
-
 void CCamera::SortObject()
 {
 	// 이전 프레임 분류정보 제거
@@ -378,6 +363,17 @@ void CCamera::render()
 
 	if (CRenderMgr::GetInst()->GetMainCam() == this)
 	{
+		static Ptr<CMesh> pScreen = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
+
+		static Ptr<CMaterial> pMerge = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
+		static Ptr<CMaterial> pBlurV = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurVMtrl");
+		static Ptr<CMaterial> pBlurH = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurHMtrl");
+		static Ptr<CMaterial> pGaussianBlur = CResMgr::GetInst()->FindRes<CMaterial>(L"GaussianBlurMtrl");
+		static Ptr<CMaterial> pEmissiveBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
+		static Ptr<CMaterial> pSpecularBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
+		static Ptr<CMaterial> pToneMapping = CResMgr::GetInst()->FindRes<CMaterial>(L"ToneMappingMtrl");
+		static Ptr<CMaterial> pLaplacian = CResMgr::GetInst()->FindRes<CMaterial>(L"LaplacianMtrl");
+
 		// Deferred MRT
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED)->OMSet(true);
 		render_deferred();
@@ -389,18 +385,6 @@ void CCamera::render()
 		{
 			vecLight3D[i]->render();
 		}
-
-		static Ptr<CMesh> pScreen = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
-
-		static Ptr<CMaterial> pMerge = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
-		static Ptr<CMaterial> pBlurV = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurVMtrl");
-		static Ptr<CMaterial> pBlurH = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurHMtrl");
-		static Ptr<CMaterial> pGaussianBlur = CResMgr::GetInst()->FindRes<CMaterial>(L"GaussianBlurMtrl");
-		static Ptr<CMaterial> pEmissiveBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
-		static Ptr<CMaterial> pSpecularBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
-		static Ptr<CMaterial> pToneMapping = CResMgr::GetInst()->FindRes<CMaterial>(L"ToneMappingMtrl");
-		static Ptr<CMaterial> pOutline = CResMgr::GetInst()->FindRes<CMaterial>(L"OutlineMtrl");
-		static Ptr<CMaterial> pCompareOutline = CResMgr::GetInst()->FindRes<CMaterial>(L"CompareOutlineMtrl");
 
 		// Blur
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LUMINANCE)->OMSet();
@@ -433,21 +417,10 @@ void CCamera::render()
 		pMerge->UpdateData();
 		pScreen->render(0);
 
-		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::OUT_LINE)->OMSet();
-		//pOutline->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
-		//pOutline->UpdateData();
-		//pScreen->render(0);
-
-		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::OUT_LINE_PLUS)->OMSet();
-		//pOutline->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
-		//pOutline->UpdateData();
-		//pScreen->render(0);
-
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR_LINE)->OMSet();
-		pCompareOutline->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
-		pCompareOutline->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"OutlineTargetTex"));
-		pCompareOutline->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"OutlinePlusSizeTargetTex"));
-		pCompareOutline->UpdateData();
+		pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
+		pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+		pLaplacian->UpdateData();
 		pScreen->render(0);
 
 		// Bloom
@@ -476,8 +449,7 @@ void CCamera::render()
 		render_forward();
 		render_decal();
 		render_transparent();
-
-		// PostProcess - 후처리
+		
 		render_postprocess();
 	}
 	else
@@ -518,11 +490,6 @@ void CCamera::clear_shadow()
 
 void CCamera::render_deferred()
 {
-	//for (size_t i = 0; i < m_vecDeferred.size(); ++i)
-	//{
-	//	m_vecDeferred[i]->render();
-	//}
-
 	UpdateMatrix();
 
 	for (auto& pair : m_mapSingleObj)
@@ -535,18 +502,13 @@ void CCamera::render_deferred()
 
 	for (auto& pair : m_mapInstGroup_D)
 	{
-		// 그룹 오브젝트가 없거나, 쉐이더가 없는 경우
 		if (pair.second.empty())
 			continue;
 
-		// instancing 개수 조건 미만이거나
-		// Animation2D 오브젝트거나(스프라이트 애니메이션 오브젝트)
-		// Shader 가 Instancing 을 지원하지 않는경우
 		if (pair.second.size() <= 1
 			//|| pair.second[0].pObj->Animator2D()
 			|| pair.second[0].pObj->GetRenderComponent()->GetMaterial(pair.second[0].iMtrlIdx)->GetShader()->GetVSInst() == nullptr)
 		{
-			// 해당 물체들은 단일 랜더링으로 전환
 			for (UINT i = 0; i < pair.second.size(); ++i)
 			{
 				map<INT_PTR, vector<tInstObj>>::iterator iter
@@ -761,26 +723,9 @@ void CCamera::render_shadowmap()
 
 	for (size_t i = 0; i < m_vecShadow.size(); ++i)
 	{
-		//m_vecShadow[i]->SetESM(m_bESM);
 		m_vecShadow[i]->render_shadowmap();
 	}
 }
-
-//void CCamera::render_opaque()
-//{
-//	for (size_t i = 0; i < m_vecOpaque.size(); ++i)
-//	{
-//		m_vecOpaque[i]->render();
-//	}
-//}
-//
-//void CCamera::render_mask()
-//{
-//	for (size_t i = 0; i < m_vecMask.size(); ++i)
-//	{
-//		m_vecMask[i]->render();
-//	}
-//}
 
 void CCamera::render_decal()
 {

@@ -44,6 +44,11 @@ private:
     bool        m_Bloom;
     bool        m_Blur;
     float       f_blurFactor;
+    float       f_blurFactor1;
+    float       f_blurFactor2;
+
+    Vec4        vScaleColor;
+    Vec4        vImpactColor;
     map<ULONG64, vector<tInstObj>>		m_mapInstGroup_D;	    // Deferred
     map<ULONG64, vector<tInstObj>>		m_mapInstGroup_F;	    // Foward ( Opaque, Mask )	
     map<INT_PTR, vector<tInstObj>>		m_mapSingleObj;		    // Single Object
@@ -110,6 +115,20 @@ public:
     void SetFactor(float factor) { f_blurFactor = factor; }
     float GetFactor() { return f_blurFactor; }
 
+
+    void SetFactor1(float factor) { f_blurFactor1 = factor; }
+    float GetFactor1() { return f_blurFactor1; }
+
+
+    void SetFactor2(float factor) { f_blurFactor2 = factor; }
+    float GetFactor2() { return f_blurFactor2; }
+
+    void SetColor(Vec4 Color) { vScaleColor = Color; }
+    Vec4 GetColor() { return vScaleColor; }
+
+    void SetImpact(Vec4 Color) { vImpactColor = Color; }
+    Vec4 GetImpact() { return vImpactColor; }
+
 protected:
     void CalRay();
     void Scale(Ptr<CTexture> _In, Ptr<CTexture> _Out);
@@ -133,6 +152,7 @@ private:
     void clear_shadow();
 
     void render_deferred();
+    void render_outline();
     void render_forward();
     //void render_opaque();
     //void render_mask();

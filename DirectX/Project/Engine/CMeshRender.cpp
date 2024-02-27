@@ -25,8 +25,8 @@ void CMeshRender::render()
 {
 	if (nullptr == GetMesh() || nullptr == GetMaterial(0))
 		return;
-	Ptr<CMaterial> pOutline = CResMgr::GetInst()->FindRes<CMaterial>(L"OutlineMtrl");
-	MRT* mrt = CRenderMgr::GetInst()->GetCurMRT();
+	//Ptr<CMaterial> pOutline = CResMgr::GetInst()->FindRes<CMaterial>(L"OutlineMtrl");
+	//MRT* mrt = CRenderMgr::GetInst()->GetCurMRT();
 
 	vector<Ptr<CMaterial>> mats;
 	vector<int> renderSubsets;
@@ -45,7 +45,6 @@ void CMeshRender::render()
 		}
 	}
 
-	// Transform 에 UpdateData 요청
 	Transform()->UpdateData();
 
 	if (Animator2D())
@@ -53,7 +52,6 @@ void CMeshRender::render()
 		Animator2D()->UpdateData();
 	}
 
-	// Animator3D 업데이트
 	if (Animator3D())
 	{
 		Animator3D()->UpdateData();
@@ -63,7 +61,7 @@ void CMeshRender::render()
 			if (nullptr == GetMaterial(i))
 				continue;
 
-			GetMaterial(i)->SetAnim3D(true); // Animation Mesh 알리기
+			GetMaterial(i)->SetAnim3D(true);
 			GetMaterial(i)->SetBoneCount(Animator3D()->GetBoneCount());
 		}
 	}
@@ -76,30 +74,7 @@ void CMeshRender::render()
 		// 렌더
 		GetMesh()->render(renderSubsets[i]);
 	}
-	//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::OUT_LINE)->OMSet();
 
-	//for (int i = 0; i < mats.size(); ++i)
-	//{
-	//	// 재질 업데이트
-	//	pOutline->UpdateData();
-
-	//	// 렌더
-	//	GetMesh()->render(renderSubsets[i]);
-	//}
-	//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::OUT_LINE_PLUS)->OMSet();
-	//bool SizeUp = true;
-	//pOutline->SetScalarParam(INT_0, &SizeUp);
-
-	//for (int i = 0; i < mats.size(); ++i)
-	//{
-	//	// 재질 업데이트
-	//	pOutline->UpdateData();
-
-	//	// 렌더
-	//	GetMesh()->render(renderSubsets[i]);
-	//}
-	//
-	//mrt->OMSet();
 	if (Animator3D())
 		Animator3D()->ClearData();
 	if (Animator2D())
@@ -111,8 +86,9 @@ void CMeshRender::render(UINT _iSubset, bool _Deferred)
 	if (nullptr == GetMesh() || nullptr == GetMaterial(_iSubset))
 		return;
 
-	Ptr<CMaterial> pOutline = CResMgr::GetInst()->FindRes<CMaterial>(L"OutlineMtrl");
-	MRT* mrt = CRenderMgr::GetInst()->GetCurMRT();
+	//Ptr<CMaterial> pOutline = CResMgr::GetInst()->FindRes<CMaterial>(L"OutlineMtrl");
+	//MRT* mrt = CRenderMgr::GetInst()->GetCurMRT();
+
 	if (_Deferred)
 	{
 		if (GetMaterial(_iSubset)->GetShader()->GetDomain() != SHADER_DOMAIN::DOMAIN_DEFERRED)
@@ -135,32 +111,17 @@ void CMeshRender::render(UINT _iSubset, bool _Deferred)
 		Animator2D()->UpdateData();
 	}
 
-	// Animator3D 업데이트
+	
 	if (Animator3D())
 	{
 		Animator3D()->UpdateData();
-		GetMaterial(_iSubset)->SetAnim3D(true); // Animation Mesh 알리기
+		GetMaterial(_iSubset)->SetAnim3D(true);
 		GetMaterial(_iSubset)->SetBoneCount(Animator3D()->GetBoneCount());
 	}
 
-	// 사용할 재질 업데이트
 	GetMaterial(_iSubset)->UpdateData();
 
-	// 사용할 메쉬 업데이트 및 렌더링
 	GetMesh()->render(_iSubset);
-
-	//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::OUT_LINE)->OMSet();
-
-	//pOutline->UpdateData();
-	//GetMesh()->render(_iSubset);
-
-	//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::OUT_LINE_PLUS)->OMSet();
-
-	//bool SizeUp = true;
-	//pOutline->SetScalarParam(INT_0, &SizeUp);
-	//pOutline->UpdateData();
-	//GetMesh()->render(_iSubset);
-	//mrt->OMSet();
 
 	if (Animator3D())
 		Animator3D()->ClearData();

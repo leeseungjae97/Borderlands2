@@ -40,10 +40,15 @@ private:
 
     tRay        m_ray;
 
-    bool        m_HDR;
-    bool        m_Bloom;
-    bool        m_Blur;
-    float       f_blurFactor;
+    //bool        m_HDR;
+    //bool        m_Bloom;
+    //bool        m_Blur;
+    //float       f_blurFactor;
+    //float       f_blurFactor1;
+    //float       f_blurFactor2;
+
+    //Vec4        vScaleColor;
+    //Vec4        vImpactColor;
     map<ULONG64, vector<tInstObj>>		m_mapInstGroup_D;	    // Deferred
     map<ULONG64, vector<tInstObj>>		m_mapInstGroup_F;	    // Foward ( Opaque, Mask )	
     map<INT_PTR, vector<tInstObj>>		m_mapSingleObj;		    // Single Object
@@ -101,18 +106,31 @@ public:
 
     const tRay& GetRay() { return m_ray; }
 
-    bool IsHDR() { return m_HDR; }
-    void SetHDR(bool _HDR) { m_HDR = _HDR; }
+    //bool IsHDR() { return m_HDR; }
+    //void SetHDR(bool _HDR) { m_HDR = _HDR; }
 
-    void SetBloom(bool _Bloom) { m_Bloom = _Bloom; }
-    void SetBlur(bool blur) { m_Blur = blur; }
+    //void SetBloom(bool _Bloom) { m_Bloom = _Bloom; }
+    //void SetBlur(bool blur) { m_Blur = blur; }
 
-    void SetFactor(float factor) { f_blurFactor = factor; }
-    float GetFactor() { return f_blurFactor; }
+    //void SetFactor(float factor) { f_blurFactor = factor; }
+    //float GetFactor() { return f_blurFactor; }
+
+
+    //void SetFactor1(float factor) { f_blurFactor1 = factor; }
+    //float GetFactor1() { return f_blurFactor1; }
+
+
+    //void SetFactor2(float factor) { f_blurFactor2 = factor; }
+    //float GetFactor2() { return f_blurFactor2; }
+
+    //void SetColor(Vec4 Color) { vScaleColor = Color; }
+    //Vec4 GetColor() { return vScaleColor; }
+
+    //void SetImpact(Vec4 Color) { vImpactColor = Color; }
+    //Vec4 GetImpact() { return vImpactColor; }
 
 protected:
     void CalRay();
-    void Scale(Ptr<CTexture> _In, Ptr<CTexture> _Out);
 
 public:
     void SortObject();
@@ -134,8 +152,6 @@ private:
 
     void render_deferred();
     void render_forward();
-    //void render_opaque();
-    //void render_mask();
     void render_decal();
     void render_transparent();
     void render_postprocess();

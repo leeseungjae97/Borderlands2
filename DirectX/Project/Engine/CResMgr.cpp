@@ -878,22 +878,10 @@ void CResMgr::CreateDefaultGraphicsShader()
 	AddRes(pShader->GetKey(), pShader);
 
 	pShader = new CGraphicsShader;
-	pShader->SetKey(L"OutlineShader");
-
-	pShader->CreateVertexShader(L"shader\\postprocess.fx", "VS_Outline");
-	pShader->CreatePixelShader(L"shader\\postprocess.fx", "PS_Outline");
-
-	pShader->SetRSType(RS_TYPE::CULL_NONE);
-	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_POSTPROCESS);
-
-	AddRes(pShader->GetKey(), pShader);
-
-	pShader = new CGraphicsShader;
-	pShader->SetKey(L"CompareOutlineShader");
+	pShader->SetKey(L"LaplacianShader");
 
 	pShader->CreateVertexShader(L"shader\\postprocess.fx", "VS_Screen");
-	pShader->CreatePixelShader(L"shader\\postprocess.fx", "PS_CompareOutline");
+	pShader->CreatePixelShader(L"shader\\postprocess.fx", "PS_Laplacian");
 
 	pShader->SetRSType(RS_TYPE::CULL_NONE);
 	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
@@ -1488,12 +1476,8 @@ void CResMgr::CreateDefaultMaterial()
 	AddRes(L"ToneMappingMtrl", pMtrl);
 
 	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"OutlineShader"));
-	AddRes(L"OutlineMtrl", pMtrl);
-
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"CompareOutlineShader"));
-	AddRes(L"CompareOutlineMtrl", pMtrl);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"LaplacianShader"));
+	AddRes(L"LaplacianMtrl", pMtrl);
 }
 
 Ptr<CTexture> CResMgr::CreateTexture(const wstring& _strKey, UINT _Width, UINT _Height

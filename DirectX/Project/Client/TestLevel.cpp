@@ -218,7 +218,7 @@ void CreateTestLevel()
 	pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\Sky.tga"));
 
 	//SpawnGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), 0);
-	PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Environment);
+	PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 
 	//CGameObject* pObject = new CGameObject;
 	//pObject->SetName(L"Decal");

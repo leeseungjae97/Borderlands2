@@ -232,56 +232,37 @@ float4 PS_ToneMapping(VS_SCREEN_OUT _In) : SV_Target
     return float4(vToneMappedColor, 1.f);
 }
 
-struct VS_SCREEN_DEPTH_OUT
+static float mask[9] =
 {
-    float4 vPos : SV_Position;
-    float4 vProjPos : POSITION;
+    -1, -1, -1,
+    -1, 8, -1,
+    -1, -1, -1
 };
+static float coord[3] = { -1, 0, 1 };
 
-struct VS_SCREEN_DEPTH_IN
+#define NormalTargetTex g_tex_0
+#define HDRTargetTex g_tex_1
+
+float4 PS_Laplacian(VS_SCREEN_OUT _In) : SV_Target
 {
-    float3 vPos : POSITION;
-    float2 vUV : TEXCOORD;
+    float4 vColor = (float4) 0.f;
+    float4 vRet = HDRTargetTex.Sample(g_sam_anti_0, _In.vUV);
 
-    float3 vNormal : NORMAL;
-};
-
-#define IsPlusSize g_int_0
-VS_SCREEN_DEPTH_OUT VS_Outline(VS_SCREEN_DEPTH_IN _In)
-{
-    VS_SCREEN_DEPTH_OUT vOut = (VS_SCREEN_DEPTH_OUT) 0.f;
-
-    vOut.vPos = mul(float4(_In.vPos, 1.f), g_matWVP);
-    
-    vOut.vProjPos = vOut.vPos;
-    vOut.vProjPos.xyz /= vOut.vProjPos.w;
-
-    if (IsPlusSize)
-		vOut.vProjPos.xyz += (_In.vNormal * 1.0f);
-
-    return vOut;
-}
-
-float4 PS_Outline(VS_SCREEN_DEPTH_OUT _In) : SV_Target
-{
-    return float4(_In.vProjPos.z, 0.f, 0.f, 0.f);
-}
-
-#define RenderTargetTex g_tex_0
-#define DepthTex g_tex_1
-#define PlusSizeDepthTex g_tex_2 
-float4 PS_CompareOutline(VS_SCREEN_OUT _In) : SV_Target
-{
-    float4 vRender = RenderTargetTex.Sample(g_sam_anti_0, _In.vUV);
-    float fDepth = DepthTex.Sample(g_sam_anti_0, _In.vUV).r;
-    float fPlusDepth = PlusSizeDepthTex.Sample(g_sam_anti_0, _In.vUV).r;
-
-    if (fPlusDepth >= 1.0f && fDepth <= 1.0f)
+    for (int i = 0; i < 9; ++i)
     {
-        vRender.xyz = float3(255.f, 255.f, 255.f);
-        vRender.a = 1.f;
-
+        vColor -= mask[i] * (NormalTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(coord[i % 3] / g_Resolution.x, coord[i / 3] / g_Resolution.y)));
     }
-    return vRender;
+    float gray = dot(vColor, float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+    float threshold = 0.1f;
+    float outlineIntensity = 10.f;
+    
+    float4 vImpactColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    float4 outline = vImpactColor * saturate((gray - threshold) * outlineIntensity);
+    
+    vRet.rgb = lerp(vRet.rgb, outline.rgb, outline.a);
+    vRet.a = 1.f;
+
+    return vRet;
 }
 #endif
