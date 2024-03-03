@@ -1,5 +1,8 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Client\RenderUI.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Client\ResUI.cpp"
 
 
@@ -25,7 +28,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Client\TreeUI.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Client\UI.cpp"
 

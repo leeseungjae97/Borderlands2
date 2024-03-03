@@ -5,6 +5,7 @@
 #include "CRenderMgr.h"
 #include "CEngine.h"
 #include "CKeyMgr.h"
+#include "CTransform.h"
 
 MouseMgr::MouseMgr()
 {
@@ -18,7 +19,7 @@ void MouseMgr::MouseOut()
 {
 }
 
-Vec2 MouseMgr::UnprojectionMousePos(float z)
+Vec2 MouseMgr::UnprojectionMouse2DPos(float z)
 {
 	CCamera* _Cam = CRenderMgr::GetInst()->GetUICam();
 
@@ -43,6 +44,18 @@ Vec2 MouseMgr::UnprojectionMousePos(float z)
 	Vec3 unprojMousePos = viewport.Unproject(mousePos3, matPro, matView, Matrix::Identity);
 
 	return Vec2(unprojMousePos.x, unprojMousePos.y);
+}
+
+Vec3 MouseMgr::MousePosRay()
+{
+	CCamera* _Cam = CRenderMgr::GetInst()->GetMainCam();
+
+	Vec3 vStart = _Cam->GetRay().vStart;
+	Vec3 vDir = _Cam->GetRay().vDir;
+
+	Vec3 vRay = vStart + (vDir * 20e6f);
+
+	return vRay;
 }
 
 void MouseMgr::init()

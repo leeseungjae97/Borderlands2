@@ -14,8 +14,6 @@
 #include "CAnimator2D.h"
 #include "CLandScape.h"
 
-#include "CPathFind.h"
-
 #include "CCollider3D.h"
 #include "CRigidBody.h"
 #include "CGizmo.h"

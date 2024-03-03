@@ -116,9 +116,6 @@
     <Filter Include="_UI\_Module\ParamUI">
       <UniqueIdentifier>{50578aa4-f03f-471a-a07c-5c0366120bdc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="_UI\_InspectorUI\_ComponentUI\_RigidBodyUI">
-      <UniqueIdentifier>{749d58f4-bef0-407d-accd-e74ddee304dd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="_UI\LayerInspectorUI">
       <UniqueIdentifier>{d20429b3-5c62-47f0-9704-22680a1a23ce}</UniqueIdentifier>
     </Filter>
@@ -136,6 +133,12 @@
     </Filter>
     <Filter Include="_UI\RenderUI">
       <UniqueIdentifier>{01410db3-14dc-4f08-bad6-c4333f2cdebc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_UI\PlacementUI">
+      <UniqueIdentifier>{627ec8c7-d3b9-464d-9315-d4f51e2958f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_UI\_InspectorUI\_ComponentUI\RigidBodyUI">
+      <UniqueIdentifier>{749d58f4-bef0-407d-accd-e74ddee304dd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -270,7 +273,7 @@
       <Filter>_UI\_InspectorUI\_ComponentUI\Collider3DUI</Filter>
     </ClInclude>
     <ClInclude Include="RigidBodyUI.h">
-      <Filter>_UI\_InspectorUI\_ComponentUI\_RigidBodyUI</Filter>
+      <Filter>_UI\_InspectorUI\_ComponentUI\RigidBodyUI</Filter>
     </ClInclude>
     <ClInclude Include="ObjectPickerUI.h">
       <Filter>_UI\ObjectPickerUI</Filter>
@@ -292,6 +295,9 @@
     </ClInclude>
     <ClInclude Include="RenderUI.h">
       <Filter>_UI\RenderUI</Filter>
+    </ClInclude>
+    <ClInclude Include="PlacementUI.h">
+      <Filter>_UI\PlacementUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -437,7 +443,7 @@
       <Filter>_UI\_InspectorUI\_ComponentUI\Collider3DUI</Filter>
     </ClCompile>
     <ClCompile Include="RigidBodyUI.cpp">
-      <Filter>_UI\_InspectorUI\_ComponentUI\_RigidBodyUI</Filter>
+      <Filter>_UI\_InspectorUI\_ComponentUI\RigidBodyUI</Filter>
     </ClCompile>
     <ClCompile Include="ObjectPickerUI.cpp">
       <Filter>_UI\ObjectPickerUI</Filter>
@@ -456,6 +462,9 @@
     </ClCompile>
     <ClCompile Include="RenderUI.cpp">
       <Filter>_UI\RenderUI</Filter>
+    </ClCompile>
+    <ClCompile Include="PlacementUI.cpp">
+      <Filter>_UI\PlacementUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -161,7 +161,6 @@ enum class COMPONENT_TYPE
 	ANIMATOR3D,
 	ANIMATOR2D,
 	LIGHT3D,
-	PATHFIND,
 	GIZMO,
 	CAMERA,
 
@@ -385,6 +384,7 @@ enum class SHAPE_TYPE
 	FRONT_LINE,
 	RIGHT_LINE,
 	MESH,
+	MESH_FACE,
 	END,
 };
 
@@ -415,6 +415,7 @@ enum class LEVEL_STATE
 enum class LAYER_TYPE
 {
 	Default,
+	Terrain,
 	Environment,
 	Enemy,
 	Player,
@@ -446,11 +447,6 @@ enum class PARTICLE_MODULE
 	RENDER,
 	DUMMY_3,
 
-	USE_MOUSE,
-	DUMMY1,
-	DUMMY2,
-	DUMMY3,
-
 	END,
 };
 
@@ -463,10 +459,6 @@ enum class MRT_TYPE
 	HDR_LINE,
 
 	BLOOMED_HDR,
-
-	OUT_LINE,
-
-	OUT_LINE_PLUS,
 
 	DEFERRED,
 

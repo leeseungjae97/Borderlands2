@@ -5,75 +5,27 @@
 #include "struct.fx"
 #include "func.fx"
 
-RWStructuredBuffer<tParticle>       ParticleBuffer : register(u0);
-RWStructuredBuffer<int4>            ParticleSpawnCount : register(u1);
-
-//RWStructuredBuffer<tTileParticle> TileParticleBuffer : register(u2);
-
-StructuredBuffer<tParticleModule>   ParticleModuleData : register(t20);
-Texture2D                           NoiseTexture : register(t21);
+RWStructuredBuffer<tParticle> ParticleBuffer : register(u0);
+RWStructuredBuffer<int4> ParticleSpawnCount : register(u1);
+StructuredBuffer<tParticleModule> ParticleModuleData : register(t20);
+Texture2D NoiseTexture : register(t21);
 
 
 #define ObjectPos           g_vec4_0
-#define MousePos            g_vec4_1
-//#define MousePos            g_vec3_0
 
 #define NoiseTexResolution  g_vec2_0
 
 #define SpawnCount          ParticleSpawnCount[0].x
+
 #define ModuleData          ParticleModuleData[0]
 #define ParticleMaxCount    ParticleModuleData[0].iMaxParticleCount
 
 #define SpawnModule         ParticleModuleData[0].Spawn
 #define ColorChangeModule   ParticleModuleData[0].ColorChange
 #define ScaleChangeModule   ParticleModuleData[0].ScaleChange
-[numthreads(1000, 1, 1)]
-void CS_ParticleUpdate2(int3 _ID : SV_DispatchThreadID)
-{
-    //if (ParticleMaxCount <= _ID.x)
-    //    return;
-
-    tParticle particle = ParticleBuffer[_ID.x];
-
-    float3 vOut1 = (float3) 0.f;
-    float3 vOut2 = (float3) 0.f;
-    float3 vOut3 = (float3) 0.f;
-    
-    float _FXX = _ID.x / 100.f;
-    float _FYY = _ID.x % 100.f;
-
-    float _FX = (ModuleData.vFixedScale.x * (_FXX - _FYY)) / 2.f;
-    float _FY = (ModuleData.vFixedScale.y * (_FXX + _FYY)) / 2.f;
-
-    particle.vWorldPos.xyz = particle.vLocalPos.xyz + ObjectPos.xyz;
-    particle.vWorldPos.x += _FX;
-    particle.vWorldPos.y += _FY;
-    //particle.ScaleFactor = 1.f;
-    
-    particle.vWorldScale.xyz = ModuleData.vSpawnScaleMax.xyz;
-    particle.vColor = float4(1.f, 0.f, 0.f, 1.f);
-
-    float2 _MousePos = float2(MousePos.x, MousePos.y);
-    float2 _Pos = particle.vWorldPos.xy;
-    float2 _Scale = particle.vWorldScale.xy;
-        
-    if (PointIntersectRhombus(_Pos, _Scale, _MousePos) == true)
-    {
-        particle.ScaleFactor = ModuleData.MaxScaleFator;
-    }else
-    {
-        if (particle.ScaleFactor >= ModuleData.MinScaleFator)
-            particle.ScaleFactor -= 0.01f;
-    }
-        
-    
-    ParticleBuffer[_ID.x] = particle;
-}
-
 [numthreads(128, 1, 1)]
 void CS_ParticleUpdate(int3 _ID : SV_DispatchThreadID)
 {
-    // 스레드 ID 가 파티클버퍼 최대 수를 넘긴경우 or 스레드 담당 파티클이 비활성화 상태인 경우
     if (ParticleMaxCount <= _ID.x)
         return;
         
@@ -90,11 +42,10 @@ void CS_ParticleUpdate(int3 _ID : SV_DispatchThreadID)
             {
                 int orgvalue = SpawnCount;
                 int outvalue = 0;
-                // dest spwan, comparev orgvalue, value spwan - 1, origin outvalue
                 InterlockedCompareExchange(SpawnCount, orgvalue, SpawnCount - 1, outvalue);
             
                 if (orgvalue == outvalue)
-                {   
+                {
                     particle.Active = 1;
                     
                     // 랜덤 결과를 받을 변수
@@ -111,43 +62,29 @@ void CS_ParticleUpdate(int3 _ID : SV_DispatchThreadID)
                     // Box 스폰
                     if (ModuleData.SpawnShapeType == 0)
                     {
+                        particle.vObjPos.xyz = ObjectPos.xyz;
+                        particle.vLocalPos.xyz = float3(ModuleData.vBoxShapeScale.x * vOut1.r - ModuleData.vBoxShapeScale.x * 0.5f
+							, ModuleData.vBoxShapeScale.y * vOut2.r - ModuleData.vBoxShapeScale.y * 0.5f
+                            , ModuleData.vBoxShapeScale.z * vOut3.r - ModuleData.vBoxShapeScale.z * 0.5f
+                        );
+                        particle.vWorldPos.xyz = particle.vLocalPos.xyz + particle.vObjPos.xyz;
+                        
+                        
                         // 스폰 크기 범위내에서 랜덤 크기로 지정 (Min, Max 가 일치하면 고정크기)
                         float4 vSpawnScale = ModuleData.vSpawnScaleMin + (ModuleData.vSpawnScaleMax - ModuleData.vSpawnScaleMin) * vOut3.x;
                         particle.vWorldScale.xyz = vSpawnScale.xyz;
-
-                        particle.vLocalPos.xyz = float3(ModuleData.vBoxShapeScale.x * vOut1.r - ModuleData.vBoxShapeScale.x * 0.5f
-                                                      , ModuleData.vBoxShapeScale.y * vOut2.r - ModuleData.vBoxShapeScale.y * 0.5f
-                                                      , 0.f);//ModuleData.vBoxShapeScale.z * vOut3.r - ModuleData.vBoxShapeScale.z * 0.5f);
-                        //particle.vLocalPos.x *= particle.vWorldScale.x;
-                        //particle.vLocalPos.y *= particle.vWorldScale.x;
-                        // 파티클 위치기준으로 원
-                        particle.vWorldPos.xyz = particle.vLocalPos.xyz + ObjectPos.xyz;
-                        //particle.vWorldPos.x += vOut2.r * 1000.f;
-                        //particle.vWorldPos.y += vOut3.r * 1000.f;
-                        
-                        
-                        
                     }
                     
                     // Sphere 스폰
                     else if (ModuleData.SpawnShapeType == 1)
                     {
-                        float fRadius = vOut1.r * 100.f; //vOut1.r * 200.f;
+                        float fRadius = 500.f; //vOut1.r * 200.f;
                         float fAngle = vOut2.r * 2 * 3.1415926535f;
                         //particle.vWorldPos.xyz = float3(fRadius * cos(fAngle), fRadius * sin(fAngle), 100.f);
-                    }else if(ModuleData.SpawnShapeType == 2)
-                    {
-                        float4 vSpawnScale = ModuleData.vSpawnScaleMin + (ModuleData.vSpawnScaleMax - ModuleData.vSpawnScaleMin) * vOut3.x;
-                        particle.vWorldScale.xyz = vSpawnScale.xyz;
-
-                        particle.vLocalPos.xyz = float3(ModuleData.vBoxShapeScale.x * vOut1.r - ModuleData.vBoxShapeScale.x * 0.5f
-                                                      , ModuleData.vBoxShapeScale.y * vOut2.r - ModuleData.vBoxShapeScale.y * 0.5f
-                                                      , 0.f);
-                        particle.vWorldPos.xyz = particle.vLocalPos.xyz + ObjectPos.xyz;
                     }
                     
                     // 파티클 질량 설정
-                    particle.Mass = 1.f;                    
+                    particle.Mass = 1.f;
                     
                     
                     // AddVelocity 모듈
@@ -166,22 +103,17 @@ void CS_ParticleUpdate(int3 _ID : SV_DispatchThreadID)
                             float3 vVelocity = -normalize(particle.vLocalPos.xyz);
                             particle.vVelocity.xyz = vVelocity * ModuleData.Speed;
                         }
-                        else if (ModuleData.AddVelocityType == 2)
-                        {
-
-                            float3 vVelocity = normalize(particle.vLocalPos.xyz);
-                            particle.vVelocity.xyz = vVelocity * ModuleData.Speed;
-                        }
+                        
                         // Fixed Direction
                         else
                         {
-                            particle.vVelocity.xyz = normalize(ModuleData.vVelocityDir.xyz) * ModuleData.Speed;
+                            particle.vVelocity.xyz = normalize(ModuleData.vVelocityDir) * ModuleData.Speed;
                         }
-                    }                    
+                    }
                     
                    
                     
-                    particle.vColor = ModuleData.vSpawnColor;                                      
+                    particle.vColor = ModuleData.vSpawnColor;
                     particle.Age = 0.f;
                     particle.LifeTime = ModuleData.MinLifeTime + (ModuleData.MaxLifeTime - ModuleData.MinLifeTime) * vOut2.r;
                     break;
@@ -191,12 +123,12 @@ void CS_ParticleUpdate(int3 _ID : SV_DispatchThreadID)
     }
     
     // 파티클이 활성화인 경우
-    if(particle.Active)
+    if (particle.Active)
     {
         // 파티클의 Age 에 시간을 누적시킴
         particle.PrevAge = particle.Age;
         particle.Age += g_DT;
-        particle.NomalizedAge = saturate(particle.Age / particle.LifeTime);        
+        particle.NomalizedAge = saturate(particle.Age / particle.LifeTime);
         particle.vForce.xyz = (float3) 0.f;
         
         
@@ -208,7 +140,7 @@ void CS_ParticleUpdate(int3 _ID : SV_DispatchThreadID)
                 
         // NoiseForce 모듈 (랜덤으로 힘) 적용 모듈
         if (ModuleData.NoiseForce)
-        {            
+        {
             if (particle.PrevAge == 0.f)
             {
                  // 랜덤 결과를 받을 변수
@@ -247,14 +179,14 @@ void CS_ParticleUpdate(int3 _ID : SV_DispatchThreadID)
                     float3 vForce = normalize(float3(vOut1.x, vOut2.x, vOut1.z) * 2.f - 1.f);
                     particle.vRandomForce.xyz = vForce * ModuleData.fNoiseForce;
                 }
-            }   
+            }
             
             particle.vForce.xyz += particle.vRandomForce.xyz;
-        }                
+        }
        
         // 파티클에 힘이 적용 된 경우, 힘에 의한 속도의 변화량 계산
         float3 vAccel = particle.vForce.xyz / particle.Mass;
-        particle.vVelocity.xyz += vAccel * g_DT; 
+        particle.vVelocity.xyz += vAccel * g_DT;
         
         
         // 속도 제한(Drag) 모듈
@@ -265,42 +197,42 @@ void CS_ParticleUpdate(int3 _ID : SV_DispatchThreadID)
             float fDrag = ModuleData.StartDrag + (ModuleData.EndDrag - ModuleData.StartDrag) * particle.NomalizedAge;
             
             // 속도가 반대로 뒤집히는것 방지
-            if(fDrag <= 0.f)
+            if (fDrag <= 0.f)
                 fDrag = 0.001f;
             
             if (fDrag < Speed)
             {
                 particle.vVelocity = normalize(particle.vVelocity) * fDrag;
             }
-        }                
+        }
         
         // 속도에 따른 파티클위치 이동
         // Sim 좌표계에 따라서 이동방식 분기
         if (ModuleData.Space == 0)
-        {                        
+        {
             particle.vWorldPos += particle.vVelocity * g_DT;
         }
-        else if(ModuleData.Space == 1)
+        else if (ModuleData.Space == 1)
         {
             particle.vLocalPos += particle.vVelocity * g_DT;
-            particle.vWorldPos.xyz = particle.vLocalPos.xyz + ObjectPos.xyz;
+            particle.vWorldPos.xyz = particle.vLocalPos.xyz + particle.vObjPos.xyz;
         }
         
         
         // 크기 변화 모듈이 활성화 되어있으면
-        if(ModuleData.ScaleChange)
-            particle.ScaleFactor = ModuleData.StartScale + particle.NomalizedAge * (ModuleData.EndScale - ModuleData.StartScale);                    
+        if (ModuleData.ScaleChange)
+            particle.ScaleFactor = ModuleData.StartScale + particle.NomalizedAge * (ModuleData.EndScale - ModuleData.StartScale);
         else
             particle.ScaleFactor = 1.f;
         
         
         // 색상 변화모듈이 활성화 되어있으면
-        if(ModuleData.ColorChange)
+        if (ModuleData.ColorChange)
         {
             particle.vColor = ModuleData.vStartColor + particle.NomalizedAge * (ModuleData.vEndColor - ModuleData.vStartColor);
-        }               
+        }
         
-    }    
+    }
     
     // 변경점 적용
     ParticleBuffer[_ID.x] = particle;

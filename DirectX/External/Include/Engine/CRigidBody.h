@@ -51,6 +51,7 @@ private:
     RIGID_BODY_SHAPE_TYPE   m_tRigidShapeType;
     RIGID_BODY_TYPE         m_tRigidType;
     Vec3                    m_vRigidScale;
+    Vec3                    m_vRigidDir[3];
 
     bool                    m_bCreature;
 
@@ -107,6 +108,7 @@ public:
 
     Matrix GetRigidBodyMatrix(Vec3 _vOffset = Vec3::Zero);
 
+    Vec3 GetRigidBodyDir(DIR_TYPE _Dir);
 private:
     void convertMeshToGeom();
     void setRigidPos();

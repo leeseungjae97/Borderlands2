@@ -1,5 +1,17 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Engine\RaycastMgr.cpp"
+
+
+#include "E:\directx11_3d\DirectX\Project\Engine\RecastBuildContext.cpp"
+
+
+#include "E:\directx11_3d\DirectX\Project\Engine\RecastMesh.cpp"
+
+
+#include "E:\directx11_3d\DirectX\Project\Engine\RecastNavi.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\CRigidBody.cpp"
 
 

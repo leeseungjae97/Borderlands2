@@ -13,7 +13,6 @@ class CRenderComponent;
 class CScript;
 class CSkyBox;
 class CDecal;
-class CPathFind;
 class CCollider3D;
 class CRigidBody;
 class CGizmo;
@@ -95,7 +94,6 @@ public:
     GET_COMPONENT(LandScape, LANDSCAPE);
     GET_COMPONENT(Collider3D, COLLIDER3D);
     GET_COMPONENT(RigidBody, RIGIDBODY);
-    GET_COMPONENT(PathFind, PATHFIND);
 
     CRenderComponent* GetRenderComponent() const {  return m_RenderCom; }
 

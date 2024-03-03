@@ -142,6 +142,11 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot)
 	int randY = RandMgr::GetInst()->GetRandMuzzleY(2);
 	Vec2 muzzleSize = Vec2(512.f / 2.f, 512.f / 2.f);
 
+	
+	Ptr<CMaterial> pMtrl = new CMaterial(true);
+	pMtrl->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3DShader"));
+	CResMgr::GetInst()->AddRes(L"GunFireMtrl", pMtrl);
+
 	CGameObject* Light = new CGameObject;
 	Light->SetName(L"Muzzle Flash");
 	Light->AddComponent(new CMeshRender);
@@ -163,12 +168,13 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot)
 	Light->Light3D()->SetRadius(100.f);
 	Light->Light3D()->SetLightType(LIGHT_TYPE::POINT);
 	Light->Light3D()->SetLightColor(Vec3(1.f, 1.f, 0.f));
-	Light->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
+	Light->Light3D()->SetLightAmbient(Vec3(0.65f, 0.65f, 0.65f));
 	Light->Light3D()->SetLifeSpan(0.01f);
+
 	Light->Transform()->SetRelativeRot(_vRot);
-	Light->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
+	Light->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
 	Light->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	Light->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3DShaderMtrl"), 0);
+	Light->MeshRender()->SetMaterial(pMtrl, 0);
 
 	SpawnGameObject(Light, _vPos, LAYER_TYPE::Light);
 }

@@ -24,9 +24,6 @@ private:
 public:
 	void tick();
 
-	//bool IsRaycast() { return m_bDoRaycast; }
-	//void UseRayInfo();
-
 	void SetDrawRayDistance(float _Distance) { m_fDrawRayDistance = _Distance; }
 	void SetPlayerRayInfo(tRayInfo _PlayerRayInfo) { tPlayerRayInfo = _PlayerRayInfo; }
 

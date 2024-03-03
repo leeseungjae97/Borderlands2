@@ -24,6 +24,9 @@
 #include "E:\directx11_3d\DirectX\Project\Script\CEnemyScript.cpp"
 
 
+#include "E:\directx11_3d\DirectX\Project\Script\CPathFindScript.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Script\CPlayerScript.cpp"
 
 

@@ -51,6 +51,9 @@
     <ClInclude Include="CAttackNormalScript.h">
       <Filter>Script</Filter>
     </ClInclude>
+    <ClInclude Include="CPathFindScript.h">
+      <Filter>Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CCameraMoveScript.cpp">
@@ -90,6 +93,9 @@
       <Filter>Script</Filter>
     </ClCompile>
     <ClCompile Include="CAttackNormalScript.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="CPathFindScript.cpp">
       <Filter>Script</Filter>
     </ClCompile>
   </ItemGroup>

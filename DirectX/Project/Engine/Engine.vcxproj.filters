@@ -187,9 +187,6 @@
     <ClInclude Include="CWeightMapShader.h">
       <Filter>Source\_Resource\Shader\ComputeShader\WeightMapShader</Filter>
     </ClInclude>
-    <ClInclude Include="CPathFind.h">
-      <Filter>Source\_Component\PathFind</Filter>
-    </ClInclude>
     <ClInclude Include="CLandScapePathShader.h">
       <Filter>Source\_Resource\Shader\ComputeShader\LandScapePathShader</Filter>
     </ClInclude>
@@ -273,6 +270,15 @@
     </ClInclude>
     <ClInclude Include="FieldUIMgr.h">
       <Filter>Source\_Manager\FieldUIMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="InputGeom.h">
+      <Filter>Source\_Module\Recast\RecastNavi</Filter>
+    </ClInclude>
+    <ClInclude Include="NavigationMgr.h">
+      <Filter>Source\_Manager\NavigationMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleMgr.h">
+      <Filter>Source\_Manager\ParticleMgr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -441,9 +447,6 @@
     <ClCompile Include="CWeightMapShader.cpp">
       <Filter>Source\_Resource\Shader\ComputeShader\WeightMapShader</Filter>
     </ClCompile>
-    <ClCompile Include="CPathFind.cpp">
-      <Filter>Source\_Component\PathFind</Filter>
-    </ClCompile>
     <ClCompile Include="CLandScapePathShader.cpp">
       <Filter>Source\_Resource\Shader\ComputeShader\LandScapePathShader</Filter>
     </ClCompile>
@@ -530,6 +533,21 @@
     </ClCompile>
     <ClCompile Include="FieldUIMgr.cpp">
       <Filter>Source\_Manager\FieldUIMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="PerfTimer.cpp">
+      <Filter>Source\_Module\Recast\RecastNavi</Filter>
+    </ClCompile>
+    <ClCompile Include="InputGeom.cpp">
+      <Filter>Source\_Module\Recast\RecastNavi</Filter>
+    </ClCompile>
+    <ClCompile Include="ChunkyTriMesh.cpp">
+      <Filter>Source\_Module\Recast\RecastNavi</Filter>
+    </ClCompile>
+    <ClCompile Include="NavigationMgr.cpp">
+      <Filter>Source\_Manager\NavigationMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleMgr.cpp">
+      <Filter>Source\_Manager\ParticleMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -692,9 +710,6 @@
     <Filter Include="Source\_Component\Frustum">
       <UniqueIdentifier>{6782d552-3184-475d-976b-5642054ec6b9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\_Component\PathFind">
-      <UniqueIdentifier>{253e45a2-14db-482c-b27f-8aea8b8dc3dd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\_Component\Collider3D">
       <UniqueIdentifier>{ca161233-3dae-4162-bc13-7e23ca4b9f3e}</UniqueIdentifier>
     </Filter>
@@ -794,6 +809,12 @@
     <Filter Include="Source\_Manager\FieldUIMgr">
       <UniqueIdentifier>{d339d0a0-051d-448c-aa08-f8ce72c7b775}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\_Manager\NavigationMgr">
+      <UniqueIdentifier>{f8b77913-ed4e-4496-9c65-091c942632fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\ParticleMgr">
+      <UniqueIdentifier>{72241d18-a11c-41b5-9381-d2040789a62b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -819,12 +840,6 @@
     </FxCompile>
     <FxCompile Include="setcolor.fx">
       <Filter>Source\_Resource\Shader\ComputeShader\SetColor</Filter>
-    </FxCompile>
-    <FxCompile Include="particle_update.fx">
-      <Filter>Source\_Resource\Shader\ComputeShader\ParticleUpdate</Filter>
-    </FxCompile>
-    <FxCompile Include="particle_render.fx">
-      <Filter>Source\_ShaderCode</Filter>
     </FxCompile>
     <FxCompile Include="std3d.fx">
       <Filter>Source\_ShaderCode</Filter>
@@ -881,6 +896,12 @@
       <Filter>Source\_ShaderCode\Effect</Filter>
     </FxCompile>
     <FxCompile Include="tess.fx">
+      <Filter>Source\_ShaderCode\Effect</Filter>
+    </FxCompile>
+    <FxCompile Include="particle_render.fx">
+      <Filter>Source\_ShaderCode\Effect</Filter>
+    </FxCompile>
+    <FxCompile Include="particle_update.fx">
       <Filter>Source\_ShaderCode\Effect</Filter>
     </FxCompile>
   </ItemGroup>

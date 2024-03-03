@@ -20,6 +20,7 @@ CLevel::CLevel()
 	}
 
 	m_arrLayer[(int)LAYER_TYPE::Default]->SetName(L"Default");
+	m_arrLayer[(int)LAYER_TYPE::Terrain]->SetName(L"Terrain");
 	m_arrLayer[(int)LAYER_TYPE::Environment]->SetName(L"Environment");
 	m_arrLayer[(int)LAYER_TYPE::Enemy]->SetName(L"Enemy");
 	m_arrLayer[(int)LAYER_TYPE::Player]->SetName(L"Player");

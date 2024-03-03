@@ -12,7 +12,9 @@
 #include "CFontMgr.h"
 #include "CInstancingBuffer.h"
 #include "KeyUseInfoMgr.h"
+#include "NavigationMgr.h"
 #include "ObjPickerMgr.h"
+#include "ParticleMgr.h"
 #include "PhysXMgr.h"
 #include "PlayerMgr.h"
 #include "RandMgr.h"
@@ -66,6 +68,10 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 
 	RandMgr::GetInst()->init();
 
+	NavigationMgr::GetInst()->init();
+
+	ParticleMgr::GetInst()->init();
+
 	return S_OK;
 }
 
@@ -94,6 +100,7 @@ void CEngine::tick()
 	PlayerMgr::GetInst()->tick();
 	WeaponMgr::GetInst()->tick();
 	RaycastMgr::GetInst()->tick();
+	NavigationMgr::GetInst()->tick();
 }
 
 void CEngine::render()

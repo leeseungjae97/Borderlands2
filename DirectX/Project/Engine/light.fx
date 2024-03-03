@@ -196,7 +196,7 @@ PS_OUT PS_PointLightShader(VS_OUT _in)
     // 계산된 최종 광원의 세기를 각 타겟(Diffuse, Specular) 에 출력
     output.vDiffuse = LightColor.vDiffuse + LightColor.vAmbient;
     output.vSpecular = g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
-        
+    
     output.vDiffuse.a = 1.f;
     output.vSpecular.a = 1.f;
     

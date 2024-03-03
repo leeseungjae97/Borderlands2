@@ -21,7 +21,7 @@ CTransform::CTransform()
 		  Vec3(1.f, 0.f, 0.f)
 		, Vec3(0.f, 1.f, 0.f)
 		, Vec3(0.f, 0.f, 1.f)}	
-{
+	{
 	SetName(L"Transform");
 }
 
@@ -133,18 +133,21 @@ void CTransform::finaltick()
 		//m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
 		//Quat quat = Util::Vector3ToQuaternion(m_vRelativeRot);
 		//m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
-		
+
+
 		if (!_rb->IsCreature())
 		{
 			m_qRotation = Quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
 			m_vRelativeRot = Util::QuaternionToVector3(m_qRotation);
 			m_Rot = Matrix::CreateFromQuaternion(m_qRotation);
+			//_rb->SetAngularVelocity(Vec3(0.f, ));
 		}
 		else
 		{
 			m_RotNoX = XMMatrixRotationX(0.f);
 			m_RotNoX *= XMMatrixRotationY(m_vRelativeRot.y);
 			m_RotNoX *= XMMatrixRotationZ(m_vRelativeRot.z);
+
 
 			m_Rot = XMMatrixRotationX(m_vRelativeRot.x);
 			m_Rot *= XMMatrixRotationY(m_vRelativeRot.y);

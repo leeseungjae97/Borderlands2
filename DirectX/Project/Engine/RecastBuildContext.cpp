@@ -11,11 +11,6 @@ RecastBuildContext::RecastBuildContext() :
 	resetTimers();
 }
 
-RecastBuildContext::~RecastBuildContext()
-{
-
-}
-
 // Virtual functions for custom implementations.
 void RecastBuildContext::doResetLog()
 {
@@ -43,6 +38,32 @@ void RecastBuildContext::doLog(const rcLogCategory category, const char* msg, co
 	text[count - 1] = '\0';
 	m_textPoolSize += 1 + count;
 	m_messages[m_messageCount++] = dst;
+}
+
+void RecastBuildContext::doResetTimers()
+{
+	for (int i = 0; i < RC_MAX_TIMERS; ++i)
+		m_accTime[i] = -1;
+}
+
+void RecastBuildContext::doStartTimer(const rcTimerLabel label)
+{
+	m_startTime[label] = getPerfTime();
+}
+
+void RecastBuildContext::doStopTimer(const rcTimerLabel label)
+{
+	const TimeVal endTime = getPerfTime();
+	const TimeVal deltaTime = endTime - m_startTime[label];
+	if (m_accTime[label] == -1)
+		m_accTime[label] = deltaTime;
+	else
+		m_accTime[label] += deltaTime;
+}
+
+int RecastBuildContext::doGetAccumulatedTime(const rcTimerLabel label) const
+{
+	return getPerfTimeUsec(m_accTime[label]);
 }
 
 void RecastBuildContext::dumpLog(const char* format, ...)

@@ -40,16 +40,19 @@ struct tParticle
     float4  vVelocity; // 파티클 현재 속도
     float4  vForce; // 파티클에 주어진 힘
     float4  vRandomForce; // 파티클에 적용되는 랜덤 힘
+    float4  vObjPos;
 
     float   Age; // 생존 시간
     float   PrevAge;  // 이전 프레임 생존시간
+
     float   NomalizedAge; // 수명대비 생존시간을 0~1로 정규화 한 값
     float   LifeTime; // 수명
+    
     float   Mass; // 질량
     float   ScaleFactor; // 추가 크기 배율
     
     int     Active;
-    int3     pad;
+    int     pad;
 };
 
 struct tParticleModule
@@ -60,10 +63,12 @@ struct tParticleModule
     float4  vSpawnScaleMax;
     float3  vBoxShapeScale;    
     float   fSphereShapeRadius;
+
     int     SpawnShapeType; // Sphere , Box
     int     SpawnRate;
     int     Space;          // 0 World, 1 Local    
     float   MinLifeTime;
+
     float   MaxLifeTime;
     int3    spawnpad;
 
@@ -76,10 +81,11 @@ struct tParticleModule
     float   EndScale; // 최종 크기	
 
     int     iMaxParticleCount;
-    int     ipad;
+    int     iPerParticleCount;
     
     // Add Velocity 모듈
     float4  vVelocityDir;
+
     int     AddVelocityType; // 0 : From Center, 1 : Fixed Direction	
     float   OffsetAngle;
     float   Speed;
@@ -100,10 +106,6 @@ struct tParticleModule
     float4  vMaxVelocityScale;  // 속력에 따른 크기 변화량 최대치
     int     renderpad;
     
-    float2 vFixedScale;
-    float  MinScaleFator;
-    float  MaxScaleFator;
-    
     // Module Check
     int Spawn;
     int ColorChange;
@@ -114,11 +116,6 @@ struct tParticleModule
     int NoiseForce;
     int Render;
     int modulepad;
-
-    int Mouse;
-    int dummy1;
-    int dummy2;
-    int dummy3;
 };
 
 struct tFrameTrans

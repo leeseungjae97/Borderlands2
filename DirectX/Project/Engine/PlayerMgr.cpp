@@ -10,7 +10,6 @@
 #include "CMeshRender.h"
 #include "CRigidBody.h"
 #include "CTransform.h"
-//#include <Script/CPlayerScript.h>
 
 PlayerMgr::PlayerMgr()
 	: m_pPlayer(nullptr)

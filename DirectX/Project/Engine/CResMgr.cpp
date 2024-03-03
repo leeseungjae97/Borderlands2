@@ -716,7 +716,7 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->CreatePixelShader(L"shader\\debugshape.fx", "PS_DebugSphereShape");
 
 	pShader->SetTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	pShader->SetRSType(RS_TYPE::CULL_FRONT);
+	pShader->SetRSType(RS_TYPE::CULL_NONE);
 	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
 	pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
 
@@ -744,42 +744,13 @@ void CResMgr::CreateDefaultGraphicsShader()
 
 	pShader->SetRSType(RS_TYPE::CULL_NONE);
 	//pShader->SetRSType(RS_TYPE::WIRE_FRAME);
-	pShader->SetDSType(DS_TYPE::NO_WRITE);
-	pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
+	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
+	//pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
 	pShader->SetTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_TRANSPARENT);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_DEFERRED);
 
 	AddRes(pShader->GetKey(), pShader);
-
-	// ============================
-    // ParticleRender2
-    // 
-    // RS_TYPE : CULL_NONE
-    // DS_TYPE : NO_WRITE
-    // BS_TYPE : ALPHA_BLEND
-
-    // Parameter
-    // g_int_0 : Particle Index
-    // 
-    // Domain : TRANSPARENT
-    // ============================
-	pShader = new CGraphicsShader;
-	pShader->SetKey(L"ParticleRenderShader2");
-	pShader->CreateVertexShader(L"shader\\particle_render.fx", "VS_ParticleRender");
-	pShader->CreateGeometryShader(L"shader\\particle_render.fx", "GS_ParticleRender2");
-	pShader->CreatePixelShader(L"shader\\particle_render.fx", "PS_ParticleRender");
-
-	pShader->SetRSType(RS_TYPE::CULL_NONE);
-	//pShader->SetRSType(RS_TYPE::WIRE_FRAME);
-	pShader->SetDSType(DS_TYPE::NO_WRITE);
-	pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
-	pShader->SetTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_TRANSPARENT);
-
-	AddRes(pShader->GetKey(), pShader);
-
 
 	// ============================
 	// GrayShader
@@ -1260,12 +1231,6 @@ void CResMgr::CreateDefaultComputeShader()
 	pCS->CreateComputeShader(L"shader\\particle_update.fx", "CS_ParticleUpdate");
 	AddRes(pCS->GetKey(), pCS);
 
-	// Particle Update ½¦ÀÌ´õ
-	pCS = new CParticleUpdateShader(1000, 1, 1);
-	pCS->SetKey(L"ParticleUpdateCS2");
-	pCS->CreateComputeShader(L"shader\\particle_update.fx", "CS_ParticleUpdate2");
-	AddRes(pCS->GetKey(), pCS);
-
 	// Animation Matrix Update ½¦ÀÌ´õ
 	pCS = new CAnimation3DShader(256, 1, 1);
 	pCS->SetKey(L"Animation3DUpdateCS");
@@ -1308,21 +1273,6 @@ void CResMgr::CreateDefaultMaterial()
 {
 	Ptr<CMaterial> pMtrl = nullptr;
 
-	// Std2D Material
-	//pMtrl = new CMaterial(true);
-	//pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DShader"));
-	//AddRes(L"Std2DMtrl", pMtrl);
-
-	// Std2DAnim Material
-	//pMtrl = new CMaterial(true);
-	//pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DShader"));
-	//AddRes(L"Std2DAnimMtrl", pMtrl);
-
-	// Std2DLight Material
-	//pMtrl = new CMaterial(true);
-	//pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DLightShader"));
-	//AddRes(L"Std2DLightMtrl", pMtrl);
-
 	// DebugShape Material
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"DebugShapeShader"));
@@ -1337,11 +1287,6 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"ParticleRenderShader"));
 	AddRes(L"ParticleRenderMtrl", pMtrl);
-
-	// Particle Render Material2
-	pMtrl = new CMaterial(true);
-	pMtrl->SetShader(FindRes<CGraphicsShader>(L"ParticleRenderShader2"));
-	AddRes(L"ParticleRenderMtrl2", pMtrl);
 
 	// GrayShader(PostProcess)
 	pMtrl = new CMaterial(true);

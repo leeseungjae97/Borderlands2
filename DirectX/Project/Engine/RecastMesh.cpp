@@ -21,7 +21,6 @@ RecastMesh::~RecastMesh()
 
 void RecastMesh::parseMesh(Ptr<CMesh> pMesh)
 {
-
 	UINT vtxCount = pMesh->GetVtxCount();
 	m_verts = new float[vtxCount * 3];
 	m_normals = new float[vtxCount];

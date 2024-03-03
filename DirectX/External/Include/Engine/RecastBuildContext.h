@@ -1,8 +1,10 @@
 #pragma once
 
 
-#include "Recast.h"
+#ifndef SAMPLEINTERFACES_H
+#define SAMPLEINTERFACES_H
 
+#include "Recast.h"
 #include "PerfTimer.h"
 
 class RecastBuildContext :
@@ -20,7 +22,6 @@ class RecastBuildContext :
 
 public:
 	RecastBuildContext();
-	~RecastBuildContext();
 
 	/// Dumps the log to stdout.
 	void dumpLog(const char* format, ...);
@@ -34,6 +35,11 @@ protected:
 	///@{
 	virtual void doResetLog();
 	virtual void doLog(const rcLogCategory category, const char* msg, const int len);
+	virtual void doResetTimers();
+	virtual void doStartTimer(const rcTimerLabel label);
+	virtual void doStopTimer(const rcTimerLabel label);
+	virtual int doGetAccumulatedTime(const rcTimerLabel label) const;
 	///@}
 };
 
+#endif

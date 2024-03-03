@@ -262,9 +262,6 @@ CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File, CLevel* _NewLevel, int 
 		case COMPONENT_TYPE::MESHRENDER:
 			Component = new CMeshRender;
 			break;
-		case COMPONENT_TYPE::PATHFIND:
-			Component = new CPathFind;
-			break;
 		case COMPONENT_TYPE::PARTICLESYSTEM:
 			Component = new CParticleSystem;
 			break;

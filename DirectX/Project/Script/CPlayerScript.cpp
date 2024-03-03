@@ -47,25 +47,25 @@ void CPlayerScript::begin()
 	CGameObject* pPlayer = GetOwner();
 
 	CreateUI();
-	for (int i = 0; i < 3; ++i)
-	{
-		pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD + i)
-			= std::make_shared<std::function<void()>>([=]()
-				{
-					tState = PlayerMgr::PLAYER_STATE::IDLE;
-					iAmmo = 30;
-				});
-		pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
-			= std::make_shared<std::function<void()>>([=]()
-				{
-					tState = PlayerMgr::PLAYER_STATE::DRAW;
-				});
-		pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
-			= std::make_shared<std::function<void()>>([=]()
-				{
-					tState = PlayerMgr::PLAYER_STATE::IDLE;
-				});
-	}
+	//for (int i = 0; i < 3; ++i)
+	//{
+	//	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD + i)
+	//		= std::make_shared<std::function<void()>>([=]()
+	//			{
+	//				tState = PlayerMgr::PLAYER_STATE::IDLE;
+	//				iAmmo = 30;
+	//			});
+	//	pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
+	//		= std::make_shared<std::function<void()>>([=]()
+	//			{
+	//				tState = PlayerMgr::PLAYER_STATE::DRAW;
+	//			});
+	//	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
+	//		= std::make_shared<std::function<void()>>([=]()
+	//			{
+	//				tState = PlayerMgr::PLAYER_STATE::IDLE;
+	//			});
+	//}
 	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::SNIPER_FIRE)
 	//	= std::make_shared<std::function<void()>>([=]()
 	//		{
@@ -75,17 +75,17 @@ void CPlayerScript::begin()
 	makeCollider();
 
 	// Test code
-	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD)
-	//	= std::make_shared<std::function<void()>>([=]()
-	//		{
-	//			tState = PlayerMgr::PLAYER_STATE::IDLE;
-	//iAmmo = 30;
-	//		});
-	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW)
-	//	= std::make_shared<std::function<void()>>([=]()
-	//		{
-	//			tState = PlayerMgr::PLAYER_STATE::IDLE;
-	//		});
+	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				tState = PlayerMgr::PLAYER_STATE::IDLE;
+	iAmmo = 30;
+			});
+	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				tState = PlayerMgr::PLAYER_STATE::IDLE;
+			});
 }
 
 void CPlayerScript::tick()
@@ -386,6 +386,8 @@ void CPlayerScript::ShootBullet()
 
 	WeaponMgr::GetInst()->Play(GUN_ANIMATION_TYPE::FIRE, false);
 
+	Recoil();
+
 	CGameObject* pGun = WeaponMgr::GetInst()->GetCurWeapon();
 	int weaponIdx = WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::FIRE);
 
@@ -454,16 +456,16 @@ void CPlayerScript::Movement()
 	if (nullptr == pCamObj)
 		pCamObj = CameraMgr::GetInst()->GetCamObj(L"MainCamera");
 
-	CGameObject* pPlayerFbx = GetOwner();
+	CGameObject* pPlayer = GetOwner();
 
 	Vec3 vPlayerPos = PlayerMgr::GetInst()->GetPlayerCameraPos();
 	Vec3 vCamRot = pCamObj->Transform()->GetRelativeRot();
 
-	Vec3 vPlayerBodyFront = pPlayerFbx->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
-	Vec3 vPlayerBodyUp = pPlayerFbx->Transform()->GetRelativeDir(DIR_TYPE::UP);
-	Vec3 vPlayerBodyRight = pPlayerFbx->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+	Vec3 vPlayerFront = pPlayer->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+	Vec3 vPlayerUp = pPlayer->Transform()->GetRelativeDir(DIR_TYPE::UP);
+	Vec3 vPlayerRight = pPlayer->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
 
-	CRigidBody* pPlayerRB = pPlayerFbx->RigidBody();
+	CRigidBody* pPlayerRB = pPlayer->RigidBody();
 
 	Vec2 vMouseDir = CKeyMgr::GetInst()->GetMouseDir();
 
@@ -471,7 +473,7 @@ void CPlayerScript::Movement()
 	vCamRot.x -= (DT * vMouseDir.y * 0.2f);
 	vCamRot.z = 0;
 
-	pPlayerFbx->Transform()->SetRelativeRot(vCamRot);
+	pPlayer->Transform()->SetRelativeRot(vCamRot);
 	pCamObj->Transform()->SetRelativeRot(vCamRot);
 
 	pCamObj->Transform()->SetRelativePos(vPlayerPos);
@@ -512,27 +514,27 @@ void CPlayerScript::Movement()
 	if (KEY_PRESSED(KEY::W))
 	{
 		flag |= uiFront;
-		final_velocity += vPlayerBodyFront * DT * _fSpeed;
+		final_velocity += vPlayerFront * DT * _fSpeed;
 	}
 	if (KEY_PRESSED(KEY::S))
 	{
 		flag |= uiBack;
-		final_velocity += vPlayerBodyFront * DT * -_fSpeed;
+		final_velocity += vPlayerFront * DT * -_fSpeed;
 	}
 	if (KEY_PRESSED(KEY::A))
 	{
 		flag |= uiLeft;
-		final_velocity += vPlayerBodyRight * DT * -_fSpeed;
+		final_velocity += vPlayerRight * DT * -_fSpeed;
 	}
 
 	if (KEY_PRESSED(KEY::D))
 	{
 		flag |= uiRight;
-		final_velocity += vPlayerBodyRight * DT * _fSpeed;
+		final_velocity += vPlayerRight * DT * _fSpeed;
 	}
 	if (KEY_PRESSED(KEY::SPACE))
 	{
-		final_velocity += vPlayerBodyUp * DT * fJump;
+		final_velocity += vPlayerUp * DT * fJump;
 	}
 	if (KEY_PRESSED(KEY::V))
 	{
@@ -554,7 +556,7 @@ void CPlayerScript::Movement()
 	{
 		if (flag & uiFront)
 		{
-			pPlayerFbx->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_FORWARD), true);
+			pPlayer->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_FORWARD), true);
 		}
 		//else if (flag & uiBack)
 		//{
@@ -562,17 +564,31 @@ void CPlayerScript::Movement()
 		//}
 		else if (flag & uiRight)
 		{
-			pPlayerFbx->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_RIGHT), true);
+			pPlayer->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_RIGHT), true);
 		}
 		else if (flag & uiLeft)
 		{
-			pPlayerFbx->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_LEFT), true);
+			pPlayer->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_LEFT), true);
 		}
 		else if (flag & uiIdle)
 		{
-			pPlayerFbx->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::IDLE), true);
+			pPlayer->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::IDLE), true);
 		}
 	}
+}
+
+void CPlayerScript::Recoil()
+{
+	CGameObject* pCamObj = GetOwner()->GetFollowObj();
+	if (nullptr == pCamObj)
+		pCamObj = CameraMgr::GetInst()->GetCamObj(L"MainCamera");
+
+	CGameObject* pPlayer = GetOwner();
+	Vec3 vRot = pPlayer->Transform()->GetRelativeRot();
+	vRot.x -= 0.01f;
+
+	pPlayer->Transform()->SetRelativeRot(vRot);
+	pCamObj->Transform()->SetRelativeRot(vRot);
 }
 
 void CPlayerScript::Attacked(int _Damage)

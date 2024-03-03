@@ -38,11 +38,8 @@ CCamera::CCamera()
     , m_NearZ(1.f)
     , m_FarZ(1000000.f)
 	, m_bESM(false)
-	, m_HDR(false)
-	, m_Bloom(false)
-	, m_Blur(false)
-	, f_blurFactor(0.f)
 	, m_fT{}
+	, m_Outline(true)
 	, m_ray{}
 {
 	SetName(L"Camera");
@@ -190,14 +187,23 @@ void CCamera::CalRay()
 	// 직선은 카메라의 좌표를 반드시 지난다.
 	m_ray.vStart = Transform()->GetWorldPos();
 
-	// view space 에서의 방향
 	m_ray.vDir.x = ((((vMousePos.x - tVP.TopLeftX) * 2.f / tVP.Width) - 1.f) - m_matProj._31) / m_matProj._11;
 	m_ray.vDir.y = (-(((vMousePos.y - tVP.TopLeftY) * 2.f / tVP.Height) - 1.f) - m_matProj._32) / m_matProj._22;
 	m_ray.vDir.z = 1.f;
 
-	// world space 에서의 방향
 	m_ray.vDir = XMVector3TransformNormal(m_ray.vDir, m_matViewInv);
 	m_ray.vDir.Normalize();
+}
+
+void CCamera::CalRelativeRay()
+{
+	MRT* pMRT = CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN);
+	D3D11_VIEWPORT tVP = pMRT->GetViewPort();
+	
+	Vec2 vMousePos = CKeyMgr::GetInst()->GetMousePos();
+
+	//float mouseX = (2.0f * vMousePos.x / screenWidth) - 1.0f;
+	//float mouseY = 1.0f - (2.0f * vMousePos.y / screenHeight);
 }
 
 void CCamera::SortObject()
@@ -417,16 +423,24 @@ void CCamera::render()
 		pMerge->UpdateData();
 		pScreen->render(0);
 
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR_LINE)->OMSet();
-		pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
-		pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
-		pLaplacian->UpdateData();
-		pScreen->render(0);
+		// Outline
+		if(m_Outline)
+		{
+			CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR_LINE)->OMSet();
+			pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
+			pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+			pLaplacian->UpdateData();
+			pScreen->render(0);	
+		}
 
 		// Bloom
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLOOMED_HDR)->OMSet();
 
-		pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"OutlineHDRTargetTex"));
+		if (m_Outline)
+			pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"OutlineHDRTargetTex"));
+		else
+			pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+
 		pEmissiveBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveBlurredTargetTex"));
 		pEmissiveBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
 

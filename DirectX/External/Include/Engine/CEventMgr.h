@@ -12,10 +12,12 @@ private:
     vector<CGameObject*>    m_vecGC;
 
     bool                    m_LevelChanged;
+    bool                    m_LevelLoad;
 
 public:
     void AddEvent(const tEvent& _evn) { m_vecEvent.push_back(_evn); }
     bool IsLevelChanged() { return m_LevelChanged; }
+    bool IsLevelLoad() { return m_LevelLoad; }
 
 private:
     void GC_Clear();

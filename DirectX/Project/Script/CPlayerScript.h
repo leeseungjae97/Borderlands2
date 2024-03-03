@@ -46,6 +46,7 @@ private:
     void Reload();
     void Draw(int _Idx);
     void Movement();
+    void Recoil();
     virtual void CatchRaycast() override;
     void Burn();
 

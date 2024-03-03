@@ -169,12 +169,14 @@ struct tParticle
 	Vec4	vVelocity;		// 파티클 현재 속도
 	Vec4	vForce;			// 파티클에 주어진 힘
 	Vec4	vRandomForce;	// 파티클에 적용되는 랜덤방향 힘
+	Vec4	vObjPos;
 
 	float   Age;			// 생존 시간
 	float   PrevAge;		// 이전 프레임 생존 시간
 
 	float   NomalizedAge;	// 수명대비 생존시간을 0~1로 정규화 한 값
 	float	LifeTime;		// 수명
+
 	float	Mass;			// 질량
 	float   ScaleFactor;	// 추가 크기 배율
 
@@ -196,11 +198,13 @@ struct tParticleModule
 	Vec4	vSpawnScaleMin;
 	Vec4	vSpawnScaleMax;
 	Vec3	vBoxShapeScale;	
-	float	fSphereShapeRadius;	
+	float	fSphereShapeRadius;
+
 	int		SpawnShapeType;		// 0 : BOX, 1 : Sphere
 	int		SpawnRate;			// 초당 생성 개수
 	int		Space;				// 파티클 업데이트 좌표계 ( 0 : World,  1 : Local)
 	float   MinLifeTime;		// 최소 수명
+
 	float   MaxLifeTime;		// 최대 수명
 	int     spawnpad[3];
 
@@ -213,11 +217,12 @@ struct tParticleModule
 	float	EndScale;			// 최종 배율	
 
 	// 버퍼 최대크기
-	int		iMaxParticleCount = 0;
-	int		ipad;
+	int		iMaxParticleCount;
+	int		iPerParticleCount;
 
 	// Add Velocity 모듈
 	Vec4	vVelocityDir;
+
 	int     AddVelocityType;	// 0 : From Center, 1: To Center, 2 : Fixed Direction	
 	float	OffsetAngle;		
 	float	Speed;
@@ -237,10 +242,6 @@ struct tParticleModule
 	float   vMaxSpeed;			// 최대 크기에 도달하는 속력
 	Vec4	vMaxVelocityScale;	// 속력에 따른 크기 변화량 최대치
 	int		renderpad;
-
-	Vec2	vFixedScale;
-	float	MinScaleFator;
-	float	MaxScaleFator;
 
 	// Module Check
 	int		ModuleCheck[(UINT)PARTICLE_MODULE::END];

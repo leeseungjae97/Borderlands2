@@ -24,8 +24,8 @@
 #include "E:\directx11_3d\DirectX\Project\Client\ParticleSystemUI.cpp"
 
 
+#include "E:\directx11_3d\DirectX\Project\Client\PlacementUI.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Client\PrefabUI.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Client\RenderUI.cpp"
 

@@ -312,7 +312,7 @@ void CLandScape::Bake()
 	//	}
 	//}
 
-	m_Recast->HandleBuild(GetOwner());
+	//m_Recast->HandleBuild(GetOwner());
 }
 
 void CLandScape::SaveCurMesh()

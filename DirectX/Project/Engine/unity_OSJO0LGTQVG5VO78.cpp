@@ -9,6 +9,9 @@
 #include "E:\directx11_3d\DirectX\Project\Engine\CAnimSprite.cpp"
 
 
+#include "E:\directx11_3d\DirectX\Project\Engine\ChunkyTriMesh.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\FieldUIMgr.cpp"
 
 
@@ -28,7 +31,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\CCamera.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\CCollider3D.cpp"
 

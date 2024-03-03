@@ -22,7 +22,7 @@ CEventMgr::~CEventMgr()
 void CEventMgr::tick()
 {
 	m_LevelChanged = false;
-
+	m_LevelLoad = false;
 	GC_Clear();
 
 	for (size_t i = 0; i < m_vecEvent.size(); ++i)
@@ -97,6 +97,7 @@ void CEventMgr::tick()
 			CLevel* Level = (CLevel*)m_vecEvent[i].wParam;
 			CLevelMgr::GetInst()->ChangeLevel(Level);
 			CRenderMgr::GetInst()->ClearCamera();
+			m_LevelLoad = true;
 			m_LevelChanged = true;
 		}
 		break;
@@ -105,6 +106,7 @@ void CEventMgr::tick()
 			CLevel* Level = (CLevel*)m_vecEvent[i].wParam;
 			CLevelMgr::GetInst()->LoadLevel(Level);
 			CRenderMgr::GetInst()->ClearCamera();
+			m_LevelLoad = true;
 			m_LevelChanged = true;
 		}
 		break;
@@ -113,6 +115,7 @@ void CEventMgr::tick()
 			CLevel* Level = (CLevel*)m_vecEvent[i].wParam;
 			CLevelMgr::GetInst()->ResetLevel(Level);
 			CRenderMgr::GetInst()->ClearCamera();
+			m_LevelLoad = true;
 			m_LevelChanged = true;
 		}
 		break;

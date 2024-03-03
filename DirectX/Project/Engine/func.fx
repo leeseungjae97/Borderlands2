@@ -661,8 +661,14 @@ int IntersectsLay(float3 _vertices[3], float3 _vStart, float3 _vDir, out float3 
     float3 normal = normalize(cross(edge[0], edge[1]));
     float b = dot(normal, _vDir);
 
+    // 시작지점과 점과의 거리
     float3 w0 = _vStart - _vertices[0].xyz;
+    // edge0과 edge1을 외적해서 나온 노말과
+    // 시작지점과의 거리 내적
+    // 나온 값 반대
     float a = -dot(normal, w0);
+
+    // b는 노말과 방향을 내적했음
     float t = a / b;
 
     _fResult = t;
@@ -671,6 +677,7 @@ int IntersectsLay(float3 _vertices[3], float3 _vStart, float3 _vDir, out float3 
 
     _vCrossPoint = p;
 
+    // 충돌했는지 확인
     float uu, uv, vv, wu, wv, inverseD;
     uu = dot(edge[0], edge[0]);
     uv = dot(edge[0], edge[1]);

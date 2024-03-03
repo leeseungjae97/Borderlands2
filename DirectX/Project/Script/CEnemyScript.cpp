@@ -2,6 +2,7 @@
 #include "CEnemyScript.h"
 
 #include <Engine/CameraMgr.h>
+#include <Engine/NavigationMgr.h>
 #include <Engine/RaycastMgr.h>
 #include <Engine\LandScapeMgr.h>
 
@@ -15,7 +16,7 @@
 
 CEnemyScript::CEnemyScript()
 	: CScript((UINT)SCRIPT_TYPE::ENEMY_SCRIPT)
-	, fEnemySpeed(100.f)
+	, fEnemySpeed(300.f)
 	, fRotateSpeed(2.f)
 	, iEnemyHp(100.f)
 	, iEnemyHpCapa(100.f)
@@ -45,22 +46,22 @@ void CEnemyScript::begin()
 		= std::make_shared<std::function<void()>>([=]()
 			{
 				tState = EnemyMgr::ENEMY_STATE::IDLE;
-				iAmmo = 30;
+	iAmmo = 30;
 			});
 
 	pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::DIE)
 		= std::make_shared<std::function<void()>>([=]()
 			{
 				DestroyObject(pEnemy);
-				if(pEnemy->GetGuns().size() != 0)
-				{
-					for (int i = 0; i < pEnemy->GetGuns().size(); ++i)
-					{
-						DestroyObject(pEnemy->GetGuns()[i]);
-					}
-				}
-				if(pHeadCollider)
-					DestroyObject(pHeadCollider);
+	if (pEnemy->GetGuns().size() != 0)
+	{
+		for (int i = 0; i < pEnemy->GetGuns().size(); ++i)
+		{
+			DestroyObject(pEnemy->GetGuns()[i]);
+		}
+	}
+	if (pHeadCollider)
+		DestroyObject(pHeadCollider);
 			});
 
 	makeCollider();
@@ -71,25 +72,50 @@ void CEnemyScript::Move()
 	if (tState == EnemyMgr::ENEMY_STATE::RELOAD)
 		return;
 
-	CGameObject* pPlayer = PlayerMgr::GetInst()->GetPlayer();
 	CGameObject* pEnemy = GetOwner();
+	Vec3 vPos = pEnemy->Transform()->GetRelativePos();
+	Vec3 vRot = pEnemy->Transform()->GetRelativeRot();
+	Vec3 vScale = pEnemy->Transform()->GetRelativeScale();
+	if(m_vecQueryPath.empty())
+	{
+		vDestPos = vPos;
+		return;
+	}
+	Vec3 vPathPos = m_vecQueryPath.front();
+	vPathPos.y += vScale.y / 2.f;
+	Vec3 vDir = Vec3::Zero;
+	if(vPathPos != vDestPos)
+	{
+		vPrevPos = vPos;
+		vDestPos = vPathPos;
+		fDestDist = fabs((vDestPos - vPos).Length());
+	}
+	Vec3 vEnemyRight= pEnemy->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
 
-	Vec3 vPlayerPos = pPlayer->Transform()->GetRelativePos();
-	Vec3 vMonsterPos = pEnemy->Transform()->GetRelativePos();
+	float fRemainDist = fabs((vPrevPos - vPos).Length());
 
-	Vec3 vMonsterFront = pEnemy->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
-	Vec3 vMonsterUp = pEnemy->Transform()->GetRelativeDir(DIR_TYPE::UP);
-	Vec3 vMonsterRight = pEnemy->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+	vDir = vDestPos - vPos;	
+	vDir.Normalize();
 
-	//Vec3 vDir = vPlayerPos - vMonsterPos;
-	//vDir.Normalize();
-
-	Vec3 final_velocity = Vec3(0.f, 0.f, 0.f);
-	float fSpeed = fEnemySpeed;
-
-	final_velocity += vMonsterFront * DT * fSpeed;
+	if (fRemainDist < fDestDist)
+	{
+		vPos += vDir * DT * fEnemySpeed;	
+	}
+	else
+	{
+		auto iter = m_vecQueryPath.begin();
+		iter = m_vecQueryPath.erase(iter);
+	}
+	float includeAngle = vDir.Dot(vEnemyRight);
+	vRot.y += includeAngle * DT * fRotateSpeed;
+	pEnemy->Transform()->SetRelativePos(vPos);
 	pEnemy->Animator3D()->Play((UINT)ENEMY_ANIMATION_TYPE::WALK_FORWARD, true);
-	pEnemy->RigidBody()->SetLinearVelocity(final_velocity * fSpeed);
+	pEnemy->Transform()->SetRelativeRot(vRot);
+	//pEnemy->RigidBody()->SetLinearVelocity(final_velocity * fEnemySpeed);
+
+	//Vec3 vRot = pEnemy->Transform()->GetRelativeRot();
+	//vRot.y = 0.f;
+	//pEnemy->Transform()->SetRelativeRot(vRot);
 
 	tState = EnemyMgr::ENEMY_STATE::WALK;
 }
@@ -113,9 +139,31 @@ bool CEnemyScript::Rotate()
 
 	// 벡터의 내적은 90도 일때 0 Dot(A,B)=∣A∣⋅∣B∣⋅cos(θ)
 	float includeAngle = vDir.Dot(vMonsterRight);
+	pEnemy->Transform()->SetRelativeRot(Vec3(0.f, includeAngle * DT * fRotateSpeed, 0.f));
+	//pEnemy->RigidBody()->SetAngularVelocity(Vec3(0.f, includeAngle * fRotateSpeed, 0.f));
 
-	pEnemy->RigidBody()->SetAngularVelocity(Vec3(0.f, includeAngle * fRotateSpeed, 0.f));
-	if(areAlmostEqual(includeAngle, 0.0f, 5.f))
+	if (areAlmostEqual(includeAngle, 0.0f, 5.f))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool CEnemyScript::RotateDest()
+{
+	CGameObject* pEnemy = GetOwner();
+	Vec3 vMonsterPos = pEnemy->Transform()->GetRelativePos();
+	Vec3 vMonsterRight = pEnemy->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+
+	Vec3 vDir = vDestPos - vMonsterPos;
+	vDir.Normalize();
+	vMonsterRight.Normalize();
+
+	// 벡터의 내적은 90도 일때 0 Dot(A,B)=∣A∣⋅∣B∣⋅cos(θ)
+	float includeAngle = vDir.Dot(vMonsterRight);
+
+	//pEnemy->RigidBody()->SetAngularVelocity(Vec3(0.f, includeAngle * fRotateSpeed, 0.f));
+	if (areAlmostEqual(includeAngle, 0.0f, 1.f))
 	{
 		return true;
 	}
@@ -126,7 +174,7 @@ void CEnemyScript::Reload()
 {
 	if (tState == EnemyMgr::ENEMY_STATE::RELOAD)
 		return;
-	
+
 	CGameObject* pEnemy = GetOwner();
 
 	CGameObject* pGun = pEnemy->GetGun(0);
@@ -169,6 +217,16 @@ void CEnemyScript::moveCollider()
 	}
 }
 
+void CEnemyScript::doPathQuery()
+{
+	m_vecQueryPath.clear();
+	Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
+	vPos.y -= GetOwner()->Transform()->GetRelativeScale().y / 2.f;
+	Vec3 vMousePos = NavigationMgr::GetInst()->GetMapRaycastPos();
+	int size = 0;
+	NavigationMgr::GetInst()->DoQuery(vPos, vMousePos, &m_vecQueryPath, &size);
+}
+
 void CEnemyScript::tick()
 {
 	//static bool init = false;
@@ -179,10 +237,10 @@ void CEnemyScript::tick()
 	//}
 	CGameObject* pEnemy = GetOwner();
 	//CatchRaycast();
-	
+
 	if (!pEnemy->Animator3D())
 		return;
-	if(iEnemyHp == 0)
+	if (iEnemyHp == 0)
 	{
 		pEnemy->Animator3D()->Play((UINT)ENEMY_ANIMATION_TYPE::DIE, true);
 		tState = EnemyMgr::ENEMY_STATE::DIE;
@@ -190,7 +248,7 @@ void CEnemyScript::tick()
 
 	//Look();
 
-	if(iAmmo <= 0)
+	if (iAmmo <= 0)
 	{
 		Reload();
 	}
@@ -200,7 +258,7 @@ void CEnemyScript::tick()
 	fRateOfFireAcc += DT;
 	if (bRotate)
 	{
-		if(Rotate())
+		if (Rotate())
 		{
 			if (fRateOfFireAcc >= fRateOfFire)
 			{
@@ -208,20 +266,31 @@ void CEnemyScript::tick()
 			}
 		}
 	}
-	
-	if (KEY_PRESSED(KEY::_0))
-	{
-		Move();
-	}
+
+
 	if (KEY_PRESSED(KEY::_9))
 	{
-		
+
 		//pMonster->RigidBody()->SetAngularVelocity(Vec3(0.f, tt, 0.f));
 	}
-	if(tState == EnemyMgr::ENEMY_STATE::IDLE)
+	if (tState == EnemyMgr::ENEMY_STATE::IDLE)
 	{
 		pEnemy->Animator3D()->Play((UINT)ENEMY_ANIMATION_TYPE::IDLE, true);
 	}
+}
+
+void CEnemyScript::finaltick()
+{
+	if (KEY_PRESSED(KEY::Q))
+	{
+		doPathQuery();
+	}
+	Move();
+	//if(RotateDest())
+	//{
+	//	
+	//}
+	
 }
 
 void CEnemyScript::BeginOverlap(CCollider3D* _Other)
@@ -231,7 +300,7 @@ void CEnemyScript::BeginOverlap(CCollider3D* _Other)
 
 void CEnemyScript::Raycast(tRayInfo _RaycastInfo)
 {
-	if(pHeadCollider->Collider3D()->IsRaycast())
+	if (pHeadCollider->Collider3D()->IsRaycast())
 	{
 		Attacked(_RaycastInfo.fDamage * 2.f);
 	}
@@ -340,7 +409,7 @@ void CEnemyScript::Shoot()
 	raycast.iID = pEnemy->GetID();
 	raycast.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
 	raycast.matWorld = pEnemy->Transform()->GetDrawRayMat();
-	if(RaycastMgr::GetInst()->DoOneHitRaycast(raycast, RAYCAST_GROUP_TYPE::Enemy))
+	if (RaycastMgr::GetInst()->DoOneHitRaycast(raycast, RAYCAST_GROUP_TYPE::Enemy))
 	{
 		fRateOfFireAcc = 0.0f;
 		--iAmmo;
@@ -360,7 +429,7 @@ void CEnemyScript::Look()
 
 	Vec3 vFront = pEnemy->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
 	Vec3 vPos = pEnemy->Transform()->GetRelativePos();
-	
+
 	tRayInfo raycast{};
 	raycast.fDamage = 0.f;
 	raycast.iLayerIdx = pEnemy->GetLayerIndex();
@@ -378,8 +447,8 @@ bool CEnemyScript::IsDetect()
 {
 	CGameObject* pEnemy = GetOwner();
 	vector<tRayInfo> monsRayInfo = RaycastMgr::GetInst()->GetRayInfo();
-	tRayInfo rayInfo  = RaycastMgr::GetInst()->GetPlayerRayInfo();
-	
+	tRayInfo rayInfo = RaycastMgr::GetInst()->GetPlayerRayInfo();
+
 	if (rayInfo.tRayType == (UINT)RAYCAST_TYPE::REPLY && rayInfo.iID == pEnemy->GetID())
 	{
 		return true;

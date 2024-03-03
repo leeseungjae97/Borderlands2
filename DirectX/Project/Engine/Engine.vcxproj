@@ -202,7 +202,10 @@ call EngineCopy.bat</Command>
     <ClInclude Include="CKeyMgr.h" />
     <ClInclude Include="CollisionMgr.h" />
     <ClInclude Include="EnemyMgr.h" />
+    <ClInclude Include="InputGeom.h" />
     <ClInclude Include="MouseMgr.h" />
+    <ClInclude Include="NavigationMgr.h" />
+    <ClInclude Include="ParticleMgr.h" />
     <ClInclude Include="PlayerMgr.h" />
     <ClInclude Include="LandScapeMgr.h" />
     <ClInclude Include="CLandScapePathShader.h" />
@@ -218,7 +221,6 @@ call EngineCopy.bat</Command>
     <ClInclude Include="components.h" />
     <ClInclude Include="CParticleSystem.h" />
     <ClInclude Include="CParticleUpdateShader.h" />
-    <ClInclude Include="CPathFind.h" />
     <ClInclude Include="CPathMgr.h" />
     <ClInclude Include="CPrefab.h" />
     <ClInclude Include="CRenderComponent.h" />
@@ -268,6 +270,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="AnimationMgr.cpp" />
     <ClCompile Include="CAnimator2D.cpp" />
     <ClCompile Include="CAnimSprite.cpp" />
+    <ClCompile Include="ChunkyTriMesh.cpp" />
     <ClCompile Include="FieldUIMgr.cpp" />
     <ClCompile Include="IndividualBoneSkinningShader.cpp" />
     <ClCompile Include="CameraMgr.cpp" />
@@ -298,7 +301,11 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CKeyMgr.cpp" />
     <ClCompile Include="CollisionMgr.cpp" />
     <ClCompile Include="EnemyMgr.cpp" />
+    <ClCompile Include="InputGeom.cpp" />
     <ClCompile Include="MouseMgr.cpp" />
+    <ClCompile Include="NavigationMgr.cpp" />
+    <ClCompile Include="ParticleMgr.cpp" />
+    <ClCompile Include="PerfTimer.cpp" />
     <ClCompile Include="PlayerMgr.cpp" />
     <ClCompile Include="LandScapeMgr.cpp" />
     <ClCompile Include="CLandScapePathShader.cpp" />
@@ -313,7 +320,6 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CMeshRender.cpp" />
     <ClCompile Include="CParticleSystem.cpp" />
     <ClCompile Include="CParticleUpdateShader.cpp" />
-    <ClCompile Include="CPathFind.cpp" />
     <ClCompile Include="CPathMgr.cpp" />
     <ClCompile Include="CPrefab.cpp" />
     <ClCompile Include="CRenderComponent.cpp" />

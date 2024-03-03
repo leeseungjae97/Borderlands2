@@ -25,8 +25,12 @@ CRigidBody::CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2)
 	, m_bInit(false)
 	, m_bInitData(false)
 	, m_debugMeshName(L"")
+	, m_vRigidDir{
+	  Vec3(1.f, 0.f, 0.f)
+	, Vec3(0.f, 1.f, 0.f)
+	, Vec3(0.f, 0.f, 1.f)}
 {
-	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(1.0f, 1.0f, 0.2f);
+	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(1.0f, 1.0f, 0.0f);
 	//m_pMaterial->setDamping(0.f);
 	if (m_tRigidType == RIGID_BODY_TYPE::DYNAMIC)
 	{
@@ -62,7 +66,7 @@ void CRigidBody::finaltick()
 	{
 		setUserData();
 	}
-	
+	//PxVec3 ang = m_pDynamicBody->getAngularVelocity();
 
 	drawDebugRigid();
 }
@@ -144,6 +148,26 @@ Matrix CRigidBody::GetRigidBodyMatrix(Vec3 _vOffset)
 
 
 	return physx::Util::WorldMatFromGlobalPose(trans, vScale, vRot, _vOffset);
+}
+
+Vec3 CRigidBody::GetRigidBodyDir(DIR_TYPE _Dir)
+{
+	PxTransform trans = GetRigidBodyPos();
+	Quat quat(trans.q.x, trans.q.y, trans.q.z, trans.q.w);
+	Matrix matRot = Matrix::CreateFromQuaternion(quat);
+	Vec3 _vRigidDir[3]{
+	  Vec3(1.f, 0.f, 0.f)
+	, Vec3(0.f, 1.f, 0.f)
+	, Vec3(0.f, 0.f, 1.f)
+	};
+
+	for(int i = 0 ; i < 3; ++i)
+	{
+		m_vRigidDir[i] = XMVector3TransformNormal(_vRigidDir[i], matRot);
+		m_vRigidDir[i].Normalize();
+	}
+	
+	return m_vRigidDir[(int)_Dir];
 }
 
 void CRigidBody::convertMeshToGeom()
@@ -334,19 +358,18 @@ void CRigidBody::drawDebugRigid()
 	case RIGID_BODY_SHAPE_TYPE::BOX:
 	case RIGID_BODY_SHAPE_TYPE::RECT:
 	{
-		DrawDebugCube(worldMat, Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
+		DrawDebugCube(worldMat, Vec4(1.f, 0.f, 0.f, 1.f), 0.f, false);
 	}
 	break;
 	case RIGID_BODY_SHAPE_TYPE::SPHERE:
 	{
-		DrawDebugSphere(worldMat, Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
+		DrawDebugSphere(worldMat, Vec4(1.f, 0.f, 0.f, 1.f), 0.f, false);
 	}
 	break;
 	case RIGID_BODY_SHAPE_TYPE::MESH:
 	{
 		Ptr<CMesh> pMesh = GetOwner()->MeshRender()->GetMesh();
-		
-		DrawDebugMesh(worldMat, m_debugMeshName, GetOwner()->MeshRender()->GetMtrlCount(), Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
+		DrawDebugMeshFace(worldMat, m_debugMeshName, GetOwner()->MeshRender()->GetMtrlCount(), Vec4(1.f, 0.f, 0.f, 1.f), 0.f, true);
 	}
 	break;
 	}

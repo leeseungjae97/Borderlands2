@@ -366,6 +366,22 @@ void DrawDebugMesh(const Matrix& _matWorld, const wstring& _wsDebugShapeName, in
 	CRenderMgr::GetInst()->AddDebugShapeInfo(info);
 }
 
+void DrawDebugMeshFace(const Matrix& _matWorld, const wstring& _wsDebugShapeName, int _iMtrlCnt, Vec4 _vColor,
+	float _fTime, bool DepthTest)
+{
+	tDebugShapeInfo info = {};
+
+	info.matWorld = _matWorld;
+	info.eShape = SHAPE_TYPE::MESH_FACE;
+	info.fMaxTime = _fTime;
+	info.vColor = _vColor;
+	info.bDepthTest = DepthTest;
+	info.iMtrlCount = _iMtrlCnt;
+	info.wsDebugShapeName = _wsDebugShapeName;
+
+	CRenderMgr::GetInst()->AddDebugShapeInfo(info);
+}
+
 bool IsValidObj(CGameObject*& _Target)
 {
 	if (nullptr == _Target)

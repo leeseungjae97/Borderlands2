@@ -3,8 +3,8 @@
 class ObjectPickerUI :
     public UI
 {
-public:
-    
+private:
+    CGameObject* m_pObj;
 public:
     virtual void init() override;
     virtual void tick() override;

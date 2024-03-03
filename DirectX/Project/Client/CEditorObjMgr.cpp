@@ -48,7 +48,7 @@ void CEditorObjMgr::init()
 	m_DebugShape[(UINT)SHAPE_TYPE::SPHERE]->AddComponent(new CTransform);
 	m_DebugShape[(UINT)SHAPE_TYPE::SPHERE]->AddComponent(new CMeshRender);
 	m_DebugShape[(UINT)SHAPE_TYPE::SPHERE]->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
-	m_DebugShape[(UINT)SHAPE_TYPE::SPHERE]->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugSphereShapeMtrl"), 0);
+	m_DebugShape[(UINT)SHAPE_TYPE::SPHERE]->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugShapeMtrl"), 0);
 
 	m_DebugShape[(UINT)SHAPE_TYPE::UP_LINE] = new CGameObjectEx;
 	m_DebugShape[(UINT)SHAPE_TYPE::UP_LINE]->AddComponent(new CTransform);
@@ -71,6 +71,10 @@ void CEditorObjMgr::init()
 	m_DebugShape[(UINT)SHAPE_TYPE::MESH] = new CGameObjectEx;
 	m_DebugShape[(UINT)SHAPE_TYPE::MESH]->AddComponent(new CTransform);
 	m_DebugShape[(UINT)SHAPE_TYPE::MESH]->AddComponent(new CMeshRender);
+
+	m_DebugShape[(UINT)SHAPE_TYPE::MESH_FACE] = new CGameObjectEx;
+	m_DebugShape[(UINT)SHAPE_TYPE::MESH_FACE]->AddComponent(new CTransform);
+	m_DebugShape[(UINT)SHAPE_TYPE::MESH_FACE]->AddComponent(new CMeshRender);
 	//m_DebugShape[(UINT)SHAPE_TYPE::MESH]->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CubeMesh_Debug"));
 	//m_DebugShape[(UINT)SHAPE_TYPE::MESH]->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugShapeMtrl"), 0);
 
@@ -101,10 +105,18 @@ void CEditorObjMgr::progress()
 	m_DebugShapeInfo.insert(m_DebugShapeInfo.end(), vecInfo.begin(), vecInfo.end());
 	vecInfo.clear();
 
-
 	tick();
 
-	render();
+	static bool rendering = true;
+	if(KEY_TAP(KEY::P))
+	{
+		rendering = !rendering;
+	}
+
+	if (rendering)
+		render();
+	else
+		m_DebugShapeInfo.clear();
 }
 
 
@@ -160,11 +172,22 @@ void CEditorObjMgr::render()
 		case SHAPE_TYPE::MESH:
 			pShapeObj = m_DebugShape[(UINT)SHAPE_TYPE::MESH];
 			break;
+		case SHAPE_TYPE::MESH_FACE:
+			pShapeObj = m_DebugShape[(UINT)SHAPE_TYPE::MESH_FACE];
+			break;
 		}
 		if(iter->eShape == SHAPE_TYPE::MESH)
 		{
 			pShapeObj->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(iter->wsDebugShapeName));
 			for(int i = 0 ; i < iter->iMtrlCount; ++i)
+			{
+				pShapeObj->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugSphereShapeMtrl"), i);
+			}
+		}
+		if(iter->eShape == SHAPE_TYPE::MESH_FACE)
+		{
+			pShapeObj->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(iter->wsDebugShapeName));
+			for (int i = 0; i < iter->iMtrlCount; ++i)
 			{
 				pShapeObj->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugShapeMtrl"), i);
 			}
@@ -182,25 +205,28 @@ void CEditorObjMgr::render()
 			pShapeObj->finaltick();
 		}
 
-		for (int i = 0; i < iter->iMtrlCount; ++i)
-		{
-			pShapeObj->MeshRender()->GetMaterial(i)->SetScalarParam(VEC4_0, &iter->vColor);
-		}
+		//for (int i = 0; i < iter->iMtrlCount; ++i)
+		//{
+		//	pShapeObj->MeshRender()->GetMaterial(i)->SetScalarParam(VEC4_0, &iter->vColor);
+		//}
+		pShapeObj->MeshRender()->GetMaterial(0)->SetScalarParam(VEC4_0, &iter->vColor);
 		
 
 		if (iter->bDepthTest)
 		{
-			for (int i = 0; i < iter->iMtrlCount; ++i)
-			{
-				pShapeObj->MeshRender()->GetMaterial(i)->GetShader()->SetDSType(DS_TYPE::LESS);
-			}
+			//for (int i = 0; i < iter->iMtrlCount; ++i)
+			//{
+			//pShapeObj->MeshRender()->GetMaterial(i)->GetShader()->SetDSType(DS_TYPE::LESS);	
+			//}
+			pShapeObj->MeshRender()->GetMaterial(0)->GetShader()->SetDSType(DS_TYPE::LESS);
 		}
 		else
 		{
-			for (int i = 0; i < iter->iMtrlCount; ++i)
-			{
-				pShapeObj->MeshRender()->GetMaterial(i)->GetShader()->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
-			}	
+			//for (int i = 0; i < iter->iMtrlCount; ++i)
+			//{
+			//	pShapeObj->MeshRender()->GetMaterial(i)->GetShader()->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+			//}
+			pShapeObj->MeshRender()->GetMaterial(0)->GetShader()->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
 		}
 
 

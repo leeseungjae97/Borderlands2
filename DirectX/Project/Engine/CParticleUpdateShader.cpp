@@ -21,33 +21,24 @@ CParticleUpdateShader::~CParticleUpdateShader()
 void CParticleUpdateShader::SetParticleBuffer(CStructuredBuffer* _Buffer)
 {
 	m_ParticleBuffer = _Buffer;
-	m_Const.arrInt[0] = m_ParticleBuffer->GetElementCount();
+	//m_Const.arrInt[0] = m_ParticleBuffer->GetElementCount();
 }
 
 void CParticleUpdateShader::UpdateData()
 {
-	if(m_ParticleBuffer)
-	    m_ParticleBuffer->UpdateData_CS(0, false);
+	m_ParticleBuffer->UpdateData_CS(0, false);
+	m_RWBuffer->UpdateData_CS(1, false);
+	m_ModuleData->UpdateData_CS(20, true);
+	m_NoiseTex->UpdateData_CS(21, true);
 
-	if(nullptr != m_RWBuffer)
-		m_RWBuffer->UpdateData_CS(1, false);
-	if(nullptr != m_ModuleData)
-		m_ModuleData->UpdateData_CS(20, true);
-	if(nullptr != m_NoiseTex)
-		m_NoiseTex->UpdateData_CS(21, true);
-
-	// 그룹 수
+	// 그룹 수 (3000 / 128) + 1
 	m_iGroupX = (m_ParticleBuffer->GetElementCount() / m_iGroupPerThreadX) + 1;
 }
 
 void CParticleUpdateShader::Clear()
 {
-	if(nullptr != m_ParticleBuffer)
-		m_ParticleBuffer->Clear_CS(false);
-	if(nullptr != m_RWBuffer)
-		m_RWBuffer->Clear_CS(false);
-	if(nullptr != m_ModuleData)
-		m_ModuleData->Clear_CS(true);
-	if(nullptr != m_NoiseTex)
-		m_NoiseTex->Clear_CS(true);
+	m_ParticleBuffer->Clear_CS(false);
+	m_RWBuffer->Clear_CS(false);
+	m_ModuleData->Clear_CS(true);
+	m_NoiseTex->Clear_CS(true);
 }

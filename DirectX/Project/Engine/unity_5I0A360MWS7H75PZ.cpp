@@ -1,5 +1,8 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Engine\CGameObject.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\CGizmo.cpp"
 
 
@@ -21,14 +24,11 @@
 #include "E:\directx11_3d\DirectX\Project\Engine\EnemyMgr.cpp"
 
 
+#include "E:\directx11_3d\DirectX\Project\Engine\InputGeom.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\MouseMgr.cpp"
 
 
-#include "E:\directx11_3d\DirectX\Project\Engine\PlayerMgr.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\LandScapeMgr.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\CLandScapePathShader.cpp"
+#include "E:\directx11_3d\DirectX\Project\Engine\NavigationMgr.cpp"
 

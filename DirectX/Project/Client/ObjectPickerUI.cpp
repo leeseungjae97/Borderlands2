@@ -7,8 +7,11 @@
 #include <Engine/CRigidBody.h>
 #include <Engine/CTransform.h>
 
+#include "OutlinerUI.h"
+
 ObjectPickerUI::ObjectPickerUI()
 	: UI("##ObjectPicker")
+	, m_pObj(nullptr)
 {
 	SetName("ObjectPicker");
 }
@@ -28,13 +31,28 @@ void ObjectPickerUI::tick()
 
 int ObjectPickerUI::render_update()
 {
-	CGameObject* _obj = ObjPickerMgr::GetInst()->GetPickObj();
-	if (nullptr == _obj) return FALSE;
+	OutlinerUI* outliner = (OutlinerUI*)ImGuiMgr::GetInst()->FindUI("##Outliner");
 
-	string str(_obj->GetName().begin(), _obj->GetName().end());
+	if (nullptr == outliner)
+		return FALSE;
+
+	if (outliner->IsOutlinearReset())
+		return FALSE;
+
+	if (nullptr == outliner) return FALSE;
+
+	CGameObject* pSelectedObject = outliner->GetSelectedObject();
+
+	if (ImGui::IsKeyPressed(ImGuiKey_PageDown))
+	{
+		m_pObj = pSelectedObject;
+	}
+	if (nullptr == m_pObj) return FALSE;
+
+	string str(m_pObj->GetName().begin(), m_pObj->GetName().end());
 	ImGui::Text(str.c_str());
-	Vec3 vPos = _obj->Transform()->GetRelativePos();
-	Vec3 vRot = _obj->Transform()->GetRelativeRot();
+	Vec3 vPos = m_pObj->Transform()->GetRelativePos();
+	Vec3 vRot = m_pObj->Transform()->GetRelativeRot();
 
 	vRot *= 180 / XM_PI;
 
@@ -56,7 +74,7 @@ int ObjectPickerUI::render_update()
 		+ std::to_string(vRot.z);
 	ImGui::Text(str.c_str());
 	
-	CRigidBody* _db = _obj->RigidBody();
+	CRigidBody* _db = m_pObj->RigidBody();
 	if(_db)
 	{
 		ImGui::Text("State : %s", _db->IsCreature() ? "Creature" : "Object");

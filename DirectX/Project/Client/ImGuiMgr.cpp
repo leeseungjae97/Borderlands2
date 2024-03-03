@@ -15,6 +15,7 @@
 #include "ObjectPickerUI.h"
 #include "UI.h"
 #include "ParamUI.h"
+#include "PlacementUI.h"
 #include "RenderUI.h"
 #include "SamplerFilterUI.h"
 
@@ -208,6 +209,10 @@ void ImGuiMgr::CreateUI()
     m_mapUI.insert(make_pair(pUI->GetID(), pUI));
 
     pUI = new RenderUI;
+    pUI->SetActive(true);
+    m_mapUI.insert(make_pair(pUI->GetID(), pUI));
+
+    pUI = new PlacementUI;
     pUI->SetActive(true);
     m_mapUI.insert(make_pair(pUI->GetID(), pUI));
 

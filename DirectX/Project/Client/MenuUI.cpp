@@ -10,8 +10,6 @@
 
 #include <Script\CScriptMgr.h>
 
-
-
 #include "ImGuiMgr.h"
 #include "OutlinerUI.h"
 #include "InspectorUI.h"
@@ -298,6 +296,7 @@ void MenuUI::AddComponent(COMPONENT_TYPE _type)
 	case COMPONENT_TYPE::CAMERA:
 		pSelectedObject->AddComponent(new CCamera);
 		break;
+
 	case COMPONENT_TYPE::MESHRENDER:
 		pSelectedObject->AddComponent(new CMeshRender);
 		break;

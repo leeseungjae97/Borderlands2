@@ -13,7 +13,8 @@ public:
 	bool GetMouseOnUI() { return mMouseOnUI; }
 
 	void MouseOut();
-	Vec2 UnprojectionMousePos(float z);
+	Vec2 UnprojectionMouse2DPos(float z);
+	Vec3 MousePosRay();
 
 	void init();
 	void tick();

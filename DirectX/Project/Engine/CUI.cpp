@@ -48,7 +48,7 @@ void CUI::finaltick()
 	Vec2 vPosV2 = Vec2(vPos.x, vPos.y);
 	Vec2 vScaleV2 = Vec2(vScale.x, vScale.y);
 
-	Vec2 vUnproPos = MouseMgr::GetInst()->UnprojectionMousePos(vPos.z);
+	Vec2 vUnproPos = MouseMgr::GetInst()->UnprojectionMouse2DPos(vPos.z);
 	
 	if (Vec2::PointIntersectRect(vPosV2
 		, vScaleV2

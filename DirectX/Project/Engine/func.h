@@ -40,6 +40,8 @@ void DrawDebugLine(DIR_TYPE _dirType, const Matrix& _matWorld, Vec4 _vColor, flo
 
 void DrawDebugMesh(const Matrix& _matWorld, const wstring& _wsDebugShapeName, int _iMtrlCnt, Vec4 _vColor, float _fTime = 0.f, bool DepthTest = false);
 
+void DrawDebugMeshFace(const Matrix& _matWorld, const wstring& _wsDebugShapeName, int _iMtrlCnt, Vec4 _vColor, float _fTime = 0.f, bool DepthTest = false);
+
 static void Strtrim(char* s) { char* str_end = s + strlen(s); while (str_end > s && str_end[-1] == ' ') str_end--; *str_end = 0; }
 static int  Stricmp(const char* s1, const char* s2) { int d; while ((d = toupper(*s2) - toupper(*s1)) == 0 && *s1) { s1++; s2++; } return d; }
 static int  Strnicmp(const char* s1, const char* s2, int n) { int d = 0; while (n > 0 && (d = toupper(*s2) - toupper(*s1)) == 0 && *s1) { s1++; s2++; n--; } return d; }

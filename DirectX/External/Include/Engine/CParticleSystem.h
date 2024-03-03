@@ -11,7 +11,7 @@ class CParticleSystem :
 {
 private:
     CStructuredBuffer*          m_ParticleBuffer;
-    CStructuredBuffer*          m_RWBuffer;
+    CStructuredBuffer*          m_SpawnCountBuffer;
     CStructuredBuffer*          m_ModuleDataBuffer;
     
     tParticleModule             m_ModuleData;
@@ -19,11 +19,15 @@ private:
    
     float                       m_AccTime;
 
+	bool						m_bFire;
 public:
+	tParticleModule GetModuleData() { return m_ModuleData; }
+	void SetModuleData(tParticleModule _ModuleData) { m_ModuleData = _ModuleData; }
+
     void ActiveModule(PARTICLE_MODULE _ModuleType) { m_ModuleData.ModuleCheck[(UINT)_ModuleType] = true; }
     void DeactivateModule(PARTICLE_MODULE _ModuleType) { m_ModuleData.ModuleCheck[(UINT)_ModuleType] = false; }
 
-	void SetMaxSpawn(int _MaxSpawn);
+	//void SetMaxSpawn(int _MaxSpawn);
     void SetSpawnRate(int _SpawnRate) { m_ModuleData.SpawnRate = _SpawnRate; }
 	void SetSpawnInitialColor(Vec3 _vInitialColor) { m_ModuleData.vSpawnColor = _vInitialColor; }
 	void SetSpawnMinScale(Vec3 _SpawnScale) { m_ModuleData.vSpawnScaleMin = _SpawnScale; }
@@ -53,24 +57,17 @@ public:
 	void SetMaxVelocityScale(Vec3 _VelocityScale) { m_ModuleData.vMaxVelocityScale = _VelocityScale; }
 	void SetMaxSpeed(float _Speed) { m_ModuleData.vMaxSpeed = _Speed; }
 
-	void SetMaxScaleFator(float _ScaleFator) { m_ModuleData.MaxScaleFator= _ScaleFator; }
-	void SetMinScaleFator(float _ScaleFator) { m_ModuleData.MinScaleFator= _ScaleFator; }
+	void SetFire(bool _Fire) { m_bFire = _Fire; }
+	bool GetFire() { return m_bFire; }
 
-	void SetParticleIntervalDistance(Vec2 _Distance)
-    {
-        m_ModuleData.vFixedScale.x = _Distance.x;
-        m_ModuleData.vFixedScale.y = _Distance.y;
-    }
+	void SetParticlePos(Vec3 _vPos);
 
-	Vec2 GetIntervalDistance() { return m_ModuleData.vFixedScale; }
-	float GetMaxScaleFator() { return m_ModuleData.MaxScaleFator; }
-	float GetMinScaleFator() { return m_ModuleData.MinScaleFator; }
-
+	void SpawnParticleDT();
 public:
-	void SetParticleTex(const Ptr<CTexture>& _Tex);
-	void SetNoiseTex(const Ptr<CTexture>& _NoiseTex);
+	//void SetParticleTex(const Ptr<CTexture>& _Tex);
+	//void SetNoiseTex(const Ptr<CTexture>& _NoiseTex);
 
-	void SetComputeShader(const Ptr<CComputeShader>& _ComputeShader);
+	//void SetComputeShader(const Ptr<CComputeShader>& _ComputeShader);
 	//void SetMaterial(CMaterial& _Mat);
 public:
     virtual void finaltick() override;

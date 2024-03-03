@@ -1,5 +1,8 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Engine\CCollider3D.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\CColorMapShader.cpp"
 
 
@@ -28,7 +31,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\CFrustum.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\CGameObject.cpp"
 

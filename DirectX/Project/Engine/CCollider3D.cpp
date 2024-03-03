@@ -230,11 +230,11 @@ void CCollider3D::colliderDebugDraw()
 		pos = m_PxColliderRigid->getGlobalPose();
 
 	Matrix worldMat = physx::Util::WorldMatFromGlobalPose(pos
-		, Vec3(m_vScale.x
-					, m_vScale.y
-					, m_vScale.z)
+		, Vec3(m_vScale.x - 5.f
+					, m_vScale.y - 5.f
+					, m_vScale.z - 5.f)
 	);
-	DrawDebugCube(worldMat, Vec4(0.f, 1.f, 0.f, 1.f), 0.f, true);
+	DrawDebugCube(worldMat, Vec4(0.f, 0.f, 1.f, 1.f), 0.f, false);
 }
 
 void CCollider3D::SetColliderPos(Vec3 _vPos)

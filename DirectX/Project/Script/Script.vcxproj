@@ -182,6 +182,7 @@ cd $(SolutionDir)\OutputFile\bin_d\</Command>
     <ClInclude Include="CGunScript.h" />
     <ClInclude Include="CMissileScript.h" />
     <ClInclude Include="CEnemyScript.h" />
+    <ClInclude Include="CPathFindScript.h" />
     <ClInclude Include="CPlayerScript.h" />
     <ClInclude Include="CScriptMgr.h" />
     <ClInclude Include="CWarriorScript.h" />
@@ -197,6 +198,7 @@ cd $(SolutionDir)\OutputFile\bin_d\</Command>
     <ClCompile Include="CGunScript.cpp" />
     <ClCompile Include="CMissileScript.cpp" />
     <ClCompile Include="CEnemyScript.cpp" />
+    <ClCompile Include="CPathFindScript.cpp" />
     <ClCompile Include="CPlayerScript.cpp" />
     <ClCompile Include="CScriptMgr.cpp" />
     <ClCompile Include="CWarriorScript.cpp" />

@@ -18,18 +18,26 @@ private:
     CGameObject* pHeadCollider;
 
     EnemyMgr::ENEMY_STATE tState;
+
+    vector<Vec3> m_vecQueryPath;
+
+    Vec3 vDestPos;
+    Vec3 vPrevPos;
+    float fDestDist;
 private:
     void Move();
     bool Rotate();
+    bool RotateDest();
     void Reload();
 
     void makeCollider();
     void moveCollider();
-
+    void doPathQuery();
 public:
     void begin() override;
 
     virtual void tick() override;
+    void finaltick() override;
     void BeginOverlap(CCollider3D* _Other) override;
     void Raycast(tRayInfo _RaycastInfo) override;
     void Attacked(float fDamage);

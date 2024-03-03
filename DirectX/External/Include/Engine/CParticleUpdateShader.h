@@ -1,4 +1,6 @@
 #pragma once
+#include "CParticleSystem.h"
+
 #include "CComputeShader.h"
 
 #include "ptr.h"

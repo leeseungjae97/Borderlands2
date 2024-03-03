@@ -32,6 +32,7 @@ VS_DEBUG_OUT VS_DebugShape(VS_DEBUG_IN _in)
 
     output.vViewPos = mul(float4(_in.vPos, 1.f), g_matWV);
     output.vViewNormal = normalize(mul(float4(_in.vNormal, 0.f), g_matWV));
+
     return output;    
 }
 
@@ -40,6 +41,7 @@ float4 PS_DebugShape(VS_DEBUG_OUT _in) : SV_Target
     float4 vOutColor = (float4) 0.f;
     
     vOutColor = g_vec4_0;
+    vOutColor.a = 1.f;
     
     return vOutColor;
 }
@@ -53,7 +55,7 @@ float4 PS_DebugSphereShape(VS_DEBUG_OUT _in) : SV_Target
     fOutLine = pow(fOutLine, 2.5);
     
     vOutColor = g_vec4_0;
-    vOutColor.a = fOutLine;
+    vOutColor.a = 1.f;
     
     return vOutColor;
 }
