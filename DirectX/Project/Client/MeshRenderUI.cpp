@@ -120,7 +120,16 @@ int MeshRenderUI::render_update()
 		}
 
 	}
-	
+
+	if(ImGui::Button("Paper Burn##paperbutn"))
+	{
+		for (int i = 0; i < pMeshRender->GetMtrlCount(); ++i)
+		{
+			Ptr<CMaterial> mtrl = pMeshRender->GetDynamicMaterial(i);
+			mtrl->SetPaperBurn(true);
+			mtrl->SetPaperBurnTime(3.0f);
+		}
+	}
 
 	ImGui::Text("RenderComponent Material");
 	for(int i = 0 ; i < pMeshRender->GetMtrlCount(); ++i)

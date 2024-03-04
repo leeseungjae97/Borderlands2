@@ -46,6 +46,9 @@ public:
     void Shoot();
     void Look();
     bool IsDetect();
+
+    void PaperBurn();
+    void IsDie();
 public:
     void SetRotate(bool _Rotate) { bRotate = _Rotate; }
     void SetRotateSpeed(float _Speed) { fRotateSpeed = _Speed; }

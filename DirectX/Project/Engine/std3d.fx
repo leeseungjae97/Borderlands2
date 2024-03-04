@@ -223,23 +223,23 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
         }
     }
 
-    if (g_btex_6)
-    {
-        if (g_btex_6_flow)
-        {
-            if (g_btex_6_emis)
-                vEmissiveCoeff += g_tex_6.Sample(g_sam_anti_0, moveUV);
-            else
-                vOutColor += g_tex_6.Sample(g_sam_anti_0, moveUV);
-        }
-        else
-        {
-            if (g_btex_6_emis)
-                vEmissiveCoeff += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
-            else
-                vOutColor += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
-        }
-    }
+    //if (g_btex_6)
+    //{
+    //    if (g_btex_6_flow)
+    //    {
+    //        if (g_btex_6_emis)
+    //            vEmissiveCoeff += g_tex_6.Sample(g_sam_anti_0, moveUV);
+    //        else
+    //            vOutColor += g_tex_6.Sample(g_sam_anti_0, moveUV);
+    //    }
+    //    else
+    //    {
+    //        if (g_btex_6_emis)
+    //            vEmissiveCoeff += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
+    //        else
+    //            vOutColor += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
+    //    }
+    //}
     tLightColor lightColor = (tLightColor) 0.f;
     float fSpecPow = 0.f;
     
@@ -263,6 +263,11 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
 
         vOutColor += SKYBOX_ENV_TEX.Sample(g_sam_anti_0, vEyeReflect);
     }
+    if (paperBurn)
+    {
+        vOutColor = PaperBurn(vOutColor, _in.vUV, g_tex_6);
+    }
+
 
     return vOutColor;
 }

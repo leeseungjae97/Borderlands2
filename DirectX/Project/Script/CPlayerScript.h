@@ -25,6 +25,8 @@ private:
     float       fBurnAcc;
     float       fBurnTime;
 
+    bool        bHitEnemy;
+
     CGameObject* m_pUI_HP;
     CGameObject* m_pUI_AMMO;
     CGameObject* m_pUI_EnemyHp;

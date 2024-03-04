@@ -49,19 +49,10 @@ void CEnemyScript::begin()
 	iAmmo = 30;
 			});
 
-	pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::DIE)
+	pEnemy->Animator3D()->StartEvent((UINT)ENEMY_ANIMATION_TYPE::DIE)
 		= std::make_shared<std::function<void()>>([=]()
 			{
-				DestroyObject(pEnemy);
-	if (pEnemy->GetGuns().size() != 0)
-	{
-		for (int i = 0; i < pEnemy->GetGuns().size(); ++i)
-		{
-			DestroyObject(pEnemy->GetGuns()[i]);
-		}
-	}
-	if (pHeadCollider)
-		DestroyObject(pHeadCollider);
+				
 			});
 
 	makeCollider();
@@ -242,7 +233,8 @@ void CEnemyScript::tick()
 		return;
 	if (iEnemyHp == 0)
 	{
-		pEnemy->Animator3D()->Play((UINT)ENEMY_ANIMATION_TYPE::DIE, true);
+		pEnemy->Animator3D()->Play((UINT)ENEMY_ANIMATION_TYPE::DIE, false, false);
+		PaperBurn();
 		tState = EnemyMgr::ENEMY_STATE::DIE;
 	}
 
@@ -277,6 +269,8 @@ void CEnemyScript::tick()
 	{
 		pEnemy->Animator3D()->Play((UINT)ENEMY_ANIMATION_TYPE::IDLE, true);
 	}
+
+	IsDie();
 }
 
 void CEnemyScript::finaltick()
@@ -455,6 +449,36 @@ bool CEnemyScript::IsDetect()
 	}
 
 	return false;
+}
+
+void CEnemyScript::PaperBurn()
+{
+	if (tState == EnemyMgr::ENEMY_STATE::DIE)
+		return;
+
+	CGameObject* pEnemy = GetOwner();
+	double dTime = AnimationMgr::GetInst()->GetCurAnimationTime(pEnemy->Animator3D());
+	pEnemy->MeshRender()->SetPaparBurn(true, (float)dTime);
+}
+
+void CEnemyScript::IsDie()
+{
+	CGameObject* pEnemy = GetOwner();
+	if(pEnemy->MeshRender()->GetMaterial(0)->IsPaperBurnEnd())
+	{
+		DestroyObject(pEnemy);
+		if (pEnemy->GetGuns().size() != 0)
+		{
+			for (int i = 0; i < pEnemy->GetGuns().size(); ++i)
+			{
+				DestroyObject(pEnemy->GetGuns()[i]);
+			}
+		}
+		if (pHeadCollider)
+			DestroyObject(pHeadCollider);
+
+		pEnemy->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
 }
 
 

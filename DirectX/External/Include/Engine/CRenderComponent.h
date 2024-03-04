@@ -32,6 +32,8 @@ public:
     void SetMesh(Ptr<CMesh> _Mesh);
     void SetMaterial(Ptr<CMaterial> _Mtrl, UINT _Idx);
 
+    void SetPaparBurn(bool _Burn, float _BurnTime);
+
     Ptr<CMesh> GetMesh() { return m_pMesh; }
 
     Ptr<CMaterial> GetMaterial(UINT _Idx);

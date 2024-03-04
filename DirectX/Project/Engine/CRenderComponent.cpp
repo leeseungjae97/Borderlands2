@@ -150,6 +150,32 @@ void CRenderComponent::SetMaterial(Ptr<CMaterial> _Mtrl, UINT _Idx)
 	m_vecMtrls[_Idx].pCurrentMtrl = _Mtrl;
 }
 
+void CRenderComponent::SetPaparBurn(bool _Burn, float _BurnTime)
+{
+	for(int i = 0 ; i < m_vecMtrls.size(); ++i)
+	{
+		GetDynamicMaterial(i)->SetPaperBurn(_Burn);
+		GetDynamicMaterial(i)->SetPaperBurnTime(_BurnTime);
+		//if (nullptr != m_vecMtrls[i].pCurrentMtrl.Get())
+		//{
+		//	m_vecMtrls[i].pCurrentMtrl->SetPaperBurn(_Burn);
+		//	m_vecMtrls[i].pCurrentMtrl->SetPaperBurnTime(_BurnTime);
+		//}
+
+		//if (nullptr != m_vecMtrls[i].pSharedMtrl.Get())
+		//{
+		//	m_vecMtrls[i].pSharedMtrl->SetPaperBurn(_Burn);
+		//	m_vecMtrls[i].pSharedMtrl->SetPaperBurnTime(_BurnTime);
+		//}
+
+		//if(nullptr != m_vecMtrls[i].pDynamicMtrl.Get())
+		//{
+		//	m_vecMtrls[i].pDynamicMtrl->SetPaperBurn(_Burn);
+		//	m_vecMtrls[i].pDynamicMtrl->SetPaperBurnTime(_BurnTime);
+		//}
+	}
+}
+
 void CRenderComponent::SaveToLevelFile(FILE* _File)
 {
 	//COMPONENT_TYPE type = GetType();

@@ -6,12 +6,12 @@
 #include "PhysXMgr.h"
 #include "physx_util.h"
 
-CCollider3D::CCollider3D(bool _AttachRigid, bool _Unity)
+CCollider3D::CCollider3D(bool _AttachRigid, bool _Unity, COLLIDER_SHAPE_TYPE _Shape)
 	: CComponent(COMPONENT_TYPE::COLLIDER3D)
 	, m_PxColliderShape(nullptr)
 	, m_bFirstInit(false)
 	, m_bCenter(false)
-	, m_tColliderShapeType(COLLIDER_SHAPE_TYPE::BOX)
+	, m_tColliderShapeType(_Shape)
 	, m_bAttachToRigidBody(_AttachRigid)
 	, m_vScale(Vec3(1.f, 1.f, 1.f))
 	, m_bBeginOverlap(false)
@@ -177,12 +177,19 @@ void CCollider3D::createColliderShape()
 		else if (_rb && m_bAttachToRigidBody)
 			m_vScale = GetOwner()->RigidBody()->GetRigidScale();
 	}
-	
+
+	if(m_tColliderShapeType == COLLIDER_SHAPE_TYPE::BOX)
+	{
+		m_PxColliderShape = PhysXMgr::GetInst()->GPhysics()->createShape(
+			physx::PxBoxGeometry(m_vScale.x / 2.f, m_vScale.y / 2.f, m_vScale.z / 2.f)
+			, *m_PxMaterial
+			, true);
+	}
+	if(m_tColliderShapeType == COLLIDER_SHAPE_TYPE::MESH)
+	{
+		createTriangleMesh();
+	}
 	//m_PxColliderShape = createTriggerShape(PxBoxGeometry(m_vScale.x + 2, m_vScale.y + 2, m_vScale.z + 2), *m_PxMaterial, true);
-	m_PxColliderShape = PhysXMgr::GetInst()->GPhysics()->createShape(
-		physx::PxBoxGeometry(m_vScale.x / 2.f, m_vScale.y / 2.f, m_vScale.z / 2.f)
-		, *m_PxMaterial
-		, true);
 	PxFilterData triggerFilterData;
 	if(GetOwner()->GetLayerIndex() == (int)LAYER_TYPE::NoRaycastingCollider)
 	{
@@ -221,7 +228,8 @@ void CCollider3D::colliderDebugDraw()
 {
 	CRigidBody* _rb = GetOwner()->RigidBody();
 	
-	if (nullptr == _rb && nullptr == m_PxColliderRigid) return;
+	if (m_bAttachToRigidBody && (nullptr == _rb || !_rb->IsRigidBodyCreate())) return;
+	if (!m_bFirstInit) return;
 
 	physx::PxTransform pos;
 	if (_rb)
@@ -229,12 +237,80 @@ void CCollider3D::colliderDebugDraw()
 	else
 		pos = m_PxColliderRigid->getGlobalPose();
 
-	Matrix worldMat = physx::Util::WorldMatFromGlobalPose(pos
-		, Vec3(m_vScale.x - 5.f
-					, m_vScale.y - 5.f
-					, m_vScale.z - 5.f)
-	);
-	DrawDebugCube(worldMat, Vec4(0.f, 0.f, 1.f, 1.f), 0.f, false);
+	
+
+	if(m_tColliderShapeType == COLLIDER_SHAPE_TYPE::BOX)
+	{
+		Matrix worldMat = physx::Util::WorldMatFromGlobalPose(pos
+			, Vec3(m_vScale.x
+				, m_vScale.y
+				, m_vScale.z)
+		);
+		DrawDebugCube(worldMat, Vec4(0.f, 0.f, 1.f, 1.f), 0.f, false);
+		
+	}
+	if (m_tColliderShapeType == COLLIDER_SHAPE_TYPE::MESH)
+	{
+		Matrix worldMat = GetOwner()->Transform()->GetWorldMat();
+		DrawDebugMeshFace(worldMat, m_debugMeshName, GetOwner()->MeshRender()->GetMtrlCount(), Vec4(0.f, 0.f, 1.f, 1.f), 0.f, false);
+	}
+}
+
+void CCollider3D::convertMeshToGeom()
+{
+	Vtx v; PxU32 idx; PxVec3 pV; vector<UINT> inds;
+	Ptr<CMesh> pMesh = GetOwner()->MeshRender()->GetMesh();
+	Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
+	m_debugMeshName = pMesh->GetKey();
+
+	if (pMesh->GetSubsetCount() > 1)
+	{
+		int a = 0;
+	}
+	for (auto indexInfo : pMesh->GetIndexInfo())
+	{
+		inds.clear();
+		vector<UINT>().swap(inds);
+
+		inds.resize(indexInfo.iIdxCount);
+		memcpy(inds.data(), indexInfo.pIdxSysMem, indexInfo.iIdxCount * sizeof(UINT));
+		for (int idxIdx = 0; idxIdx < indexInfo.iIdxCount; ++idxIdx)
+		{
+			idx = inds[idxIdx];
+			m_vecIndis.push_back(idx);
+		}
+	}
+
+	Vtx* vecVtx = pMesh->GetVtxSysMem();
+	for (int vtxIdx = 0; vtxIdx < pMesh->GetVtxCount(); ++vtxIdx)
+	{
+		v = vecVtx[vtxIdx];
+		pV = PxVec3(v.vPos.x * vScale.x, v.vPos.y * vScale.y, v.vPos.z * vScale.z);
+		m_vecVerts.push_back(pV);
+	}
+}
+
+void CCollider3D::createTriangleMesh()
+{
+	convertMeshToGeom();
+	PxCookingParams params(PhysXMgr::GetInst()->GPhysics()->getTolerancesScale());
+	params.midphaseDesc.setToDefault(PxMeshMidPhase::eBVH34);
+	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+
+	PxTriangleMeshDesc triDesc;
+	triDesc.points.count = m_vecVerts.size();
+	triDesc.points.stride = sizeof(PxVec3);
+	triDesc.points.data = m_vecVerts.data();
+
+	triDesc.triangles.count = m_vecIndis.size() / 3;
+	triDesc.triangles.stride = sizeof(PxU32) * 3;
+	triDesc.triangles.data = m_vecIndis.data();
+
+	PxTriangleMesh* triMesh = PxCreateTriangleMesh(params, triDesc);
+	m_PxColliderShape = PhysXMgr::GetInst()->GPhysics()->createShape(PxTriangleMeshGeometry(triMesh), *m_PxMaterial, true);
+
+	PX_RELEASE(triMesh);
 }
 
 void CCollider3D::SetColliderPos(Vec3 _vPos)

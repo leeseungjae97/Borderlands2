@@ -474,88 +474,6 @@ void CreateTestLevel()
 	//	PreloadGameObject(pObj, Vec3(200.f, 100.f, 200.f), LAYER_TYPE::Environment);
 	//}
 
-	//for( int i =0 ; i < 10 ; ++i)
-	//{
-	//	{
-	//		Ptr<CMeshData> pMeshData = nullptr;
-	//		CGameObject* pObj = nullptr;
-
-	//		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\map_volcano_floor1.fbx");
-	//		pObj = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
-	//		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
-	//		//pObj->AddComponent(new CCollider3D);
-
-	//		pObj->SetName(L"fbx floor1" + std::to_wstring(i));
-	//		PreloadGameObject(pObj, Vec3(200.f + (i * 200.f), 500.f, 200.f), LAYER_TYPE::Environment);
-	//	}
-	//}
-	//for (int i = 0; i < 10; ++i)
-	//{
-	//	{
-	//		Ptr<CMeshData> pMeshData = nullptr;
-	//		CGameObject* pObj = nullptr;
-
-	//		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\map_volcano_floor2.fbx");
-	//		pObj = pMeshData->Instantiate(Vec3(300.f, 300.f, 300.f));
-	//		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
-	//		//pObj->AddComponent(new CCollider3D);
-
-	//		pObj->SetName(L"fbx floor2" + std::to_wstring(i));
-	//		PreloadGameObject(pObj, Vec3(200.f + (i * 200.f), 100.f, 200.f), LAYER_TYPE::Environment);
-	//	}
-	//}
-	//for (int i = 0; i < 100; ++i)
-	//{
-	//	{
-	//		Ptr<CMeshData> pMeshData = nullptr;
-	//		CGameObject* pObj = nullptr;
-
-	//		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\map_assm.fbx.fbx");
-	//		pObj = pMeshData->Instantiate(Vec3(1.f, 1.f, 1.f));
-	//		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
-	//		//pObj->AddComponent(new CCollider3D);
-
-	//		pObj->SetName(L"fbx maya test" + std::to_wstring(i));
-	//		PreloadGameObject(pObj, Vec3(200.f + (i * 200.f), 0.f, 200.f), LAYER_TYPE::Environment);
-	//	}
-	//}
-
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
-
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\map_4_0.fbx");
-	//	pObj = pMeshData->Instantiate(Vec3(1.f, 1.f, 1.f));
-	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
-	//	//pObj->AddComponent(new CCollider3D);
-
-	//	pObj->SetName(L"fbx map");
-	//	PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Environment);
-	//}
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
-
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\map_assm.fbx");
-	//	pObj = pMeshData->Instantiate(Vec3(1.f, 1.f, 1.f));
-	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
-	//	//pObj->AddComponent(new CCollider3D);
-
-	//	pObj->SetName(L"fbx map");
-	//	PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Environment);
-	//}
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
-
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\map_4_0_floor1.fbx");
-	//	pObj = pMeshData->Instantiate(Vec3(10.f, 10.f, 10.f));
-	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
-	//	//pObj->AddComponent(new CCollider3D);
-
-	//	pObj->SetName(L"fbx map");
-	//	PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Environment);
-	//}
 	//{
 	//	Ptr<CMeshData> pMeshData = nullptr;
 	//	CGameObject* pObj = nullptr;
@@ -575,21 +493,12 @@ void CreateTestLevel()
 		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\map_statics_subdivision.fbx");
 		pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 50.f));
 		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::MESH));
+		pObj->AddComponent(new CCollider3D(true, false, COLLIDER_SHAPE_TYPE::MESH));
 		//pObj->AddComponent(new CMap);
 		//pObj->AddComponent(new CCollider3D);
 
 		pObj->SetName(L"fbx map2");
 		PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Terrain);
-	}
-	{
-		CGameObject* pObj = new CGameObject;
-		pObj->AddComponent(new CTransform);
-		pObj->AddComponent(new CParticleSystem);
-		pObj->AddComponent(new CGizmo);
-		pObj->SetName(L"Particle");
-
-		pObj->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
-		PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Environment);
 	}
 	
 	//{
@@ -605,41 +514,41 @@ void CreateTestLevel()
 	//	PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Environment);
 	//}
 
-	//for(int i =0 ; i < 2 ; ++i)
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
+	for(int i =0 ; i < 2 ; ++i)
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
 
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
-	//	pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
-	//	wstring str = L"fbx nomad" + std::to_wstring(i);
-	//	pObj->SetName(str);
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+		pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
+		wstring str = L"fbx nomad" + std::to_wstring(i);
+		pObj->SetName(str);
 
-	//	pObj->AddComponent(new CEnemyScript);
-	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::RECT, RIGID_BODY_TYPE::DYNAMIC));
-	//	pObj->AddComponent(new CCollider3D);
-	//	//pObj->AddComponent(new CPathFindScript);
-	//	pObj->AddComponent(new CGizmo);
+		pObj->AddComponent(new CEnemyScript);
+		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::RECT, RIGID_BODY_TYPE::DYNAMIC));
+		pObj->AddComponent(new CCollider3D);
+		//pObj->AddComponent(new CPathFindScript);
+		pObj->AddComponent(new CGizmo);
 
-	//	pObj->RigidBody()->SetCreature(true);
+		pObj->RigidBody()->SetCreature(true);
 
-	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 1000.f + (i * 150.f)), LAYER_TYPE::Enemy);
+		PreloadGameObject(pObj, Vec3(500.f, 100.f, 1000.f + (i * 150.f)), LAYER_TYPE::Enemy);
 
-	//	{
-	//		Ptr<CMeshData> pMeshData = nullptr;
-	//		CGameObject* pGun = nullptr;
-	//		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\dahl.fbx");
-	//		pGun = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
-	//		pGun->SetName(L"enemy_gun");
+		{
+			Ptr<CMeshData> pMeshData = nullptr;
+			CGameObject* pGun = nullptr;
+			pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\dahl.fbx");
+			pGun = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
+			pGun->SetName(L"enemy_gun");
 
-	//		pGun->AddComponent(new CGunScript);
-	//		pGun->AddComponent(new CGizmo);
-	//		pGun->SetIsItem(true);
-	//		pObj->AddGun(pGun);
+			pGun->AddComponent(new CGunScript);
+			pGun->AddComponent(new CGizmo);
+			pGun->SetIsItem(true);
+			pObj->AddGun(pGun);
 
-	//		PreloadGameObject(pGun, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
-	//	}
-	//}
+			PreloadGameObject(pGun, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
+		}
+	}
 	{
 		CGameObject* pObj = new CGameObject;
 		pObj->SetName(L"Move Tester");

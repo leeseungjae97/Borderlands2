@@ -68,7 +68,7 @@ void CRigidBody::finaltick()
 	}
 	//PxVec3 ang = m_pDynamicBody->getAngularVelocity();
 
-	drawDebugRigid();
+	//drawDebugRigid();
 }
 
 PxTransform CRigidBody::GetRigidBodyPos()
@@ -368,7 +368,6 @@ void CRigidBody::drawDebugRigid()
 	break;
 	case RIGID_BODY_SHAPE_TYPE::MESH:
 	{
-		Ptr<CMesh> pMesh = GetOwner()->MeshRender()->GetMesh();
 		DrawDebugMeshFace(worldMat, m_debugMeshName, GetOwner()->MeshRender()->GetMtrlCount(), Vec4(1.f, 0.f, 0.f, 1.f), 0.f, true);
 	}
 	break;

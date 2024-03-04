@@ -71,21 +71,37 @@ void AnimationMgr::AdaptAnimation(CGameObject* _LayerObject, bool _AllLayer)
 	}
 }
 
+double AnimationMgr::GetCurAnimationTime(CAnimator3D* _Animator)
+{
+	CAnimClip* anim_clip = _Animator->GetNextAnimClip();
+	if (nullptr == anim_clip)
+		anim_clip = _Animator->GetCurAnimClip();
+
+	tMTAnimClip clip = anim_clip->GetCurClip();
+
+	double clip_time_diff = clip.dEndTime - clip.dStartTime;
+
+	return clip_time_diff;
+}
+
 void AnimationMgr::AnimationSync(CAnimator3D* _Animator1, CAnimator3D* _Animator2)
 {
-	CAnimClip* anim_clip_1 = _Animator1->GetNextAnimClip();
-	if(nullptr == anim_clip_1)
-		anim_clip_1 = _Animator1->GetCurAnimClip();
+	//CAnimClip* anim_clip_1 = _Animator1->GetNextAnimClip();
+	//if(nullptr == anim_clip_1)
+	//	anim_clip_1 = _Animator1->GetCurAnimClip();
+	//
+	//CAnimClip* anim_clip_2 = _Animator2->GetNextAnimClip();
+	//if (nullptr == anim_clip_2)
+	//	anim_clip_2 = _Animator2->GetCurAnimClip();
 
-	CAnimClip* anim_clip_2 = _Animator2->GetNextAnimClip();
-	if (nullptr == anim_clip_2)
-		anim_clip_2 = _Animator2->GetCurAnimClip();
+	//tMTAnimClip clip_1 = anim_clip_1->GetCurClip();
+	//tMTAnimClip clip_2 = anim_clip_2->GetCurClip();
 
-	tMTAnimClip clip_1 = anim_clip_1->GetCurClip();
-	tMTAnimClip clip_2 = anim_clip_2->GetCurClip();
+	//double clip_1_time_diff= clip_1.dEndTime - clip_1.dStartTime;
+	//double clip_2_time_diff= clip_2.dEndTime - clip_2.dStartTime;
 
-	double clip_1_time_diff= clip_1.dEndTime - clip_1.dStartTime;
-	double clip_2_time_diff= clip_2.dEndTime - clip_2.dStartTime;
+	double clip_1_time_diff = GetCurAnimationTime(_Animator1);
+	double clip_2_time_diff = GetCurAnimationTime(_Animator2);;
 
 	double frame_diff = max(clip_1_time_diff, clip_2_time_diff) / min(clip_1_time_diff, clip_2_time_diff);
 	if(clip_1_time_diff < clip_2_time_diff)

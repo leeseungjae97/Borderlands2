@@ -347,6 +347,16 @@ struct tMtrlConst
 	int pad;
 };
 
+struct tPaperBurnConst
+{
+	int paperBurn;
+	float paperAcc;
+	float paperTime;
+	
+	Vec2 vMtrlSize;
+	int paperBurnEnd;
+	float pad[2];
+};
 
 struct tGlobal
 {

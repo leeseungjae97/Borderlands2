@@ -19,11 +19,14 @@ public:
 private:
 	tParticleModule m_ModuleData[(UINT)PARTICLE_SETTING_TYPE::END];
 
+	CGameObject* m_pParticle;
+
 public:
-	void DoParticle(CGameObject* _Obj, PARTICLE_SETTING_TYPE _Type, Vec3 _vPos);
+	void DoParticle(PARTICLE_SETTING_TYPE _Type, Vec3 _vPos);
 
 public:
 	void init();
+	void begin();
 
 public:
 	ParticleMgr();

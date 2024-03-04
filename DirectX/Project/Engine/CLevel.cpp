@@ -5,6 +5,7 @@
 #include "CGameObject.h"
 
 #include "CRenderMgr.h"
+#include "ParticleMgr.h"
 #include "WeaponMgr.h"
 
 CLevel::CLevel()
@@ -142,6 +143,7 @@ void CLevel::ChangeState(LEVEL_STATE _State)
 		CRenderMgr::GetInst()->SetRenderFunc(true);
 		begin();
 		WeaponMgr::GetInst()->begin();
+		ParticleMgr::GetInst()->begin();
 	}
 	else
 	{

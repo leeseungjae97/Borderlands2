@@ -104,6 +104,7 @@ struct PS_OUT
     float4 vSpecular    : SV_Target6;
 };
 
+#define IsDead g_int_0
 PS_OUT PS_Std3D_Deferred(VS_OUT _in)
 {
     PS_OUT output = (PS_OUT) 0.f;
@@ -244,28 +245,32 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
 
     if (g_btex_6)
     {
-        if (g_btex_6_flow)
-        {
-            if (g_btex_6_emis)
-                output.vEmissive += g_tex_6.Sample(g_sam_anti_0, moveUV);
-            else
-                output.vColor += g_tex_6.Sample(g_sam_anti_0, moveUV);
-        }
-        else
-        {
-            if (g_btex_6_emis)
-                output.vEmissive += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
-            else
-                output.vColor += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
-        }
+        //if (g_btex_6_flow)
+        //{
+        //    if (g_btex_6_emis)
+        //        output.vEmissive += g_tex_6.Sample(g_sam_anti_0, moveUV);
+        //    else
+        //        output.vColor += g_tex_6.Sample(g_sam_anti_0, moveUV);
+        //}
+        //else
+        //{
+	        //if (g_btex_6_emis)
+	        //    output.vEmissive += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
+	        //else
+	        //    output.vColor += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
+        //}
+
+        //if (paperBurn)
+        //{
+        //    output.vEmissive += g_tex_6.Sample(g_sam_anti_0, _in.vUV);
+        //}
+        //if (g_btex_6_emis)
+            
     }
     if (g_btex_2)
     {
-
         if (g_btex_2_flow)
-        {
             vEmissiveCoeff = g_tex_2.Sample(g_sam_anti_0, moveUV);
-        }
         else
             vEmissiveCoeff = g_tex_2.Sample(g_sam_anti_0, _in.vUV);
         
@@ -282,7 +287,11 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
             output.vEmissive += output.vColor * vEmissiveCoeff.b * g_fEmisCoeff;
         }
     }
-    //output.vEmissive
+
+    if (paperBurn)
+    {
+        output.vColor = PaperBurn(output.vColor, _in.vUV, g_tex_6, output.vEmissive);
+    }
     output.vNormal = float4(vViewNormal, 1.f);
     output.vPosition = float4(_in.vViewPos, 1.f);
     output.vData = float4(0.f, 0.f, 0.f, 1.f);

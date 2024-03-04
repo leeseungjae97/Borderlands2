@@ -11,6 +11,7 @@
 #include <Engine\WeaponMgr.h>
 #include <Engine\RandMgr.h>
 #include <Engine\AnimationMgr.h>
+#include <Engine\ParticleMgr.h>
 #include <Engine\CUI.h>
 #include <Engine\CFontMgr.h>
 
@@ -329,6 +330,7 @@ void CPlayerScript::Look()
 	{
 		if (hoverEnemy->GetScript<CEnemyScript>())
 		{
+			bHitEnemy = true;
 			m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 			m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 			hoverEnemy->GetName();
@@ -344,16 +346,19 @@ void CPlayerScript::Look()
 
 			float hpRatio = 1.f - hoverEnemy->GetScript<CWarriorScript>()->GetHpRatio();
 			m_pUI_EnemyHp->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &hpRatio);
+			bHitEnemy = true;
 		}
 		else
 		{
 			m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 			m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			bHitEnemy = false;
 		}
 	}else
 	{
 		m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 		m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		bHitEnemy = false;
 	}
 }
 
@@ -378,15 +383,19 @@ void CPlayerScript::ShootBullet()
 	rayInfo.matWorld = MainCam->Transform()->GetDrawRayMat();
 	rayInfo.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
 	//RaycastMgr::GetInst()->SetPlayerRayInfo(rayInfo);
-	RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo, RAYCAST_GROUP_TYPE::Player);
+	Vec3 vPosition;
+	RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo, &vPosition, RAYCAST_GROUP_TYPE::Player);
 	Vec3 vPos = WeaponMgr::GetInst()->GetCurWeaponMuzzlePos();
 	Vec3 vRot = WeaponMgr::GetInst()->GetCurWeapon()->Transform()->GetRelativeRot();
 
 	WeaponMgr::GetInst()->MuzzleFlash(vPos, vRot);
-
+	
 	WeaponMgr::GetInst()->Play(GUN_ANIMATION_TYPE::FIRE, false);
 
 	Recoil();
+
+	if(!bHitEnemy)
+		ParticleMgr::GetInst()->DoParticle(ParticleMgr::PARTICLE_SETTING_TYPE::BULLET_IMPACT, rayInfo.vStart + (rayInfo.vDir * vPosition.z));
 
 	CGameObject* pGun = WeaponMgr::GetInst()->GetCurWeapon();
 	int weaponIdx = WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::FIRE);
@@ -402,21 +411,21 @@ void CPlayerScript::ShootBullet()
 
 void CPlayerScript::ShootMissile()
 {
-	CCamera* MainCam = CRenderMgr::GetInst()->GetMainCam();
-	if (nullptr == MainCam)
-		MainCam = CameraMgr::GetInst()->GetCamObj(L"MainCamera")->Camera();
+	//CCamera* MainCam = CRenderMgr::GetInst()->GetMainCam();
+	//if (nullptr == MainCam)
+	//	MainCam = CameraMgr::GetInst()->GetCamObj(L"MainCamera")->Camera();
 
-	tRay Ray = MainCam->GetRay();
-	Vec3 vStart = Ray.vStart;
+	//tRay Ray = MainCam->GetRay();
+	//Vec3 vStart = Ray.vStart;
 
-	CGameObject* pBullet = new CGameObject;
-	pBullet->SetName(L"Player Missile");
-	pBullet->AddComponent(new CTransform);
-	pBullet->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
-	pBullet->AddComponent(new CCollider3D(false));
-	pBullet->AddComponent(new CBulletScript);
+	//CGameObject* pBullet = new CGameObject;
+	//pBullet->SetName(L"Player Missile");
+	//pBullet->AddComponent(new CTransform);
+	//pBullet->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
+	//pBullet->AddComponent(new CCollider3D(false));
+	//pBullet->AddComponent(new CBulletScript);
 
-	SpawnGameObject(pBullet, vStart, LAYER_TYPE::PlayerBullet);
+	//SpawnGameObject(pBullet, vStart, LAYER_TYPE::PlayerBullet);
 }
 
 void CPlayerScript::Reload()

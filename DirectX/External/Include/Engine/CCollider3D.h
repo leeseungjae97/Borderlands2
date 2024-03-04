@@ -7,6 +7,7 @@ enum class COLLIDER_SHAPE_TYPE
 {
 	BOX,
     SPHERE,
+    MESH,
 };
 
 class CCollider3D :
@@ -37,10 +38,17 @@ private:
 
     CGameObject*    m_pUnityOwner;
 
+    wstring         m_debugMeshName;
+
+    vector<PxVec3>          m_vecVerts;
+    vector<PxU32>           m_vecIndis;
 private:
     void setShapeToRigidBody();
     void createColliderShape();
     void colliderDebugDraw();
+
+    void convertMeshToGeom();
+    void createTriangleMesh();
 
 public:
     PxShape* GetShape() { return m_PxColliderShape; }
@@ -121,7 +129,7 @@ public:
 
 public:
     // Transform 없이 단독으로 쓸 때 Unity = true
-    CCollider3D(bool _AttachRigid = true, bool _Unity = false);
+    CCollider3D(bool _AttachRigid = true, bool _Unity = false, COLLIDER_SHAPE_TYPE _Shape = COLLIDER_SHAPE_TYPE::BOX);
     virtual ~CCollider3D();
 };
 

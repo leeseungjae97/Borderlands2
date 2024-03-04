@@ -889,9 +889,6 @@
     <FxCompile Include="decal.fx">
       <Filter>Source\_ShaderCode\Effect</Filter>
     </FxCompile>
-    <FxCompile Include="dissolve.fx">
-      <Filter>Source\_ShaderCode\Effect</Filter>
-    </FxCompile>
     <FxCompile Include="postprocess.fx">
       <Filter>Source\_ShaderCode\Effect</Filter>
     </FxCompile>

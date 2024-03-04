@@ -114,9 +114,17 @@ float3 rtt_and_odt_fit(float3 v)
 }
 
 // sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT
-static float3 aces_input_matrix[3] = { float3(0.59719f, 0.35458f, 0.04823f), float3(0.07600f, 0.90834f, 0.01566f), float3(0.02840f, 0.13383f, 0.83777f) };
+static float3 aces_input_matrix[3] = {
+	float3(0.59719f, 0.35458f, 0.04823f),
+	float3(0.07600f, 0.90834f, 0.01566f),
+	float3(0.02840f, 0.13383f, 0.83777f)
+};
 // ODT_SAT => XYZ => D60_2_D65 => sRGB
-static float3 aces_output_matrix[3] = { float3(1.60475f, -0.53108f, -0.07367f), float3(-0.10208f, 1.10813f, -0.00605f), float3(-0.00327f, -0.07276f, 1.07602f) };
+static float3 aces_output_matrix[3] = {
+	float3(1.60475f, -0.53108f, -0.07367f),
+	float3(-0.10208f, 1.10813f, -0.00605f),
+	float3(-0.00327f, -0.07276f, 1.07602f)
+};
 
 float3 ACESToneMapping(float3 colorIn)
 {
@@ -124,18 +132,92 @@ float3 ACESToneMapping(float3 colorIn)
     colorIn = rtt_and_odt_fit(colorIn);
     colorIn = Multiply(aces_output_matrix, colorIn);
     
+    //return colorIn;
     return saturate(colorIn);
 }
-float BloomCurve(float x)
+float4 PaperBurn(float4 vColor, float2 vUV, Texture2D BurnTex)
 {
-    float result = (float)0.f;
+    float SinPaperAcc = sin(paperAcc);
 
-    //result = x * 0.05 + max(0, x - 10.f) * 0.5f;
+    float4 vOut = (float4) 0.f;
 
-    result = x * x / 3.2;
+    float4 vBurnColor = BurnTex.Sample(g_sam_linear_2, vUV);
 
-    return result * 0.5f;
+    if (vColor.a == 0.0f)
+        return vColor;
+
+    vOut = vColor;
+
+    if (SinPaperAcc >= vBurnColor.r)
+    {
+        clip(-1);
+    }
+
+    if (SinPaperAcc - 0.05f <= vBurnColor.r && vBurnColor.r <= SinPaperAcc + 0.05f)
+    {
+        vOut = float4(1, 0, 0, 1);
+        vOut += vOut;
+
+    }
+
+    if (SinPaperAcc - 0.03f <= vBurnColor.r && vBurnColor.r <= SinPaperAcc + 0.03f)
+    {
+        vOut = float4(1, 1, 0, 1);
+        vOut += vOut;
+    }
+
+    if (SinPaperAcc - 0.025f <= vBurnColor.r && vBurnColor.r <= SinPaperAcc + 0.025f)
+    {
+        vOut = float4(1, 1, 1, 1);
+        vOut += vOut;
+    }
+
+    vOut.a *= vColor.a;
+
+    return vOut;
 }
+float4 PaperBurn(float4 vColor, float2 vUV, Texture2D BurnTex, inout float4 vEmissive)
+{
+    float SinPaperAcc = sin(paperAcc);
+
+    float4 vOut = (float4) 0.f;
+
+    float4 vBurnColor = BurnTex.Sample(g_sam_linear_2, vUV);
+
+    if (vColor.a == 0.0f)
+        return vColor;
+
+    vOut = vColor;
+
+    if (SinPaperAcc >= vBurnColor.r)
+    {
+        clip(-1);
+    }
+
+    if (SinPaperAcc - 0.05f <= vBurnColor.r && vBurnColor.r <= SinPaperAcc + 0.05f)
+    {
+        vOut = float4(1, 0, 0, 1);
+        vEmissive += vOut;
+
+    }
+
+    if (SinPaperAcc - 0.03f <= vBurnColor.r && vBurnColor.r <= SinPaperAcc + 0.03f)
+    {
+        vOut = float4(1, 1, 0, 1);
+        vEmissive += vOut;
+    }
+
+    if (SinPaperAcc - 0.025f <= vBurnColor.r && vBurnColor.r <= SinPaperAcc + 0.025f)
+    {
+        vOut = float4(1, 1, 1, 1);
+        vEmissive += vOut;
+    }
+
+    vOut.a *= vColor.a;
+
+    return vOut;
+}
+
 void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightColor _vLightColor, inout float _SpecPow)
 {
     tLightInfo lightInfo = g_Light3DBuffer[_idx];

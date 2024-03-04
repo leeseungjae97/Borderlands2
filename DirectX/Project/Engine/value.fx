@@ -47,6 +47,7 @@ cbuffer MATERIAL : register(b1)
 
     float2 g_vec2_0;
     float2 g_vec2_1;
+
     float2 g_vec2_2;
     float2 g_vec2_3;
 
@@ -125,6 +126,18 @@ cbuffer GLOBAL : register(b2)
     uint   g_Light2DCount;
     uint   g_Light3DCount;
     int2   g_globalpadding;
+}
+
+cbuffer PAPER_BURN : register(b3)
+{
+    int paperBurn;
+    float paperAcc;
+    float paperTime;
+    
+    float2 vMtrlSize;
+    int paperBurnEnd;
+
+    float2 pad2;
 }
 
 Texture2D g_tex_0 : register(t0);

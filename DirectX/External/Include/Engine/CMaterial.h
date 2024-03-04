@@ -4,6 +4,7 @@
 #include "ptr.h"
 #include "CGraphicsShader.h"
 #include "CTexture.h"
+#include "struct.h"
 
 class CMaterial :
     public CRes
@@ -13,7 +14,7 @@ private:
     tMtrlConst              m_Const;
     Ptr<CTexture>           m_arrTex[TEX_END];
    
-
+    tPaperBurnConst         m_PaperBurnConst;
 
 public:
     void SetScalarParam(SCALAR_PARAM _Param, const void* _Src);
@@ -45,8 +46,11 @@ public:
     void SetEmissiveCoeff(float _Coeff) { m_Const.fEmisCoeff = _Coeff; }
     void SetFlow(int _Idx, bool _bFlow) { m_Const.arrTexFlow[_Idx] = _bFlow; }
 
-    tMtrlConst GetConst() { return m_Const; }
+    void SetPaperBurn(bool _Burn) { m_PaperBurnConst.paperAcc = 0.0f;  m_PaperBurnConst.paperBurn = _Burn; }
+    void SetPaperBurnTime(float _Time) { m_PaperBurnConst.paperTime = _Time; }
+    bool IsPaperBurnEnd() { return m_PaperBurnConst.paperBurnEnd; }
 
+    tMtrlConst GetConst() { return m_Const; }
 
     virtual void UpdateData() override;
     void UpdateData_Instancing();

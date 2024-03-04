@@ -557,6 +557,9 @@ void CDevice::CreateConstBuffer()
     m_arrConstBuffer[(UINT)CB_TYPE::MATERIAL] = new CConstBuffer((UINT)CB_TYPE::MATERIAL);
     m_arrConstBuffer[(UINT)CB_TYPE::MATERIAL]->Create(sizeof(tMtrlConst), 1);
 
+    m_arrConstBuffer[(UINT)CB_TYPE::PAPER_BURN] = new CConstBuffer((UINT)CB_TYPE::PAPER_BURN);
+    m_arrConstBuffer[(UINT)CB_TYPE::PAPER_BURN]->Create(sizeof(tMtrlConst), 1);
+
     m_arrConstBuffer[(UINT)CB_TYPE::GLOBAL] = new CConstBuffer((UINT)CB_TYPE::GLOBAL);
     m_arrConstBuffer[(UINT)CB_TYPE::GLOBAL]->Create(sizeof(tGlobal), 1);
 }

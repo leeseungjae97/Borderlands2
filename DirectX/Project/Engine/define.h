@@ -215,6 +215,7 @@ enum class CB_TYPE
 	TRANSFORM,	// b0
 	MATERIAL,	// b1
 	GLOBAL,		// b2
+	PAPER_BURN, // b3
 	END,
 };
 
