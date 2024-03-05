@@ -180,8 +180,14 @@ void CCollider3D::createColliderShape()
 
 	if(m_tColliderShapeType == COLLIDER_SHAPE_TYPE::BOX)
 	{
+		m_vScale /= 2.f;
+
+		m_vScale.x += 5.f;
+		m_vScale.y += 5.f;
+		m_vScale.z += 5.f;
+
 		m_PxColliderShape = PhysXMgr::GetInst()->GPhysics()->createShape(
-			physx::PxBoxGeometry(m_vScale.x / 2.f, m_vScale.y / 2.f, m_vScale.z / 2.f)
+			physx::PxBoxGeometry(m_vScale.x, m_vScale.y, m_vScale.z)
 			, *m_PxMaterial
 			, true);
 	}
@@ -246,13 +252,13 @@ void CCollider3D::colliderDebugDraw()
 				, m_vScale.y
 				, m_vScale.z)
 		);
-		DrawDebugCube(worldMat, Vec4(0.f, 0.f, 1.f, 1.f), 0.f, false);
+		DrawDebugCube(worldMat, Vec4(0.f, 0.f, 1.f, 1.f), 0.f, true);
 		
 	}
 	if (m_tColliderShapeType == COLLIDER_SHAPE_TYPE::MESH)
 	{
 		Matrix worldMat = GetOwner()->Transform()->GetWorldMat();
-		DrawDebugMeshFace(worldMat, m_debugMeshName, GetOwner()->MeshRender()->GetMtrlCount(), Vec4(0.f, 0.f, 1.f, 1.f), 0.f, false);
+		DrawDebugMeshFace(worldMat, m_debugMeshName, GetOwner()->MeshRender()->GetMtrlCount(), Vec4(0.f, 0.f, 1.f, 1.f), 0.f, true);
 	}
 }
 
@@ -343,6 +349,9 @@ void CCollider3D::LoadFromLevelFile(FILE* _FILE)
 	fread(&m_bAttachToRigidBody, sizeof(bool), 1, _FILE);
 	fread(&m_bUnity, sizeof(bool), 1, _FILE);
 	fread(&m_bCenter, sizeof(bool), 1, _FILE);
+	fread(&m_tColliderShapeType, sizeof(UINT), 1, _FILE);
+	if (m_tColliderShapeType == COLLIDER_SHAPE_TYPE::MESH)
+		LoadWString(m_debugMeshName, _FILE);
 }
 
 void CCollider3D::SaveToLevelFile(FILE* _File)
@@ -352,4 +361,7 @@ void CCollider3D::SaveToLevelFile(FILE* _File)
 	fwrite(&m_bAttachToRigidBody, sizeof(bool), 1, _File);
 	fwrite(&m_bUnity, sizeof(bool), 1, _File);
 	fwrite(&m_bCenter, sizeof(bool), 1, _File);
+	fwrite(&m_tColliderShapeType, sizeof(UINT), 1, _File);
+	if (m_tColliderShapeType == COLLIDER_SHAPE_TYPE::MESH)
+		SaveWString(m_debugMeshName, _File);
 }

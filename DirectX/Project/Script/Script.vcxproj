@@ -77,7 +77,7 @@
     <LibraryPath>$(SolutionDir)External\Library\;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)_d</TargetName>
     <OutDir>$(SolutionDir)External\Library\Script\</OutDir>
-    <IncludePath>$(SolutionDir)External\Include\;$(SolutionDir)External\Include\FBXLoader\;$(SolutionDir)External\Include\PhysX\;$(SolutionDir)External\Include\Recast\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)External\Include\;$(SolutionDir)External\Include\FBXLoader\;$(SolutionDir)External\Include\PhysX\;$(SolutionDir)External\Include\Recast\;$(SolutionDir)External\Include\DirectXTK\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>

@@ -7,7 +7,6 @@ enum class RIGID_BODY_SHAPE_TYPE
 {
     BOX,
     SPHERE,
-    RECT,
     MESH,
     END,
 };
@@ -29,7 +28,6 @@ static const char* RIGID_BODY_SHAPE_STR[(UINT)RIGID_BODY_SHAPE_TYPE::END]
 {
     "BOX",
     "SPHERE",
-    "RECT",
     "MESH",
 };
 
@@ -38,7 +36,7 @@ class CRigidBody :
 {
 private:
 	PxRigidDynamic*         m_pDynamicBody;
-	PxRigidStatic*          m_pStaticBody;
+    PxRigidStatic* m_pStaticBody;
 
     PxShape*                m_pShape;
 	PxMaterial*             m_pMaterial;

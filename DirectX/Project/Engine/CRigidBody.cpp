@@ -30,7 +30,7 @@ CRigidBody::CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2)
 	, Vec3(0.f, 1.f, 0.f)
 	, Vec3(0.f, 0.f, 1.f)}
 {
-	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(1.0f, 1.0f, 0.0f);
+	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(0.5f, 0.5f, 0.0f);
 	//m_pMaterial->setDamping(0.f);
 	if (m_tRigidType == RIGID_BODY_TYPE::DYNAMIC)
 	{
@@ -68,7 +68,7 @@ void CRigidBody::finaltick()
 	}
 	//PxVec3 ang = m_pDynamicBody->getAngularVelocity();
 
-	//drawDebugRigid();
+	drawDebugRigid();
 }
 
 PxTransform CRigidBody::GetRigidBodyPos()
@@ -237,14 +237,6 @@ void CRigidBody::createShape()
 			, *m_pMaterial
 			, true);
 	}
-	else if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::RECT)
-	{
-		Vec3 vHalfScale = m_vRigidScale / 2.f;
-		m_pShape = PhysXMgr::GetInst()->GPhysics()->createShape(
-			physx::PxBoxGeometry(vHalfScale.x, vHalfScale.z, vHalfScale.y)
-			, *m_pMaterial
-			, true);
-	}
 	else if (m_tRigidShapeType == RIGID_BODY_SHAPE_TYPE::SPHERE)
 	{
 		//float _fMax = fmax(m_vRigidScale.x, m_vRigidScale.y);
@@ -305,10 +297,19 @@ void CRigidBody::addToScene()
 		// RigidBody로 TriangleMesh를 쓸 수 없음
 		m_pDynamicBody = PhysXMgr::GetInst()->GPhysics()->createRigidDynamic(localTm);
 		m_pDynamicBody->userData = GetOwner()->Collider3D();
+
 		m_pDynamicBody->setAngularDamping(0.5f);
+
+		//m_pDynamicBody->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+		//m_pDynamicBody->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::Enum::eLOCK_ANGULAR_Z, true);
+
+		//m_pDynamicBody->setMass(10.f);
+		//m_pDynamicBody->setCMassLocalPose(PxTransform(PxVec3(0, -.5, 0)));
+		//m_pDynamicBody->setMassSpaceInertiaTensor(PxVec3(100, 1000, 100));
+		//m_pDynamicBody->setLinearDamping(1.0f);
 		m_pDynamicBody->attachShape(*m_pShape);
+		m_pDynamicBody->setMaxLinearVelocity(1000.f);
 		//m_pDynamicBody->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
-		//m_pDynamicBody->setLinearDamping(10.f);
 		PxRigidBodyExt::updateMassAndInertia(*m_pDynamicBody, 0.1f);
 		PhysXMgr::GetInst()->GCurScene()->addActor(*m_pDynamicBody);
 	}
@@ -356,14 +357,13 @@ void CRigidBody::drawDebugRigid()
 	switch (m_tRigidShapeType)
 	{
 	case RIGID_BODY_SHAPE_TYPE::BOX:
-	case RIGID_BODY_SHAPE_TYPE::RECT:
 	{
-		DrawDebugCube(worldMat, Vec4(1.f, 0.f, 0.f, 1.f), 0.f, false);
+		DrawDebugCube(worldMat, Vec4(1.f, 0.f, 0.f, 1.f), 0.f, true);
 	}
 	break;
 	case RIGID_BODY_SHAPE_TYPE::SPHERE:
 	{
-		DrawDebugSphere(worldMat, Vec4(1.f, 0.f, 0.f, 1.f), 0.f, false);
+		DrawDebugSphere(worldMat, Vec4(1.f, 0.f, 0.f, 1.f), 0.f, true);
 	}
 	break;
 	case RIGID_BODY_SHAPE_TYPE::MESH:

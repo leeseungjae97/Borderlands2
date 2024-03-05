@@ -280,6 +280,7 @@
     <ClInclude Include="ParticleMgr.h">
       <Filter>Source\_Manager\ParticleMgr</Filter>
     </ClInclude>
+    <ClInclude Include="TextMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -549,6 +550,7 @@
     <ClCompile Include="ParticleMgr.cpp">
       <Filter>Source\_Manager\ParticleMgr</Filter>
     </ClCompile>
+    <ClCompile Include="TextMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -814,6 +816,9 @@
     </Filter>
     <Filter Include="Source\_Manager\ParticleMgr">
       <UniqueIdentifier>{72241d18-a11c-41b5-9381-d2040789a62b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\TextMgr">
+      <UniqueIdentifier>{a2611fcd-4514-4138-84d0-a55b485bff7b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

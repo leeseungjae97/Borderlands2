@@ -26,14 +26,17 @@ private:
     float       fBurnTime;
 
     bool        bHitEnemy;
+    bool        bJump;
 
     CGameObject* m_pUI_HP;
     CGameObject* m_pUI_AMMO;
     CGameObject* m_pUI_EnemyHp;
     CGameObject* m_pUI_EnemyHp_Back;
+    CGameObject* m_pAmmoIcon;
 
     class CUI*        m_pAmmoText;
     class CUI*        m_pHPText;
+    
 
 public:
     virtual void begin() override;
@@ -64,6 +67,7 @@ public:
     virtual void LoadFromLevelFile(FILE* _FILE) override;
 
     void BeginOverlap(CCollider3D* _Other) override;
+    void OnOverlap(CCollider3D* _Other) override;
     void Raycast(tRayInfo _RaycastInfo) override;
 
     CLONE(CPlayerScript);

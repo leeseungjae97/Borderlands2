@@ -19,6 +19,7 @@
 #include "PlayerMgr.h"
 #include "RandMgr.h"
 #include "RaycastMgr.h"
+#include "TextMgr.h"
 #include "WeaponMgr.h"
 
 CEngine::CEngine()
@@ -62,6 +63,8 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 
 	CFontMgr::GetInst()->init();
 
+	TextMgr::GetInst()->init();
+
 	CLevelMgr::GetInst()->init();
 
 	CInstancingBuffer::GetInst()->init();
@@ -92,7 +95,6 @@ void CEngine::tick()
 	CResMgr::GetInst()->tick();
 	CTimeMgr::GetInst()->tick();
 	CKeyMgr::GetInst()->tick();	
-
 	// FMOD Update
 	CSound::g_pFMOD->update();
 
