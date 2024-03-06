@@ -21,6 +21,7 @@
 #include "CLight3D.h"
 #include "CMeshRender.h"
 #include "CResMgr.h"
+#include "FieldUIMgr.h"
 #include "mMRT.h"
 
 
@@ -225,7 +226,7 @@ void CCamera::SortObject()
 			for (size_t j = 0; j < vecObject.size(); ++j)
 			{
 				CRenderComponent* pRenderCom = vecObject[j]->GetRenderComponent();
-
+				
 				// 렌더링 기능이 없는 오브젝트는 제외
 				if (nullptr == pRenderCom)
 					continue;
@@ -780,6 +781,7 @@ void CCamera::render_ui()
 	{
 		m_vecUI[i]->render();
 	}
+	FieldUIMgr::GetInst()->render();
 }
 
 void CCamera::FixedTransform()

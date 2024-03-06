@@ -13,6 +13,8 @@
 #include <Engine\WeaponMgr.h>
 #include <Engine\physx_util.h>
 
+#include "CPlayerScript.h"
+
 
 CEnemyScript::CEnemyScript()
 	: CScript((UINT)SCRIPT_TYPE::ENEMY_SCRIPT)
@@ -455,6 +457,8 @@ void CEnemyScript::PaperBurn()
 {
 	if (tState == EnemyMgr::ENEMY_STATE::DIE)
 		return;
+
+	PlayerMgr::GetInst()->GetPlayer()->GetScript<CPlayerScript>()->AddExp(1);
 
 	CGameObject* pEnemy = GetOwner();
 	double dTime = AnimationMgr::GetInst()->GetCurAnimationTime(pEnemy->Animator3D());

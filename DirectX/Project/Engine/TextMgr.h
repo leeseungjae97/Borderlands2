@@ -4,6 +4,8 @@
 #include <DirectXTK\SpriteFont.h>
 #include <DirectXTK\SpriteBatch.h>
 
+#include "CTexture.h"
+
 #ifdef _DEBUG
 #pragma comment(lib, "DirectXTK/debug/DirectXTK.lib")
 #else 
@@ -20,8 +22,9 @@ private:
 
 public:
 	void init();
-	void DrawSpriteText(Vec2 m_fontPos);
-
+	void DrawSpriteText(const wstring& str, Vec2 m_fontPos, float _fRotate, Vec2 _vScale, bool Outline = false, float fScale = 1.f);
+	void DrawSpriteText(const wstring& str, Vec3 m_fontPos, float _fRotate, Vec2 _vScale, Matrix matWorld, float alpha = 1.f, bool Outline = false, float fScale = 1.f);
+	Ptr<CTexture> GetTextAsTexture();
 public:
 	TextMgr();
 	virtual ~TextMgr();

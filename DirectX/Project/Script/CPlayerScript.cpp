@@ -29,8 +29,12 @@ CPlayerScript::CPlayerScript()
 	, fRateOfFireAcc(0.0f)
 	, fMouseAcces(1.f)
 	, iPlayerHp(5000.f)
+	, iPlayerHpCapa(5000.f)
 	, iAmmo(30)
+	, iExp(0)
+	, iExpMax(10)
 	, iAmmoCapa(30)
+	, iAmmoRemain(240)
 	, fBurnTime(0.0f)
 	, bJump(false)
 	, tState(PlayerMgr::PLAYER_STATE::IDLE)
@@ -81,7 +85,15 @@ void CPlayerScript::begin()
 		= std::make_shared<std::function<void()>>([=]()
 			{
 				tState = PlayerMgr::PLAYER_STATE::IDLE;
-	iAmmo = 30;
+				if(iAmmoRemain < iAmmoCapa)
+				{
+					iAmmo = iAmmoRemain;
+					iAmmoRemain = 0;
+				}else
+				{
+					iAmmoRemain -= iAmmoCapa;
+					iAmmo = iAmmoCapa;
+				}
 			});
 	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW)
 		= std::make_shared<std::function<void()>>([=]()
@@ -93,17 +105,33 @@ void CPlayerScript::begin()
 void CPlayerScript::tick()
 {
 	Look();
-	//CatchRaycast();
 	Movement();
 	Burn();
 
 	if (m_pAmmoText)
-		m_pAmmoText->SetText(std::to_wstring(iAmmo) + L"/ 30");
+		m_pAmmoText->SetText(std::to_wstring(iAmmo) + L" / " + std::to_wstring(iAmmoRemain));
+
 	if (m_pHPText)
 		m_pHPText->SetText(std::to_wstring(iPlayerHp));
 
-	//float ratio = (1.f - (float)iAmmo / (float)iAmmoCapa);
-	//m_pUI_EnemyHp->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &ratio);
+	if(m_pLevelText)
+		m_pLevelText->SetText(L"LV " + std::to_wstring(iLevel) + L" Soldier");
+
+	bool reverse = true;
+	float ratio = 1.f - (float)iAmmo / (float)iAmmoCapa;
+	m_pUI_AMMO->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &ratio);
+	m_pUI_AMMO->MeshRender()->GetMaterial(0)->SetScalarParam(INT_0, &reverse);
+
+	ratio = 1.f - (float)iPlayerHp / (float)iPlayerHpCapa;
+	m_pUI_HP->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &ratio);
+	m_pUI_HP->MeshRender()->GetMaterial(0)->SetScalarParam(INT_0, &reverse);
+
+	if (iExp >= iExpMax)
+		iExp = 0;
+
+	ratio = 1.f - (float)iExp / (float)iExpMax;
+	m_pUI_EXP->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &ratio);
+	
 }
 
 void CPlayerScript::finaltick()
@@ -139,59 +167,29 @@ void CPlayerScript::CreateUI()
 	float backWidth = 0;
 	float backHeight = 0;
 
-	m_pAmmoText = new CUI();
-	m_pAmmoText->SetName(L"Ammo Text");
-	m_pAmmoText->AddComponent(new CTransform);
-	m_pAmmoText->AddComponent(new CMeshRender);
-	m_pAmmoText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	m_pAmmoText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
-	m_pAmmoText->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
-	m_pAmmoText->SetTextSize(20.f);
-	m_pAmmoText->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
-	m_pAmmoText->SetText(std::to_wstring(iAmmo) + L"/ 30");
-
-	SpawnGameObject(m_pAmmoText, Vec3(1000.f, vResol.y - 50.f, 1.f), LAYER_TYPE::ViewPortUI);
-
-	m_pHPText = new CUI();
-	m_pHPText->SetName(L"HP Text");
-	m_pHPText->AddComponent(new CTransform);
-	m_pHPText->AddComponent(new CMeshRender);
-	m_pHPText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	m_pHPText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
-	m_pHPText->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
-
-	m_pHPText->SetTextSize(20.f);
-	m_pHPText->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
-	m_pHPText->SetText(std::to_wstring(iPlayerHp));
-
-	SpawnGameObject(m_pHPText, Vec3(50.f, vResol.y - 50.f, 1.f), LAYER_TYPE::ViewPortUI);
-
 	{
 		pMtrl = new CMaterial(true);
 		pMtrl->SetShader(UIShader);
 		CResMgr::GetInst()->AddRes(L"UIHPBackMtrl", pMtrl);
 
-		CGameObject* HP_UI_BACK = new CGameObject;
-
 		pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\player_hp_back.png");
-		backWidth = pTex->Width();
-		backHeight = pTex->Height();
 
-		HP_UI_BACK->SetName(L"UI HP BACK");
-		HP_UI_BACK->AddComponent(new CTransform);
-		HP_UI_BACK->AddComponent(new CMeshRender);
+		m_pUI_EnemyHp_Back = new CGameObject;
+		m_pUI_EnemyHp_Back->SetName(L"UI HP BACK");
+		m_pUI_EnemyHp_Back->AddComponent(new CTransform);
+		m_pUI_EnemyHp_Back->AddComponent(new CMeshRender);
 
-		HP_UI_BACK->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-		HP_UI_BACK->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UIHPBackMtrl"), 0);
-		HP_UI_BACK->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
-		HP_UI_BACK->Transform()->SetRelativeScale(Vec3(238.f, 38.f, 1.f));
-		HP_UI_BACK->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 3.f));
+		m_pUI_EnemyHp_Back->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_EnemyHp_Back->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UIHPBackMtrl"), 0);
+		m_pUI_EnemyHp_Back->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_EnemyHp_Back->Transform()->SetRelativeScale(Vec3(238.f, 38.f, 1.f));
+		m_pUI_EnemyHp_Back->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 3.f * DegToRad()));
 
-		SpawnGameObject(HP_UI_BACK, Vec3(238.f, -331.f, 0.f), LAYER_TYPE::ViewPortUI);
+		SpawnGameObject(m_pUI_EnemyHp_Back, Vec3(-497.f, -331.f, 0.f), LAYER_TYPE::ViewPortUI);
 	}
 	{
 		pMtrl = new CMaterial(true);
-		pMtrl->SetShader(UIShader);
+		pMtrl->SetShader(adjustUIShader);
 		CResMgr::GetInst()->AddRes(L"UIHPMtrl", pMtrl);
 
 		pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\player_hp_front.png");
@@ -206,7 +204,7 @@ void CPlayerScript::CreateUI()
 		m_pUI_HP->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UIHPMtrl"), 0);
 		m_pUI_HP->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
 		m_pUI_HP->Transform()->SetRelativeScale(Vec3(204.f, 25.f, 1.f));
-		m_pUI_HP->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 3.f));
+		m_pUI_HP->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 3.f * DegToRad()));
 
 		SpawnGameObject(m_pUI_HP, Vec3(-475.f, -323.f, 0.f), LAYER_TYPE::ViewPortUI);
 	}
@@ -216,20 +214,19 @@ void CPlayerScript::CreateUI()
 		CResMgr::GetInst()->AddRes(L"UIAMMOBackMtrl", pMtrl);
 
 		pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\player_ammo_back.png");
+		m_pUI_AMMO_Back = new CGameObject;
 
-		CGameObject* AMMO_BACK_UI = new CGameObject;
+		m_pUI_AMMO_Back->SetName(L"UI AMMO BACK");
+		m_pUI_AMMO_Back->AddComponent(new CTransform);
+		m_pUI_AMMO_Back->AddComponent(new CMeshRender);
 
-		AMMO_BACK_UI->SetName(L"UI AMMO BACK");
-		AMMO_BACK_UI->AddComponent(new CTransform);
-		AMMO_BACK_UI->AddComponent(new CMeshRender);
+		m_pUI_AMMO_Back->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_AMMO_Back->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UIAMMOBackMtrl"), 0);
+		m_pUI_AMMO_Back->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_AMMO_Back->Transform()->SetRelativeScale(Vec3(220.f, 38.f, 1.f));
+		m_pUI_AMMO_Back->Transform()->SetRelativeRot(Vec3(0.f, 0.f, -3.f * DegToRad()));
 
-		AMMO_BACK_UI->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-		AMMO_BACK_UI->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UIAMMOBackMtrl"), 0);
-		AMMO_BACK_UI->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
-		AMMO_BACK_UI->Transform()->SetRelativeScale(Vec3(220.f, 38.f, 1.f));
-		AMMO_BACK_UI->Transform()->SetRelativeRot(Vec3(0.f, 0.f, -3.f));
-
-		SpawnGameObject(AMMO_BACK_UI, Vec3(479.f, -327.f, 0.f), LAYER_TYPE::ViewPortUI);
+		SpawnGameObject(m_pUI_AMMO_Back, Vec3(479.f, -327.f, 0.f), LAYER_TYPE::ViewPortUI);
 	}
 	{
 		pMtrl = new CMaterial(true);
@@ -237,25 +234,23 @@ void CPlayerScript::CreateUI()
 		CResMgr::GetInst()->AddRes(L"UIAMMOIconMtrl", pMtrl);
 
 		pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\smg_ammo.png");
-		backWidth = pTex->Width();
-		backHeight = pTex->Height();
 
-		m_pAmmoIcon = new CGameObject;
+		m_pUI_AmmoIcon = new CGameObject;
 
-		m_pAmmoIcon->SetName(L"UI AMMO ICON");
-		m_pAmmoIcon->AddComponent(new CTransform);
-		m_pAmmoIcon->AddComponent(new CMeshRender);
+		m_pUI_AmmoIcon->SetName(L"UI AMMO ICON");
+		m_pUI_AmmoIcon->AddComponent(new CTransform);
+		m_pUI_AmmoIcon->AddComponent(new CMeshRender);
 
-		m_pAmmoIcon->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-		m_pAmmoIcon->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UIAMMOIconMtrl"), 0);
-		m_pAmmoIcon->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
-		m_pAmmoIcon->Transform()->SetRelativeScale(Vec3(32.f, 49.f, 1.f));
-		m_pAmmoIcon->Transform()->SetRelativeRot(Vec3(0.f, 0.f, -3.f));
-		SpawnGameObject(m_pAmmoIcon, Vec3(598.f, -333.f, 0.f), LAYER_TYPE::ViewPortUI);
+		m_pUI_AmmoIcon->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_AmmoIcon->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UIAMMOIconMtrl"), 0);
+		m_pUI_AmmoIcon->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_AmmoIcon->Transform()->SetRelativeScale(Vec3(32.f, 49.f, 1.f));
+		m_pUI_AmmoIcon->Transform()->SetRelativeRot(Vec3(0.f, 0.f, -3.f * DegToRad()));
+		SpawnGameObject(m_pUI_AmmoIcon, Vec3(598.f, -333.f, 0.f), LAYER_TYPE::ViewPortUI);
 	}
 	{
 		pMtrl = new CMaterial(true);
-		pMtrl->SetShader(UIShader);
+		pMtrl->SetShader(adjustUIShader);
 		CResMgr::GetInst()->AddRes(L"UIAMMOMtrl", pMtrl);
 
 		pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\player_ammo_front.png");
@@ -270,7 +265,7 @@ void CPlayerScript::CreateUI()
 		m_pUI_AMMO->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UIAMMOMtrl"), 0);
 		m_pUI_AMMO->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
 		m_pUI_AMMO->Transform()->SetRelativeScale(Vec3(207.f, 22.f, 1.f));
-		m_pUI_AMMO->Transform()->SetRelativeRot(Vec3(0.f, 0.f, -3.f));
+		m_pUI_AMMO->Transform()->SetRelativeRot(Vec3(0.f, 0.f, -3.f * DegToRad()));
 		SpawnGameObject(m_pUI_AMMO, Vec3(466.f, -319.f, 0.f), LAYER_TYPE::ViewPortUI);
 	}
 
@@ -278,18 +273,16 @@ void CPlayerScript::CreateUI()
 		pMtrl = new CMaterial(true);
 		pMtrl->SetShader(UIShader);
 		CResMgr::GetInst()->AddRes(L"CrossHairMtrl", pMtrl);
+		m_pUI_CrossHair = new CGameObject;
+		m_pUI_CrossHair->SetName(L"UI Cross Hair");
+		m_pUI_CrossHair->AddComponent(new CTransform);
+		m_pUI_CrossHair->AddComponent(new CMeshRender);
 
-		CGameObject* pCrossHair = new CGameObject;
-
-		pCrossHair->SetName(L"UI Cross Hair");
-		pCrossHair->AddComponent(new CTransform);
-		pCrossHair->AddComponent(new CMeshRender);
-
-		pCrossHair->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-		pCrossHair->MeshRender()->SetMaterial(pMtrl, 0);
-		pCrossHair->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\Crosshair.png"));
-		pCrossHair->Transform()->SetRelativeScale(Vec3(80.f, 80.f, 1.f));
-		SpawnGameObject(pCrossHair, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::ViewPortUI);
+		m_pUI_CrossHair->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_CrossHair->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_CrossHair->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\Crosshair.png"));
+		m_pUI_CrossHair->Transform()->SetRelativeScale(Vec3(80.f, 80.f, 1.f));
+		SpawnGameObject(m_pUI_CrossHair, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::ViewPortUI);
 	}
 	{
 		pMtrl = new CMaterial(true);
@@ -331,7 +324,88 @@ void CPlayerScript::CreateUI()
 
 		m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 	}
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(UIShader);
+		CResMgr::GetInst()->AddRes(L"ExpBack", pMtrl);
 
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\exp_bar_back.png");
+		m_pUI_ExpBar_Back = new CGameObject;
+
+		m_pUI_ExpBar_Back->SetName(L"UI Exp Back");
+		m_pUI_ExpBar_Back->AddComponent(new CTransform);
+		m_pUI_ExpBar_Back->AddComponent(new CMeshRender);
+
+		m_pUI_ExpBar_Back->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_ExpBar_Back->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_ExpBar_Back->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_ExpBar_Back->Transform()->SetRelativeScale(Vec3(pTex->Width(), pTex->Height(), 1.f));
+		SpawnGameObject(m_pUI_ExpBar_Back, Vec3(0.f, -324.f, 0.f), LAYER_TYPE::ViewPortUI);
+	}
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(adjustUIShader);
+		CResMgr::GetInst()->AddRes(L"ExpFront", pMtrl);
+
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\exp_bar_front.png");
+		m_pUI_EXP = new CGameObject;
+
+		m_pUI_EXP->SetName(L"UI Exp Front");
+		m_pUI_EXP->AddComponent(new CTransform);
+		m_pUI_EXP->AddComponent(new CMeshRender);
+
+		m_pUI_EXP->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_EXP->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_EXP->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_EXP->Transform()->SetRelativeScale(Vec3(pTex->Width(), pTex->Height(), 1.f));
+		SpawnGameObject(m_pUI_EXP, Vec3(0.f, -317.f, 0.f), LAYER_TYPE::ViewPortUI);
+	}
+
+	m_pAmmoText = new CUI();
+	m_pAmmoText->SetName(L"Ammo Text");
+	m_pAmmoText->AddComponent(new CTransform);
+	m_pAmmoText->AddComponent(new CMeshRender);
+	m_pAmmoText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	m_pAmmoText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
+	m_pAmmoText->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
+
+	//m_pAmmoText->SetTextSize(Vec2(10.f, 10.f));
+	m_pAmmoText->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
+	m_pAmmoText->SetText(std::to_wstring(iAmmo) + L" / " + std::to_wstring(iAmmoRemain));
+	m_pAmmoText->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 3 * DegToRad()));
+	m_pAmmoText->SetTextScale(0.75f);
+	m_pAmmoText->SetOutline(true);
+	SpawnGameObject(m_pAmmoText, Vec3(1110.f, 710.f, 1.f), LAYER_TYPE::ViewPortUI);
+
+	m_pHPText = new CUI();
+	m_pHPText->SetName(L"HP Text");
+	m_pHPText->AddComponent(new CTransform);
+	m_pHPText->AddComponent(new CMeshRender);
+	m_pHPText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	m_pHPText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
+	m_pHPText->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
+
+	//m_pHPText->SetTextSize(Vec2(20.f, 20.f));
+	m_pHPText->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
+	m_pHPText->SetText(std::to_wstring(iPlayerHp));
+	m_pHPText->SetTextScale(0.75f);
+	m_pHPText->SetOutline(true);
+	m_pHPText->Transform()->SetRelativeRot(Vec3(0.f, 0.f, -3 * DegToRad()));
+	SpawnGameObject(m_pHPText, Vec3(83.f, 718.f, 1.f), LAYER_TYPE::ViewPortUI);
+
+	m_pLevelText = new CUI();
+	m_pLevelText->SetName(L"Level Text");
+	m_pLevelText->AddComponent(new CTransform);
+	m_pLevelText->AddComponent(new CMeshRender);
+	m_pLevelText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	m_pLevelText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
+	m_pLevelText->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
+	m_pLevelText->SetTextScale(0.75f);
+	m_pLevelText->SetOutline(true);
+	//m_pLevelText->SetTextSize(Vec2(5.f, 5.f));
+	m_pLevelText->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
+	m_pLevelText->SetText(L"LV "+std::to_wstring(iLevel) + L" Soldier");
+	SpawnGameObject(m_pLevelText, Vec3(426.f, 723.f, 1.f), LAYER_TYPE::ViewPortUI);
 }
 
 void CPlayerScript::Look()
@@ -400,6 +474,7 @@ void CPlayerScript::ShootBullet()
 	CGameObject* pPlayer = GetOwner();
 
 	--iAmmo;
+	++iExp;
 
 	tRayInfo rayInfo{};
 	rayInfo.fDamage = 10.f;
@@ -456,7 +531,8 @@ void CPlayerScript::ShootMissile()
 
 void CPlayerScript::Reload()
 {
-	if (tState == PlayerMgr::PLAYER_STATE::RELOAD || tState == PlayerMgr::PLAYER_STATE::DRAW)
+	if (tState == PlayerMgr::PLAYER_STATE::RELOAD || tState == PlayerMgr::PLAYER_STATE::DRAW 
+		|| iAmmoRemain == 0)
 		return;
 
 	int mReloadType = WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::RELOAD);
@@ -730,6 +806,16 @@ void CPlayerScript::Burn()
 			fBurnTime = 0.0f;
 			bBurn = false;
 		}
+	}
+}
+
+void CPlayerScript::AddExp(int _iExp)
+{
+	iExp += _iExp;
+	if(iExp <= iExpMax)
+	{
+		iExp = 0;
+		++iLevel;
 	}
 }
 

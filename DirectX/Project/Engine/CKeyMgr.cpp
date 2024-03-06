@@ -5,7 +5,7 @@
 #include "CEngine.h"
 
 #include "CCamera.h"
-#include "CFontMgr.h"
+#include "CSimpleTextMgr.h"
 #include "CLevel.h"
 #include "CLevelMgr.h"
 

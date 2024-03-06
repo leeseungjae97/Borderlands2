@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TestLevel.h"
 
+#include <Engine/CUI.h>
 #include <Engine\CollisionMgr.h>
 #include <Engine\CLevelMgr.h>
 #include <Engine\CLevel.h>
@@ -31,6 +32,7 @@
 #include <Script\CAttackNormalScript.h>
 
 #include <Script/CPathFindScript.h>
+#include <Script/CMoveScript.h>
 
 //#include <Engine/PhysXT.h>
 
@@ -179,24 +181,24 @@ void CreateTestLevel()
 	pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
 	PreloadGameObject(pPlane, Vec3(0.f, -10.f, 0.f), LAYER_TYPE::Environment);
 
-	{
-		CGameObject* pPlane = new CGameObject;
-		pPlane->SetName(L"Plane");
-		pPlane->AddComponent(new CTransform);
-		pPlane->AddComponent(new CMeshRender);
-		pPlane->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
-		pPlane->AddComponent(new CCollider3D);
+	//{
+	//	CGameObject* pPlane = new CGameObject;
+	//	pPlane->SetName(L"Plane");
+	//	pPlane->AddComponent(new CTransform);
+	//	pPlane->AddComponent(new CMeshRender);
+	//	pPlane->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
+	//	pPlane->AddComponent(new CCollider3D);
 
-		pPlane->Transform()->SetRelativeScale(Vec3(10000.f, 10000.f, 100.f));
-		pPlane->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
+	//	pPlane->Transform()->SetRelativeScale(Vec3(10000.f, 10000.f, 100.f));
+	//	pPlane->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
 
-		pPlane->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CubeMesh"));
-		pPlane->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
+	//	pPlane->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CubeMesh"));
+	//	pPlane->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
 
-		pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
-		pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
-		PreloadGameObject(pPlane, Vec3(0.f, -10.f, 0.f), LAYER_TYPE::Environment);
-	}
+	//	pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
+	//	pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
+	//	PreloadGameObject(pPlane, Vec3(0.f, -10.f, 0.f), LAYER_TYPE::Environment);
+	//}
 	//CGameObject* pObject = new CGameObject;
 	//pObject->SetName(L"Tess Object");
 	//pObject->AddComponent(new CTransform);
@@ -486,6 +488,25 @@ void CreateTestLevel()
 
 	//	pObj->SetName(L"fbx map");
 	//	PreloadGameObject(pObj, Vec3(200.f, 0.f, 200.f), LAYER_TYPE::Environment);
+	//}
+	//{
+	//	CUI* pDamageText = new CUI();
+	//	pDamageText->SetName(L"Damage Text");
+	//	pDamageText->AddComponent(new CTransform);
+	//	pDamageText->AddComponent(new CMeshRender);
+	//	//pDamageText->AddComponent(new CMoveScript);
+
+	//	pDamageText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
+	//	//pDamageText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
+	//	pDamageText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3DShaderMtrl"), 0);
+	//	pDamageText->MeshRender()->GetDynamicMaterial(0);
+	//	pDamageText->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
+	//	pDamageText->SetTextScale(100.f);
+	//	pDamageText->SetOutline(true);
+
+	//	pDamageText->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
+	//	pDamageText->SetText(std::to_wstring(10));
+	//	PreloadGameObject(pDamageText, Vec3(0.f, 0.f, 1.f), LAYER_TYPE::Default);
 	//}
 	{
 		Ptr<CMeshData> pMeshData = nullptr;

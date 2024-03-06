@@ -60,7 +60,9 @@ float4 PS_Std2D(VS_OUT _in) : SV_Target
 }
 
 #define UVY g_float_0
-
+#define Reverse g_int_0
+#define IsCustomAlpha g_int_1
+#define Alpha g_float_1
 float4 PS_AdjustStd2D(VS_OUT _in) : SV_Target
 {
     float4 vOutColor = (float4) 0.f;
@@ -73,15 +75,50 @@ float4 PS_AdjustStd2D(VS_OUT _in) : SV_Target
     if (0.f == vOutColor.a)
         discard;
 
-    if (_in.vUV.x > 1.f - UVY)
-        discard;
-
-    if (g_int_2 == 1)
-        vOutColor = float4(1.f, 0.f, 0.f, 1.f);
+    if (Reverse)
+    {
+        if (_in.vUV.x < UVY)
+            discard;
+    }else
+    {
+        if (_in.vUV.x > 1.f - UVY)
+            discard;
+    }
+    if (IsCustomAlpha)
+        vOutColor.a = Alpha;
     
     return vOutColor;
 }
 
+#define IsCustomAlpha g_int_1
+#define Alpha g_float_1
+float4 PS_SpriteFontStd2D(float4 color : COLOR0, float2 texCoord : TEXCOORD0) : SV_Target0
+{
+    float4 vOutColor = (float4) 0.f;
+        
+    if (g_btex_0)
+    {
+        vOutColor = g_tex_0.Sample(g_sam_anti_0, texCoord);
+    }
+
+    if (0.f == vOutColor.a)
+        discard;
+
+    //if (Reverse)
+    //{
+    //    if (texCoord.x < UVY)
+    //        discard;
+    //}
+    //else
+    //{
+    //    if (texCoord.x > 1.f - UVY)
+    //        discard;
+    //}
+    if (IsCustomAlpha)
+        vOutColor.a = Alpha;
+    
+    return vOutColor;
+}
 
 
 

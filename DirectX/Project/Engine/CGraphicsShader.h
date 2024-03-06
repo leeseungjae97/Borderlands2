@@ -62,7 +62,12 @@ public:
     void SetBSType(BS_TYPE _Type) { m_BSType = _Type; }
     void SetDomain(SHADER_DOMAIN _domain) { m_Domain = _domain; }
 
-    ComPtr<ID3D11VertexShader> GetVSInst() { return m_VSInst; }
+    ComPtr<ID3D11VertexShader> GetVS() {return m_VS;}
+    ComPtr<ID3D11VertexShader> GetVSInst() { return m_VSInst ;}
+    ComPtr<ID3D11HullShader> GetHS() { return m_HS ;}
+    ComPtr<ID3D11DomainShader> GetDS() { return m_DS ;}
+    ComPtr<ID3D11GeometryShader> GetGS() { return m_GS ;}
+    ComPtr<ID3D11PixelShader> GetPS() { return m_PS; }
 
     SHADER_DOMAIN GetDomain() { return m_Domain; }
     virtual void UpdateData() override;

@@ -11,9 +11,15 @@ private:
     float       fRateOfFire;
     float       fRateOfFireAcc;
     float       fMouseAcces;
+
     int         iPlayerHp;
+    int         iPlayerHpCapa;
     int         iAmmo;
     int         iAmmoCapa;
+    int         iAmmoRemain;
+    int         iExp;
+    int         iExpMax;
+    int         iLevel;
 
     CGameObject* pHeadCollider;
 
@@ -30,13 +36,17 @@ private:
 
     CGameObject* m_pUI_HP;
     CGameObject* m_pUI_AMMO;
+    CGameObject* m_pUI_AMMO_Back;
     CGameObject* m_pUI_EnemyHp;
     CGameObject* m_pUI_EnemyHp_Back;
-    CGameObject* m_pAmmoIcon;
+    CGameObject* m_pUI_AmmoIcon;
+    CGameObject* m_pUI_EXP;
+    CGameObject* m_pUI_ExpBar_Back;
+    CGameObject* m_pUI_CrossHair;
 
     class CUI*        m_pAmmoText;
     class CUI*        m_pHPText;
-    
+    class CUI*        m_pLevelText;
 
 public:
     virtual void begin() override;
@@ -55,6 +65,7 @@ private:
     virtual void CatchRaycast() override;
     void Burn();
 
+    
     void makeCollider();
 
 public:
@@ -62,6 +73,8 @@ public:
     bool IsBurn() { return bBurn; }
     void SetBurn(bool _Burn) { bBurn = _Burn; }
     void SetBurnTime(float _Time) { fBurnTime = _Time; }
+    void AddExp(int _iExp);
+
 public:
     virtual void SaveToLevelFile(FILE* _File) override;
     virtual void LoadFromLevelFile(FILE* _FILE) override;

@@ -127,8 +127,8 @@
     <ClInclude Include="CSound.h">
       <Filter>Source\_Resource\Sound</Filter>
     </ClInclude>
-    <ClInclude Include="CFontMgr.h">
-      <Filter>Source\_Manager\FontMgr</Filter>
+    <ClInclude Include="CSimpleTextMgr.h">
+      <Filter>Source\_Manager\SimpleTextMgr</Filter>
     </ClInclude>
     <ClInclude Include="CLight3D.h">
       <Filter>Source\_Component\Light3D</Filter>
@@ -280,7 +280,9 @@
     <ClInclude Include="ParticleMgr.h">
       <Filter>Source\_Manager\ParticleMgr</Filter>
     </ClInclude>
-    <ClInclude Include="TextMgr.h" />
+    <ClInclude Include="TextMgr.h">
+      <Filter>Source\_Manager\TextMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -391,8 +393,8 @@
     <ClCompile Include="CSound.cpp">
       <Filter>Source\_Resource\Sound</Filter>
     </ClCompile>
-    <ClCompile Include="CFontMgr.cpp">
-      <Filter>Source\_Manager\FontMgr</Filter>
+    <ClCompile Include="CSimpleTextMgr.cpp">
+      <Filter>Source\_Manager\SimpleTextMgr</Filter>
     </ClCompile>
     <ClCompile Include="CLight3D.cpp">
       <Filter>Source\_Component\Light3D</Filter>
@@ -550,7 +552,9 @@
     <ClCompile Include="ParticleMgr.cpp">
       <Filter>Source\_Manager\ParticleMgr</Filter>
     </ClCompile>
-    <ClCompile Include="TextMgr.cpp" />
+    <ClCompile Include="TextMgr.cpp">
+      <Filter>Source\_Manager\TextMgr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -591,9 +595,6 @@
     </Filter>
     <Filter Include="Source\_Manager\EventMgr">
       <UniqueIdentifier>{0a343449-42c4-40a1-847b-895444053100}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_Manager\FontMgr">
-      <UniqueIdentifier>{b1a42f85-f96c-490d-a570-365243b1a620}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\_Manager\KeyUseInfoMgr">
       <UniqueIdentifier>{6ceaf409-5b31-4491-8c78-9484062661c6}</UniqueIdentifier>
@@ -819,6 +820,9 @@
     </Filter>
     <Filter Include="Source\_Manager\TextMgr">
       <UniqueIdentifier>{a2611fcd-4514-4138-84d0-a55b485bff7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\SimpleTextMgr">
+      <UniqueIdentifier>{b1a42f85-f96c-490d-a570-365243b1a620}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

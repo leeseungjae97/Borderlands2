@@ -9,6 +9,7 @@
 #include "CGunScript.h"
 #include "CMissileScript.h"
 #include "CEnemyScript.h"
+#include "CMoveScript.h"
 #include "CPlayerScript.h"
 #include "CWarriorScript.h"
 #include "CPathFindScript.h"
@@ -26,6 +27,7 @@ void CScriptMgr::GetScriptInfo(vector<wstring>& _vec)
 	_vec.push_back(L"CAttackBurnScript");
 	_vec.push_back(L"CAttackNormalScript");
 	_vec.push_back(L"CPathFindScript");
+	_vec.push_back(L"CMoveScript");
 }
 
 CScript * CScriptMgr::GetScript(const wstring& _strScriptName)
@@ -52,7 +54,8 @@ CScript * CScriptMgr::GetScript(const wstring& _strScriptName)
 		return new CAttackNormalScript;
 	if (L"CPathFindScript" == _strScriptName)
 		return new CPathFindScript;
-	
+	if (L"CMoveScript" == _strScriptName)
+		return new CMoveScript;
 	return nullptr;
 }
 
@@ -93,7 +96,9 @@ CScript * CScriptMgr::GetScript(UINT _iScriptType)
 	case (UINT)SCRIPT_TYPE::PATH_FIND_SCRIPT:
 		return new CPathFindScript;
 		break;
-		
+	case (UINT)SCRIPT_TYPE::MOVE_SCRIPT:
+		return new CMoveScript;
+		break;
 	}
 	return nullptr;
 }
@@ -145,7 +150,10 @@ const wchar_t * CScriptMgr::GetScriptName(CScript * _pScript)
 	case SCRIPT_TYPE::PATH_FIND_SCRIPT:
 		return L"CPathFindScript";
 		break;
-		
+
+	case SCRIPT_TYPE::MOVE_SCRIPT:
+		return L"CMoveScript";
+		break;
 	}
 	return nullptr;
 }

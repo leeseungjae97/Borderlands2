@@ -9,8 +9,9 @@
 #include "CLevelMgr.h"
 #include "CRenderMgr.h"
 #include "CEventMgr.h"
-#include "CFontMgr.h"
+#include "CSimpleTextMgr.h"
 #include "CInstancingBuffer.h"
+#include "FieldUIMgr.h"
 #include "KeyUseInfoMgr.h"
 #include "NavigationMgr.h"
 #include "ObjPickerMgr.h"
@@ -61,7 +62,7 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 
 	CRenderMgr::GetInst()->init();
 
-	CFontMgr::GetInst()->init();
+	CSimpleTextMgr::GetInst()->init();
 
 	TextMgr::GetInst()->init();
 
@@ -103,6 +104,7 @@ void CEngine::tick()
 	WeaponMgr::GetInst()->tick();
 	RaycastMgr::GetInst()->tick();
 	NavigationMgr::GetInst()->tick();
+	FieldUIMgr::GetInst()->tick();
 }
 
 void CEngine::render()

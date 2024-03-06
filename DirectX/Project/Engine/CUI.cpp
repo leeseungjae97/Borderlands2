@@ -1,24 +1,27 @@
 #include "pch.h"
 #include "CUI.h"
 
-#include "CFontMgr.h"
+#include "CSimpleTextMgr.h"
 
 #include "CCamera.h"
 #include "CEngine.h"
 #include "CRenderMgr.h"
 #include "CTransform.h"
 #include "MouseMgr.h"
+#include "physx_util.h"
 #include "TextMgr.h"
 
 
 CUI::CUI()
 	: CGameObject()
 	, wsText(L"")
-	, fTextSize(20.f)
+	, vTextSize(Vec2(20.f, 20.f))
 	, vTextColor(Vector4(1.f, 1.f, 1.f, 1.f))
 	, vTextHoverColor(Vector4(1.f, 1.f, 1.f, 1.f))
 	, vTextNormalColor(Vector4(1.f, 1.f, 1.f, 1.f))
 	, vTextOffset(Vector2::Zero)
+	, bOutline(false)
+	, fTextScale(1.f)
 	, bHoverSound(false)
 	, bHoverSoundPlayed(false)
 {
@@ -92,34 +95,30 @@ void CUI::render()
 void CUI::drawText()
 {
 	if (wsText == L"") return;
-	Vec2 fontSize = CFontMgr::GetInst()->GetTextSize(wsText.c_str(), fTextSize);
+	//Vec2 fontSize = CSimpleTextMgr::GetInst()->GetTextSize(wsText.c_str(), fTextSize);
 
 	Vec3 vPos = Transform()->GetRelativePos();
-	vPos.x -= (fontSize.x / 2.f);
-	vPos.y -= (fontSize.y / 2.f);
-	//CCamera* camera = CRenderMgr::GetInst()->GetUICam();
+	Vec3 vRot = Transform()->GetRelativeRot();
+	
+	//Vec3 vScale = Transform()->GetRelativeScale();
 
-	//Matrix proj = camera->GetProjMat();
-	//Matrix view = camera->GetViewMat();
+	//vTextSize.x = vScale.x;
+	//vTextSize.y = vScale.y;
+	//vPos.x -= (fontSize.x / 2.f);
+	//vPos.y -= (fontSize.y / 2.f);
 
-	//Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
+	if(bDraw3D)
+	{	
+		//vPos = Transform()->GetWorldPos();
+		vRot.z -= 180.f * Util::DegToRad();
+		TextMgr::GetInst()->DrawSpriteText(wsText, vPos, vRot.z, vTextSize, Transform()->GetWorldMat(), bOutline, fTextScale);
+	}
+	else
+		TextMgr::GetInst()->DrawSpriteText(wsText, Vec2(vPos.x, vPos.y), vRot.z, vTextSize, bOutline, fTextScale);
 
-	//Viewport viewport = {
-	//	0.f,
-	//	0.f,
-	//	vResol.x / 2.f,
-	//	vResol.y / 2.f,
-	//	10.f,
-	//	-1.f,
-	//};
-	//Vec3 vCenterPos = viewport.Project(vPos, proj, view, Matrix::Identity);
-	//vCenterPos.y -= fontSize.y / 2.f;
-	//vCenterPos.x -= fontSize.x / 2.f;
 
-	//vCenterPos.y += vTextOffset.y;
-	//vCenterPos.x += vTextOffset.x;
-	TextMgr::GetInst()->DrawSpriteText(Vec2(20.f, 20.f));
+	//pFontTex = TextMgr::GetInst()->GetTextAsTexture();
 
-	CFontMgr::GetInst()->DrawFont(wsText.c_str(), vPos.x, vPos.y, fTextSize
-		, FONT_RGBA(255.f, 0.f, 0.f, 255.f));
+	//CSimpleTextMgr::GetInst()->DrawFont(wsText.c_str(), vPos.x, vPos.y, fTextSize
+	//	, FONT_RGBA(255.f, 0.f, 0.f, 255.f));
 }
