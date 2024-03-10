@@ -7,6 +7,8 @@
 
 #include "CCamera.h"
 #include "CEngine.h"
+#include "CEventMgr.h"
+#include "CLayer.h"
 #include "CLevel.h"
 #include "CLevelMgr.h"
 #include "CLight3D.h"
@@ -63,6 +65,17 @@ void CRenderMgr::init()
 
 void CRenderMgr::render()
 {
+    if(CEventMgr::GetInst()->IsLevelLoad())
+    {
+        CLevel* pLevel = CLevelMgr::GetInst()->GetCurLevel();
+        vector<CGameObject*> cams =pLevel->GetLayer((UINT)LAYER_TYPE::Camera)->GetObjects();
+        m_vecCam.clear();
+        vector<CCamera*>().swap(m_vecCam);
+        for(int i = 0; i < cams.size(); ++i)
+        {
+            m_vecCam.push_back(cams[i]->Camera());
+        }
+    }
     // 광원 및 전역 데이터 업데이트 및 바인딩
     UpdateData();
 

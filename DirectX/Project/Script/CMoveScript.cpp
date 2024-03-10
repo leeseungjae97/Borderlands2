@@ -4,6 +4,7 @@
 #include <Engine/CUI.h>
 #include <Engine/TextMgr.h>
 
+// Test Script
 CMoveScript::CMoveScript()
 	: CScript(SCRIPT_TYPE::MOVE_SCRIPT)
 	, fMoveAcc(0.f)

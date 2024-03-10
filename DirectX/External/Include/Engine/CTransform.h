@@ -12,18 +12,16 @@ private:
 
     Quat m_qRotation;
 
-    bool    m_bAbsolute;    // 상대 이동, 크기를 절대값으로 지정    
-    bool    m_bExceptParentRot;
+    bool    m_bAbsolute;
 
     Vec3    m_vRelativeDir[3];
     Vec3    m_vWorldDir[3];
 
     Vec3    m_FollowOffset;
 
-    Matrix  m_matWorldScale;    // 월드 크기 행렬
-    Matrix  m_matWorld; // 크기, 회전, 이동 정보를 합쳐놓음
-    Matrix  m_matWorldInv; // 크기, 회전, 이동 정보를 합쳐놓음
-    Matrix  m_noRotWorld;
+    Matrix  m_matWorldScale;
+    Matrix  m_matWorld;
+    Matrix  m_matWorldInv;
     Matrix  m_DrawRayWorld;
 
     float _mt;
@@ -58,8 +56,6 @@ public:
     const Matrix& GetDrawRayMat() const { return m_DrawRayWorld; }
 
     void SetWorldMat(const Matrix& _mat) { m_matWorld = _mat; }
-
-    void SetExceptParentRot(bool _Except) { m_bExceptParentRot = _Except; }
 
     void SetMt(float mt) { _mt = mt; }
 public:

@@ -55,6 +55,7 @@ private:
 
     bool                    m_bInit;
     bool                    m_bInitData;
+    bool                    m_Release;
 
 public:
 	PxRigidDynamic*         GetDynamicBody()        const { return m_pDynamicBody; }
@@ -126,6 +127,7 @@ public:
 public:
     // CLONE ABLE용 생성자, ImGui사용할 때 기본 생성자
     //CRigidBody();
+    void Release();
     CRigidBody(RIGID_BODY_SHAPE_TYPE _Type = RIGID_BODY_SHAPE_TYPE::BOX
         , RIGID_BODY_TYPE _Type2 = RIGID_BODY_TYPE::STATIC);
     virtual ~CRigidBody();

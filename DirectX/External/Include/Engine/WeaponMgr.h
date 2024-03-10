@@ -25,8 +25,8 @@ public:
 	void Play(GUN_ANIMATION_TYPE _Type, bool _Loop);
 
 	Vec3 GetWeaponMuzzlePos(CGameObject* _Gun);
-	Vec3 GetOwnerWeaponRot(CGameObject* _Owner);
-	Vec3 GetOwnerWeaponPos(CGameObject* _Owner);
+	Vec3 GetOwnerWeaponRot(CGameObject* _Owner, bool bRight = true);
+	Vec3 GetOwnerWeaponPos(CGameObject* _Owner, bool bRight = true);
 	void MuzzleFlash(Vec3 _vPos, Vec3 _vRot);
 public:
 	void tick();

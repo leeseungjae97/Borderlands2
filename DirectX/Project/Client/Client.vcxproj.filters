@@ -238,7 +238,7 @@
     <ClInclude Include="ParamUI.h">
       <Filter>_UI\_Module\ParamUI</Filter>
     </ClInclude>
-    <ClInclude Include="TestLevel.h" />
+    <ClInclude Include="CreateLevels.h" />
     <ClInclude Include="MenuUI.h">
       <Filter>_UI\MenuUI</Filter>
     </ClInclude>
@@ -408,7 +408,7 @@
     <ClCompile Include="ParamUI.cpp">
       <Filter>_UI\_Module\ParamUI</Filter>
     </ClCompile>
-    <ClCompile Include="TestLevel.cpp" />
+    <ClCompile Include="CreateLevels.cpp" />
     <ClCompile Include="MenuUI.cpp">
       <Filter>_UI\MenuUI</Filter>
     </ClCompile>

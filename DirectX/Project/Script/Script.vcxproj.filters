@@ -39,7 +39,7 @@
     <ClInclude Include="CCrossHairScript.h">
       <Filter>Script</Filter>
     </ClInclude>
-    <ClInclude Include="CGunScript.h">
+    <ClInclude Include="CWeaponScript.h">
       <Filter>Script</Filter>
     </ClInclude>
     <ClInclude Include="CWarriorScript.h">
@@ -86,7 +86,7 @@
     <ClCompile Include="CCrossHairScript.cpp">
       <Filter>Script</Filter>
     </ClCompile>
-    <ClCompile Include="CGunScript.cpp">
+    <ClCompile Include="CWeaponScript.cpp">
       <Filter>Script</Filter>
     </ClCompile>
     <ClCompile Include="CWarriorScript.cpp">

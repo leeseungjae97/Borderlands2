@@ -24,15 +24,7 @@ FieldUIMgr::~FieldUIMgr()
 
 void FieldUIMgr::init()
 {
-	textWorldMat = XMMatrixIdentity();
-	textScaleMat = XMMatrixIdentity();
-	textScaleMat = XMMatrixScaling(1.f, 1.f, 1.f);
-
-	textRotMat = XMMatrixIdentity();
-	textRotMat = XMMatrixRotationX(0.f);
-	textRotMat *= XMMatrixRotationY(0.f);
-	textRotMat *= XMMatrixRotationZ(-180.f * Util::DegToRad());
-
+	BilBoardMat = XMMatrixIdentity();
 	fTheta = 80.f * Util::DegToRad();
 }
 
@@ -46,17 +38,15 @@ void FieldUIMgr::tick()
 
 void FieldUIMgr::render()
 {
-	DamageText dt; Vec3 vPos; int iRandSign; int i = 0;
+	DamageText dt; Vec3 vPos; int i = 0;
 	CCamera* cam  = CRenderMgr::GetInst()->GetMainCam();
 	Vec3 vCamPos = cam->GetOwner()->Transform()->GetRelativePos();
 	Vec3 vCamUp = cam->GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::UP);
-	Vec3 vCamFront = cam->GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
-	
+
 	for (i = 0; i < m_vecText.size(); ++i)
 	{
 		dt = m_vecText[i];
 		vPos = dt.vPos;
-		iRandSign = dt.iSign;
 		dt.fAlpha = 1.f - (dt.fAcc / 5.f);
 		if (dt.fAcc > 5.f)
 		{
@@ -65,18 +55,12 @@ void FieldUIMgr::render()
 		}
 
 		dt.fAcc += DT;
+		vPos = vPos + dt.vDir * 50.f * cosf(fTheta) * dt.fAcc;
 
-		if (iRandSign)
-			vPos.x = vPos.x + 5.f * cosf(fTheta) * dt.fAcc;
-		else
-			vPos.x = vPos.x - 5.f * cosf(fTheta) * dt.fAcc;
+		vPos.y = vPos.y + 100.f * sinf(fTheta) * dt.fAcc - ((0.5f * 9.81f) * (dt.fAcc * dt.fAcc));
 
-		vPos.y = vPos.y + 10.f * sinf(fTheta) * dt.fAcc - ((0.5f * 9.81f) * (dt.fAcc * dt.fAcc));
-
-		textTransMat = XMMatrixTranslation(vPos.x, vPos.y, vPos.z);
-		BilBoardMat = Matrix::CreateBillboard(vPos, vCamPos, vCamUp);
-		textWorldMat = textScaleMat * BilBoardMat * textTransMat;
-		TextMgr::GetInst()->DrawSpriteText(std::to_wstring(dt.iDamage), vPos, 0.f, Vec2::Zero, textWorldMat, dt.fAlpha,true, 0.75f);
+		BilBoardMat = Matrix::CreateConstrainedBillboard(vPos, vCamPos, vCamUp);
+		TextMgr::GetInst()->DrawSpriteText(std::to_wstring(dt.iDamage), Vec3::Zero, 0.f, Vec2::Zero, BilBoardMat, dt.fAlpha,true, 0.75f);
 
 		m_vecText[i] = dt;
 	}
@@ -84,11 +68,22 @@ void FieldUIMgr::render()
 
 void FieldUIMgr::AddDamage(int _Damage, Vec3 _vPos)
 {
+	CCamera* cam = CRenderMgr::GetInst()->GetMainCam();
+	Vec3 vCamRight = cam->GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+
+	Vec3 vDir = Vec3::One;
+
+	if (rand() % 2)
+		vDir = vCamRight;
+	else
+		vDir = -vCamRight;
+	
+	vDir.Normalize();
 	m_vecText.push_back({
 		_vPos,
+		vDir,
 		0.0f,
 		1.0f,
-		rand() % 2,
 		_Damage
 	});
 }

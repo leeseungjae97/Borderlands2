@@ -20,6 +20,7 @@ CLevel::CLevel()
 		m_arrLayer[i]->m_iLayerIdx = i;
 	}
 
+	m_arrLayer[(int)LAYER_TYPE::Camera]->SetName(L"Camera");
 	m_arrLayer[(int)LAYER_TYPE::Default]->SetName(L"Default");
 	m_arrLayer[(int)LAYER_TYPE::Terrain]->SetName(L"Terrain");
 	m_arrLayer[(int)LAYER_TYPE::Environment]->SetName(L"Environment");

@@ -55,9 +55,9 @@ private:
 
     OBJECT_STATE            m_tState;
 
-    CGameObject*            m_pGunOwner;
-    vector<CGameObject*>    m_vecGuns;
-
+    CGameObject*            m_pWeaponOwner;
+    vector<CGameObject*>    m_vecWeapons;
+    bool                    m_bMelee;
     bool                    m_bOwned;
 
     bool                    m_bWarrior;
@@ -140,14 +140,16 @@ public:
 
     OBJECT_STATE GetObjectState() { return m_tState; }
 
-    void SetGunOwner(CGameObject* _pOwner) { m_pGunOwner = _pOwner; }
-    CGameObject*  GetGunOwner() { return m_pGunOwner; }
+    void SetWeaponOwner(CGameObject* _pOwner) { m_pWeaponOwner = _pOwner; }
+    CGameObject*  GetWeaponOwner() { return m_pWeaponOwner; }
 
-    void AddGun(CGameObject* _pGun) { _pGun->SetIsOwned(true); _pGun->SetGunOwner(this); m_vecGuns.push_back(_pGun); }
-    void DeleteGun(CGameObject* _pGun);
+    void AddWeapon(CGameObject* _pWeapon, bool _Melee = false);
+    void DeleteWeapon(CGameObject* _pWeapon);
+    void SetMelee(bool _Melee) { m_bMelee = _Melee; }
+    bool IsMelee() { return m_bMelee; }
 
-    vector<CGameObject*> GetGuns() { return m_vecGuns; }
-    CGameObject* GetGun(int _Idx) { if (m_vecGuns.size() <= _Idx) return nullptr; return m_vecGuns[_Idx]; }
+    vector<CGameObject*> GetWeapons() { return m_vecWeapons; }
+    CGameObject* GetWeapon(int _Idx) { if (m_vecWeapons.size() <= _Idx) return nullptr; return m_vecWeapons[_Idx]; }
 
 private:
     void DisconnectFromParent();

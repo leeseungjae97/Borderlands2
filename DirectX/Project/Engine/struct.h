@@ -400,6 +400,7 @@ struct tRayInfo
 {
 	int		iLayerIdx;
 	float	fDamage;
+	float	fDist;
 	Vec3	vStart;
 	Vec3	vDir;
 	Matrix  matWorld;

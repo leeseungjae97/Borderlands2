@@ -11,6 +11,7 @@ CCollider3D::CCollider3D(bool _AttachRigid, bool _Unity, COLLIDER_SHAPE_TYPE _Sh
 	, m_PxColliderShape(nullptr)
 	, m_bFirstInit(false)
 	, m_bCenter(false)
+	, m_bRaycastable(true)
 	, m_tColliderShapeType(_Shape)
 	, m_bAttachToRigidBody(_AttachRigid)
 	, m_vScale(Vec3(1.f, 1.f, 1.f))
@@ -19,6 +20,7 @@ CCollider3D::CCollider3D(bool _AttachRigid, bool _Unity, COLLIDER_SHAPE_TYPE _Sh
 	, m_bEndOverlap(false)
 	, m_bRaycast(false)
 	, m_bUnity(_Unity)
+	, m_Release(false)
 {
 	m_PxMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(0.0f, 0.0f, 0.0f);
 
@@ -28,21 +30,28 @@ CCollider3D::CCollider3D(bool _AttachRigid, bool _Unity, COLLIDER_SHAPE_TYPE _Sh
 
 CCollider3D::~CCollider3D()
 {
-	//m_PxRigidBodyShape->release();
-	if(m_PxColliderRigid)
+
+}
+
+void CCollider3D::Release()
+{
+	if (m_PxColliderRigid)
 	{
 		m_PxColliderRigid->userData = nullptr;
 		PX_RELEASE(m_PxColliderRigid);
 	}
-	if(m_PxColliderShape)
+	if (m_PxColliderShape)
 	{
 		PX_RELEASE(m_PxColliderShape);
 	}
-	//
+	m_Release = true;
 }
 
 void CCollider3D::finaltick()
 {
+	if (m_Release)
+		return;
+
 	setShapeToRigidBody();
 	//if (CLevelMgr::GetInst()->GetCurLevel()->GetState() != LEVEL_STATE::PLAY)
 
@@ -138,11 +147,6 @@ void CCollider3D::setShapeToRigidBody()
 		//Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
 
 		Quat quat; quat = Vector3ToQuaternion(vRot);
-		//if (m_bCenter)
-		//{
-		//	m_vOffset.z = vScale.z / 2.f;
-		//	vPos.z += m_vOffset.z;
-		//}
 
 		PxTransform localTm(PxVec3(vPos.x, vPos.y, vPos.z), PxQuat(quat.x, quat.y, quat.z, quat.w));
 
@@ -168,26 +172,25 @@ void CCollider3D::createColliderShape()
 	if(m_vScale == Vec3(1.f, 1.f, 1.f))
 	{	if(GetOwner()->Animator3D())
 		{
+			Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
+			vPos.y -= GetOwner()->Animator3D()->GetHeadPos().y;
 			m_vScale = GetOwner()->Transform()->GetRelativeScale();
-			//Matrix matWorld = GetOwner()->Transform()->GetWorldMat();
-			//Vec4 headPos = XMVector3TransformCoord(GetOwner()->Animator3D()->GetMeshHeadPosition(), matWorld);
-			//m_vScale.y = 100.f / 2.f;
+			m_vScale.y += vPos.y;
 		}
 			
 		else if (_rb && m_bAttachToRigidBody)
 			m_vScale = GetOwner()->RigidBody()->GetRigidScale();
+
+		else
+		{
+			m_vScale = GetOwner()->Transform()->GetRelativeScale();
+		}
 	}
 
 	if(m_tColliderShapeType == COLLIDER_SHAPE_TYPE::BOX)
 	{
-		m_vScale /= 2.f;
-
-		m_vScale.x += 5.f;
-		m_vScale.y += 5.f;
-		m_vScale.z += 5.f;
-
 		m_PxColliderShape = PhysXMgr::GetInst()->GPhysics()->createShape(
-			physx::PxBoxGeometry(m_vScale.x, m_vScale.y, m_vScale.z)
+			physx::PxBoxGeometry((m_vScale.x / 2.f), (m_vScale.y / 2.f), (m_vScale.z / 2.f))
 			, *m_PxMaterial
 			, true);
 	}
@@ -197,6 +200,7 @@ void CCollider3D::createColliderShape()
 	}
 	//m_PxColliderShape = createTriggerShape(PxBoxGeometry(m_vScale.x + 2, m_vScale.y + 2, m_vScale.z + 2), *m_PxMaterial, true);
 	PxFilterData triggerFilterData;
+
 	if(GetOwner()->GetLayerIndex() == (int)LAYER_TYPE::NoRaycastingCollider)
 	{
 		triggerFilterData.word0 = (PxU32)RAYCAST_GROUP_TYPE::NoRaycastingCollider;
@@ -225,6 +229,14 @@ void CCollider3D::createColliderShape()
 		triggerFilterData.word2 = 0x0000000f;
 		triggerFilterData.word3 = 0x0000000f;
 	}
+
+	if(!m_bRaycastable)
+	{
+		triggerFilterData.word0 = (PxU32)RAYCAST_GROUP_TYPE::NoRaycastingCollider;
+		triggerFilterData.word1 = 0x0000000f;
+		triggerFilterData.word2 = 0x0000000f;
+		triggerFilterData.word3 = 0x0000000f;
+	}
 	
 	m_PxColliderShape->setSimulationFilterData(triggerFilterData);
 	m_PxColliderShape->setQueryFilterData(triggerFilterData);
@@ -242,15 +254,12 @@ void CCollider3D::colliderDebugDraw()
 		pos = GetOwner()->RigidBody()->GetRigidBodyPos();
 	else
 		pos = m_PxColliderRigid->getGlobalPose();
-
 	
 
 	if(m_tColliderShapeType == COLLIDER_SHAPE_TYPE::BOX)
 	{
 		Matrix worldMat = physx::Util::WorldMatFromGlobalPose(pos
-			, Vec3(m_vScale.x
-				, m_vScale.y
-				, m_vScale.z)
+			, Vec3((m_vScale.x / 2.f) + 5.f, (m_vScale.y / 2.f) + 5.f, (m_vScale.z / 2.f) + 5.f)
 		);
 		DrawDebugCube(worldMat, Vec4(0.f, 0.f, 1.f, 1.f), 0.f, true);
 		

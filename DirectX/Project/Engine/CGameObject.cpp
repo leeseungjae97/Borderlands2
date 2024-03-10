@@ -23,6 +23,7 @@ CGameObject::CGameObject()
 	, m_bLifeSpan(false)
 	, m_bESM(false)
 	, m_bItem(false)
+	, m_bMelee(false)
 	, m_bOwned(false)
 	, m_bWarrior(false)
 	, m_tState(OBJECT_STATE::VISIBLE)
@@ -42,6 +43,7 @@ CGameObject::CGameObject(const CGameObject& _Other)
 	, m_bLifeSpan(false)
 	, m_bESM(false)
 	, m_bItem(_Other.m_bItem)
+	, m_bMelee(_Other.m_bMelee)
 	, m_bOwned(_Other.m_bOwned)
 	, m_bWarrior(_Other.m_bWarrior)
 	, m_tState(_Other.m_tState)
@@ -141,9 +143,9 @@ void CGameObject::finaltick()
 	{
 		m_vecChild[i]->finaltick();
 	}
-		
+
 	// 소속 레이어, 부모가 없는데 finaltick 이 호출되었다.
-	assert(-1 != m_iLayerIdx); 
+	assert(-1 != m_iLayerIdx);
 	//if(nullptr == m_Parent)
 	//	assert(-1 != m_iLayerIdx); 
 	//else
@@ -178,7 +180,7 @@ void CGameObject::render_shadowmap()
 		//else
 		m_RenderCom->render_shadowmap();
 	}
-		
+
 }
 void CGameObject::render()
 {
@@ -198,7 +200,7 @@ void CGameObject::AddComponent(CComponent* _Component)
 
 	// 스크립트를 제외한 일반 컴포넌트인 경우
 	else
-	{		
+	{
 		// 이미 보유하고 있는 컴포넌트인 경우
 		assert(!m_arrCom[(UINT)_Component->GetType()]);
 
@@ -224,13 +226,13 @@ void CGameObject::AddChild(CGameObject* _Object)
 		// 기존 부모가 있으면 연결 해제 후 연결
 		_Object->DisconnectFromParent();
 	}
-	
+
 	else
 	{
 		// 기존 부모가 없으면, 소속 레이어에서 최상위부모 목록에서 제거된 후 연결
 		_Object->ChangeToChildType();
 	}
-	
+
 
 	// 부모 자식 연결
 	_Object->m_Parent = this;
@@ -265,17 +267,25 @@ bool CGameObject::IsPreLoadingObject()
 	return bTemp;
 }
 
-void CGameObject::DeleteGun(CGameObject* _pGun)
+void CGameObject::AddWeapon(CGameObject* _pWeapon, bool _Melee)
 {
-	_pGun->SetGunOwner(nullptr);
-	_pGun->SetIsOwned(false);
+	_pWeapon->SetMelee(_Melee);
+	_pWeapon->SetIsOwned(true);
+	_pWeapon->SetWeaponOwner(this);
+	m_vecWeapons.push_back(_pWeapon);
+}
 
-	vector<CGameObject*>::iterator iter = m_vecGuns.begin();
-	for (; iter != m_vecGuns.end(); ++iter)
+void CGameObject::DeleteWeapon(CGameObject* _pWeapon)
+{
+	_pWeapon->SetWeaponOwner(nullptr);
+	_pWeapon->SetIsOwned(false);
+
+	vector<CGameObject*>::iterator iter = m_vecWeapons.begin();
+	for (; iter != m_vecWeapons.end(); ++iter)
 	{
-		if (_pGun == *iter)
+		if (_pWeapon == *iter)
 		{
-			iter = m_vecGuns.erase(iter);
+			iter = m_vecWeapons.erase(iter);
 			return;
 		}
 	}

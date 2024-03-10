@@ -6,7 +6,7 @@
 #include "CBulletScript.h"
 #include "CCameraMoveScript.h"
 #include "CCrossHairScript.h"
-#include "CGunScript.h"
+#include "CWeaponScript.h"
 #include "CMissileScript.h"
 #include "CEnemyScript.h"
 #include "CMoveScript.h"
@@ -23,7 +23,7 @@ void CScriptMgr::GetScriptInfo(vector<wstring>& _vec)
 	_vec.push_back(L"CEnemyScript");
 	_vec.push_back(L"CWarriorScript");
 	_vec.push_back(L"CPlayerScript");
-	_vec.push_back(L"CGunScript");
+	_vec.push_back(L"CWeaponScript");
 	_vec.push_back(L"CAttackBurnScript");
 	_vec.push_back(L"CAttackNormalScript");
 	_vec.push_back(L"CPathFindScript");
@@ -46,8 +46,8 @@ CScript * CScriptMgr::GetScript(const wstring& _strScriptName)
 		return new CWarriorScript;
 	if (L"CPlayerScript" == _strScriptName)
 		return new CPlayerScript;
-	if (L"CGunScript" == _strScriptName)
-		return new CGunScript;
+	if (L"CWeaponScript" == _strScriptName)
+		return new CWeaponScript;
 	if (L"CAttackBurnScript" == _strScriptName)
 		return new CAttackBurnScript;
 	if (L"CAttackNormalScript" == _strScriptName)
@@ -56,6 +56,7 @@ CScript * CScriptMgr::GetScript(const wstring& _strScriptName)
 		return new CPathFindScript;
 	if (L"CMoveScript" == _strScriptName)
 		return new CMoveScript;
+	
 	return nullptr;
 }
 
@@ -84,8 +85,8 @@ CScript * CScriptMgr::GetScript(UINT _iScriptType)
 	case (UINT)SCRIPT_TYPE::PLAYER_SCRIPT:
 		return new CPlayerScript;
 		break;
-	case (UINT)SCRIPT_TYPE::GUN_SCRIPT:
-		return new CGunScript;
+	case (UINT)SCRIPT_TYPE::WEAPON_SCRIPT:
+		return new CWeaponScript;
 		break;
 	case (UINT)SCRIPT_TYPE::ATTACK_BURN_SCRIPT:
 		return new CAttackBurnScript;
@@ -99,6 +100,7 @@ CScript * CScriptMgr::GetScript(UINT _iScriptType)
 	case (UINT)SCRIPT_TYPE::MOVE_SCRIPT:
 		return new CMoveScript;
 		break;
+		
 	}
 	return nullptr;
 }
@@ -135,8 +137,8 @@ const wchar_t * CScriptMgr::GetScriptName(CScript * _pScript)
 		return L"CPlayerScript";
 		break;
 
-	case SCRIPT_TYPE::GUN_SCRIPT:
-		return L"CGunScript";
+	case SCRIPT_TYPE::WEAPON_SCRIPT:
+		return L"CWeaponScript";
 		break;
 
 	case SCRIPT_TYPE::ATTACK_BURN_SCRIPT:

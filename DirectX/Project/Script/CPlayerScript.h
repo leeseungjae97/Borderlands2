@@ -44,9 +44,26 @@ private:
     CGameObject* m_pUI_ExpBar_Back;
     CGameObject* m_pUI_CrossHair;
 
+    CGameObject* m_pUI_HPBackHit;
+    CGameObject* m_pUI_HPFrontHit;
+    CGameObject* m_pUI_HPLeftHit;
+    CGameObject* m_pUI_HPRightHit;
+
+    float fHpFrontAcc;
+    float fHpBackAcc;
+    float fHpLeftAcc;
+    float fHpRightAcc;
+
+    CGameObject* m_pUI_ShieldBackHit;
+    CGameObject* m_pUI_ShieldFrontHit;
+    CGameObject* m_pUI_ShieldLeftHit;
+    CGameObject* m_pUI_ShieldRightHit;
+
     class CUI*        m_pAmmoText;
     class CUI*        m_pHPText;
     class CUI*        m_pLevelText;
+    class CUI*        m_pEnemyName;
+    class CUI*        m_pEnemyLevel;
 
 public:
     virtual void begin() override;

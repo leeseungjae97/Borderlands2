@@ -1332,6 +1332,12 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DShader"));
 	AddRes(L"Std2DShaderMtrl", pMtrl);
 
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DShader"));
+		AddRes(L"MainMenuHoverMtrl", pMtrl);
+	}
+
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"UI2DShader"));
 	AddRes(L"UI2DShaderMtrl", pMtrl);
@@ -1341,6 +1347,11 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"AdjustUI2DShader"));
 	AddRes(L"AdjustUI2DShaderMtrl", pMtrl);
 
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(FindRes<CGraphicsShader>(L"AdjustUI2DShader"));
+		AddRes(L"HoverUI2DShaderMtrl", pMtrl);
+	}
 	
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"SkyBoxShader"));

@@ -50,7 +50,10 @@ private:
 
 	int							m_iHeadIdx;
 	int							m_iCameraIdx;
-	int							m_iWeaponHandIdx;
+	int							m_iWeaponRHandIdx;
+	int							m_iWeaponLHandIdx;
+	int							m_iLHandIdx;
+	int							m_iRHandIdx;
 	int							m_iWeaponMuzzleIdx;
 	int							m_iFireBreathIdx;
 	int							m_iTailWeaponIdx;
@@ -143,7 +146,8 @@ public:
 
 	int GetHeadIdx() { return m_iHeadIdx; }
 	int GetCameraIdx() { return m_iCameraIdx; }
-	int GetWeaponHandIdx() { return m_iWeaponHandIdx; }
+	int GetWeaponRHandIdx() { return m_iWeaponRHandIdx; }
+	int GetWeaponLHandIdx() { return m_iRHandIdx; }
 	int GetWeaponMuzzleIdx() { return m_iWeaponMuzzleIdx; }
 	int GetKnuckleIdx() { return m_iKnuckleIdx; }
 	int GetMouseIdx() { return m_iMouseIdx; }

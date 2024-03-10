@@ -1,11 +1,24 @@
 #pragma once
 #include <Engine\CScript.h>
-#include <Engine\WarriorMgr.h>
 class CWarriorScript :
     public CScript
 {
+public:
+    enum class WARRIOR_STATE {
+        ENTER,
+        IDLE,
+        DIE,
+        FAR_BREATH,
+        MID_BREATH,
+        NEAR_BREATH,
+        TAIL_BEAM_ENTER,
+        TAIL_BEAM_IDLE,
+        TAIL_BEAM_EXIT,
+        TAIL_ATTACK,
+        ROCK_THROW,
+    };
 private:
-    WarriorMgr::WARRIOR_STATE tState;
+    WARRIOR_STATE tState;
     CGameObject* pBreath;
     CGameObject* pTailBeam;
     CGameObject* pRock;
@@ -28,6 +41,11 @@ private:
     int         iWarriorHp;
     int         iWarriorHpCapa;
 
+    CGameObject* pUI_WarriorHP;
+    CGameObject* pUI_WarriorHPBack;
+    class CUI*  pWarriorText;
+    float       m_fActAcc;
+
 public:
     void DoFarBreath();
     void DoMidBreath();
@@ -43,7 +61,10 @@ private:
     void beamMove();
     void rockMove();
     void tailMove();
+    void paperBurn();
+    void IsDie();
 
+    void createUI();
     void colliderMove();
     void makeAttackObject();
     void collision();

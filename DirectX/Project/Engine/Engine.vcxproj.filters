@@ -205,9 +205,6 @@
     <ClInclude Include="CCopyBoneShader.h">
       <Filter>Source\_Resource\Shader\ComputeShader\CopyBoneShader</Filter>
     </ClInclude>
-    <ClInclude Include="LandScapeMgr.h">
-      <Filter>Source\_Manager\LandScapeMgr</Filter>
-    </ClInclude>
     <ClInclude Include="CCollider3D.h">
       <Filter>Source\_Component\Collider3D</Filter>
     </ClInclude>
@@ -225,9 +222,6 @@
     </ClInclude>
     <ClInclude Include="PlayerMgr.h">
       <Filter>Source\_Manager\PlayerMgr</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyMgr.h">
-      <Filter>Source\_Manager\EnemyMgr</Filter>
     </ClInclude>
     <ClInclude Include="CGizmo.h">
       <Filter>Source\_Component\Gizmo</Filter>
@@ -256,9 +250,6 @@
     <ClInclude Include="RandMgr.h">
       <Filter>Source\_Manager\RandMgr</Filter>
     </ClInclude>
-    <ClInclude Include="WarriorMgr.h">
-      <Filter>Source\_Manager\WarriorMgr</Filter>
-    </ClInclude>
     <ClInclude Include="SkillMgr.h">
       <Filter>Source\_Manager\SkillMgr</Filter>
     </ClInclude>
@@ -282,6 +273,9 @@
     </ClInclude>
     <ClInclude Include="TextMgr.h">
       <Filter>Source\_Manager\TextMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuMgr.h">
+      <Filter>Source\_Manager\MainMenuMgr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -468,9 +462,6 @@
     <ClCompile Include="CCopyBoneShader.cpp">
       <Filter>Source\_Resource\Shader\ComputeShader\CopyBoneShader</Filter>
     </ClCompile>
-    <ClCompile Include="LandScapeMgr.cpp">
-      <Filter>Source\_Manager\LandScapeMgr</Filter>
-    </ClCompile>
     <ClCompile Include="CCollider3D.cpp">
       <Filter>Source\_Component\Collider3D</Filter>
     </ClCompile>
@@ -488,9 +479,6 @@
     </ClCompile>
     <ClCompile Include="PlayerMgr.cpp">
       <Filter>Source\_Manager\PlayerMgr</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyMgr.cpp">
-      <Filter>Source\_Manager\EnemyMgr</Filter>
     </ClCompile>
     <ClCompile Include="CGizmo.cpp">
       <Filter>Source\_Component\Gizmo</Filter>
@@ -522,9 +510,6 @@
     <ClCompile Include="RandMgr.cpp">
       <Filter>Source\_Manager\RandMgr</Filter>
     </ClCompile>
-    <ClCompile Include="WarriorMgr.cpp">
-      <Filter>Source\_Manager\WarriorMgr</Filter>
-    </ClCompile>
     <ClCompile Include="SkillMgr.cpp">
       <Filter>Source\_Manager\SkillMgr</Filter>
     </ClCompile>
@@ -554,6 +539,9 @@
     </ClCompile>
     <ClCompile Include="TextMgr.cpp">
       <Filter>Source\_Manager\TextMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuMgr.cpp">
+      <Filter>Source\_Manager\MainMenuMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -598,9 +586,6 @@
     </Filter>
     <Filter Include="Source\_Manager\KeyUseInfoMgr">
       <UniqueIdentifier>{6ceaf409-5b31-4491-8c78-9484062661c6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_Manager\LandScapeMgr">
-      <UniqueIdentifier>{f7003299-1391-4992-82b4-e726ec847b23}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\_Manager\PhysXMgr">
       <UniqueIdentifier>{15ccdeae-a9b3-43a4-a3d3-1667206809b5}</UniqueIdentifier>
@@ -755,14 +740,8 @@
     <Filter Include="Source\_Manager\RandMgr">
       <UniqueIdentifier>{f5dc8005-423f-4cb8-aa18-bd9564517f43}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\_Manager\EnemyMgr">
-      <UniqueIdentifier>{4ca50685-60fa-477a-b81f-e992f956bd23}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\_Manager\SkillMgr">
       <UniqueIdentifier>{fd662726-c6af-4477-b114-1b4c7fc79b4d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\_Manager\WarriorMgr">
-      <UniqueIdentifier>{d097f387-23e8-4df0-b0d9-8cfc8af40d66}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\_Resource\Shader\ComputeShader\Animation3DShader">
       <UniqueIdentifier>{47d7770c-d818-460a-94bd-566bb181cac2}</UniqueIdentifier>
@@ -823,6 +802,9 @@
     </Filter>
     <Filter Include="Source\_Manager\SimpleTextMgr">
       <UniqueIdentifier>{b1a42f85-f96c-490d-a570-365243b1a620}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\MainMenuMgr">
+      <UniqueIdentifier>{50959c28-c867-4b86-9eda-8c47d6bedd15}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

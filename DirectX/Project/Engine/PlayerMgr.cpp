@@ -28,13 +28,16 @@ void PlayerMgr::tick()
 {
 	if (CEventMgr::GetInst()->IsLevelChanged())
 	{
-		vector<CGameObject*> objects = CLevelMgr::GetInst()->GetCurLevel()->FindLayerByType(LAYER_TYPE::Player)->GetObjects();
-		for (int i = 0; i < objects.size(); ++i)
+		if(CLevelMgr::GetInst()->GetCurLevel()->GetName() != L"main menu level")
 		{
-			if (objects[i]->GetName() == L"player")
+			vector<CGameObject*> objects = CLevelMgr::GetInst()->GetCurLevel()->FindLayerByType(LAYER_TYPE::Player)->GetObjects();
+			for (int i = 0; i < objects.size(); ++i)
 			{
-				m_pPlayer = objects[i];
-				break;
+				if (objects[i]->GetName() == L"player")
+				{
+					m_pPlayer = objects[i];
+					break;
+				}
 			}
 		}
 	}
@@ -65,7 +68,7 @@ Vec3 PlayerMgr::GetPlayerWeaponRot()
 	if (nullptr == m_pPlayer)
 		return Vec3::Zero;
 
-	int iWeaponHandRotIdx = m_pPlayer->Animator3D()->GetWeaponHandIdx();
+	int iWeaponHandRotIdx = m_pPlayer->Animator3D()->GetWeaponRHandIdx();
 
 	Vec3 vRot = m_pPlayer->MeshRender()->GetMesh()->BoneRotSkinning(iWeaponHandRotIdx, m_pPlayer->Animator3D());
 
@@ -77,7 +80,7 @@ Vec3 PlayerMgr::GetPlayerWeaponPos()
 	if (nullptr == m_pPlayer)
 		return Vec3::Zero;
 
-	int iWeaponHandIdx = m_pPlayer->Animator3D()->GetWeaponHandIdx();
+	int iWeaponHandIdx = m_pPlayer->Animator3D()->GetWeaponRHandIdx();
 	Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, m_pPlayer->Animator3D());
 
 	vPos = XMVector3TransformCoord(vPos, m_pPlayer->Transform()->GetWorldMat());

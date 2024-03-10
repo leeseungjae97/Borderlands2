@@ -14,48 +14,50 @@ CParticleSystem::CParticleSystem()
 	, m_SpawnCountBuffer(nullptr)
 	, m_ModuleData{}
 	, m_AccTime(0.f)
+	, m_bCalc(false)
+	, m_bFire(false)
 {
 	m_ModuleData.iMaxParticleCount = 3000;
-	m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::PARTICLE_SPAWN] = true;
-	m_ModuleData.SpawnRate = 50;
-	m_ModuleData.vSpawnColor = Vec3(1.f, 1.f, 0.0f);
-	m_ModuleData.vSpawnScaleMin = Vec3(3.f, 0.5f, 1.f);
-	m_ModuleData.vSpawnScaleMax = Vec3(5.f, 0.5f, 1.f);
+	//m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::PARTICLE_SPAWN] = true;
+	//m_ModuleData.SpawnRate = 50;
+	//m_ModuleData.vSpawnColor = Vec3(1.f, 1.f, 0.0f);
+	//m_ModuleData.vSpawnScaleMin = Vec3(3.f, 0.5f, 1.f);
+	//m_ModuleData.vSpawnScaleMax = Vec3(5.f, 0.5f, 1.f);
 
-	m_ModuleData.SpawnShapeType = 0;
-	m_ModuleData.vBoxShapeScale = Vec3(20.f, 20.f, 20.f);
-	m_ModuleData.Space = 0; // 시뮬레이션 좌표계
+	//m_ModuleData.SpawnShapeType = 0;
+	//m_ModuleData.vBoxShapeScale = Vec3(20.f, 20.f, 20.f);
+	//m_ModuleData.Space = 0; // 시뮬레이션 좌표계
 
-	m_ModuleData.MinLifeTime = 0.0f;
-	m_ModuleData.MaxLifeTime = 1.0f;
+	//m_ModuleData.MinLifeTime = 0.0f;
+	//m_ModuleData.MaxLifeTime = 1.0f;
 
-	m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::SCALE_CHANGE] = true;
-	m_ModuleData.StartScale = 1.0f;
-	m_ModuleData.EndScale = 0.0f;
+	//m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::SCALE_CHANGE] = true;
+	//m_ModuleData.StartScale = 1.0f;
+	//m_ModuleData.EndScale = 0.0f;
 
-	m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::COLOR_CHANGE] = true;
-	m_ModuleData.vStartColor = Vec3(1.0f, 0.5f, 0.0f);
-	m_ModuleData.vEndColor = Vec3(1.0f, 1.0f, 0.0f);
+	//m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::COLOR_CHANGE] = true;
+	//m_ModuleData.vStartColor = Vec3(1.0f, 0.5f, 0.0f);
+	//m_ModuleData.vEndColor = Vec3(1.0f, 1.0f, 0.0f);
 
-	m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::ADD_VELOCITY] = true;
-	m_ModuleData.AddVelocityType = 0; // From Center
-	m_ModuleData.Speed = 100.f;
-	m_ModuleData.vVelocityDir = Vec3(0.f, 1.f, 0.f);
-	m_ModuleData.OffsetAngle;
+	//m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::ADD_VELOCITY] = true;
+	//m_ModuleData.AddVelocityType = 0; // From Center
+	//m_ModuleData.Speed = 100.f;
+	//m_ModuleData.vVelocityDir = Vec3(0.f, 1.f, 0.f);
+	//m_ModuleData.OffsetAngle;
 
-	m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::DRAG] = true;
-	m_ModuleData.StartDrag = 50.f;
-	m_ModuleData.EndDrag = -50.f;
+	//m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::DRAG] = true;
+	//m_ModuleData.StartDrag = 50.f;
+	//m_ModuleData.EndDrag = -50.f;
 
-	m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::NOISE_FORCE] = false;
-	m_ModuleData.fNoiseTerm = 1.f;
-	m_ModuleData.fNoiseForce = 100.f;
+	//m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::NOISE_FORCE] = false;
+	//m_ModuleData.fNoiseTerm = 1.f;
+	//m_ModuleData.fNoiseForce = 100.f;
 
-	m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::RENDER] = true;
-	m_ModuleData.VelocityAlignment = true;
-	m_ModuleData.VelocityScale = true;
-	m_ModuleData.vMaxVelocityScale = Vec3(15.f, 1.f, 1.f);
-	m_ModuleData.vMaxSpeed = 500.f;
+	//m_ModuleData.ModuleCheck[(UINT)PARTICLE_MODULE::RENDER] = true;
+	//m_ModuleData.VelocityAlignment = true;
+	//m_ModuleData.VelocityScale = true;
+	//m_ModuleData.vMaxVelocityScale = Vec3(15.f, 1.f, 1.f);
+	//m_ModuleData.vMaxSpeed = 500.f;
 
 	// 입자 메쉬
 	SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"PointMesh"));
@@ -128,6 +130,8 @@ void CParticleSystem::finaltick()
 	{
 		tRWParticleBuffer rwbuffer = { 50, };
 		m_SpawnCountBuffer->SetData(&rwbuffer);
+		m_AccTime = 0.f;
+		m_bCalc = true;
 		m_bFire = false;
 	}
 	else
@@ -135,7 +139,11 @@ void CParticleSystem::finaltick()
 		tRWParticleBuffer rwbuffer = { 0, };
 		m_SpawnCountBuffer->SetData(&rwbuffer);
 	}
+	if (m_bCalc)
+		m_AccTime += DT;
 
+	if (m_AccTime > m_ModuleData.MaxLifeTime)
+		m_bCalc = false;
 	//SpawnParticleDT();
 
 	// 파티클 업데이트 컴퓨트 쉐이더
@@ -153,6 +161,9 @@ void CParticleSystem::finaltick()
 
 void CParticleSystem::render()
 {
+	if (!m_bCalc)
+		return;
+
 	Transform()->UpdateData();
 
 	// 파티클버퍼 t20 에 바인딩
@@ -173,11 +184,13 @@ void CParticleSystem::render()
 	// 파티클 버퍼 바인딩 해제
 	m_ParticleBuffer->Clear();
 	m_ModuleDataBuffer->Clear();
-
 }
 
 void CParticleSystem::render(UINT _iSubset, bool _Deferred)
 {
+	if (!m_bCalc)
+		return;
+
 	Transform()->UpdateData();
 
 	// 파티클버퍼 t20 에 바인딩

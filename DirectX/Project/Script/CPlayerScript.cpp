@@ -3,17 +3,18 @@
 
 #include <Engine/CEngine.h>
 #include <Engine/PlayerMgr.h>
+#include <Engine/TextMgr.h>
 #include <Engine\CMeshRender.h>
 #include <Engine\CMaterial.h>
 #include <Engine\CRenderMgr.h>
 #include <Engine\CameraMgr.h>
 #include <Engine\RaycastMgr.h>
 #include <Engine\WeaponMgr.h>
-#include <Engine\RandMgr.h>
 #include <Engine\AnimationMgr.h>
 #include <Engine\ParticleMgr.h>
 #include <Engine\CUI.h>
-#include <Engine\CFontMgr.h>
+#include <Engine\CSimpleTextMgr.h>
+#include <Engine\FieldUIMgr.h>
 
 #include "CBulletScript.h"
 #include "CEnemyScript.h"
@@ -28,15 +29,20 @@ CPlayerScript::CPlayerScript()
 	, fRateOfFire(0.05f)
 	, fRateOfFireAcc(0.0f)
 	, fMouseAcces(1.f)
-	, iPlayerHp(5000.f)
-	, iPlayerHpCapa(5000.f)
+	, iPlayerHp(50000.f)
+	, iPlayerHpCapa(50000.f)
 	, iAmmo(30)
 	, iExp(0)
 	, iExpMax(10)
+	, iLevel(1)
 	, iAmmoCapa(30)
-	, iAmmoRemain(240)
+	, iAmmoRemain(9999)
 	, fBurnTime(0.0f)
 	, bJump(false)
+	, fHpFrontAcc(0.f)
+	, fHpBackAcc(0.f)
+	, fHpLeftAcc(0.f)
+	, fHpRightAcc(0.f)
 	, tState(PlayerMgr::PLAYER_STATE::IDLE)
 {
 	AddScriptParam(SCRIPT_PARAM::FLOAT, &fSpeed, "Player Speed");
@@ -91,7 +97,7 @@ void CPlayerScript::begin()
 					iAmmoRemain = 0;
 				}else
 				{
-					iAmmoRemain -= iAmmoCapa;
+					iAmmoRemain -= (iAmmoCapa - iAmmo);
 					iAmmo = iAmmoCapa;
 				}
 			});
@@ -131,6 +137,95 @@ void CPlayerScript::tick()
 
 	ratio = 1.f - (float)iExp / (float)iExpMax;
 	m_pUI_EXP->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &ratio);
+
+	if (m_pUI_HPFrontHit->GetObjectState() == CGameObject::OBJECT_STATE::VISIBLE)
+	{
+		fHpFrontAcc += DT;
+
+		float time = 0.5f;
+		bool alpha = true;
+
+		m_pUI_HPFrontHit->MeshRender()->GetMaterial(0)->SetScalarParam(INT_1, &alpha);
+		m_pUI_HPFrontHit->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_1, &time);
+
+		if (fHpFrontAcc > 3.f && fHpFrontAcc - 3.f < 2.f)
+		{
+			time = 0.5f - (((fHpFrontAcc - 3.f) / 2.f) * 0.5);
+			m_pUI_HPFrontHit->MeshRender()->GetMaterial(0)->SetScalarParam(INT_1, &alpha);
+			m_pUI_HPFrontHit->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_1, &time);
+		}
+		if (fHpFrontAcc > 5.f)
+		{
+			fHpFrontAcc = 0.0f;
+			m_pUI_HPFrontHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		}
+	}
+	if (m_pUI_HPBackHit->GetObjectState() == CGameObject::OBJECT_STATE::VISIBLE)
+	{
+		fHpBackAcc += DT;
+
+		float time = 0.5f;
+		bool alpha = true;
+
+		m_pUI_HPBackHit->MeshRender()->GetMaterial(0)->SetScalarParam(INT_1, &alpha);
+		m_pUI_HPBackHit->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_1, &time);
+
+		if (fHpBackAcc > 3.f && fHpBackAcc - 3.f < 2.f)
+		{
+			time = 0.5f - (((fHpBackAcc - 3.f) / 2.f) * 0.5);
+			m_pUI_HPBackHit->MeshRender()->GetMaterial(0)->SetScalarParam(INT_1, &alpha);
+			m_pUI_HPBackHit->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_1, &time);
+		}
+		if (fHpBackAcc > 5.f)
+		{
+			fHpBackAcc = 0.0f;
+			m_pUI_HPBackHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		}
+	}
+	if (m_pUI_HPRightHit->GetObjectState() == CGameObject::OBJECT_STATE::VISIBLE)
+	{
+		fHpRightAcc += DT;
+
+		float time = 0.5f;
+		bool alpha = true;
+
+		m_pUI_HPRightHit->MeshRender()->GetMaterial(0)->SetScalarParam(INT_1, &alpha);
+		m_pUI_HPRightHit->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_1, &time);
+
+		if(fHpRightAcc > 3.f && fHpRightAcc - 3.f < 2.f)
+		{
+			time = 0.5f - (((fHpRightAcc - 3.f) / 2.f) * 0.5);
+			m_pUI_HPRightHit->MeshRender()->GetMaterial(0)->SetScalarParam(INT_1, &alpha);
+			m_pUI_HPRightHit->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_1, &time);
+		}
+		if(fHpRightAcc > 5.f)
+		{
+			fHpRightAcc = 0.0f;
+			m_pUI_HPRightHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		}
+	}
+	if (m_pUI_HPLeftHit->GetObjectState() == CGameObject::OBJECT_STATE::VISIBLE)
+	{
+		fHpLeftAcc += DT;
+
+		float time = 0.5f;
+		bool alpha = true;
+
+		m_pUI_HPLeftHit->MeshRender()->GetMaterial(0)->SetScalarParam(INT_1, &alpha);
+		m_pUI_HPLeftHit->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_1, &time);
+
+		if (fHpLeftAcc > 3.f && fHpLeftAcc - 3.f < 2.f)
+		{
+			time = 0.5f - (((fHpLeftAcc - 3.f) / 2.f) * 0.5);
+			m_pUI_HPLeftHit->MeshRender()->GetMaterial(0)->SetScalarParam(INT_1, &alpha);
+			m_pUI_HPLeftHit->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_1, &time);
+		}
+		if (fHpLeftAcc > 5.f)
+		{
+			fHpLeftAcc = 0.0f;
+			m_pUI_HPLeftHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		}
+	}
 	
 }
 
@@ -360,6 +455,112 @@ void CPlayerScript::CreateUI()
 		m_pUI_EXP->Transform()->SetRelativeScale(Vec3(pTex->Width(), pTex->Height(), 1.f));
 		SpawnGameObject(m_pUI_EXP, Vec3(0.f, -317.f, 0.f), LAYER_TYPE::ViewPortUI);
 	}
+	{
+		
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(adjustUIShader);
+		CResMgr::GetInst()->AddRes(L"DamageHp", pMtrl);
+
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\damaged_hp.png");
+		m_pUI_HPBackHit = new CGameObject;
+
+		m_pUI_HPBackHit->SetName(L"UI Damage HP");
+		m_pUI_HPBackHit->AddComponent(new CTransform);
+		m_pUI_HPBackHit->AddComponent(new CMeshRender);
+
+		m_pUI_HPBackHit->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_HPBackHit->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_HPBackHit->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_HPBackHit->Transform()->SetRelativeScale(Vec3(pTex->Width(), pTex->Height(), 1.f));
+		SpawnGameObject(m_pUI_HPBackHit, Vec3(0.f, -317.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		m_pUI_HPBackHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
+	{
+
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(adjustUIShader);
+		CResMgr::GetInst()->AddRes(L"FrontDamageHp", pMtrl);
+
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\damaged_hp.png");
+		m_pUI_HPBackHit = new CGameObject;
+
+		m_pUI_HPBackHit->SetName(L"UI Back Damage HP");
+		m_pUI_HPBackHit->AddComponent(new CTransform);
+		m_pUI_HPBackHit->AddComponent(new CMeshRender);
+
+		m_pUI_HPBackHit->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_HPBackHit->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_HPBackHit->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_HPBackHit->Transform()->SetRelativeScale(Vec3(pTex->Width(), pTex->Height(), 1.f));
+		SpawnGameObject(m_pUI_HPBackHit, Vec3(0.f, -317.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		m_pUI_HPBackHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
+	{
+
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(adjustUIShader);
+		CResMgr::GetInst()->AddRes(L"BackDamageHp", pMtrl);
+
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\damaged_hp.png");
+		m_pUI_HPFrontHit = new CGameObject;
+
+		m_pUI_HPFrontHit->SetName(L"UI Back Damage HP");
+		m_pUI_HPFrontHit->AddComponent(new CTransform);
+		m_pUI_HPFrontHit->AddComponent(new CMeshRender);
+
+		m_pUI_HPFrontHit->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_HPFrontHit->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_HPFrontHit->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_HPFrontHit->Transform()->SetRelativeScale(Vec3(pTex->Width(), pTex->Height(), 1.f));
+		m_pUI_HPFrontHit->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 180.f * DegToRad()));
+		SpawnGameObject(m_pUI_HPFrontHit, Vec3(0.f, 317.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		m_pUI_HPFrontHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(adjustUIShader);
+		CResMgr::GetInst()->AddRes(L"LeftDamageHp", pMtrl);
+
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\damaged_hp.png");
+		m_pUI_HPLeftHit = new CGameObject;
+
+		m_pUI_HPLeftHit->SetName(L"UI Left Damage HP");
+		m_pUI_HPLeftHit->AddComponent(new CTransform);
+		m_pUI_HPLeftHit->AddComponent(new CMeshRender);
+
+		m_pUI_HPLeftHit->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_HPLeftHit->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_HPLeftHit->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_HPLeftHit->Transform()->SetRelativeScale(Vec3(pTex->Width(), pTex->Height(), 1.f));
+		m_pUI_HPLeftHit->Transform()->SetRelativeRot(Vec3(0.f, 0.f, -90.f * DegToRad()));
+		SpawnGameObject(m_pUI_HPLeftHit, Vec3(-580.f, 0.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		m_pUI_HPLeftHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(adjustUIShader);
+		CResMgr::GetInst()->AddRes(L"LeftDamageHp", pMtrl);
+
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\damaged_hp.png");
+		m_pUI_HPRightHit = new CGameObject;
+
+		m_pUI_HPRightHit->SetName(L"UI Left Damage HP");
+		m_pUI_HPRightHit->AddComponent(new CTransform);
+		m_pUI_HPRightHit->AddComponent(new CMeshRender);
+
+		m_pUI_HPRightHit->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_HPRightHit->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_HPRightHit->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_HPRightHit->Transform()->SetRelativeScale(Vec3(pTex->Width(), pTex->Height(), 1.f));
+		m_pUI_HPRightHit->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 90.f * DegToRad()));
+		SpawnGameObject(m_pUI_HPRightHit, Vec3(580.f, 0.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		m_pUI_HPRightHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
 
 	m_pAmmoText = new CUI();
 	m_pAmmoText->SetName(L"Ammo Text");
@@ -375,7 +576,7 @@ void CPlayerScript::CreateUI()
 	m_pAmmoText->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 3 * DegToRad()));
 	m_pAmmoText->SetTextScale(0.75f);
 	m_pAmmoText->SetOutline(true);
-	SpawnGameObject(m_pAmmoText, Vec3(1110.f, 710.f, 1.f), LAYER_TYPE::ViewPortUI);
+	SpawnGameObject(m_pAmmoText, Vec3(544.f, -347.f, 1.f), LAYER_TYPE::ViewPortUI);
 
 	m_pHPText = new CUI();
 	m_pHPText->SetName(L"HP Text");
@@ -391,7 +592,7 @@ void CPlayerScript::CreateUI()
 	m_pHPText->SetTextScale(0.75f);
 	m_pHPText->SetOutline(true);
 	m_pHPText->Transform()->SetRelativeRot(Vec3(0.f, 0.f, -3 * DegToRad()));
-	SpawnGameObject(m_pHPText, Vec3(83.f, 718.f, 1.f), LAYER_TYPE::ViewPortUI);
+	SpawnGameObject(m_pHPText, Vec3(-501.f, -358.f, 1.f), LAYER_TYPE::ViewPortUI);
 
 	m_pLevelText = new CUI();
 	m_pLevelText->SetName(L"Level Text");
@@ -405,7 +606,31 @@ void CPlayerScript::CreateUI()
 	//m_pLevelText->SetTextSize(Vec2(5.f, 5.f));
 	m_pLevelText->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
 	m_pLevelText->SetText(L"LV "+std::to_wstring(iLevel) + L" Soldier");
-	SpawnGameObject(m_pLevelText, Vec3(426.f, 723.f, 1.f), LAYER_TYPE::ViewPortUI);
+	SpawnGameObject(m_pLevelText, Vec3(-111.f, -359.f, 1.f), LAYER_TYPE::ViewPortUI);
+
+	m_pEnemyLevel = new CUI();
+	m_pEnemyLevel->SetName(L"Enemy Level Text");
+	m_pEnemyLevel->AddComponent(new CTransform);
+	m_pEnemyLevel->AddComponent(new CMeshRender);
+	m_pEnemyLevel->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	m_pEnemyLevel->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
+	m_pEnemyLevel->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
+	m_pEnemyLevel->SetTextScale(0.6f);
+	m_pEnemyLevel->SetOutline(true);
+	m_pEnemyLevel->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
+	SpawnGameObject(m_pEnemyLevel, Vec3(-56.f, 3.f, 1.f), LAYER_TYPE::ViewPortUI);
+
+	m_pEnemyName = new CUI();
+	m_pEnemyName->SetName(L"Enemy Name Text");
+	m_pEnemyName->AddComponent(new CTransform);
+	m_pEnemyName->AddComponent(new CMeshRender);
+	m_pEnemyName->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	m_pEnemyName->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
+	m_pEnemyName->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
+	m_pEnemyName->SetTextScale(0.5f);
+	m_pEnemyName->SetOutline(true);
+	m_pEnemyName->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
+	SpawnGameObject(m_pEnemyName, Vec3(0.f, -10.f, 1.f), LAYER_TYPE::ViewPortUI);
 }
 
 void CPlayerScript::Look()
@@ -428,29 +653,43 @@ void CPlayerScript::Look()
 	if (hoverEnemy)
 	{
 		if (hoverEnemy->GetScript<CEnemyScript>())
-		{
+		{	
+			m_pEnemyName->SetText(hoverEnemy->GetScript<CEnemyScript>()->GetEnemyName());
+			wstring str = L"01";
+			m_pEnemyLevel->SetText(str);
 			bHitEnemy = true;
 			m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 			m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			m_pEnemyLevel->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			m_pEnemyName->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+
+			Vec3 vPos = m_pEnemyName->Transform()->GetRelativePos();
+			Vec2 vSize = m_pEnemyName->GetTextSize();
+			vPos.x = (vSize.x / 2.f) - 61.f;
+			m_pEnemyName->Transform()->SetRelativePos(vPos);
 			hoverEnemy->GetName();
 
 			float hpRatio = 1.f - hoverEnemy->GetScript<CEnemyScript>()->GetHpRatio();
 			m_pUI_EnemyHp->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &hpRatio);
 
-		}
-		else if (hoverEnemy->GetScript<CWarriorScript>())
-		{
-			m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
-			m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 
-			float hpRatio = 1.f - hoverEnemy->GetScript<CWarriorScript>()->GetHpRatio();
-			m_pUI_EnemyHp->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &hpRatio);
-			bHitEnemy = true;
+
 		}
+		//else if (hoverEnemy->GetScript<CWarriorScript>())
+		//{
+		//	m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		//	m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+
+		//	float hpRatio = 1.f - hoverEnemy->GetScript<CWarriorScript>()->GetHpRatio();
+		//	m_pUI_EnemyHp->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &hpRatio);
+		//	bHitEnemy = true;
+		//}
 		else
 		{
 			m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 			m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			m_pEnemyLevel->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			m_pEnemyName->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 			bHitEnemy = false;
 		}
 	}
@@ -458,6 +697,8 @@ void CPlayerScript::Look()
 	{
 		m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 		m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pEnemyLevel->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pEnemyName->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 		bHitEnemy = false;
 	}
 }
@@ -474,7 +715,6 @@ void CPlayerScript::ShootBullet()
 	CGameObject* pPlayer = GetOwner();
 
 	--iAmmo;
-	++iExp;
 
 	tRayInfo rayInfo{};
 	rayInfo.fDamage = 10.f;
@@ -495,9 +735,14 @@ void CPlayerScript::ShootBullet()
 
 	Recoil();
 
-	if (!bHitEnemy)
+	if (!bHitEnemy && 0.0f < vPosition.z) // 충돌이 없을 때 distance가 0
 		ParticleMgr::GetInst()->DoParticle(ParticleMgr::PARTICLE_SETTING_TYPE::BULLET_IMPACT, rayInfo.vStart + (rayInfo.vDir * vPosition.z));
 
+	if (bHitEnemy)
+	{
+		FieldUIMgr::GetInst()->AddDamage(10.f, rayInfo.vStart + (rayInfo.vDir * vPosition.z));
+	}
+	
 	CGameObject* pGun = WeaponMgr::GetInst()->GetCurWeapon();
 	int weaponIdx = WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::FIRE);
 
@@ -814,8 +1059,8 @@ void CPlayerScript::AddExp(int _iExp)
 	iExp += _iExp;
 	if(iExp <= iExpMax)
 	{
+		iLevel = iExp % iExpMax;
 		iExp = 0;
-		++iLevel;
 	}
 }
 
@@ -850,7 +1095,45 @@ void CPlayerScript::Raycast(tRayInfo _RaycastInfo)
 	if (iPlayerHp < _RaycastInfo.fDamage)
 		iPlayerHp = 0;
 	else
+	{
 		iPlayerHp -= _RaycastInfo.fDamage;
+		Vec3 vRight = GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+		Vec3 vFront= GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+		Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
+		float rightTheta = _RaycastInfo.vDir.Dot(vRight);
+
+		rightTheta *= RadToDeg();
+
+		if (rightTheta < 45.f && rightTheta > -45.f)
+		{
+			Vec3 vDiff = _RaycastInfo.vStart - vPos;
+			vDiff.Normalize();
+
+			if(vFront.Dot(vDiff) > 0.0f)
+			{
+				m_pUI_HPFrontHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+				fHpFrontAcc = 0.0f;
+			}
+			else
+			{
+				m_pUI_HPBackHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+				fHpBackAcc = 0.0f;
+			}
+		}
+
+		if(rightTheta < -45.f && rightTheta > -135.f)
+		{
+			m_pUI_HPRightHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			fHpRightAcc = 0.0f;
+		}
+		if (rightTheta > 45.f && rightTheta < 135.f)
+		{
+			m_pUI_HPLeftHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			fHpLeftAcc = 0.0f;
+
+		}
+	}
+		
 }
 
 void CPlayerScript::SaveToLevelFile(FILE* _File)

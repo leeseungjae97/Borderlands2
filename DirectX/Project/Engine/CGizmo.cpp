@@ -34,3 +34,14 @@ void CGizmo::finaltick()
 	DrawDebugLine(DIR_TYPE::FRONT, matWorld, Vec4(1.f, 0.f, 0.f, 1.f));
 	DrawDebugLine(DIR_TYPE::RIGHT, matWorld, Vec4(1.f, 1.f, 0.f, 1.f));
 }
+
+void CGizmo::LoadFromLevelFile(FILE* _FILE)
+{
+	fread(&m_bUsePhysxPos, sizeof(bool), 1, _FILE);
+}
+
+void CGizmo::SaveToLevelFile(FILE* _File)
+{
+	fwrite(&m_bUsePhysxPos, sizeof(bool), 1, _File);
+}
+

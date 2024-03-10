@@ -79,8 +79,6 @@ CGameObject* WeaponMgr::GetCurWeapon()
 	return m_arrWeapons[iCurWeaponIdx];
 }
 
-
-
 Vec3 WeaponMgr::GetCurWeaponMuzzlePos()
 {
 	Vec3 vPos = m_arrWeapons[iCurWeaponIdx]->Animator3D()->GetMuzzlePos();
@@ -96,24 +94,33 @@ Vec3 WeaponMgr::GetWeaponMuzzlePos(CGameObject* _Gun)
 	return vPos;
 }
 
-Vec3 WeaponMgr::GetOwnerWeaponRot(CGameObject* _Owner)
+Vec3 WeaponMgr::GetOwnerWeaponRot(CGameObject* _Owner, bool bRight)
 {
 	if (nullptr == _Owner)
 		return Vec3::Zero;
 
-	int iWeaponHandRotIdx = _Owner->Animator3D()->GetWeaponHandIdx();
-
+	int iWeaponHandRotIdx = 0;
+	if (bRight)
+		iWeaponHandRotIdx = _Owner->Animator3D()->GetWeaponRHandIdx();
+	else
+		iWeaponHandRotIdx = _Owner->Animator3D()->GetWeaponLHandIdx();
+	
 	Vec3 vRot = _Owner->MeshRender()->GetMesh()->BoneRotSkinning(iWeaponHandRotIdx, _Owner->Animator3D());
 
 	return vRot;
 }
 
-Vec3 WeaponMgr::GetOwnerWeaponPos(CGameObject* _Owner)
+Vec3 WeaponMgr::GetOwnerWeaponPos(CGameObject* _Owner, bool bRight)
 {
 	if (nullptr == _Owner)
 		return Vec3::Zero;
 
-	int iWeaponHandIdx = _Owner->Animator3D()->GetWeaponHandIdx();
+	int iWeaponHandIdx = 0;
+	if(bRight)
+		iWeaponHandIdx = _Owner->Animator3D()->GetWeaponRHandIdx();
+	else
+		iWeaponHandIdx = _Owner->Animator3D()->GetWeaponLHandIdx();
+
 	Vec3 vPos = _Owner->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, _Owner->Animator3D());
 
 	CRigidBody* rb = _Owner->RigidBody();
@@ -205,7 +212,7 @@ void WeaponMgr::begin()
 	//			m_arrWeapons[weaponIdx]->Animator3D()->StopPlay();
 	//		});
 	//}
-	CLevel* curLevel = CLevelMgr::GetInst()->GetCurLevel();
+	CLevel* curLevel = CLevelMgr::GetInst()->GetLevel(L"main level");
 	CLayer* layer = curLevel->GetLayer((int)LAYER_TYPE::Item);
 	for (int i = 0; i < layer->GetObjects().size(); ++i)
 	{

@@ -5,7 +5,6 @@
 #include "CCamera.h"
 #include "CDecal.h"
 #include "CKeyMgr.h"
-#include "LandScapeMgr.h"
 #include "CLevel.h"
 #include "CLayer.h"
 #include "CLevelMgr.h"
@@ -28,7 +27,7 @@ CLandScape::CLandScape()
 	m_Recast = new RecastNavi;
 	init();
 
-	LandScapeMgr::GetInst()->AddLandScape(this);
+	//LandScapeMgr::GetInst()->AddLandScape(this);
 }
 
 CLandScape::~CLandScape()
@@ -45,7 +44,7 @@ CLandScape::~CLandScape()
 	if (nullptr != m_pVertexBuffer)
 		delete m_pVertexBuffer;
 
-	LandScapeMgr::GetInst()->DeleteLandScape(this);
+	//LandScapeMgr::GetInst()->DeleteLandScape(this);
 }
 
 void CLandScape::SetFaceX(UINT _FaceX)

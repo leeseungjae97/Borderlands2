@@ -25,12 +25,13 @@ CRigidBody::CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2)
 	, m_bInit(false)
 	, m_bInitData(false)
 	, m_debugMeshName(L"")
+	, m_Release(false)
 	, m_vRigidDir{
 	  Vec3(1.f, 0.f, 0.f)
 	, Vec3(0.f, 1.f, 0.f)
 	, Vec3(0.f, 0.f, 1.f)}
 {
-	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(0.5f, 0.5f, 0.0f);
+	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(100.0f, 0.5f, 0.0f);
 	//m_pMaterial->setDamping(0.f);
 	if (m_tRigidType == RIGID_BODY_TYPE::DYNAMIC)
 	{
@@ -39,24 +40,32 @@ CRigidBody::CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2)
 	}
 }
 
-CRigidBody::~CRigidBody()
+void CRigidBody::Release()
 {
 	if(m_pDynamicBody)
 	{
 		m_pDynamicBody->userData = nullptr;
 		PX_RELEASE(m_pDynamicBody);
 	}
-	
+
 	if(m_pStaticBody)
 	{
 		m_pStaticBody->userData = nullptr;
 		PX_RELEASE(m_pStaticBody);
 	}
+	m_Release = true;
+}
+
+CRigidBody::~CRigidBody()
+{
 		
 }
 
 void CRigidBody::finaltick()
 {
+	if (m_Release)
+		return;
+
 	if(!m_bInit)
 	{
 		addToScene();

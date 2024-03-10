@@ -6,6 +6,7 @@
 #include "CGameObject.h"
 #include "CResMgr.h"
 #include "CRenderMgr.h"
+#include "CRigidBody.h"
 
 
 CEventMgr::CEventMgr()
@@ -140,6 +141,14 @@ void CEventMgr::GC_Clear()
 			// 자식 타입 오브젝트인 경우
 			if (m_vecGC[i]->GetParent())
 				m_vecGC[i]->DisconnectFromParent();
+			if (m_vecGC[i]->Collider3D())
+			{
+				m_vecGC[i]->Collider3D()->Release();
+			}
+			if (m_vecGC[i]->RigidBody())
+			{
+				m_vecGC[i]->RigidBody()->Release();
+			}
 
 			delete m_vecGC[i];
 

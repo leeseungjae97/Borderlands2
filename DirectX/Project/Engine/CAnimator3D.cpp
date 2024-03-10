@@ -32,7 +32,7 @@ CAnimator3D::CAnimator3D()
 	, m_fSpeedAdj(1.f)
 	, m_iHeadIdx(0)
 	, m_iCameraIdx(0)
-	, m_iWeaponHandIdx(0)
+	, m_iWeaponRHandIdx(0)
 	, m_iWeaponMuzzleIdx(0)
 	, m_iFireBreathIdx(0)
 	, m_iTailWeaponIdx(0)
@@ -68,7 +68,7 @@ CAnimator3D::CAnimator3D(const CAnimator3D& _origin)
 	, m_fSpeedAdj(1.f)
 	, m_iHeadIdx(_origin.m_iHeadIdx)
 	, m_iCameraIdx(_origin.m_iCameraIdx)
-	, m_iWeaponHandIdx(_origin.m_iWeaponHandIdx)
+	, m_iWeaponRHandIdx(_origin.m_iWeaponRHandIdx)
 	, m_iWeaponMuzzleIdx(_origin.m_iWeaponMuzzleIdx)
 	, m_iFireBreathIdx(_origin.m_iFireBreathIdx)
 	, m_iTailWeaponIdx(_origin.m_iTailWeaponIdx)
@@ -250,7 +250,7 @@ void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 	for (int i = 0; i < m_pVecBones.size(); ++i)
 	{
 		tMTBone bone = m_pVecBones[i];
-		if (bone.strBoneName == L"Head")
+		if (bone.strBoneName == L"Head" || bone.strBoneName == L"Eye")
 		{
 			m_iHeadIdx = i;
 		}
@@ -266,17 +266,25 @@ void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 		{
 			m_iStomachIdx = i;
 		}
-		if (bone.strBoneName == L"Head")
-		{
-			m_iHeadIdx = i;
-		}
 		if (bone.strBoneName == L"Camera")
 		{
 			m_iCameraIdx = i;
 		}
 		if (bone.strBoneName == L"R_Weapon_Bone")
 		{
-			m_iWeaponHandIdx = i;
+			m_iWeaponRHandIdx = i;
+		}
+		if (bone.strBoneName == L"L_Weapon_Bone")
+		{
+			m_iWeaponLHandIdx = i;
+		}
+		if (bone.strBoneName == L"L_Hand")
+		{
+			m_iLHandIdx = i;
+		}
+		if (bone.strBoneName == L"R_Hand")
+		{
+			m_iRHandIdx = i;
 		}
 		if(bone.strBoneName == L"Muzzle")
 		{
@@ -810,7 +818,7 @@ void CAnimator3D::SaveToLevelFile(FILE* _pFile)
 
 	fwrite(&m_iHeadIdx, sizeof(int), 1, _pFile);
 	fwrite(&m_iCameraIdx, sizeof(int), 1, _pFile);
-	fwrite(&m_iWeaponHandIdx, sizeof(int), 1, _pFile);
+	fwrite(&m_iWeaponRHandIdx, sizeof(int), 1, _pFile);
 	fwrite(&m_iWeaponMuzzleIdx, sizeof(int), 1, _pFile);
 
 	fwrite(&m_iFireBreathIdx, sizeof(int), 1, _pFile);
@@ -905,7 +913,7 @@ void CAnimator3D::LoadFromLevelFile(FILE* _pFile)
 
 	fread(&m_iHeadIdx, sizeof(int), 1, _pFile);
 	fread(&m_iCameraIdx, sizeof(int), 1, _pFile);
-	fread(&m_iWeaponHandIdx, sizeof(int), 1, _pFile);
+	fread(&m_iWeaponRHandIdx, sizeof(int), 1, _pFile);
 	fread(&m_iWeaponMuzzleIdx, sizeof(int), 1, _pFile);
 
 	fread(&m_iFireBreathIdx, sizeof(int), 1, _pFile);

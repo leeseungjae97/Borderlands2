@@ -16,6 +16,25 @@
 #include "CPlayerScript.h"
 
 
+CEnemyScript::CEnemyScript(ENEMY_TYPE _Type)
+	: CScript((UINT)SCRIPT_TYPE::ENEMY_SCRIPT)
+	, fEnemySpeed(300.f)
+	, fRotateSpeed(2.f)
+	, iEnemyHp(100.f)
+	, iEnemyHpCapa(100.f)
+	, fRateOfFire(0.1f)
+	, fRateOfFireAcc(0.0f)
+	, iAmmo(300)
+	, bRotate(true)
+	, pHeadCollider(nullptr)
+	, tState(ENEMY_STATE::IDLE)
+	, tType(_Type)
+{
+	AddScriptParam(SCRIPT_PARAM::FLOAT, &fRotateSpeed, "Rotate Speed");
+	AddScriptParam(SCRIPT_PARAM::FLOAT, &fEnemySpeed, "Speed");
+	AddScriptParam(SCRIPT_PARAM::FLOAT, &iEnemyHp, "Monster Hp");
+}
+
 CEnemyScript::CEnemyScript()
 	: CScript((UINT)SCRIPT_TYPE::ENEMY_SCRIPT)
 	, fEnemySpeed(300.f)
@@ -27,11 +46,8 @@ CEnemyScript::CEnemyScript()
 	, iAmmo(300)
 	, bRotate(true)
 	, pHeadCollider(nullptr)
-	, tState(EnemyMgr::ENEMY_STATE::IDLE)
+	, tState(ENEMY_STATE::IDLE)
 {
-	AddScriptParam(SCRIPT_PARAM::FLOAT, &fRotateSpeed, "Rotate Speed");
-	AddScriptParam(SCRIPT_PARAM::FLOAT, &fEnemySpeed, "Speed");
-	AddScriptParam(SCRIPT_PARAM::FLOAT, &iEnemyHp, "Monster Hp");
 }
 
 CEnemyScript::~CEnemyScript()
@@ -47,14 +63,23 @@ void CEnemyScript::begin()
 	pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::RELOAD)
 		= std::make_shared<std::function<void()>>([=]()
 			{
-				tState = EnemyMgr::ENEMY_STATE::IDLE;
+				tState = ENEMY_STATE::IDLE;
 	iAmmo = 30;
 			});
-
+	pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::MELEE)
+		= std::make_shared<std::function<void()>>([this]()
+			{
+				tState = ENEMY_STATE::IDLE;
+			});
+	pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::WALK_FORWARD)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				tState = ENEMY_STATE::IDLE;
+			});
 	pEnemy->Animator3D()->StartEvent((UINT)ENEMY_ANIMATION_TYPE::DIE)
 		= std::make_shared<std::function<void()>>([=]()
 			{
-				
+
 			});
 
 	makeCollider();
@@ -62,37 +87,48 @@ void CEnemyScript::begin()
 
 void CEnemyScript::Move()
 {
-	if (tState == EnemyMgr::ENEMY_STATE::RELOAD)
+	if (tState == ENEMY_STATE::RELOAD || tState == ENEMY_STATE::MELEE)
 		return;
 
 	CGameObject* pEnemy = GetOwner();
 	Vec3 vPos = pEnemy->Transform()->GetRelativePos();
 	Vec3 vRot = pEnemy->Transform()->GetRelativeRot();
 	Vec3 vScale = pEnemy->Transform()->GetRelativeScale();
-	if(m_vecQueryPath.empty())
+	if (m_vecQueryPath.empty())
 	{
 		vDestPos = vPos;
+		tState = ENEMY_STATE::IDLE;
 		return;
 	}
 	Vec3 vPathPos = m_vecQueryPath.front();
 	vPathPos.y += vScale.y / 2.f;
 	Vec3 vDir = Vec3::Zero;
-	if(vPathPos != vDestPos)
+	if (vPathPos != vDestPos)
 	{
 		vPrevPos = vPos;
 		vDestPos = vPathPos;
 		fDestDist = fabs((vDestPos - vPos).Length());
+	}else
+	{
+		auto iter = m_vecQueryPath.begin();
+		iter = m_vecQueryPath.erase(iter);
+
+		vPathPos = m_vecQueryPath.front();
+		vPathPos.y += vScale.y / 2.f;
+		vPrevPos = vPos;
+		vDestPos = vPathPos;
+		fDestDist = fabs((vDestPos - vPos).Length());
 	}
-	Vec3 vEnemyRight= pEnemy->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+	Vec3 vEnemyRight = pEnemy->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
 
 	float fRemainDist = fabs((vPrevPos - vPos).Length());
 
-	vDir = vDestPos - vPos;	
+	vDir = vDestPos - vPos;
 	vDir.Normalize();
 
 	if (fRemainDist < fDestDist)
 	{
-		vPos += vDir * DT * fEnemySpeed;	
+		vPos += vDir * DT * fEnemySpeed;
 	}
 	else
 	{
@@ -101,24 +137,29 @@ void CEnemyScript::Move()
 	}
 	float includeAngle = vDir.Dot(vEnemyRight);
 	vRot.y += includeAngle * DT * fRotateSpeed;
+	pEnemy->Transform()->SetRelativeRot(vRot);
+
 	pEnemy->Transform()->SetRelativePos(vPos);
 	pEnemy->Animator3D()->Play((UINT)ENEMY_ANIMATION_TYPE::WALK_FORWARD, true);
-	pEnemy->Transform()->SetRelativeRot(vRot);
 	//pEnemy->RigidBody()->SetLinearVelocity(final_velocity * fEnemySpeed);
 
 	//Vec3 vRot = pEnemy->Transform()->GetRelativeRot();
 	//vRot.y = 0.f;
 	//pEnemy->Transform()->SetRelativeRot(vRot);
 
-	tState = EnemyMgr::ENEMY_STATE::WALK;
+	tState = ENEMY_STATE::WALK;
 }
 
 bool CEnemyScript::Rotate()
 {
+	if (tState == ENEMY_STATE::DIE)
+		return false;
+
 	CGameObject* pPlayer = PlayerMgr::GetInst()->GetPlayer();
 	if (nullptr == pPlayer) return false;
 
 	CGameObject* pEnemy = GetOwner();
+	Vec3 vRot = pEnemy->Transform()->GetRelativeRot();
 
 	Vec3 vPlayerPos = pPlayer->Transform()->GetRelativePos();
 	Vec3 vMonsterPos = pEnemy->Transform()->GetRelativePos();
@@ -132,8 +173,8 @@ bool CEnemyScript::Rotate()
 
 	// 벡터의 내적은 90도 일때 0 Dot(A,B)=∣A∣⋅∣B∣⋅cos(θ)
 	float includeAngle = vDir.Dot(vMonsterRight);
-	pEnemy->Transform()->SetRelativeRot(Vec3(0.f, includeAngle * DT * fRotateSpeed, 0.f));
-	//pEnemy->RigidBody()->SetAngularVelocity(Vec3(0.f, includeAngle * fRotateSpeed, 0.f));
+	vRot.y += includeAngle * DT * fRotateSpeed;
+	pEnemy->Transform()->SetRelativeRot(vRot);
 
 	if (areAlmostEqual(includeAngle, 0.0f, 5.f))
 	{
@@ -165,12 +206,12 @@ bool CEnemyScript::RotateDest()
 
 void CEnemyScript::Reload()
 {
-	if (tState == EnemyMgr::ENEMY_STATE::RELOAD)
+	if (tState == ENEMY_STATE::RELOAD || tState == ENEMY_STATE::DIE)
 		return;
 
 	CGameObject* pEnemy = GetOwner();
 
-	CGameObject* pGun = pEnemy->GetGun(0);
+	CGameObject* pGun = pEnemy->GetWeapon(0);
 	if (nullptr == pGun)
 		return;
 
@@ -178,7 +219,7 @@ void CEnemyScript::Reload()
 	//pGun->Animator3D()->Play((UINT)GUN_ANIMATION_TYPE::RELOAD, false);
 	//AnimationMgr::GetInst()->AnimationSync(pGun->Animator3D(), pMonster->Animator3D());
 
-	tState = EnemyMgr::ENEMY_STATE::RELOAD;
+	tState = ENEMY_STATE::RELOAD;
 }
 
 void CEnemyScript::makeCollider()
@@ -215,13 +256,23 @@ void CEnemyScript::doPathQuery()
 	m_vecQueryPath.clear();
 	Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
 	vPos.y -= GetOwner()->Transform()->GetRelativeScale().y / 2.f;
-	Vec3 vMousePos = NavigationMgr::GetInst()->GetMapRaycastPos();
+	//Vec3 vMousePos = NavigationMgr::GetInst()->GetMapRaycastPos();
+	Vec3 vTargetPos = PlayerMgr::GetInst()->GetPlayer()->Transform()->GetRelativePos();
+	vTargetPos.y -= PlayerMgr::GetInst()->GetPlayer()->Transform()->GetRelativeScale().y / 2.f;
+	vPrevPlayerPos = vTargetPos;
+
 	int size = 0;
-	NavigationMgr::GetInst()->DoQuery(vPos, vMousePos, &m_vecQueryPath, &size);
+	//NavigationMgr::GetInst()->DoQuery(vPos, vMousePos, &m_vecQueryPath, &size);
+	NavigationMgr::GetInst()->DoQuery(vPos, vTargetPos, &m_vecQueryPath, &size);
 }
 
 void CEnemyScript::tick()
 {
+	if(tState == ENEMY_STATE::DIE)
+	{
+		IsDie();
+		return;
+	}
 	//static bool init = false;
 	//if(!init)
 	//{
@@ -237,7 +288,7 @@ void CEnemyScript::tick()
 	{
 		pEnemy->Animator3D()->Play((UINT)ENEMY_ANIMATION_TYPE::DIE, false, false);
 		PaperBurn();
-		tState = EnemyMgr::ENEMY_STATE::DIE;
+		tState = ENEMY_STATE::DIE;
 	}
 
 	//Look();
@@ -252,41 +303,51 @@ void CEnemyScript::tick()
 	fRateOfFireAcc += DT;
 	if (bRotate)
 	{
-		if (Rotate())
+		if (IsDetect())
 		{
-			if (fRateOfFireAcc >= fRateOfFire)
+
+			if (ENEMY_RANGE[(UINT)tType])
 			{
-				Shoot();
+				if (Rotate())
+				{
+					if (fRateOfFireAcc >= fRateOfFire)
+					{
+						Shoot();
+					}
+				}
+			}
+			else
+			{
+				if(vPrevPlayerPos != PlayerMgr::GetInst()->GetPlayer()->Transform()->GetRelativePos())
+					doPathQuery();
+				if (Rotate())
+				{
+					Melee();
+				}
+				Move();
 			}
 		}
 	}
 
 
-	if (KEY_PRESSED(KEY::_9))
-	{
-
-		//pMonster->RigidBody()->SetAngularVelocity(Vec3(0.f, tt, 0.f));
-	}
-	if (tState == EnemyMgr::ENEMY_STATE::IDLE)
+	//if (KEY_PRESSED(KEY::_9))
+	//{
+	//	//pMonster->RigidBody()->SetAngularVelocity(Vec3(0.f, tt, 0.f));
+	//}
+	if (tState == ENEMY_STATE::IDLE)
 	{
 		pEnemy->Animator3D()->Play((UINT)ENEMY_ANIMATION_TYPE::IDLE, true);
 	}
-
-	IsDie();
 }
 
 void CEnemyScript::finaltick()
 {
-	if (KEY_PRESSED(KEY::Q))
-	{
-		doPathQuery();
-	}
-	Move();
-	//if(RotateDest())
+	//if (KEY_PRESSED(KEY::Q))
 	//{
-	//	
+	//	doPathQuery();
 	//}
-	
+	//
+	//Move();
 }
 
 void CEnemyScript::BeginOverlap(CCollider3D* _Other)
@@ -380,12 +441,12 @@ void CEnemyScript::CatchRaycast()
 
 void CEnemyScript::Shoot()
 {
-	if (tState == EnemyMgr::ENEMY_STATE::RELOAD)
+	if (tState == ENEMY_STATE::RELOAD || tState == ENEMY_STATE::DIE)
 		return;
 
 	CGameObject* pEnemy = GetOwner();
 
-	CGameObject* pGun = pEnemy->GetGun(0);
+	CGameObject* pGun = pEnemy->GetWeapon(0);
 	if (nullptr == pGun)
 		return;
 
@@ -402,6 +463,7 @@ void CEnemyScript::Shoot()
 	raycast.vStart = vPos;
 	raycast.vDir = vFront;
 	raycast.vDir.y = 0.f;
+	raycast.fDist = ENEMY_ATTACK_RANGE[(UINT)tType];
 	raycast.iID = pEnemy->GetID();
 	raycast.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
 	raycast.matWorld = pEnemy->Transform()->GetDrawRayMat();
@@ -417,6 +479,33 @@ void CEnemyScript::Shoot()
 
 		WeaponMgr::GetInst()->MuzzleFlash(vMuzzlePos, vWeaponRot);
 	}
+}
+
+bool CEnemyScript::Melee()
+{
+	if (tState == ENEMY_STATE::MELEE)
+		return true;
+
+	CGameObject* pEnemy = GetOwner();
+	Vec3 vEnemyPos = pEnemy->Transform()->GetRelativePos();
+	Vec3 vEnemyScale = pEnemy->Transform()->GetRelativeScale();
+
+	Vec3 vPlayerPos = PlayerMgr::GetInst()->GetPlayer()->Transform()->GetRelativePos();
+	Vec3 vPlayerScale = PlayerMgr::GetInst()->GetPlayer()->Transform()->GetRelativeScale();
+
+	Vec3 vDiff = vPlayerPos - vEnemyPos;
+
+	float fDist = fabs(vDiff.Length());
+
+	if (fDist <= (vEnemyScale.x / 2.f) + (vPlayerScale.x / 2.f) + 100.f)
+	{
+		m_vecQueryPath.clear();
+
+		pEnemy->Animator3D()->Play((UINT)ENEMY_ANIMATION_TYPE::MELEE, false);
+		tState = ENEMY_STATE::MELEE;
+		return true;
+	}
+	return false;
 }
 
 void CEnemyScript::Look()
@@ -441,41 +530,45 @@ void CEnemyScript::Look()
 
 bool CEnemyScript::IsDetect()
 {
-	CGameObject* pEnemy = GetOwner();
-	vector<tRayInfo> monsRayInfo = RaycastMgr::GetInst()->GetRayInfo();
-	tRayInfo rayInfo = RaycastMgr::GetInst()->GetPlayerRayInfo();
+	if (tState == ENEMY_STATE::DIE)
+		return false;
 
-	if (rayInfo.tRayType == (UINT)RAYCAST_TYPE::REPLY && rayInfo.iID == pEnemy->GetID())
+	Vec3 vPlayerPos = PlayerMgr::GetInst()->GetPlayer()->Transform()->GetRelativePos();
+	Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
+
+	Vec3 vDiff = vPlayerPos - vPos;
+	float fLength = fabs(vDiff.Length());
+	if (fLength < ENEMY_LOOK_DIST[(UINT)tType])
 	{
 		return true;
 	}
-
 	return false;
 }
 
 void CEnemyScript::PaperBurn()
 {
-	if (tState == EnemyMgr::ENEMY_STATE::DIE)
+	if (tState == ENEMY_STATE::DIE)
 		return;
 
-	PlayerMgr::GetInst()->GetPlayer()->GetScript<CPlayerScript>()->AddExp(1);
+	PlayerMgr::GetInst()->GetPlayer()->GetScript<CPlayerScript>()->AddExp(5);
 
 	CGameObject* pEnemy = GetOwner();
 	double dTime = AnimationMgr::GetInst()->GetCurAnimationTime(pEnemy->Animator3D());
+	dTime += 0.5f;
 	pEnemy->MeshRender()->SetPaparBurn(true, (float)dTime);
 }
 
 void CEnemyScript::IsDie()
 {
 	CGameObject* pEnemy = GetOwner();
-	if(pEnemy->MeshRender()->GetMaterial(0)->IsPaperBurnEnd())
+	if (pEnemy->MeshRender()->GetMaterial(0)->IsPaperBurnEnd())
 	{
 		DestroyObject(pEnemy);
-		if (pEnemy->GetGuns().size() != 0)
+		if (pEnemy->GetWeapons().size() != 0)
 		{
-			for (int i = 0; i < pEnemy->GetGuns().size(); ++i)
+			for (int i = 0; i < pEnemy->GetWeapons().size(); ++i)
 			{
-				DestroyObject(pEnemy->GetGuns()[i]);
+				DestroyObject(pEnemy->GetWeapons()[i]);
 			}
 		}
 		if (pHeadCollider)
@@ -485,6 +578,14 @@ void CEnemyScript::IsDie()
 	}
 }
 
+void CEnemyScript::SaveToLevelFile(FILE* _File)
+{
+	fwrite(&tType, sizeof(UINT), 1, _File);
+}
+void CEnemyScript::LoadFromLevelFile(FILE* _FILE)
+{
+	fread(&tType, sizeof(UINT), 1, _FILE);
+}
 
 //void CEnemyScript::BeginOverlap(CCollider2D* _Other)
 //{

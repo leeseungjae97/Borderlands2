@@ -20,6 +20,7 @@ private:
     float                       m_AccTime;
 
 	bool						m_bFire;
+	bool						m_bCalc;
 public:
 	tParticleModule GetModuleData() { return m_ModuleData; }
 	void SetModuleData(tParticleModule _ModuleData) { m_ModuleData = _ModuleData; }

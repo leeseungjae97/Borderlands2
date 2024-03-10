@@ -33,8 +33,8 @@ Vec2 MouseMgr::UnprojectionMouse2DPos(float z)
 	Viewport viewport = {
 		0.f,
 		0.f,
-		vResol.x / 2.f,
-		vResol.y / 2.f,
+		vResol.x,
+		vResol.y,
 		10.f,
 		-1.f,
 	};

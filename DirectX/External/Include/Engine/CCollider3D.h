@@ -30,12 +30,14 @@ private:
     bool            m_bUnity;
     bool            m_bCenter;
 
+    bool            m_bRaycastable;
+
     bool            m_bBeginOverlap;
     bool            m_bOnOverlap;
     bool            m_bEndOverlap;
 
     bool            m_bRaycast;
-
+    bool            m_Release;
     CGameObject*    m_pUnityOwner;
 
     wstring         m_debugMeshName;
@@ -84,6 +86,9 @@ public:
 
     PxTransform GetColliderPos() { return m_PxColliderRigid->getGlobalPose(); }
 
+    void SetRaycastable(bool _Able) { m_bRaycastable = _Able; }
+    bool GetRaycastable() { return m_bRaycastable; }
+
     bool IsColliderRigidCreate() { return m_PxColliderRigid; }
 
     bool IsBeginOverlap()
@@ -128,6 +133,7 @@ public:
     CLONE(CCollider3D);
 
 public:
+    void Release();
     // Transform 없이 단독으로 쓸 때 Unity = true
     CCollider3D(bool _AttachRigid = true, bool _Unity = false, COLLIDER_SHAPE_TYPE _Shape = COLLIDER_SHAPE_TYPE::BOX);
     virtual ~CCollider3D();

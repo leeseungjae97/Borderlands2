@@ -9,16 +9,12 @@ public:
 	struct DamageText
 	{
 		Vec3 vPos;
+		Vec3 vDir;
 		float fAcc;
 		float fAlpha;
-		int iSign;
 		int iDamage;
 	};
 public:
-	Matrix textWorldMat;
-	Matrix textScaleMat;
-	Matrix textRotMat;
-	Matrix textTransMat;
 	Matrix BilBoardMat;
 	float  fTheta;
 	vector<DamageText> m_vecText;

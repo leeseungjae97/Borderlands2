@@ -72,12 +72,14 @@ int CLevelSaveLoad::SaveGameObject(CGameObject* _Object, FILE* _File, bool _Root
 	SaveWString(_Object->GetName(), _File);
 	bool bItem = _Object->IsItem();
 	bool bEqui = _Object->IsEqui();
+	bool bMelee = _Object->IsMelee();
 	bool bWarrior = _Object->IsWarrior();
 	
 	CGameObject::OBJECT_STATE state = _Object->GetObjectState();
 
 	fwrite(&bItem, sizeof(bool), 1, _File);
 	fwrite(&bEqui, sizeof(bool), 1, _File);
+	fwrite(&bMelee, sizeof(bool), 1, _File);
 	fwrite(&bWarrior, sizeof(bool), 1, _File);
 	fwrite(&state, sizeof(UINT), 1, _File);
 
@@ -125,7 +127,7 @@ int CLevelSaveLoad::SaveGameObject(CGameObject* _Object, FILE* _File, bool _Root
 		SaveGameObject(vecChild[i], _File, false);		
 	}
 
-	const vector<CGameObject*>& vecGuns = _Object->GetGuns();
+	const vector<CGameObject*>& vecGuns = _Object->GetWeapons();
 	size_t GunCount = vecGuns.size();
 	fwrite(&GunCount, sizeof(size_t), 1, _File);
 
@@ -133,7 +135,6 @@ int CLevelSaveLoad::SaveGameObject(CGameObject* _Object, FILE* _File, bool _Root
 	{
 		SaveGameObject(vecGuns[i], _File, false);
 	}
-
 
 	return TRUE;
 }
@@ -203,17 +204,20 @@ CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File, CLevel* _NewLevel, int 
 	LoadWString(Name, _File);
 	bool bItem = false;
 	bool bEqui = false;
+	bool bMelee = false;
 	bool bWarrior = false;
 
 	CGameObject::OBJECT_STATE state = CGameObject::OBJECT_STATE::VISIBLE;
 
 	fread(&bItem, sizeof(bool), 1, _File);
 	fread(&bEqui, sizeof(bool), 1, _File);
+	fread(&bMelee, sizeof(bool), 1, _File);
 	fread(&bWarrior, sizeof(bool), 1, _File);
 	fread(&state, sizeof(UINT), 1, _File);
 	
 	pObject->SetIsItem(bItem);
 	pObject->SetIsEqui(bEqui);
+	pObject->SetMelee(bMelee);
 	pObject->SetIsOwned(bOwned);
 	pObject->SetIsWarrior(bWarrior);
 
@@ -313,9 +317,9 @@ CGameObject* CLevelSaveLoad::LoadGameObject(FILE* _File, CLevel* _NewLevel, int 
 		CGameObject* GunObject = LoadGameObject(_File, nullptr, 0, false);
 		if (nullptr == GunObject)
 			continue;
-		pObject->AddGun(GunObject);
-		_NewLevel->AddGameObject(GunObject, _LayerIdx, false);
+		pObject->AddWeapon(GunObject, GunObject->IsMelee());
+		_NewLevel->AddGameObject(GunObject, (UINT)LAYER_TYPE::Item, false);
 	}
-
+	
 	return pObject;
 }

@@ -5,6 +5,7 @@
 
 #include "DetourNavMeshQuery.h"
 
+// Test Script
 CPathFindScript::CPathFindScript()
 	: CScript((UINT)SCRIPT_TYPE::PATH_FIND_SCRIPT)
 {

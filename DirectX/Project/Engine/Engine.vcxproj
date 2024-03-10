@@ -201,13 +201,12 @@ call EngineCopy.bat</Command>
     <ClInclude Include="CInstancingBuffer.h" />
     <ClInclude Include="CKeyMgr.h" />
     <ClInclude Include="CollisionMgr.h" />
-    <ClInclude Include="EnemyMgr.h" />
     <ClInclude Include="InputGeom.h" />
+    <ClInclude Include="MainMenuMgr.h" />
     <ClInclude Include="MouseMgr.h" />
     <ClInclude Include="NavigationMgr.h" />
     <ClInclude Include="ParticleMgr.h" />
     <ClInclude Include="PlayerMgr.h" />
-    <ClInclude Include="LandScapeMgr.h" />
     <ClInclude Include="CLandScapePathShader.h" />
     <ClInclude Include="CLandScape.h" />
     <ClInclude Include="CLayer.h" />
@@ -264,7 +263,6 @@ call EngineCopy.bat</Command>
     <ClInclude Include="struct.h" />
     <ClInclude Include="CUI.h" />
     <ClInclude Include="TextMgr.h" />
-    <ClInclude Include="WarriorMgr.h" />
     <ClInclude Include="WeaponMgr.h" />
   </ItemGroup>
   <ItemGroup>
@@ -301,14 +299,13 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CInstancingBuffer.cpp" />
     <ClCompile Include="CKeyMgr.cpp" />
     <ClCompile Include="CollisionMgr.cpp" />
-    <ClCompile Include="EnemyMgr.cpp" />
     <ClCompile Include="InputGeom.cpp" />
+    <ClCompile Include="MainMenuMgr.cpp" />
     <ClCompile Include="MouseMgr.cpp" />
     <ClCompile Include="NavigationMgr.cpp" />
     <ClCompile Include="ParticleMgr.cpp" />
     <ClCompile Include="PerfTimer.cpp" />
     <ClCompile Include="PlayerMgr.cpp" />
-    <ClCompile Include="LandScapeMgr.cpp" />
     <ClCompile Include="CLandScapePathShader.cpp" />
     <ClCompile Include="CLandScape.cpp" />
     <ClCompile Include="CLayer.cpp" />
@@ -364,7 +361,6 @@ call EngineCopy.bat</Command>
     <ClCompile Include="SkillMgr.cpp" />
     <ClCompile Include="CUI.cpp" />
     <ClCompile Include="TextMgr.cpp" />
-    <ClCompile Include="WarriorMgr.cpp" />
     <ClCompile Include="WeaponMgr.cpp" />
   </ItemGroup>
   <ItemGroup>

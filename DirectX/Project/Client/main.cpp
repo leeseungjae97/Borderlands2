@@ -15,7 +15,7 @@
 
 #include "ImGuiMgr.h"
 
-#include "TestLevel.h"
+#include "CreateLevels.h"
 
 
 
@@ -67,29 +67,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-    // CEngine 초기화
     if (FAILED(CEngine::GetInst()->init(g_hWnd, 1280, 768)))
     {
         return 0;
     }
 
-    // Editor 초기화
     CEditorObjMgr::GetInst()->init();
        
-    // ImGui 초기화
     ImGuiMgr::GetInst()->init(g_hWnd);
 
-    // PhysX 초기화
     PhysXMgr::GetInst()->init();
 
-    // 테스트 용 레벨 생성
-    CreateTestLevel();
+    CreateLevels();
 
     // 메세지 루프
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
     MSG msg;
-
-    //CLevelMgr::GetInst()->begin();
 
     while (true)
     {
@@ -107,20 +100,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         else
         {
-            // =======
-            // 1 Frame
-            // =======
             CEngine::GetInst()->progress();
             CEditorObjMgr::GetInst()->progress();         
             ImGuiMgr::GetInst()->progress();            
-            CDevice::GetInst()->Present(); // 렌더 종료
+            CDevice::GetInst()->Present();
         }       
     }
 
 #ifdef _DEBUG
     //D3D_LEAK_CHECK();
 #endif
-
 
     return (int) msg.wParam;
 }

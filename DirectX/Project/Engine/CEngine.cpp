@@ -13,6 +13,7 @@
 #include "CInstancingBuffer.h"
 #include "FieldUIMgr.h"
 #include "KeyUseInfoMgr.h"
+#include "MainMenuMgr.h"
 #include "NavigationMgr.h"
 #include "ObjPickerMgr.h"
 #include "ParticleMgr.h"
@@ -105,6 +106,8 @@ void CEngine::tick()
 	RaycastMgr::GetInst()->tick();
 	NavigationMgr::GetInst()->tick();
 	FieldUIMgr::GetInst()->tick();
+
+	MainMenuMgr::GetInst()->tick();
 }
 
 void CEngine::render()

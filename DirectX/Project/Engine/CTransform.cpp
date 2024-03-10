@@ -13,7 +13,6 @@ CTransform::CTransform()
 	: CComponent(COMPONENT_TYPE::TRANSFORM)
 	, m_vRelativeScale(Vec3(1.f, 1.f, 1.f))
 	, m_bAbsolute(false)
-	, m_bExceptParentRot(false)
 	, m_vRelativeRot(Vec3::Zero)
 	, m_vRelativePosOffset(Vec3::Zero)
 	, m_qRotation(Quat(0.f, 0.f, 0.f, 0.f))
@@ -186,15 +185,16 @@ void CTransform::finaltick()
 	Vec3 vFinalPos = m_vRelativePos + m_vRelativePosOffset;
 	
 	if (GetOwner()->Animator3D()) // ¹Ù´ÚÀÌ ÀÖ´Â Meshµé ¹Ù´Ú¿¡ ¾È´ê´Â°Å
+	{
 		vFinalPos.y -= m_vRelativeScale.y / 2.f;
+	}
 
 	matTranslation = XMMatrixTranslation(vFinalPos.x, vFinalPos.y, vFinalPos.z);
 
 	//matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y, m_vRelativePos.z);
 
 	m_matWorld = m_matWorldScale * m_Rot * matTranslation;
-	m_noRotWorld = m_matWorldScale * matTranslation;
-
+	
 	// Raycast Draw¿ë ¿ùµå Matrix
 	float dist = RaycastMgr::GetInst()->GetDrawRayDistance();
 	Matrix rayScale = XMMatrixScaling(dist, dist, dist);

@@ -79,7 +79,7 @@ CGameObject* NavigationMgr::GetMap(int _Idx)
 
 void NavigationMgr::MapChange(int _Idx)
 {
-	if (_Idx >= m_vecMapObj.size())
+	if (_Idx >= m_vecMapObj.size() || m_vecMapObj.empty())
 		return;
 
 	m_iMap = _Idx;

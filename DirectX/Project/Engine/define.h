@@ -416,6 +416,7 @@ enum class LEVEL_STATE
 
 enum class LAYER_TYPE
 {
+	Camera,
 	Default,
 	Terrain,
 	Environment,
