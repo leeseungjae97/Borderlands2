@@ -25,7 +25,7 @@
 CPlayerScript::CPlayerScript()
 	: CScript((UINT)SCRIPT_TYPE::PLAYER_SCRIPT)
 	, fSpeed(300.f)
-	, fJump(1000.f)
+	, fJump(300.f)
 	, fRateOfFire(0.05f)
 	, fRateOfFireAcc(0.0f)
 	, fMouseAcces(1.f)
@@ -836,7 +836,7 @@ void CPlayerScript::Movement()
 	pCamObj->Transform()->SetRelativePos(vPlayerCamPos);
 
 	float _fSpeed = fSpeed;
-	Vec3 final_velocity = Vec3(0.0f, 0.0f, 0.0f);
+	Vec3 final_velocity = Vec3(0.00f, 0.00f, 0.00f);
 
 	UINT uiFront = (1 << 0);
 	UINT uiBack = (1 << 0);
@@ -908,7 +908,7 @@ void CPlayerScript::Movement()
 	}
 	if (KEY_PRESSED(KEY::F))
 	{
-		final_velocity = Vec3(0.f, 0.f, 0.f);
+		final_velocity = Vec3(0.00f, 0.00f, 0.00f);
 		pPlayerRB->SetLinearVelocityZero();
 	}
 	//PxTransform rbPos = pPlayerRB->GetRigidBodyPos();
@@ -916,6 +916,12 @@ void CPlayerScript::Movement()
 	//pPlayerRB->GetDynamicBody()->setKinematicTarget(rbPos);
 
 	pPlayerRB->SetLinearVelocity(final_velocity);
+	//if (final_velocity == Vec3::Zero)
+	//{
+	//	pPlayer->Transform()->SetRelativePosX(vPlayerPos.x);
+	//	pPlayer->Transform()->SetRelativePosZ(vPlayerPos.z);
+	//}
+	//pPlayerRB->AddTorque(final_velocity);
 
 	if (tState != PlayerMgr::PLAYER_STATE::RELOAD && tState != PlayerMgr::PLAYER_STATE::DRAW && tState != PlayerMgr::PLAYER_STATE::FIRE)
 	{
@@ -1082,12 +1088,22 @@ void CPlayerScript::BeginOverlap(CCollider3D* _Other)
 {
 	OutputDebugStringW(L"CPlayerScript BeginOverlap\n");
 	bJump = false;
+	CRigidBody* rb = GetOwner()->RigidBody();
+	//rb->GetDynamicBody()->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, false);
 }
 
 void CPlayerScript::OnOverlap(CCollider3D* _Other)
 {
 	OutputDebugStringW(L"CPlayerScript OnOverlap\n");
 	bJump = false;
+	CRigidBody* rb = GetOwner()->RigidBody();
+	//rb->GetDynamicBody()->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, false);
+}
+
+void CPlayerScript::EndOverlap(CCollider3D* _Other)
+{
+	CRigidBody* rb = GetOwner()->RigidBody();
+	//rb->GetDynamicBody()->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 }
 
 void CPlayerScript::Raycast(tRayInfo _RaycastInfo)
@@ -1130,7 +1146,6 @@ void CPlayerScript::Raycast(tRayInfo _RaycastInfo)
 		{
 			m_pUI_HPLeftHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 			fHpLeftAcc = 0.0f;
-
 		}
 	}
 		

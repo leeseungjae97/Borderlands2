@@ -13,6 +13,7 @@
 #include <Engine\WeaponMgr.h>
 #include <Engine\physx_util.h>
 
+#include "CAttackNormalScript.h"
 #include "CPlayerScript.h"
 
 
@@ -60,16 +61,24 @@ void CEnemyScript::begin()
 	if (!pEnemy->Animator3D())
 		return;
 
+	pEnemy->Animator3D()->SetAnimClipEventIdx(
+		(UINT)ENEMY_ANIMATION_TYPE::MELEE, -1, -1, 15, -1);
+
 	pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::RELOAD)
 		= std::make_shared<std::function<void()>>([=]()
 			{
 				tState = ENEMY_STATE::IDLE;
-	iAmmo = 30;
+				iAmmo = 30;
 			});
 	pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::MELEE)
-		= std::make_shared<std::function<void()>>([this]()
+		= std::make_shared<std::function<void()>>([=]()
 			{
 				tState = ENEMY_STATE::IDLE;
+			});
+	pEnemy->Animator3D()->ProgressEvent((UINT)ENEMY_ANIMATION_TYPE::MELEE)
+		= std::make_shared<std::function<void()>>([this]()
+			{
+				GetOwner()->GetWeapon(0)->GetScript<CAttackNormalScript>()->ManualAttack(true);
 			});
 	pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::WALK_FORWARD)
 		= std::make_shared<std::function<void()>>([=]()
@@ -87,11 +96,18 @@ void CEnemyScript::begin()
 
 void CEnemyScript::Move()
 {
-	if (tState == ENEMY_STATE::RELOAD || tState == ENEMY_STATE::MELEE)
-		return;
 
 	CGameObject* pEnemy = GetOwner();
 	Vec3 vPos = pEnemy->Transform()->GetRelativePos();
+
+	// Enemy가 움직이지 않을 때 rigid 사용 못하게.
+	// 후에 움직이지 않아도 rigid를 사용 할 일이 있다면 STATE를 추가하여 예외처리
+	if (tState == ENEMY_STATE::RELOAD || tState == ENEMY_STATE::MELEE)
+	{
+		pEnemy->Transform()->SetRelativePos(vPos);
+		return;
+	}
+
 	Vec3 vRot = pEnemy->Transform()->GetRelativeRot();
 	Vec3 vScale = pEnemy->Transform()->GetRelativeScale();
 	if (m_vecQueryPath.empty())
@@ -110,8 +126,14 @@ void CEnemyScript::Move()
 		fDestDist = fabs((vDestPos - vPos).Length());
 	}else
 	{
+		if (m_vecQueryPath.empty())
+			return;
+
 		auto iter = m_vecQueryPath.begin();
 		iter = m_vecQueryPath.erase(iter);
+
+		if (m_vecQueryPath.empty())
+			return;
 
 		vPathPos = m_vecQueryPath.front();
 		vPathPos.y += vScale.y / 2.f;
@@ -329,13 +351,11 @@ void CEnemyScript::tick()
 		}
 	}
 
-
-	//if (KEY_PRESSED(KEY::_9))
-	//{
-	//	//pMonster->RigidBody()->SetAngularVelocity(Vec3(0.f, tt, 0.f));
-	//}
 	if (tState == ENEMY_STATE::IDLE)
 	{
+		// 관성 받지 않게 처리.
+		// Move와 마찬가지로 예외할일이 있다면 STATE추가 후 처리할 것.
+		pEnemy->Transform()->SetRelativePos(pEnemy->Transform()->GetRelativePos());
 		pEnemy->Animator3D()->Play((UINT)ENEMY_ANIMATION_TYPE::IDLE, true);
 	}
 }
@@ -556,6 +576,11 @@ void CEnemyScript::PaperBurn()
 	double dTime = AnimationMgr::GetInst()->GetCurAnimationTime(pEnemy->Animator3D());
 	dTime += 0.5f;
 	pEnemy->MeshRender()->SetPaparBurn(true, (float)dTime);
+	for (int i = 0; i < GetOwner()->GetWeapons().size(); ++i)
+	{
+		if(GetOwner()->GetWeapons()[i])
+			GetOwner()->GetWeapons()[i]->MeshRender()->SetPaparBurn(true, (float)dTime);
+	}
 }
 
 void CEnemyScript::IsDie()

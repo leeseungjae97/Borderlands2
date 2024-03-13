@@ -77,7 +77,7 @@ void CLevel::createScene()
 	m_PxCollisionCallBack = new PxCollisionCallBack;
 	PxSceneDesc sceneDesc(PhysXMgr::GetInst()->GPhysics()->getTolerancesScale());
 	
-	sceneDesc.gravity = PxVec3(0.0f, -981, 0.0f);
+	sceneDesc.gravity = PxVec3(0.0f, -98.1, 0.0f);
 	sceneDesc.cpuDispatcher = PhysXMgr::GetInst()->GDispatcher();
 	sceneDesc.filterShader = SimulationFilterShader;
 	sceneDesc.simulationEventCallback = m_PxCollisionCallBack;

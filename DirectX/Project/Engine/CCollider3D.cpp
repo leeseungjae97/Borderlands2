@@ -358,6 +358,7 @@ void CCollider3D::LoadFromLevelFile(FILE* _FILE)
 	fread(&m_bAttachToRigidBody, sizeof(bool), 1, _FILE);
 	fread(&m_bUnity, sizeof(bool), 1, _FILE);
 	fread(&m_bCenter, sizeof(bool), 1, _FILE);
+	fread(&m_bRaycastable, sizeof(bool), 1, _FILE);
 	fread(&m_tColliderShapeType, sizeof(UINT), 1, _FILE);
 	if (m_tColliderShapeType == COLLIDER_SHAPE_TYPE::MESH)
 		LoadWString(m_debugMeshName, _FILE);
@@ -370,6 +371,7 @@ void CCollider3D::SaveToLevelFile(FILE* _File)
 	fwrite(&m_bAttachToRigidBody, sizeof(bool), 1, _File);
 	fwrite(&m_bUnity, sizeof(bool), 1, _File);
 	fwrite(&m_bCenter, sizeof(bool), 1, _File);
+	fwrite(&m_bRaycastable, sizeof(bool), 1, _File);
 	fwrite(&m_tColliderShapeType, sizeof(UINT), 1, _File);
 	if (m_tColliderShapeType == COLLIDER_SHAPE_TYPE::MESH)
 		SaveWString(m_debugMeshName, _File);

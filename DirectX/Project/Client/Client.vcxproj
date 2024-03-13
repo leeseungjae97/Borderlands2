@@ -201,6 +201,7 @@
     <ClInclude Include="RigidBodyUI.h" />
     <ClInclude Include="SamplerFilterUI.h" />
     <ClInclude Include="ScriptUI.h" />
+    <ClInclude Include="SkyBoxUI.h" />
     <ClInclude Include="SoundUI.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="CreateLevels.h" />
@@ -259,6 +260,7 @@
     <ClCompile Include="RigidBodyUI.cpp" />
     <ClCompile Include="SamplerFilterUI.cpp" />
     <ClCompile Include="ScriptUI.cpp" />
+    <ClCompile Include="SkyBoxUI.cpp" />
     <ClCompile Include="SoundUI.cpp" />
     <ClCompile Include="CreateLevels.cpp" />
     <ClCompile Include="TextureUI.cpp" />

@@ -22,19 +22,12 @@ CLight3D::CLight3D()
 	, m_bTimeConst(false)
 	, m_fLifeSpan(0.0f)
 {
-	m_pCamObj = new CGameObject;
-	m_pCamObj->AddComponent(new CTransform);
-	m_pCamObj->AddComponent(new CCamera);
-
-	m_pCamObj->Camera()->SetLayerMaskAll(true);
-	m_pCamObj->Camera()->SetLayerMask(31, false);
-
-	SetLightType(LIGHT_TYPE::DIRECTIONAL);
+	//SetLightType(LIGHT_TYPE::DIRECTIONAL);
 }
 CLight3D::CLight3D(const CLight3D& _Origin)
 	: CComponent(_Origin)
 	, m_bShowRange(_Origin.m_bShowRange)
-	, m_LightIdx(-1)
+	, m_LightIdx(_Origin.m_LightIdx)
 	, m_pCamObj(nullptr)
 	, m_bShadow(_Origin.m_bShadow)
 	, m_bGaus(_Origin.m_bGaus)
@@ -68,23 +61,25 @@ void CLight3D::finaltick()
 	if(m_bShowRange)
 	{
 		if((UINT)LIGHT_TYPE::DIRECTIONAL== m_LightInfo.LightType)
-			DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, true);
+			DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, false);
 		//if((UINT)LIGHT_TYPE::POINT == m_LightInfo.LightType)
-		//	DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, true);
+		//	DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, false);
 		//else if((UINT)LIGHT_TYPE::SPOT == m_LightInfo.LightType)
 		//	DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, true);	
 	}
 
-		// 광원에 부착한 카메라 오브젝트도 위치를 광원 위치랑 동일하게..
+	// 광원에 부착한 카메라 오브젝트도 위치를 광원 위치랑 동일하게..
 	// finaltick 호출시켜서 카메라 오브젝트의 카메라 컴포넌트의 view, proj 행렬 연산할수 있게 함
-	*m_pCamObj->Transform() = *Transform();
-	m_pCamObj->finaltick_module();
+	if ((UINT)LIGHT_TYPE::DIRECTIONAL == m_LightInfo.LightType)
+	{
+		*m_pCamObj->Transform() = *Transform();
+		m_pCamObj->finaltick_module();
+	}	
 }
 void CLight3D::SetRadius(float _fRadius)
 {
 	m_LightInfo.Radius = _fRadius;
 
-	// SphereMesh 의 로컬 반지름이 0.5f 이기 때문에 2배로 적용
 	Transform()->SetRelativeScale(Vec3(_fRadius* 2.f, _fRadius* 2.f, _fRadius* 2.f));
 }
 
@@ -92,9 +87,15 @@ void CLight3D::SetLightType(LIGHT_TYPE _type)
 {
 	m_LightInfo.LightType = (int)_type;
 	
-	if (LIGHT_TYPE::DIRECTIONAL == (LIGHT_TYPE)m_LightInfo.LightType)
+	if (LIGHT_TYPE::DIRECTIONAL == _type)
 	{
-		// 광원을 렌더링 할 때, 광원의 영향범위를 형상화 할 수 있는 메쉬(볼륨메쉬) 를 선택
+		m_pCamObj = new CGameObject;
+		m_pCamObj->AddComponent(new CTransform);
+		m_pCamObj->AddComponent(new CCamera);
+
+		m_pCamObj->Camera()->SetLayerMaskAll(true);
+		m_pCamObj->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, false);
+
 		m_Mesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
 		m_Mtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"DirLightMtrl");
 
@@ -104,19 +105,17 @@ void CLight3D::SetLightType(LIGHT_TYPE _type)
 		m_pCamObj->Camera()->SetOrthoHeight(800000.f);
 		m_pCamObj->Camera()->SetESM(false);
 	}
-
-	else if (LIGHT_TYPE::POINT == (LIGHT_TYPE)m_LightInfo.LightType)
+	if (LIGHT_TYPE::POINT == _type)
 	{
 		m_Mesh = CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh");
 		m_Mtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"PointLightMtrl");
 	}
 
-	else
-	{
-		m_Mesh = CResMgr::GetInst()->FindRes<CMesh>(L"ConeMesh");
-		m_Mtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"SpotLightMtrl");
-	}
-
+	//if (LIGHT_TYPE::SPOT == _type)
+	//{
+	//	m_Mesh = CResMgr::GetInst()->FindRes<CMesh>(L"ConeMesh");
+	//	m_Mtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"SpotLightMtrl");
+	//}
 	if (nullptr != m_Mtrl)
 	{
 		m_Mtrl->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
@@ -143,14 +142,13 @@ void CLight3D::render()
 		m_Mtrl->SetScalarParam(FLOAT_1, &m_f[0]);
 		m_Mtrl->SetScalarParam(FLOAT_2, &m_f[1]);
 		m_Mtrl->SetScalarParam(FLOAT_3, &m_f[2]);
-
 	}
-	else if(m_LightInfo.LightType == (UINT)LIGHT_TYPE::SPOT)
-	{
-		Matrix matVP = m_pCamObj->Camera()->GetViewMat() * m_pCamObj->Camera()->GetProjMat();
-		m_Mtrl->SetScalarParam(MAT_0, &matVP);
-		m_Mtrl->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"DynamicShadowMapTex"));
-	}
+	//if(m_LightInfo.LightType == (UINT)LIGHT_TYPE::SPOT)
+	//{
+	//	Matrix matVP = m_pCamObj->Camera()->GetViewMat() * m_pCamObj->Camera()->GetProjMat();
+	//	m_Mtrl->SetScalarParam(MAT_0, &matVP);
+	//	m_Mtrl->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"DynamicShadowMapTex"));
+	//}
 
 	m_Mtrl->UpdateData();
 
@@ -165,9 +163,11 @@ void CLight3D::SetLifeSpan(float _Duration)
 
 void CLight3D::render_shadowmap()
 {
-	m_pCamObj->Camera()->SortObject_Shadow();
-
-	m_pCamObj->Camera()->render_shadowmap();
+	if(m_pCamObj)
+	{
+		m_pCamObj->Camera()->SortObject_Shadow();
+		m_pCamObj->Camera()->render_shadowmap();
+	}
 }
 
 void CLight3D::SaveToLevelFile(FILE* _File)

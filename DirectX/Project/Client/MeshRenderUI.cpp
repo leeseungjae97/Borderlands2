@@ -146,6 +146,21 @@ int MeshRenderUI::render_update()
 		str = "##texflowspeed" + std::to_string(i);
 		ImGui::InputFloat(str.c_str(), &fTexFlowSpeed);
 		mtrl->SetFlowSpeed(fTexFlowSpeed);
+
+		int perlinNoise = mtrlConst.arrInt[1];
+		ImGui::Text("Tex perlin : ");
+		ImGui::SameLine();
+		str = "##perlin" + std::to_string(i);
+		ImGui::InputInt(str.c_str(), &perlinNoise);
+		mtrl->SetPerlinNoise(perlinNoise);
+
+
+		int bilboard = mtrlConst.arrInt[2];
+		ImGui::Text("Tex bilboard : ");
+		ImGui::SameLine();
+		str = "##bilboard" + std::to_string(i);
+		ImGui::InputInt(str.c_str(), &bilboard);
+		mtrl->SetBilboard(bilboard);
 		
 		Vec2 vTexFlowDir = mtrlConst.vTexDir;
 		ImGui::Text("Tex Flow Dir : ");
@@ -166,7 +181,6 @@ int MeshRenderUI::render_update()
 		ImGui::InputFloat(str.c_str(), &fEmisCoef);
 		mtrl->SetEmissiveCoeff(fEmisCoef);
 
-		
 		ImGui::Text("Set Material Shader");
 		ImGui::SameLine();
 
@@ -228,7 +242,7 @@ int MeshRenderUI::render_update()
 				ImVec4 border_col = ImVec4(1.0f, 1.0f, 1.0f, 0.5f); // 50% opaque white
 
 				ImGui::Image((ImTextureID)tex->GetSRV().Get(), ImVec2(150, 150), uv_min, uv_max, tint_col, border_col);
-
+				
 				str = "DELETE##" + std::to_string(i) + "mtrl" + std::to_string(j) + "texDelete";
 				if (ImGui::Button(str.c_str()))
 				{
@@ -252,7 +266,24 @@ int MeshRenderUI::render_update()
 					}
 				}
 				mtrl->SetFlow(j, bFlow);
-				
+				bool bEmis = mtrlConst.arrTexEmis[j];
+				if (bEmis)
+				{
+					str = "ADDCOLOR##" + std::to_string(i) + "mtrl" + std::to_string(j) + "texEmis";
+					if (ImGui::Button(str.c_str()))
+					{
+						bEmis = false;
+					}
+				}
+				else
+				{
+					str = "ADDEMIS##" + std::to_string(i) + "mtrl" + std::to_string(j) + "texEmis";
+					if (ImGui::Button(str.c_str()))
+					{
+						bEmis = true;
+					}
+				}
+				mtrl->SetEmis(j, bEmis);
 			}else
 			{
 				ImGui::Text("%d Material, %d Texture", i, j);

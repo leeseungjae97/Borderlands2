@@ -98,6 +98,7 @@ public:
 
     void BeginOverlap(CCollider3D* _Other) override;
     void OnOverlap(CCollider3D* _Other) override;
+    void EndOverlap(CCollider3D* _Other) override;
     void Raycast(tRayInfo _RaycastInfo) override;
 
     CLONE(CPlayerScript);

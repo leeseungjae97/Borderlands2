@@ -75,25 +75,51 @@ void ParticleMgr::init()
 void ParticleMgr::begin()
 {
 	{
-		m_pParticle = new CGameObject;
-		m_pParticle->AddComponent(new CTransform);
-		m_pParticle->AddComponent(new CParticleSystem);
-		m_pParticle->SetName(L"Particle");
-		m_pParticle->AddComponent(new CGizmo);
+		m_pSparkParticle = new CGameObject;
+		m_pSparkParticle->AddComponent(new CTransform);
+		m_pSparkParticle->AddComponent(new CParticleSystem);
+		m_pSparkParticle->SetName(L"Particle");
+		m_pSparkParticle->AddComponent(new CGizmo);
 
 
-		m_pParticle->Transform()->SetRelativeScale(Vec3(1.f, 1.f, 1.f));
-		SpawnGameObject(m_pParticle, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Environment);
+		m_pSparkParticle->Transform()->SetRelativeScale(Vec3(1.f, 1.f, 1.f));
+		SpawnGameObject(m_pSparkParticle, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Environment);
+	}
+
+	{
+		m_pFireParticle = new CGameObject;
+		m_pFireParticle->AddComponent(new CTransform);
+		m_pFireParticle->AddComponent(new CParticleSystem);
+		m_pFireParticle->SetName(L"Particle");
+		m_pFireParticle->AddComponent(new CGizmo);
+
+
+		m_pFireParticle->Transform()->SetRelativeScale(Vec3(1.f, 1.f, 1.f));
+		SpawnGameObject(m_pFireParticle, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Environment);
 	}
 }
 
 void ParticleMgr::DoParticle(PARTICLE_SETTING_TYPE _Type, Vec3 _vPos)
 {
-	CParticleSystem* pParticleSys= m_pParticle->ParticleSystem();
-	if (nullptr == pParticleSys)
-		return;
+	if(PARTICLE_SETTING_TYPE::BULLET_IMPACT == _Type)
+	{
+		CParticleSystem* pParticleSys = m_pSparkParticle->ParticleSystem();
+		if (nullptr == pParticleSys)
+			return;
 
-	pParticleSys->SetModuleData(m_ModuleData[(UINT)_Type]);
-	pParticleSys->SetParticlePos(_vPos);
-	pParticleSys->SetFire(true);
+		pParticleSys->SetModuleData(m_ModuleData[(UINT)_Type]);
+		pParticleSys->SetParticlePos(_vPos);
+		pParticleSys->SetFire(true);
+	}
+	else
+	{
+		CParticleSystem* pParticleSys = m_pFireParticle->ParticleSystem();
+		if (nullptr == pParticleSys)
+			return;
+
+		pParticleSys->SetModuleData(m_ModuleData[(UINT)_Type]);
+		pParticleSys->SetParticlePos(_vPos);
+		pParticleSys->SetFire(true);
+	}
+	
 }

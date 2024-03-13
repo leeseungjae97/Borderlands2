@@ -3,46 +3,46 @@
 
 #include "value.fx"
 
-bool PointIntersectRhombus(float2 pos, float2 scale, float2 otherPos)
-{
-    float2 vertex[4];
-    float gradient[4];
-    float intercept[4];
-    uint i = 0;
-    float2 direct[4] =
-    {
-        { -(scale.x / 2.f), 0 },
-        { 0, -(scale.y / 2.f) },
-        { (scale.x / 2.f), 0 },
-        { 0, (scale.y / 2.f) }
-    };
+//bool PointIntersectRhombus(float2 pos, float2 scale, float2 otherPos)
+//{
+//    float2 vertex[4];
+//    float gradient[4];
+//    float intercept[4];
+//    uint i = 0;
+//    float2 direct[4] =
+//    {
+//        { -(scale.x / 2.f), 0 },
+//        { 0, -(scale.y / 2.f) },
+//        { (scale.x / 2.f), 0 },
+//        { 0, (scale.y / 2.f) }
+//    };
     
-    for (i = 0; i < 4; ++i)
-    {
-        vertex[i].x = pos.x + direct[i].x;
-        vertex[i].y = pos.y + direct[i].y;
-    }
-    for (i = 0; i < 4; ++i)
-    {
-        gradient[i] = ((vertex[i].y - vertex[(i + 1) % 4].y) / (vertex[i].x - vertex[(i + 1) % 4].x));
-        intercept[i] = vertex[i].y - gradient[i] * vertex[i].x;
-    }
-    float _y = otherPos.y;
-    float _x = otherPos.x;
+//    for (i = 0; i < 4; ++i)
+//    {
+//        vertex[i].x = pos.x + direct[i].x;
+//        vertex[i].y = pos.y + direct[i].y;
+//    }
+//    for (i = 0; i < 4; ++i)
+//    {
+//        gradient[i] = ((vertex[i].y - vertex[(i + 1) % 4].y) / (vertex[i].x - vertex[(i + 1) % 4].x));
+//        intercept[i] = vertex[i].y - gradient[i] * vertex[i].x;
+//    }
+//    float _y = otherPos.y;
+//    float _x = otherPos.x;
 
-    if (gradient[0] * _x + intercept[0] < _y
-        && gradient[1] * _x + intercept[1] < _y
-        && gradient[2] * _x + intercept[2] > _y
-        && gradient[3] * _x + intercept[3] > _y)
-    {
-        return true;
-    }
-    else
-        return false;
-}
+//    if (gradient[0] * _x + intercept[0] < _y
+//        && gradient[1] * _x + intercept[1] < _y
+//        && gradient[2] * _x + intercept[2] > _y
+//        && gradient[3] * _x + intercept[3] > _y)
+//    {
+//        return true;
+//    }
+//    else
+//        return false;
+//}
 
 void CalcLight2D(float3 _vWorldPos, inout tLightColor _Light)
-{       
+{
     for (uint i = 0; i < g_Light2DCount; ++i)
     {
         if (g_Light2DBuffer[i].LightType == 0)
@@ -74,7 +74,7 @@ void CalcLight2D(float3 _vWorldPos, float3 _vWorldDir, inout tLightColor _Light)
         if (g_Light2DBuffer[i].LightType == 0)
         {
             float fDiffusePow = saturate(dot(-g_Light2DBuffer[i].vWorldDir.xyz, _vWorldDir));
-            _Light.vDiffuse.rgb += g_Light2DBuffer[i].Color.vDiffuse.rgb * fDiffusePow;                        
+            _Light.vDiffuse.rgb += g_Light2DBuffer[i].Color.vDiffuse.rgb * fDiffusePow;
             _Light.vAmbient.rgb += g_Light2DBuffer[i].Color.vAmbient.rgb;
         }
         else if (g_Light2DBuffer[i].LightType == 1)
@@ -97,7 +97,143 @@ void CalcLight2D(float3 _vWorldPos, float3 _vWorldDir, inout tLightColor _Light)
         }
     }
 }
+float rand(float2 co)
+{
+    return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453);
+}
 
+float hermite(float t)
+{
+    return t * t * (3.0 - 2.0 * t);
+}
+
+float noise(float2 co, float frequency)
+{
+    float2 v = float2(co.x * frequency, co.y * frequency);
+
+    float ix1 = floor(v.x);
+    float iy1 = floor(v.y);
+    float ix2 = floor(v.x + 1.0);
+    float iy2 = floor(v.y + 1.0);
+
+    float fx = hermite(frac(v.x));
+    float fy = hermite(frac(v.y));
+
+    float fade1 = lerp(rand(float2(ix1, iy1)), rand(float2(ix2, iy1)), fx);
+    float fade2 = lerp(rand(float2(ix1, iy2)), rand(float2(ix2, iy2)), fx);
+
+    return lerp(fade1, fade2, fy);
+}
+
+float pnoise(float2 co, float freq, int steps, float persistence)
+{
+    float value = 0.0;
+    float ampl = 1.0;
+    float sum = 0.0;
+    for (int i = 0; i < steps; i++)
+    {
+        sum += ampl;
+        value += noise(co, freq) * ampl;
+        freq *= 2.0;
+        ampl *= persistence;
+    }
+    return value / sum;
+}
+
+//https://www.shadertoy.com/view/3tcBzH
+void PerlinNoiseFireWide(out float4 fragColor, in float2 fragCoord)
+{
+    float2 uv = fragCoord.xy;
+    float gradient = uv.y;
+    float gradientStep = 0.2;
+    
+    float2 pos = fragCoord.xy;
+    pos.y += g_AccTime * 0.3125;
+    //pos.x += g_AccTime * 0.3125;
+    
+    float4 brighterColor = float4(1.0, 0.65, 0.1, 1.f);
+    float4 darkerColor = float4(1.0, 0.0, 0.15, 0.0f);
+    float4 middleColor = lerp(brighterColor, darkerColor, 0.5f);
+
+    float noiseTexel = pnoise(pos, 10.0, 5, 0.5);
+    
+    float firstStep = smoothstep(0.0, noiseTexel, gradient);
+    float darkerColorStep = smoothstep(0.0, noiseTexel, gradient - gradientStep);
+    float darkerColorPath = firstStep - darkerColorStep;
+    float4 color = lerp(brighterColor, darkerColor, darkerColorPath);
+
+    float middleColorStep = smoothstep(0.0, noiseTexel, gradient - 0.2 * 2.0);
+    
+    color = lerp(color, middleColor, darkerColorStep - middleColorStep);
+    color = lerp((float4) 0.0, color, firstStep);
+    fragColor = color;
+}
+
+
+float2 hash(float2 p)
+{
+    p = float2(dot(p, float2(127.1, 311.7)),
+			 dot(p, float2(269.5, 183.3)));
+    return -1.0 + 2.0 * frac(sin(p) * 43758.5453123);
+}
+
+float noise(in float2 p)
+{
+    const float K1 = 0.366025404; // (sqrt(3)-1)/2;
+    const float K2 = 0.211324865; // (3-sqrt(3))/6;
+	
+    float2 i = floor(p + (p.x + p.y) * K1);
+	
+    float2 a = p - i + (i.x + i.y) * K2;
+    float2 o = (a.x > a.y) ? float2(1.0, 0.0) : float2(0.0, 1.0);
+    float2 b = a - o + K2;
+    float2 c = a - 1.0 + 2.0 * K2;
+	
+    float3 h = max(0.5 - float3(dot(a, a), dot(b, b), dot(c, c)), 0.0);
+	
+    float3 n = h * h * h * h * float3(dot(a, hash(i + 0.0)), dot(b, hash(i + o)), dot(c, hash(i + 1.0)));
+	
+    return dot(n, (float3)70.0);
+}
+
+float fbm(float2 uv)
+{
+    float f;
+    float2x2 m = float2x2(1.6, 1.2, -1.2, 1.6);
+    f = 0.5000 * noise(uv);
+    uv = mul(m, uv);
+    f += 0.2500 * noise(uv);
+    uv = mul(m, uv);
+    f += 0.1250 * noise(uv);
+    uv = mul(m, uv);
+    f += 0.0625 * noise(uv);
+    uv = mul(m, uv);
+    f = 0.5 + 0.5 * f;
+    return f;
+}
+//https://www.shadertoy.com/view/XsXSWS#
+void PerlinNoiseFire(out float4 fragColor, in float2 fragCoord)
+{
+    float2 uv = fragCoord.xy;
+    float2 q = float2(uv.x, 1.f - uv.y);
+    q.x *= 1.;
+    q.y *= 2.;
+    float strength = floor(2.);
+    float T3 = max(3., 1.25 * strength) * g_AccTime;
+    q.x -= 0.5;
+    q.y -= 0.6;
+    float n = fbm(strength * q - float2(0, T3));
+    float c = 1. - 16. * pow(max(0., length(q * float2(1.8 + q.y * 1.5, .75)) - n * max(0., q.y + .25)), 1.2);
+	float c1 = n * c * (0.5 + pow(uv.y,4.));
+    //float c1 = n * c * (1.5 - pow(2.50 * uv.y, 4.));
+    c1 = clamp(c1, 0., 1.);
+
+    float3 col = float3(1.5 * c1, 1.5 * c1 * c1 * c1, c1 * c1 * c1 * c1 * c1 * c1);
+
+    //float a1 = c * (1. - pow(uv.y, 3.));
+    float a = c * uv.y;
+    fragColor = float4(lerp((float3) 0.0f, col, a), a);
+}
 float3 Multiply(const float3 m[3], const float3 v)
 {
     float x = m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2];
@@ -114,18 +250,20 @@ float3 rtt_and_odt_fit(float3 v)
 }
 
 // sRGB => XYZ => D65_2_D60 => AP1 => RRT_SAT
-static float3 aces_input_matrix[3] = {
-	float3(0.59719f, 0.35458f, 0.04823f),
+static float3 aces_input_matrix[3] =
+{
+    float3(0.59719f, 0.35458f, 0.04823f),
 	float3(0.07600f, 0.90834f, 0.01566f),
 	float3(0.02840f, 0.13383f, 0.83777f)
 };
 // ODT_SAT => XYZ => D60_2_D65 => sRGB
-static float3 aces_output_matrix[3] = {
-	float3(1.60475f, -0.53108f, -0.07367f),
+static float3 aces_output_matrix[3] =
+{
+    float3(1.60475f, -0.53108f, -0.07367f),
 	float3(-0.10208f, 1.10813f, -0.00605f),
 	float3(-0.00327f, -0.07276f, 1.07602f)
 };
-
+//https://blog.naver.com/hblee4119/222403726749
 float3 ACESToneMapping(float3 colorIn)
 {
     colorIn = Multiply(aces_input_matrix, colorIn);
@@ -176,6 +314,7 @@ float4 PaperBurn(float4 vColor, float2 vUV, Texture2D BurnTex)
 
     return vOut;
 }
+//https://strange-cpp.tistory.com/59
 float4 PaperBurn(float4 vColor, float2 vUV, Texture2D BurnTex, inout float4 vEmissive)
 {
     float SinPaperAcc = sin(paperAcc);
@@ -226,7 +365,7 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightCo
     float fSpecPow = 0.f;
     float3 vViewLightDir = (float3) 0.f;
 
-    if(0 == lightInfo.LightType)
+    if (0 == lightInfo.LightType)
     {
         // ViewSpace 에서의 광원의 방향
         vViewLightDir = normalize(mul(float4(normalize(lightInfo.vWorldDir.xyz), 0.f), g_matView)).xyz;
@@ -240,9 +379,9 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightCo
    
         // 반사광의 세기 구하기
         fSpecPow = saturate(dot(vViewReflect, -vEye));
-        fSpecPow = pow(fSpecPow, 20);
+        fSpecPow = pow(fSpecPow, 5);
     }
-    else if(1 == lightInfo.LightType)
+    if (1 == lightInfo.LightType)
     {
         float fDistPow = 1.f;
         
@@ -251,10 +390,12 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightCo
         
         // 광원으로부터 오는 빛의 방향 구하기
         vViewLightDir = normalize(_vViewPos - vLightViewPos);
-        
+
         // 포인트 라이트로부터 거리체크
         float fDist = distance(_vViewPos, vLightViewPos);
-        fDistPow = saturate(cos((fDist / lightInfo.Radius)));
+        //float fDist = 0.4f;
+        fDistPow = saturate(cos((fDist / lightInfo.Radius) * (PI / 2.f)));
+        //fDistPow = saturate(1.f - (fDist / lightInfo.Radius));
                                
         // ViewSpace 에서의 노말벡터와 광원의 방향을 내적 (램버트 코사인 법칙)    
         fLightPow = saturate(dot(_vViewNormal, -vViewLightDir)) * fDistPow;
@@ -265,53 +406,53 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightCo
         
         // 반사광의 세기 구하기
         fSpecPow = saturate(dot(vViewReflect, -vEye));
-        fSpecPow = pow(fSpecPow, 20) * fDistPow;
+        fSpecPow = pow(fSpecPow, 10) * fDistPow;
     }
-    else
+    if (2 == lightInfo.LightType)
     {
-        float3 vViewLightPos = mul(float4(lightInfo.vWorldPos.xyz, 1.f), g_matView).xyz;
-        float3 _vViewLightDir = normalize(mul(float4(lightInfo.vWorldDir.xyz, 0.f), g_matView));
+        //float3 vViewLightPos = mul(float4(lightInfo.vWorldPos.xyz, 1.f), g_matView).xyz;
+        //float3 _vViewLightDir = normalize(mul(float4(lightInfo.vWorldDir.xyz, 0.f), g_matView));
 
-        // 물체 방향
-        float3 _vLookDir = normalize(vViewLightPos - _vViewPos);
-        vViewLightDir = dot(_vViewLightDir, _vLookDir);
+        //// 물체 방향
+        //float3 _vLookDir = normalize(vViewLightPos - _vViewPos);
+        //vViewLightDir = dot(_vViewLightDir, _vLookDir);
 
-        //float3 _vSm = saturate(1.0f - vViewLightDir * vViewLightDir);
-        float3 _vSm = vViewLightDir;
+        ////float3 _vSm = saturate(1.0f - vViewLightDir * vViewLightDir);
+        //float3 _vSm = vViewLightDir;
 
-        // 각도에 따른 조명 효과 계산
-        // 보정치를 곱해줘도됨.
-        float _fSpotCone =cos(lightInfo.Angle);
+        //// 각도에 따른 조명 효과 계산
+        //// 보정치를 곱해줘도됨.
+        //float _fSpotCone = cos(lightInfo.Angle);
 
-        // 조명 감쇠
-        // Atten = 1 / ( att0i + att1i * d + att2i )
-        float _fSpotAtt = saturate((_vSm - _fSpotCone) / (1.0 - _fSpotCone));
-        float fDistPow = 0.f;
-        float dist = distance(_vViewPos, vViewLightPos);
-        fDistPow = saturate(1.f - (dist / lightInfo.Radius));
+        //// 조명 감쇠
+        //// Atten = 1 / ( att0i + att1i * d + att2i )
+        //float _fSpotAtt = saturate((_vSm - _fSpotCone) / (1.0 - _fSpotCone));
+        //float fDistPow = 0.f;
+        //float dist = distance(_vViewPos, vViewLightPos);
+        //fDistPow = saturate(1.f - (dist / lightInfo.Radius));
         
-        // ViewSpace 에서의 노말벡터와 광원의 방향을 내적 (램버트 코사인 법칙)    
+        //// ViewSpace 에서의 노말벡터와 광원의 방향을 내적 (램버트 코사인 법칙)    
 
-        // sat안쓰고 임의의 임계값
-        // sat쓰면 훨씬 부드러워짐.
-        fLightPow = saturate(dot(_vViewNormal, -vViewLightDir)) * fDistPow * _fSpotAtt;
+        //// sat안쓰고 임의의 임계값
+        //// sat쓰면 훨씬 부드러워짐.
+        //fLightPow = saturate(dot(_vViewNormal, -vViewLightDir)) * fDistPow * _fSpotAtt;
         
 
-        // 반사광
-        float3 vViewReflect = normalize(vViewLightDir + 2.f * (dot(-vViewLightDir, _vViewNormal)) * _vViewNormal);
-        //float3 vViewReflect = reflect(-vViewLightDir, _vViewNormal);
-        float3 vEye = normalize(_vViewPos);
+        //// 반사광
+        //float3 vViewReflect = normalize(vViewLightDir + 2.f * (dot(-vViewLightDir, _vViewNormal)) * _vViewNormal);
+        ////float3 vViewReflect = reflect(-vViewLightDir, _vViewNormal);
+        //float3 vEye = normalize(_vViewPos);
 
-        // 반사광의 세기 구하기
-        fSpecPow = saturate(dot(vViewReflect, -vEye));
-        fSpecPow = pow(fSpecPow, 20) * fDistPow;
-        _vLightColor.vDiffuse += _fSpotAtt;
-        _vLightColor.vAmbient += _fSpotAtt;
+        //// 반사광의 세기 구하기
+        //fSpecPow = saturate(dot(vViewReflect, -vEye));
+        //fSpecPow = pow(fSpecPow, 20) * fDistPow;
+        //_vLightColor.vDiffuse += _fSpotAtt;
+        //_vLightColor.vAmbient += _fSpotAtt;
 
     }
-    _vLightColor.vDiffuse += lightInfo.Color.vDiffuse * fLightPow;
 
-    _vLightColor.vAmbient += lightInfo.Color.vAmbient;
+    _vLightColor.vDiffuse = lightInfo.Color.vDiffuse * fLightPow;
+    _vLightColor.vAmbient = lightInfo.Color.vAmbient * fLightPow;
     _SpecPow += fSpecPow;
 }
 
@@ -320,11 +461,11 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightCo
 // ======
 static float GaussianFilter[5][5] =
 {
-    0.003f,  0.0133f, 0.0219f, 0.0133f, 0.003f,
+    0.003f, 0.0133f, 0.0219f, 0.0133f, 0.003f,
     0.0133f, 0.0596f, 0.0983f, 0.0596f, 0.0133f,
     0.0219f, 0.0983f, 0.1621f, 0.0983f, 0.0219f,
     0.0133f, 0.0596f, 0.0983f, 0.0596f, 0.0133f,
-    0.003f,  0.0133f, 0.0219f, 0.0133f, 0.003f,
+    0.003f, 0.0133f, 0.0219f, 0.0133f, 0.003f,
 };
 
 float2 texOffset(int x, int y, float2 shadowMapSize)
@@ -403,36 +544,36 @@ float4 GaussianBlur(Texture2D _Tex, float2 UV)
 
 void GaussianSample(in Texture2D _NoiseTex, float2 _vResolution, float _NomalizedThreadID, out float3 _vOut)
 {
-    float2 vUV = float2(_NomalizedThreadID, 0.5f);       
+    float2 vUV = float2(_NomalizedThreadID, 0.5f);
     
     vUV.x += g_AccTime * 0.5f;
     
     // sin 그래프로 텍스쳐의 샘플링 위치 UV 를 계산
-    vUV.y -= (sin((_NomalizedThreadID - (g_AccTime/*그래프 우측 이동 속도*/)) * 2.f * 3.1415926535f * 10.f/*반복주기*/) / 2.f);
+    vUV.y -= (sin((_NomalizedThreadID - (g_AccTime /*그래프 우측 이동 속도*/)) * 2.f * 3.1415926535f * 10.f /*반복주기*/) / 2.f);
     
-    if( 1.f < vUV.x)
+    if (1.f < vUV.x)
         vUV.x = frac(vUV.x);
-    else if(vUV.x < 0.f)
+    else if (vUV.x < 0.f)
         vUV.x = 1.f + frac(vUV.x);
     
-    if( 1.f < vUV.y)
+    if (1.f < vUV.y)
         vUV.y = frac(vUV.y);
     else if (vUV.y < 0.f)
         vUV.y = 1.f + frac(vUV.y);
         
-    int2 pixel = vUV * _vResolution;           
+    int2 pixel = vUV * _vResolution;
     int2 offset = int2(-2, -2);
-    float3 vOut = (float3) 0.f;    
+    float3 vOut = (float3) 0.f;
     
     for (int i = 0; i < 5; ++i)
     {
         for (int j = 0; j < 5; ++j)
-        {            
+        {
             vOut += _NoiseTex[pixel + offset + int2(j, i)].xyz * GaussianFilter[i][j];
         }
-    }        
+    }
     
-    _vOut = vOut;    
+    _vOut = vOut;
 }
 
 matrix GetBoneMat(int _iBoneIdx, int _iRowIdx)
@@ -490,7 +631,7 @@ void VertexSkinning(inout float4 _vPos, inout float4 _vWeight, inout float4 _vIn
 
 void ShadowSkinning(inout float3 _vPos, inout float4 _vWeight, inout float4 _vIndices, int _iRowIdx)
 {
-    float3 vPos = (float3)0.f;
+    float3 vPos = (float3) 0.f;
 
     if (_iRowIdx == -1)
         return;

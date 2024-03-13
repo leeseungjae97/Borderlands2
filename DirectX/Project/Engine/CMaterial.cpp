@@ -28,6 +28,8 @@ void CMaterial::UpdateData()
 
 	if(m_PaperBurnConst.paperBurn)
 	{
+		if(nullptr == GetTexParam(TEX_0).Get())
+			SetTexParam(TEX_6, CResMgr::GetInst()->FindRes<CTexture>(L"texture//noise//noise_03.jpg"));
 		m_PaperBurnConst.paperAcc += DT / m_PaperBurnConst.paperTime;
 
 		if(m_PaperBurnConst.paperAcc >= 1.f)
@@ -73,6 +75,8 @@ void CMaterial::UpdateData_Instancing()
 
 	if (m_PaperBurnConst.paperBurn)
 	{
+		if (nullptr == GetTexParam(TEX_0).Get())
+			SetTexParam(TEX_6, CResMgr::GetInst()->FindRes<CTexture>(L"texture//noise//noise_03.jpg"));
 		m_PaperBurnConst.paperAcc += DT / m_PaperBurnConst.paperTime;
 
 		if (m_PaperBurnConst.paperAcc >= 1.f)

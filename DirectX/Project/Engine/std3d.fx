@@ -33,8 +33,7 @@ struct VS_OUT
 #define SKYBOX_ENV_TEX  g_cube_0
 
 #define bAnimUse        g_int_0
-
-
+#define bPerlinNoiseUse    g_int_1
 
 #define SpriteLeftTop   g_vec2_0
 #define SpriteSize      g_vec2_1
@@ -49,7 +48,6 @@ VS_OUT VS_Std3D(VS_IN _in)
     {
         Skinning(_in.vPos, _in.vTangent, _in.vBinormal, _in.vNormal, _in.vWeights, _in.vIndices, 0);
     }
-
     output.vViewPos = mul(float4(_in.vPos, 1.f), g_matWV);
     output.vViewNormal = normalize(mul(float4(_in.vNormal, 0.f), g_matWV)).xyz;
     output.vViewTangent = normalize(mul(float4(_in.vTangent, 0.f), g_matWV)).xyz;
@@ -88,18 +86,16 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
             else
                 moveUV.x = _in.vUV.x - g_AccTime * 0.5f;
         }
+    }
 
-        if (g_btex_7)
-        {
-            float2 vNoiseUV = float2(_in.vUV.x - (g_AccTime * 0.2f), _in.vUV.y);
-            float4 vNoise = g_tex_7.Sample(g_sam_anti_0, vNoiseUV);
+    if (g_btex_7)
+    {
+        float2 vNoiseUV = float2(_in.vUV.x - (g_AccTime * 0.2f), _in.vUV.y);
+        float4 vNoise = g_tex_7.Sample(g_sam_anti_0, vNoiseUV);
 
-            vNoise = (vNoise - 0.5f) * 0.02f;
+        vNoise = (vNoise - 0.5f) * 0.02f;
 
-            moveUV += vNoise.r;
-        }
-
-        vEmissiveCoeff += g_tex_3.Sample(g_sam_anti_0, float3(moveUV, 1.f));
+        moveUV += vNoise.r;
     }
 
     if (g_btex_0)
@@ -124,7 +120,8 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
             else
 				vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
         }
-        
+        if (vOutColor.a <= 0.0f)
+            discard;
     }
     
     if (g_btex_1)
@@ -247,11 +244,34 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
     {
         CalcLight3D(_in.vViewPos, _in.vViewNormal, i, lightColor, fSpecPow);
     }
-       
-    vOutColor.xyz = (vOutColor.xyz * lightColor.vDiffuse.xyz)
+    if (bPerlinNoiseUse)
+    {
+        float4 vPerlineNoiseColor = (float4) 0.f;
+        PerlinNoiseFire(vOutColor, _in.vUV);
+        //vOutColor.xyz = vPerlineNoiseColor.xyz - vOutColor.xyz;
+
+
+        vEmissiveCoeff += vOutColor * 2.f;
+
+        if (g_btex_5_emis)
+            vEmissiveCoeff += g_tex_5.Sample(g_sam_anti_0, _in.vUV);
+        else
+            vOutColor += g_tex_5.Sample(g_sam_anti_0, _in.vUV);
+
+        vOutColor.xyz = (vOutColor.xyz * lightColor.vDiffuse.xyz)
                     + (vOutColor.xyz * lightColor.vAmbient.xyz)
-                    + saturate(g_Light3DBuffer[0].Color.vDiffuse) * fSpecPow * SPEC_COEFF
-					+ vEmissiveCoeff.xyz;
+                    + vOutColor * fSpecPow * SPEC_COEFF
+					+ vEmissiveCoeff.xyz * g_fEmisCoeff;
+ //+= vPerlineNoiseColor;
+    }else
+    {
+        vOutColor.xyz = (vOutColor.xyz * lightColor.vDiffuse.xyz)
+                    + (vOutColor.xyz * lightColor.vAmbient.xyz)
+                    + saturate(g_Light3DBuffer[0].Color.vDiffuse) * 0.3f * fSpecPow * SPEC_COEFF
+					+ vEmissiveCoeff.xyz * g_fEmisCoeff;
+    }
+
+
 
     if(IS_SKYBOX_ENV)
     {
@@ -267,7 +287,6 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
     {
         vOutColor = PaperBurn(vOutColor, _in.vUV, g_tex_6);
     }
-
 
     return vOutColor;
 }

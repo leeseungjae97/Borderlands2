@@ -10,7 +10,6 @@ RWStructuredBuffer<int4> ParticleSpawnCount : register(u1);
 StructuredBuffer<tParticleModule> ParticleModuleData : register(t20);
 Texture2D NoiseTexture : register(t21);
 
-
 #define ObjectPos           g_vec4_0
 
 #define NoiseTexResolution  g_vec2_0
@@ -130,8 +129,10 @@ void CS_ParticleUpdate(int3 _ID : SV_DispatchThreadID)
         particle.Age += g_DT;
         particle.NomalizedAge = saturate(particle.Age / particle.LifeTime);
         particle.vForce.xyz = (float3) 0.f;
-        
-        
+        particle.vWorldPos;
+
+        //CalcLight3D(vViewPos, vViewNormal, LightIdx, LightColor, fSpecPow);
+
         // 파티클의 수명이 끝나면, 다시 비활성화 상태로 되돌림
         if (particle.LifeTime <= particle.Age)
         {

@@ -1,9 +1,11 @@
 #include "pch.h"
 #include "CTransform.h"
 
+#include "CCamera.h"
 #include "CCollider3D.h"
 #include "CDevice.h"
 #include "CConstBuffer.h"
+#include "CRenderMgr.h"
 #include "CRigidBody.h"
 #include "CTimeMgr.h"
 #include "physx_util.h"
@@ -13,6 +15,7 @@ CTransform::CTransform()
 	: CComponent(COMPONENT_TYPE::TRANSFORM)
 	, m_vRelativeScale(Vec3(1.f, 1.f, 1.f))
 	, m_bAbsolute(false)
+	, m_bBilboard(false)
 	, m_vRelativeRot(Vec3::Zero)
 	, m_vRelativePosOffset(Vec3::Zero)
 	, m_qRotation(Quat(0.f, 0.f, 0.f, 0.f))
@@ -192,8 +195,24 @@ void CTransform::finaltick()
 	matTranslation = XMMatrixTranslation(vFinalPos.x, vFinalPos.y, vFinalPos.z);
 
 	//matTranslation = XMMatrixTranslation(m_vRelativePos.x, m_vRelativePos.y, m_vRelativePos.z);
-
-	m_matWorld = m_matWorldScale * m_Rot * matTranslation;
+	if(m_bBilboard)
+	{
+		CCamera* cam = CRenderMgr::GetInst()->GetMainCam();
+		if(cam)
+		{
+			Vec3 vCamPos = cam->GetOwner()->Transform()->GetRelativePos();
+			Vec3 vCamUp = cam->GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::UP);
+			m_matWorld = m_matWorldScale;
+			m_matWorld *= Matrix::CreateConstrainedBillboard(m_vRelativePos, vCamPos, vCamUp);
+			
+		}else
+		{
+			m_matWorld = m_matWorldScale * m_Rot * matTranslation;
+		}
+	}else
+	{
+		m_matWorld = m_matWorldScale * m_Rot * matTranslation;
+	}
 	
 	// Raycast Draw¿ë ¿ùµå Matrix
 	float dist = RaycastMgr::GetInst()->GetDrawRayDistance();

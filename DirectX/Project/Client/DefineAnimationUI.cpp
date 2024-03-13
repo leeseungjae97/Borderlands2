@@ -48,6 +48,11 @@ int DefineAnimationUI::render_update()
 		STRS = GUN_ANIMATION_TYPE_STR;
 		STRSSIZE = (int)GUN_ANIMATION_TYPE::END;
 	}
+	else if (pSelectedObject->IsWarrior())
+	{
+		STRS = WARRIOR_ANIMATION_TYPE_STR;
+		STRSSIZE = (int)WARRIOR_ANIMATION_TYPE::END;
+	}
 	else if (pSelectedObject->GetLayerIndex() == (int)LAYER_TYPE::Enemy)
 	{
 		STRS = ENEMY_ANIMATION_TYPE_STR;

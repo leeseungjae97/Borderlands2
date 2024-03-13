@@ -94,19 +94,19 @@ public:
     bool IsBeginOverlap()
     {
         bool tmp = m_bBeginOverlap;
-        m_bBeginOverlap = false;
+        //m_bBeginOverlap = false;
         return tmp;
     }
     bool IsOnOverlap()
     {
         bool tmp = m_bOnOverlap;
-        m_bOnOverlap = false;
+        //m_bOnOverlap = false;
         return tmp;
     }
     bool IsEndOverlap()
     {
         bool tmp = m_bEndOverlap;
-        m_bEndOverlap = false;
+        //m_bEndOverlap = false;
         return tmp;
     }
     bool IsRaycast()

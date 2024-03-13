@@ -16,6 +16,8 @@ public:
         TAIL_BEAM_EXIT,
         TAIL_ATTACK,
         ROCK_THROW,
+        HIDE,
+        APPEAR,
     };
 private:
     WARRIOR_STATE tState;
@@ -23,9 +25,10 @@ private:
     CGameObject* pTailBeam;
     CGameObject* pRock;
 
-    CGameObject* pBreathCollisionPoint;
-    CGameObject* pTailBeamCollisionPoint;
-    CGameObject* pTailCollisionPoint;
+    CGameObject* pBreathCollider;
+    CGameObject* pTailBeamCollider;
+    CGameObject* pTailCollider;
+    CGameObject* pAttackBoundCollider;
 
     CGameObject* pHeadCollider;
     CGameObject* pMouseCollider;
@@ -44,7 +47,9 @@ private:
     CGameObject* pUI_WarriorHP;
     CGameObject* pUI_WarriorHPBack;
     class CUI*  pWarriorText;
+
     float       m_fActAcc;
+    int         m_RandBehavior;
 
 public:
     void DoFarBreath();

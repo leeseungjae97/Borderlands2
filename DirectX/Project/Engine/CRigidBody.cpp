@@ -31,7 +31,7 @@ CRigidBody::CRigidBody(RIGID_BODY_SHAPE_TYPE _Type, RIGID_BODY_TYPE _Type2)
 	, Vec3(0.f, 1.f, 0.f)
 	, Vec3(0.f, 0.f, 1.f)}
 {
-	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(100.0f, 0.5f, 0.0f);
+	m_pMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(0.0f, 0.0f, 0.0f);
 	//m_pMaterial->setDamping(0.f);
 	if (m_tRigidType == RIGID_BODY_TYPE::DYNAMIC)
 	{
@@ -111,7 +111,16 @@ void CRigidBody::SetLinearVelocity(Vec3 _Velocity)
 	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
 
 	PxVec3 prev_velocity = m_pDynamicBody->getLinearVelocity();
-	
+	//if(GetOwner()->Collider3D())
+	//{
+	//	if(!GetOwner()->Collider3D()->IsBeginOverlap() && !GetOwner()->Collider3D()->IsOnOverlap())
+	//	{
+	//		_Velocity.y = areAlmostEqual(prev_velocity.y, 0.0f, 0.001) ? prev_velocity.y : _Velocity.y + prev_velocity.y;
+	//	}
+	//}else
+	//{
+	//	_Velocity.y = areAlmostEqual(prev_velocity.y, 0.0f, 0.001) ? prev_velocity.y : _Velocity.y + prev_velocity.y;
+	//}
 	_Velocity.y = areAlmostEqual(prev_velocity.y, 0.0f, 0.001) ? prev_velocity.y : _Velocity.y + prev_velocity.y;
 
 	m_pDynamicBody->setLinearVelocity(PxVec3(_Velocity.x, _Velocity.y, _Velocity.z));
@@ -122,6 +131,18 @@ void CRigidBody::SetLinearVelocityZero()
 {
 	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
 	m_pDynamicBody->setLinearVelocity(PxVec3(0.f, 0.f, 0.f));
+}
+
+void CRigidBody::AddForce(Vec3 _Force)
+{
+	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
+	m_pDynamicBody->addForce(PxVec3(_Force.x, _Force.y, _Force.z));
+}
+
+void CRigidBody::AddTorque(Vec3 _Torque)
+{
+	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
+	m_pDynamicBody->addTorque(PxVec3(_Torque.x, _Torque.y, _Torque.z), PxForceMode::eVELOCITY_CHANGE);
 }
 
 void CRigidBody::SetAngularVelocity(Vec3 _Angular)
@@ -308,7 +329,8 @@ void CRigidBody::addToScene()
 		m_pDynamicBody->userData = GetOwner()->Collider3D();
 
 		m_pDynamicBody->setAngularDamping(0.5f);
-
+		m_pDynamicBody->setLinearDamping(0.1f);
+		
 		//m_pDynamicBody->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
 		//m_pDynamicBody->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::Enum::eLOCK_ANGULAR_Z, true);
 
@@ -318,8 +340,9 @@ void CRigidBody::addToScene()
 		//m_pDynamicBody->setLinearDamping(1.0f);
 		m_pDynamicBody->attachShape(*m_pShape);
 		m_pDynamicBody->setMaxLinearVelocity(1000.f);
+		//m_pDynamicBody->setMaxContactImpulse(1.f);
 		//m_pDynamicBody->setRigidBodyFlag(PxRigidBodyFlag::eENABLE_CCD, true);
-		PxRigidBodyExt::updateMassAndInertia(*m_pDynamicBody, 0.1f);
+		PxRigidBodyExt::setMassAndUpdateInertia(*m_pDynamicBody, 0.001f);
 		PhysXMgr::GetInst()->GCurScene()->addActor(*m_pDynamicBody);
 	}
 	else

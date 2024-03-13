@@ -4,11 +4,8 @@ class CGizmo :
     public CComponent
 {
 private:
-    CGameObject* m_pUp;
-    CGameObject* m_pRight;
-    CGameObject* m_pFront;
-
     bool         m_bUsePhysxPos;
+
 public:
     void finaltick() override;
 

@@ -19,13 +19,22 @@ public:
     virtual void render(UINT _iSubset, bool _Deferred) override;
     virtual void SaveToLevelFile(FILE* _File) override;
     virtual void LoadFromLevelFile(FILE* _FILE) override;
+
+    SKYBOX_TYPE GetSkyBoxType() { return m_Type; }
+    Ptr<CTexture> GetSkyBoxTex() { return m_SkyBoxTex; }
+    Ptr<CMaterial> GetSkyBoxMtrl() { return m_SkyBoxMtrl; }
+
     CLONE(CSkyBox)
 private:
     SKYBOX_TYPE     m_Type;
     Ptr<CTexture>   m_SkyBoxTex;
+    Ptr<CMaterial>  m_SkyBoxMtrl;
+
+    bool            m_bFbxSkyBox;
 
 public:
     CSkyBox();
+    CSkyBox(bool _FromMeshData);
     ~CSkyBox();
 };
 

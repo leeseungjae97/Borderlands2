@@ -140,6 +140,9 @@
     <Filter Include="_UI\_InspectorUI\_ComponentUI\RigidBodyUI">
       <UniqueIdentifier>{749d58f4-bef0-407d-accd-e74ddee304dd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="_UI\_InspectorUI\_ComponentUI\SkyBoxUI">
+      <UniqueIdentifier>{9414e6de-2737-456c-86f8-e549a6f35499}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -298,6 +301,9 @@
     </ClInclude>
     <ClInclude Include="PlacementUI.h">
       <Filter>_UI\PlacementUI</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyBoxUI.h">
+      <Filter>_UI\_InspectorUI\_ComponentUI\SkyBoxUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -465,6 +471,9 @@
     </ClCompile>
     <ClCompile Include="PlacementUI.cpp">
       <Filter>_UI\PlacementUI</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyBoxUI.cpp">
+      <Filter>_UI\_InspectorUI\_ComponentUI\SkyBoxUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

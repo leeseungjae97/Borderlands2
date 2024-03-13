@@ -29,10 +29,6 @@ CRenderMgr::CRenderMgr()
                                                     , DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE
                                                     , D3D11_USAGE_DEFAULT);
 
-    m_DownScaleTex = CResMgr::GetInst()->CreateTexture(L"DownScaleTex", vResolution.x / 4.f, vResolution.y / 4.f
-        , DXGI_FORMAT_R8G8B8A8_UNORM
-        , D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
-
     CResMgr::GetInst()->FindRes<CMaterial>(L"GrayMtrl")->SetTexParam(TEX_0, m_RTCopyTex);
     CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl")->SetTexParam(TEX_0, m_RTCopyTex);
 }
@@ -180,16 +176,6 @@ void CRenderMgr::CopyRenderTarget()
 
 MRT* CRenderMgr::GetMRT(MRT_TYPE _Type)
 {
-    //for(int i =0 ; i < (int)MRT_TYPE::END; ++i)
-    //{
-    //    if (i == (int)_Type)
-    //        continue;
-    //    else
-    //    {
-    //        m_MRT[i]->SetRenderTarget(false);
-    //    }
-    //}
-    m_CurMRT = m_MRT[(UINT)_Type];
     return m_MRT[(UINT)_Type];
 }
 
@@ -321,7 +307,11 @@ void CRenderMgr::CreateMRT()
             , DXGI_FORMAT_R32_FLOAT
             , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
-        m_MRT[(UINT)MRT_TYPE::LIGHT]->Create(arrRTTex, 3, nullptr);
+        arrRTTex[3] = CResMgr::GetInst()->CreateTexture(L"EmissiveTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R8G8B8A8_UNORM
+            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+        m_MRT[(UINT)MRT_TYPE::LIGHT]->Create(arrRTTex, 4, nullptr);
         //m_MRT[(UINT)MRT_TYPE::LIGHT]->SetClearColor(Vec4(0.f, 1.f, 0.f, 1.f), 0);
     }
     // ====================
@@ -339,23 +329,25 @@ void CRenderMgr::CreateMRT()
             , DXGI_FORMAT_R32G32B32A32_FLOAT
             , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
-        arrRTTex[2] = CResMgr::GetInst()->CreateTexture(L"PositionTargetTex", vResol.x, vResol.y
+        arrRTTex[2] = CResMgr::GetInst()->CreateTexture(L"TangentTargetTex", vResol.x, vResol.y
             , DXGI_FORMAT_R32G32B32A32_FLOAT
             , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
-        arrRTTex[3] = CResMgr::GetInst()->CreateTexture(L"EmissiveTargetTex", vResol.x, vResol.y
-            , DXGI_FORMAT_R8G8B8A8_UNORM
-            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
-
-        arrRTTex[4] = CResMgr::GetInst()->CreateTexture(L"DataTargetTex", vResol.x, vResol.y
+        arrRTTex[3] = CResMgr::GetInst()->CreateTexture(L"PositionTargetTex", vResol.x, vResol.y
             , DXGI_FORMAT_R32G32B32A32_FLOAT
             , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
-        arrRTTex[5] = CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex");
+        arrRTTex[4] = CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex");
 
-        arrRTTex[6] = CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex");
+        arrRTTex[5] = CResMgr::GetInst()->CreateTexture(L"DataTargetTex", vResol.x, vResol.y
+            , DXGI_FORMAT_R32G32B32A32_FLOAT
+            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
-        m_MRT[(UINT)MRT_TYPE::DEFERRED]->Create(arrRTTex, 7, nullptr);
+        //arrRTTex[5] = CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex");
+
+        //arrRTTex[6] = CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex");
+
+        m_MRT[(UINT)MRT_TYPE::DEFERRED]->Create(arrRTTex, 6, nullptr);
     }
     // ====================
 	// Luminance MRT
@@ -369,11 +361,11 @@ void CRenderMgr::CreateMRT()
             , DXGI_FORMAT_R8G8B8A8_UNORM
             , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
-        arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"SpecularBlurredTargetTex", vResol.x, vResol.y
-            , DXGI_FORMAT_R8G8B8A8_UNORM
-            , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+        //arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"DiffuseBlurredTargetTex", vResol.x, vResol.y
+        //    , DXGI_FORMAT_R8G8B8A8_UNORM
+        //    , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
-        m_MRT[(UINT)MRT_TYPE::LUMINANCE]->Create(arrRTTex, 2, nullptr);
+        m_MRT[(UINT)MRT_TYPE::LUMINANCE]->Create(arrRTTex, 1, nullptr);
     }
     // ====================
     // Decal MRT

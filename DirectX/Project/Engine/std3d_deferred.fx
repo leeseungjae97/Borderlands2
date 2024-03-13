@@ -97,11 +97,12 @@ struct PS_OUT
 {
     float4 vColor       : SV_Target0;
     float4 vNormal      : SV_Target1;
-    float4 vPosition    : SV_Target2;
-    float4 vEmissive    : SV_Target3;
-    float4 vData        : SV_Target4;
-    float4 vDiffuse     : SV_Target5;
-    float4 vSpecular    : SV_Target6;
+    float4 vTangent      : SV_Target2;
+    float4 vPosition    : SV_Target3;
+    float4 vEmissive    : SV_Target4;
+    float4 vData        : SV_Target5;
+    //float4 vDiffuse     : SV_Target5;
+    //float4 vSpecular    : SV_Target6;
 };
 
 #define IsDead g_int_0
@@ -191,11 +192,22 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
         float3x3 vRotateMat =
         {
             _in.vViewTangent,
-            _in.vViewBinormal,
+            -_in.vViewBinormal,
             _in.vViewNormal        
         };
         
         vViewNormal = normalize(mul(vNormal, vRotateMat));
+    }else
+    {
+        float3x3 vRotateMat =
+        {
+            _in.vViewTangent,
+            -_in.vViewBinormal,
+            _in.vViewNormal        
+        };
+
+        vViewNormal = normalize(mul(_in.vViewNormal, vRotateMat));
+        output.vTangent = normalize(float4(_in.vViewTangent, 1.f));
     }
     if (g_btex_3)
     {

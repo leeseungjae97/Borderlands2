@@ -19,7 +19,8 @@ public:
 private:
 	tParticleModule m_ModuleData[(UINT)PARTICLE_SETTING_TYPE::END];
 
-	CGameObject* m_pParticle;
+	CGameObject* m_pSparkParticle;
+	CGameObject* m_pFireParticle;
 
 public:
 	void DoParticle(PARTICLE_SETTING_TYPE _Type, Vec3 _vPos);

@@ -136,7 +136,7 @@ struct VS_SCREEN_OUT
 struct PS_BLUR_OUT
 {
     float4 vEmissive : SV_Target0;
-    float4 vSpecular : SV_Target1;
+    //float4 vDiffuse: SV_Target1;
 };
 struct PS_BLOOM_OUT
 {
@@ -152,11 +152,12 @@ VS_SCREEN_OUT VS_Screen(VS_SCREEN_IN _In)
 }
 
 #define EmissiveTargetTex g_tex_0
+//#define DiffuseTargetTex g_tex_1
 //#define SpecularTargetTex g_tex_1
 
-PS_BLUR_OUT PS_BlurX(VS_SCREEN_OUT _In)
+float4 PS_BlurX(VS_SCREEN_OUT _In) : SV_Target
 {
-    PS_BLUR_OUT vOut = (PS_BLUR_OUT) 0.f;
+    float4 vOut = (float4) 0.f;
 
     float2 t = _In.vUV;
     float2 uv = 0;
@@ -164,18 +165,20 @@ PS_BLUR_OUT PS_BlurX(VS_SCREEN_OUT _In)
     for (int i = -12; i < 12; ++i)
     {
         uv = t + float2(tu * i, 0);
-        vOut.vEmissive += Weight[12 + i] * EmissiveTargetTex.Sample(g_sam_anti_0, uv);
+        vOut += Weight[12 + i] * EmissiveTargetTex.Sample(g_sam_anti_0, uv);
+        //vOut.vDiffuse += Weight[12 + i] * DiffuseTargetTex.Sample(g_sam_anti_0, uv);
         //vOut.vSpecular += Weight[6 + i] * SpecularTargetTex.Sample(g_sam_anti_0, uv);
     }
-    vOut.vEmissive /= 6.2108f;
+    vOut /= 6.2108f;
+    //vOut.vDiffuse /= 6.2108f;
     //vOut.vSpecular /= 6.2108;
 
     return vOut;
 
 }
-PS_BLUR_OUT PS_BlurY(VS_SCREEN_OUT _In)
+float4 PS_BlurY(VS_SCREEN_OUT _In) : SV_Target
 {
-    PS_BLUR_OUT vOut = (PS_BLUR_OUT) 0.f;
+    float4 vOut = (float4) 0.f;
 
     float2 t = _In.vUV;
     float2 uv = 0;
@@ -183,10 +186,12 @@ PS_BLUR_OUT PS_BlurY(VS_SCREEN_OUT _In)
     for (int i = -12; i < 12; ++i)
     {
         uv = t + float2(0, tu * i);
-        vOut.vEmissive += Weight[12 + i] * EmissiveTargetTex.Sample(g_sam_anti_0, uv);
+        vOut += Weight[12 + i] * EmissiveTargetTex.Sample(g_sam_anti_0, uv);
+        //vOut.vDiffuse += Weight[12 + i] * DiffuseTargetTex.Sample(g_sam_anti_0, uv);
         //vOut.vSpecular += Weight[6 + i] * SpecularTargetTex.Sample(g_sam_anti_0, uv);
     }
-    vOut.vEmissive /= 6.2108f;
+    vOut /= 6.2108f;
+    //vOut.vDiffuse /= 6.2108f;
     //vOut.vSpecular /= 6.2108;
 
     return vOut;
@@ -200,7 +205,6 @@ PS_BLUR_OUT PS_GaussianBlur(VS_SCREEN_OUT _In)
 
     return vOut;
 }
-
 
 #define HDRTargetTex g_tex_0
 #define BlurredTargetTex g_tex_1
@@ -220,6 +224,7 @@ float4 PS_Bloom(VS_SCREEN_OUT _In) : SV_Target
     vBloom = pow(abs(vBloom), 2.2f);
 
     vOut += vBloom;
+    //vOut =lerp(vOut, vBloom, 0.5f);
 
     return pow(abs(vOut), 1.f / 2.2f);
 }
@@ -240,7 +245,7 @@ static float mask[9] =
 };
 static float coord[3] = { -1, 0, 1 };
 
-#define NormalTargetTex g_tex_0
+#define DiffuseTargetTex g_tex_0
 #define HDRTargetTex g_tex_1
 
 float4 PS_Laplacian(VS_SCREEN_OUT _In) : SV_Target
@@ -250,7 +255,7 @@ float4 PS_Laplacian(VS_SCREEN_OUT _In) : SV_Target
 
     for (int i = 0; i < 9; ++i)
     {
-        vColor -= mask[i] * (NormalTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(coord[i % 3] / g_Resolution.x, coord[i / 3] / g_Resolution.y)));
+        vColor -= mask[i] * (DiffuseTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(coord[i % 3] / g_Resolution.x, coord[i / 3] / g_Resolution.y)));
     }
     float gray = dot(vColor, float4(1.0f, 1.0f, 1.0f, 1.0f));
 

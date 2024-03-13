@@ -6,12 +6,8 @@
 
 CGizmo::CGizmo(bool _UsePhysxPos)
 	: CComponent(COMPONENT_TYPE::GIZMO)
-	, m_pUp(nullptr)
-	, m_pRight(nullptr)
-	, m_pFront(nullptr)
 	, m_bUsePhysxPos(_UsePhysxPos)
 {
-	//m_pFront = new CGameObject();
 }
 
 CGizmo::~CGizmo()

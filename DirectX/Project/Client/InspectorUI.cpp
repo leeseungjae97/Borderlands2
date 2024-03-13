@@ -27,6 +27,7 @@
 #include "ParticleSystemUI.h"
 #include "RigidBodyUI.h"
 #include "ScriptUI.h"
+#include "SkyBoxUI.h"
 
 InspectorUI::InspectorUI()
 	: UI("##Inspector")
@@ -43,6 +44,10 @@ InspectorUI::InspectorUI()
 	m_arrComUI[(UINT)COMPONENT_TYPE::MESHRENDER] = new MeshRenderUI;
 	m_arrComUI[(UINT)COMPONENT_TYPE::MESHRENDER]->SetSize(0.f, 400.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::MESHRENDER]);
+
+	m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D] = new Animator3DUI;
+	m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D]->SetSize(0.f, 500.f);
+	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D]);
 
 	m_arrComUI[(UINT)COMPONENT_TYPE::CAMERA] = new CameraUI;
 	m_arrComUI[(UINT)COMPONENT_TYPE::CAMERA]->SetSize(0.f, 150.f);
@@ -65,13 +70,13 @@ InspectorUI::InspectorUI()
 	m_arrComUI[(UINT)COMPONENT_TYPE::RIGIDBODY]->SetSize(0.f, 200.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::RIGIDBODY]);
 
-	m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D] = new Animator3DUI;
-	m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D]->SetSize(0.f, 500.f);
-	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::ANIMATOR3D]);
-
 	m_arrComUI[(UINT)COMPONENT_TYPE::PARTICLESYSTEM] = new ParticleSystemUI;
-	m_arrComUI[(UINT)COMPONENT_TYPE::PARTICLESYSTEM]->SetSize(0.f, 150.f);
+	m_arrComUI[(UINT)COMPONENT_TYPE::PARTICLESYSTEM]->SetSize(0.f, 1000.f);
 	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::PARTICLESYSTEM]);
+
+	m_arrComUI[(UINT)COMPONENT_TYPE::SKYBOX] = new SkyBoxUI;
+	m_arrComUI[(UINT)COMPONENT_TYPE::SKYBOX]->SetSize(0.f, 400.f);
+	AddChildUI(m_arrComUI[(UINT)COMPONENT_TYPE::SKYBOX]);
 
 	//m_arrComUI[(UINT)COMPONENT_TYPE::SCRIPT] = new ScriptUI;
 	//m_arrComUI[(UINT)COMPONENT_TYPE::SCRIPT]->SetSize(0.f, 200.f);

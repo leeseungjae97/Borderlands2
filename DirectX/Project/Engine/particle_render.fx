@@ -162,23 +162,192 @@ struct PS_OUT
     float4 vSpecular : SV_Target6;
 };
 
-PS_OUT PS_ParticleRender(GS_OUT _in)
+#define SPEC_COEFF      saturate(g_float_0) // 반사 계수
+#define IS_SKYBOX_ENV   g_btexcube_0
+#define SKYBOX_ENV_TEX  g_cube_0
+
+#define bAnimUse        g_int_0
+#define bPerlinNoiseUse    g_int_1
+
+#define SpriteLeftTop   g_vec2_0
+#define SpriteSize      g_vec2_1
+#define SpriteOffset    g_vec2_2
+#define SheetSize       g_vec2_3
+
+#include "value.fx"
+#include "func.fx"
+
+float4 PS_ParticleRender(GS_OUT _in) : SV_Target
 {   
-    PS_OUT vOutColor = (PS_OUT)0.f;
+    
+    float4 vOutColor = float4(1.f, 1.f, 1.f, 1.f);
     
     if(g_btex_0)
     {
-        vOutColor.vColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);        
-        vOutColor.vColor.xyz = ParticleBuffer[_in.iInstID].vColor.rgb;
+        vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);        
+        //vOutColor.xyz *= ParticleBuffer[_in.iInstID].vColor.rgb;
     }
     if (g_btex_1)
     {
         //vOutColor.vEmissive += g_tex_0.Sample(g_sam_anti_0, _in.vUV);
-        vOutColor.vEmissive += ParticleBuffer[_in.iInstID].vColor;
+        //vOutColor.vEmissive += ParticleBuffer[_in.iInstID].vColor;
     }
     //vOutColor.vNormal = float4(vViewNormal, 1.f);
     //vOutColor.vPosition = float4(_in.vViewPos, 1.f);
     //vOutColor.vData = float4(0.f, 0.f, 0.f, 1.f);
+    
+    float4 vEmissiveCoeff = (float4) 0.f;
+    float2 moveUV = _in.vUV;
+    
+    //moveUV.y = _in.vUV.y + g_AccTime * 0.5f;
+    //moveUV.x = _in.vUV.x - g_AccTime * 0.3f;
+
+    if (g_iTexAnim)
+    {
+        if (g_vTexFlowDir.x != 0.0f)
+        {
+            moveUV.x = _in.vUV.x + (g_AccTime * g_fTexFlowSpeed) * g_vTexFlowDir.x;
+        }
+        if (g_vTexFlowDir.y != 0.0f)
+        {
+            moveUV.y = _in.vUV.y + (g_AccTime * g_fTexFlowSpeed) * g_vTexFlowDir.y;
+        }
+        if (g_vTexFlowDir.y == 0.0f && g_vTexFlowDir.x == 0.0f)
+        {
+            if (g_fTexFlowSpeed != 0.0f)
+                moveUV.x = _in.vUV.x - g_AccTime * g_fTexFlowSpeed;
+            else
+                moveUV.x = _in.vUV.x - g_AccTime * 0.5f;
+        }
+    }
+
+    if (g_btex_7)
+    {
+        float2 vNoiseUV = float2(_in.vUV.x - (g_AccTime * 0.2f), _in.vUV.y);
+        float4 vNoise = g_tex_7.Sample(g_sam_anti_0, vNoiseUV);
+
+        vNoise = (vNoise - 0.5f) * 0.02f;
+
+        moveUV += vNoise.r;
+    }
+
+    if (g_btex_0)
+    {
+        if (bAnimUse)
+        {
+            float2 diff = (SheetSize - SpriteSize) / 2.0f;
+            float2 UV = (SpriteLeftTop - diff - SpriteOffset)
+                + (SheetSize * _in.vUV);
+
+            if (UV.x < SpriteLeftTop.x || UV.x > SpriteLeftTop.x + SpriteSize.x
+            || UV.y < SpriteLeftTop.y || UV.y > SpriteLeftTop.y + SpriteSize.y)
+                discard;
+
+            vOutColor = g_tex_0.Sample(g_sam_anti_0, UV);
+        }
+        else
+        {
+            if (g_btex_0_flow)
+            {
+                vOutColor = g_tex_0.Sample(g_sam_anti_0, moveUV);
+            }
+            else
+                vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
+        }
+        
+    }
+    if (g_btex_2)
+    {
+        float4 vEmis = (float4) 0.f;
+        if (g_btex_2_flow)
+        {
+            vEmis = g_tex_2.Sample(g_sam_anti_0, moveUV);
+        }
+        else
+            vEmis = g_tex_2.Sample(g_sam_anti_0, _in.vUV);
+
+        
+        if (vEmis.r > 0.0f)
+        {
+            vEmissiveCoeff += vEmis.r * 2.f;
+        }
+        if (vEmis.g > 0.0f)
+        {
+            vEmissiveCoeff += vEmis.g * 10.f;
+        }
+        if (vEmis.b > 0.0f)
+        {
+            vEmissiveCoeff += vEmis.b * 10.f;
+        }
+
+    }
+    if (g_btex_3)
+    {
+        if (g_btex_3_flow)
+        {
+            vEmissiveCoeff += g_tex_3.Sample(g_sam_anti_0, moveUV);
+        }
+        else
+            vEmissiveCoeff += g_tex_3.Sample(g_sam_anti_0, _in.vUV);
+    }
+
+    if (g_btex_4)
+    {
+        if (g_btex_4_flow)
+        {
+            if (g_btex_4_emis)
+                vEmissiveCoeff += g_tex_4.Sample(g_sam_anti_0, moveUV);
+            else
+                vOutColor += g_tex_4.Sample(g_sam_anti_0, moveUV);
+        }
+        else
+        {
+            if (g_btex_4_emis)
+                vEmissiveCoeff += g_tex_4.Sample(g_sam_anti_0, _in.vUV);
+            else
+                vOutColor += g_tex_4.Sample(g_sam_anti_0, _in.vUV);
+        }
+    }
+
+    if (g_btex_5)
+    {
+        if (g_btex_5_flow)
+        {
+            if (g_btex_5_emis)
+                vEmissiveCoeff += g_tex_5.Sample(g_sam_anti_0, moveUV);
+            else
+                vOutColor += g_tex_5.Sample(g_sam_anti_0, moveUV);
+        }
+        else
+        {
+            if (g_btex_5_emis)
+                vEmissiveCoeff += g_tex_5.Sample(g_sam_anti_0, _in.vUV);
+            else
+                vOutColor += g_tex_5.Sample(g_sam_anti_0, _in.vUV);
+        }
+    }
+    tLightColor lightColor = (tLightColor) 0.f;
+    float fSpecPow = 0.f;
+
+    if (bPerlinNoiseUse)
+    {
+        float4 vPerlineNoiseColor = (float4) 0.f;
+        PerlinNoiseFire(vPerlineNoiseColor, _in.vUV);
+        vOutColor.xyz = vPerlineNoiseColor.xyz - vOutColor.xyz;
+
+        vEmissiveCoeff += vOutColor;
+    }
+
+    vOutColor.xyz = (vOutColor.xyz * lightColor.vDiffuse.xyz)
+                    + (vOutColor.xyz * lightColor.vAmbient.xyz)
+                    + saturate(g_Light3DBuffer[0].Color.vDiffuse) * fSpecPow * SPEC_COEFF
+					+ vEmissiveCoeff.xyz;
+
+    if (paperBurn)
+    {
+        vOutColor = PaperBurn(vOutColor, _in.vUV, g_tex_6);
+    }
+
     return vOutColor;
 }
 

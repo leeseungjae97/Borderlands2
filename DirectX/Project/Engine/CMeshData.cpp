@@ -8,6 +8,7 @@
 #include "CMaterial.h"
 #include "CPathMgr.h"
 #include "CResMgr.h"
+#include "CSkyBox.h"
 
 CMeshData::CMeshData(bool _bEngine)
 	: CRes(RES_TYPE::MESHDATA, _bEngine)
@@ -144,17 +145,30 @@ int CMeshData::Load(const wstring& _strFilePath)
 	return S_OK;
 }
 
-CGameObject* CMeshData::Instantiate(Vec3 scale)
+CGameObject* CMeshData::Instantiate(Vec3 scale, bool _Sky)
 {
 	CGameObject* pNewObj = new CGameObject;
 	pNewObj->AddComponent(new CTransform);
-	pNewObj->AddComponent(new CMeshRender);
 	pNewObj->Transform()->SetRelativeScale(scale);
-	pNewObj->MeshRender()->SetMesh(m_pMesh);
 
-	for (UINT i = 0; i < m_vecMtrl.size(); ++i)
+	if(_Sky)
 	{
-		pNewObj->MeshRender()->SetMaterial(m_vecMtrl[i], i);
+		pNewObj->AddComponent(new CSkyBox(true));
+		pNewObj->SkyBox()->SetMesh(m_pMesh);
+		for (UINT i = 0; i < m_vecMtrl.size(); ++i)
+		{
+			pNewObj->SkyBox()->SetMaterial(m_vecMtrl[i], i);
+		}
+		
+	}else
+	{
+		pNewObj->AddComponent(new CMeshRender);
+		pNewObj->MeshRender()->SetMesh(m_pMesh);
+
+		for (UINT i = 0; i < m_vecMtrl.size(); ++i)
+		{
+			pNewObj->MeshRender()->SetMaterial(m_vecMtrl[i], i);
+		}
 	}
 
 	// Animation 파트 추가

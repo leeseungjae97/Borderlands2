@@ -100,6 +100,9 @@ public:
     void SetLinearVelocity(Vec3 _Velocity);
     void SetLinearVelocityZero();
 
+    void AddForce(Vec3 _Force);
+    void AddTorque(Vec3 _Torque);
+
     void SetAngularVelocity(Vec3 _Angular);
     void SetAngularVelocityZero();
 

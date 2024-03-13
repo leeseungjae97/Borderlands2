@@ -20,7 +20,7 @@ public:
     virtual int Save(const wstring& _strRelativePath) override;
     virtual int Load(const wstring& _strFilePath) override;
 
-    CGameObject* Instantiate(Vec3 scale);
+    CGameObject* Instantiate(Vec3 scale, bool _Sky = false);
     void Instantiate(CGameObject* _Obj);
 
     CLONE_DISABLE(CMeshData);

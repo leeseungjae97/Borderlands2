@@ -25,6 +25,8 @@ private:
     Matrix  m_DrawRayWorld;
 
     float _mt;
+
+    bool m_bBilboard;
 public:
     void SetRelativePos(Vec3 _vPos);
     void SetRelativeScale(Vec3 _vScale) { m_vRelativeScale = _vScale; }
@@ -32,6 +34,9 @@ public:
     void SetRelativePosOffset(Vec3 _Offset) { m_vRelativePosOffset = _Offset; }
 
     void SetRelativePos(float _x, float _y, float _z) { m_vRelativePos = Vec3(_x, _y, _z); }
+    void SetRelativePosX(float _x) { m_vRelativePos.x = _x; }
+    void SetRelativePosY(float _y) { m_vRelativePos.y = _y; }
+    void SetRelativePosZ(float _z) { m_vRelativePos.z = _z; }
     void SetRelativeScale(float _x, float _y, float _z) { m_vRelativeScale = Vec3(_x, _y, _z); }
     void SetRelativeRot(float _x, float _y, float _z) { m_vRelativeRot = Vec3(_x, _y, _z);  }
 
@@ -49,6 +54,8 @@ public:
 
     void SetFollowOffset(Vec3 _Offset) { m_FollowOffset = _Offset; }
     Vec3 GetFollowOffset() { return m_FollowOffset; }
+
+    void SetBilboard(bool _bTrue) { m_bBilboard = _bTrue; }
 
     const Matrix& GetWorldScaleMat() { return m_matWorldScale; }
     const Matrix& GetWorldMat() const { return m_matWorld; }
@@ -71,7 +78,7 @@ public:
 		m_matWorldScale = _OtherTransform.m_matWorldScale;
 		m_matWorld = _OtherTransform.m_matWorld;
 		m_matWorldInv = _OtherTransform.m_matWorldInv;
-
+        m_bBilboard = _OtherTransform.m_bBilboard;
 
         for (int i = 0; i < 3; ++i)
         {

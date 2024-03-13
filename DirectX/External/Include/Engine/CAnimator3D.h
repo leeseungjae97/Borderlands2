@@ -162,6 +162,7 @@ public:
 
 public:
 	void Play(const wstring& _Name, bool _Loop);
+	// Force : true 강제로 끊고 재생, false 같은 클립 재생하고 있으면 재생안함
 	void Play(UINT _type, bool _Loop, bool _Force = true);
 	Events* FindEvents(const wstring& name);
 	CAnimClip* FindClip(const wstring& name);
