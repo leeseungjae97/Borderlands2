@@ -210,7 +210,7 @@ void CWarriorScript::makeCollider()
 		CGameObject* pObj = new CGameObject;
 		pObj->AddComponent(new CCollider3D(false, true));
 		pObj->Collider3D()->SetUnityOwner(GetOwner());
-		pObj->Collider3D()->SetScale(Vec3(50000.f, 5000.f, 50000.f));
+		pObj->Collider3D()->SetScale(Vec3(5000.f, 5000.f, 5000.f));
 		pObj->AddComponent(new CGizmo(true));
 		pObj->AddComponent(new CAttackNormalScript);
 
@@ -230,8 +230,8 @@ void CWarriorScript::initAnim()
 	pWarrior->Animator3D()->SetAnimClipEventIdx(
 		(UINT)WARRIOR_ANIMATION_TYPE::NEAR_BREATH, -1, -1, 57, 114);
 
-	//pWarrior->Animator3D()->SetAnimClipEventIdx(
-	//	(UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH, -1, -1, 87, 140);
+	pWarrior->Animator3D()->SetAnimClipEventIdx(
+		(UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH, -1, -1, 87, 140);
 
 	pWarrior->Animator3D()->SetAnimClipEventIdx(
 		(UINT)WARRIOR_ANIMATION_TYPE::ROCK_THROW, -1, -1, 93, -1);
@@ -246,11 +246,11 @@ void CWarriorScript::initAnim()
 			{
 				tState = WARRIOR_STATE::IDLE;
 			});
-	//pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH)
-	//	= std::make_shared<std::function<void()>>([=]()
-	//		{
-	//			tState = WARRIOR_STATE::IDLE;
-	//		});
+	pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				tState = WARRIOR_STATE::IDLE;
+			});
 	pWarrior->Animator3D()->ProgressEvent((UINT)WARRIOR_ANIMATION_TYPE::FAR_BREATH)
 		= std::make_shared<std::function<void()>>([=]()
 			{
@@ -262,17 +262,17 @@ void CWarriorScript::initAnim()
 			{
 				pBreath->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 			});
-	//pWarrior->Animator3D()->ProgressEvent((UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH)
-	//	= std::make_shared<std::function<void()>>([=]()
-	//		{
-	//			pBreath->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
-	//		});
+	pWarrior->Animator3D()->ProgressEvent((UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				pBreath->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			});
 
-	//pWarrior->Animator3D()->CompleteEvent((UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH)
-	//	= std::make_shared<std::function<void()>>([=]()
-	//		{
-	//			pBreath->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
-	//		});
+	pWarrior->Animator3D()->CompleteEvent((UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				//pBreath->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			});
 	pWarrior->Animator3D()->ProgressEvent((UINT)WARRIOR_ANIMATION_TYPE::NEAR_BREATH)
 		= std::make_shared<std::function<void()>>([=]()
 			{
@@ -383,9 +383,23 @@ void CWarriorScript::beamMove()
 	{
 		int _TailIdx = pWarrior->Animator3D()->GetTailIdx();
 		Vec3 vPos = AnimationMgr::GetInst()->BonePos(_TailIdx, pWarrior);
-		Vec3 vRot = AnimationMgr::GetInst()->BoneRot(_TailIdx, pWarrior);
+		//Vec3 vRot = AnimationMgr::GetInst()->BoneRot(_TailIdx, pWarrior);
+		Vec3 vRot = pTailBeam->Transform()->GetRelativeRot();
+		Vec3 vPlayerPos = PlayerMgr::GetInst()->GetPlayer()->Transform()->GetRelativePos();
+		Vec3 vUp = pTailBeam->Transform()->GetRelativeDir(DIR_TYPE::UP);
+		Vec3 vFront = pTailBeam->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+		Vec3 vDiff = vPlayerPos - vPos;
+		Vec3 vDir = vDiff;
+		vDir.Normalize();
 
-		vRot.x += (-50.f * DegToRad());
+
+		Matrix rotMat = XMMatrixLookToLH(vPos, vDir, vUp);
+
+		Quat quat;
+		Vec3 vS, vT;
+		rotMat.Decompose(vS, quat, vT);
+
+		vRot = physx::Util::QuaternionToVector3(quat);
 
 		pTailBeam->Transform()->SetRelativePos(vPos);
 		pTailBeam->Transform()->SetRelativeRot(vRot);
@@ -415,7 +429,7 @@ void CWarriorScript::beamMove()
 void CWarriorScript::rockMove()
 {
 	CGameObject* pWarrior = GetOwner();
-	if (m_bRockFollow)
+	if (m_bRockFollow && !m_bRockThrow)
 	{
 		int knuckleIdx = pWarrior->Animator3D()->GetKnuckleIdx();
 		Vec3 vPos = AnimationMgr::GetInst()->BonePos(knuckleIdx, pWarrior);
@@ -436,7 +450,6 @@ void CWarriorScript::rockMove()
 			if (pRock)
 			{
 				Vec3 vPlayerPos = PlayerMgr::GetInst()->GetPlayer()->Transform()->GetRelativePos();
-				Vec3 vFront = pRock->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
 				Vec3 vRockPos = pRock->Transform()->GetRelativePos();
 				Vec3 vDiff = vPlayerPos - vRockPos;
 				Vec3 vDir = vDiff;
@@ -444,21 +457,20 @@ void CWarriorScript::rockMove()
 
 				if (pRock->RigidBody()->IsRigidBodyCreate())
 				{
-					pRock->RigidBody()->SetLinearVelocity(vDir * 100000.f);
+					pRock->RigidBody()->SetLinearVelocity(vDir * 10000.f);
+					pRock->RigidBody()->GetDynamicBody()->setMaxLinearVelocity(50000.f);
 				}
 			}
 			m_bRockThrow = true;
-		}
-
-	}
-	if(!m_bRockFollow && m_bRockThrow)
-	{
-		if(pRock->Collider3D()->IsBeginOverlap() || pRock->Collider3D()->IsOnOverlap())
+		}else
 		{
-			pRock->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			if (pRock)
+			{
+				if (pRock->Collider3D()->IsBeginOverlap() || pRock->Collider3D()->IsOnOverlap())
+					pRock->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			}
 		}
 	}
-
 }
 
 void CWarriorScript::tailMove()
@@ -612,19 +624,26 @@ void CWarriorScript::colliderMove()
 	CGameObject* pWarrior = GetOwner();
 	CAnimator3D* pAnimator = pWarrior->Animator3D();
 	{
-		int headIdx = pAnimator->GetHeadIdx();
-		Vec3 vPos = AnimationMgr::GetInst()->BonePos(headIdx, pWarrior);
-		Vec3 vRot = AnimationMgr::GetInst()->BoneRot(headIdx, pWarrior);
+		if(pHeadCollider)
+		{
+			int headIdx = pAnimator->GetHeadIdx();
+			Vec3 vPos = AnimationMgr::GetInst()->BonePos(headIdx, pWarrior);
+			Vec3 vRot = AnimationMgr::GetInst()->BoneRot(headIdx, pWarrior);
 
-		pHeadCollider->Collider3D()->SetColliderPos(vPos);
-		pHeadCollider->Collider3D()->SetColliderRot(vRot);
+			pHeadCollider->Collider3D()->SetColliderPos(vPos);
+			pHeadCollider->Collider3D()->SetColliderRot(vRot);
+		}
+		
 	}
 	{
-		int stomachIdx = pAnimator->GetStomachIdx();
-		Vec3 vPos = AnimationMgr::GetInst()->BonePos(stomachIdx, pWarrior);
-		Vec3 vRot = AnimationMgr::GetInst()->BoneRot(stomachIdx, pWarrior);
+		if(pStomachCollider)
+		{
+			int stomachIdx = pAnimator->GetStomachIdx();
+			Vec3 vPos = AnimationMgr::GetInst()->BonePos(stomachIdx, pWarrior);
+			Vec3 vRot = AnimationMgr::GetInst()->BoneRot(stomachIdx, pWarrior);
 
-		pStomachCollider->Collider3D()->SetColliderPos(vPos);
+			pStomachCollider->Collider3D()->SetColliderPos(vPos);
+		}
 		//pStomachCollider->Transform()->SetRelativeRot(vRot);
 	}
 	//{
@@ -636,12 +655,15 @@ void CWarriorScript::colliderMove()
 	//	pMouseCollider->Collider3D()->SetColliderRot(vRot);
 	//}
 	{
-		int chestIdx = pAnimator->GetChestIdx();
-		Vec3 vPos = AnimationMgr::GetInst()->BonePos(chestIdx, pWarrior);
-		Vec3 vRot = AnimationMgr::GetInst()->BoneRot(chestIdx, pWarrior);
+		if(pChestCollider)
+		{
+			int chestIdx = pAnimator->GetChestIdx();
+			Vec3 vPos = AnimationMgr::GetInst()->BonePos(chestIdx, pWarrior);
+			Vec3 vRot = AnimationMgr::GetInst()->BoneRot(chestIdx, pWarrior);
 
-		pChestCollider->Collider3D()->SetColliderPos(vPos);
-		pChestCollider->Collider3D()->SetColliderRot(vRot);
+			pChestCollider->Collider3D()->SetColliderPos(vPos);
+			pChestCollider->Collider3D()->SetColliderRot(vRot);
+		}
 	}
 }
 
@@ -664,7 +686,7 @@ void CWarriorScript::makeAttackObject()
 		pObj->SetName(L"fbx fire breath");
 		pObj->MeshRender()->GetMaterial(0)->SetTexFlow(true);
 		pObj->MeshRender()->GetMaterial(0)->SetFlowSpeed(2.f);
-		pObj->MeshRender()->GetMaterial(0)->SetFlowDir(Vec2(-0.5f, 0.0f));
+		pObj->MeshRender()->GetMaterial(0)->SetFlowDir(Vec2(1.f, 0.0f));
 
 		//vRot.z = -50.f;
 		//vRot.y = 0.f;
@@ -673,7 +695,7 @@ void CWarriorScript::makeAttackObject()
 		SpawnGameObject(pObj, vPos, LAYER_TYPE::EnemyBullet);
 		pBreath = pObj;
 	}
-	pBreath->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	//pBreath->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 
 
 	int tailWeaponIdx = pWarrior->Animator3D()->GetTailIdx();
@@ -691,8 +713,8 @@ void CWarriorScript::makeAttackObject()
 
 		pObj->SetName(L"fbx tail beam");
 		pObj->MeshRender()->GetMaterial(0)->SetTexFlow(true);
-		pObj->MeshRender()->GetMaterial(0)->SetFlowSpeed(2.f);
-		pObj->MeshRender()->GetMaterial(0)->SetFlowDir(Vec2(-0.5f, 0.0f));
+		pObj->MeshRender()->GetMaterial(0)->SetFlowSpeed(-2.f);
+		pObj->MeshRender()->GetMaterial(0)->SetFlowDir(Vec2(1.f, 0.0f));
 
 		//vRot.z = -50.f;
 		vRot.z = (-50.f * DegToRad());
@@ -715,15 +737,15 @@ void CWarriorScript::makeAttackObject()
 		pObj->RigidBody()->SetRigidScale(Vec3(300.f, 300.f, 300.f));
 
 		pObj->AddComponent(new CCollider3D());
-		pObj->Collider3D()->SetScale(Vec3(1000.f, 1000.f, 1000.f));
+		pObj->Collider3D()->SetScale(Vec3(305.f, 305.f, 305.f));
 
 		pObj->AddComponent(new CAttackNormalScript());
 		pObj->AddComponent(new CGizmo);
 
 		pObj->SetName(L"fbx rock");
 		pObj->MeshRender()->GetMaterial(0)->SetTexFlow(true);
-		pObj->MeshRender()->GetMaterial(0)->SetFlowSpeed(2.f);
-		pObj->MeshRender()->GetMaterial(0)->SetFlowDir(Vec2(-0.5f, 0.0f));
+		pObj->MeshRender()->GetMaterial(0)->SetFlowSpeed(-2.f);
+		pObj->MeshRender()->GetMaterial(0)->SetFlowDir(Vec2(0.5f, 0.0f));
 
 		SpawnGameObject(pObj, vPos, LAYER_TYPE::EnemyBullet);
 		pRock = pObj;
@@ -755,85 +777,85 @@ void CWarriorScript::tick()
 
 	if(pAttackBoundCollider->Collider3D()->IsColliderRigidCreate())
 	{
-		Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
-		Vec3 vFront = GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+		//Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
+		//Vec3 vFront = GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
 
-		vPos += (vFront * 10000.f);
+		//vPos += (vFront * 10000.f);
 
-		pAttackBoundCollider->Collider3D()->SetColliderPos(vPos);
+		pAttackBoundCollider->Collider3D()->SetColliderPos(Vec3(-2083.733f, 1279.689f, 10716.288f));
 	}
 
-	if(pAttackBoundCollider->Collider3D()->IsBeginOverlap() || pAttackBoundCollider->Collider3D()->IsOnOverlap())
-	{
-		if(tState == WARRIOR_STATE::HIDE)
-		{
-			tState = WARRIOR_STATE::APPEAR;
-		}
+	//if(pAttackBoundCollider->Collider3D()->IsBeginOverlap() || pAttackBoundCollider->Collider3D()->IsOnOverlap())
+	//{
+	//	if(tState == WARRIOR_STATE::HIDE)
+	//	{
+	//		tState = WARRIOR_STATE::APPEAR;
+	//	}
 
-		if (tState == WARRIOR_STATE::IDLE)
-		{
-			m_fActAcc += DT;
+	//	if (tState == WARRIOR_STATE::IDLE)
+	//	{
+	//		m_fActAcc += DT;
 
-			int randStart = rand() % 20;
-			if (randStart == (int)m_fActAcc)
-			{
-				m_fActAcc = 0.0f;
-				m_RandBehavior = rand() % 5;
+	//		int randStart = rand() % 20;
+	//		if (randStart == (int)m_fActAcc)
+	//		{
+	//			m_fActAcc = 0.0f;
+	//			m_RandBehavior = rand() % 5;
 
-				switch(m_RandBehavior)
-				{
-				case 0:
-				{
-					DoFarBreath();
-				}
-				break;
-				case 1:
-				{
-					DoNearBreath();
-				}
-				break;
-				case 2:
-				{
-					DoThrowRock();
-				}
-				break;
-				case 3:
-				{
-					DoTailBeam();
-				}
-				break;
-				case 4:
-				{
-					DoTailAttack();
-				}
-				break;
-				}
-			}
-		}else
-		{
-			m_fActAcc = 0.0f;
-		}
-	}
+	//			switch(m_RandBehavior)
+	//			{
+	//			case 0:
+	//			{
+	//				DoFarBreath();
+	//			}
+	//			break;
+	//			case 1:
+	//			{
+	//				DoNearBreath();
+	//			}
+	//			break;
+	//			case 2:
+	//			{
+	//				DoThrowRock();
+	//			}
+	//			break;
+	//			case 3:
+	//			{
+	//				DoTailBeam();
+	//			}
+	//			break;
+	//			case 4:
+	//			{
+	//				DoTailAttack();
+	//			}
+	//			break;
+	//			}
+	//		}
+	//	}else
+	//	{
+	//		m_fActAcc = 0.0f;
+	//	}
+	//}
 
 	//if (KEY_PRESSED(KEY::Q))
 	//{
-	//	
+	//	DoFarBreath();
 	//}
 	//if (KEY_PRESSED(KEY::E))
 	//{
-	//	
+	//	DoNearBreath();
 	//}
 	//if (KEY_PRESSED(KEY::R))
 	//{
-	//	
+	//	DoThrowRock();
 	//}
 	//if (KEY_PRESSED(KEY::T))
 	//{
-	//	
+	//	DoTailBeam();
 	//}
 	//if (KEY_PRESSED(KEY::Y))
 	//{
-	//	
+	//	DoTailAttack();
 	//}
 
 	beamMove();
@@ -881,216 +903,81 @@ void CWarriorScript::collision()
 
 void CWarriorScript::finaltick()
 {
+	if (tState == WARRIOR_STATE::DIE)
+		return;
+
+	CGameObject* pWarrior = GetOwner();
+	static bool binit = false;
+	if (!binit)
+	{
+		if (GetOwner()->MeshRender()->GetMaterial(3) != nullptr)
+		{
+			GetOwner()->MeshRender()->GetMaterial(3)->SetTexFlow(true);
+		}
+
+		//makeAttackObject();
+		//makeCollider();
+		binit = true;
+	}
+
+	if (KEY_TAP(KEY::F))
+	{
+		makeAttackObject();
+		makeCollider();
+		initAnim();
+	}
+	if (KEY_PRESSED(KEY::Q))
+	{
+		DoFarBreath();
+	}
+	if (KEY_PRESSED(KEY::E))
+	{
+		DoNearBreath();
+	}
+	if(KEY_PRESSED(KEY::U))
+	{
+		DoMidBreath();
+	}
+	if (KEY_PRESSED(KEY::R))
+	{
+		DoThrowRock();
+	}
+	if (KEY_PRESSED(KEY::T))
+	{
+		DoTailBeam();
+	}
+	if (KEY_PRESSED(KEY::Y))
+	{
+		DoTailAttack();
+	}
+
+
+	beamMove();
+	breathMove();
+	rockMove();
+	tailMove();
+	colliderMove();
+
+	//if (iWarriorHp == 0)
+	//{
+	//	tState = WARRIOR_STATE::DIE;
+	//}
 	//if (tState == WARRIOR_STATE::DIE)
-	//	return;
-
-	//CGameObject* pWarrior = GetOwner();
-	//static bool binit = false;
-	//if (!binit)
 	//{
-	//	if (GetOwner()->MeshRender()->GetMaterial(3) != nullptr)
-	//	{
-	//		GetOwner()->MeshRender()->GetMaterial(3)->SetTexFlow(true);
-	//	}
-
-	//	makeAttackObject();
-	//	makeCollider();
-	//	binit = true;
+	//	pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::DIE, false);
 	//}
-
-	//if (KEY_PRESSED(KEY::F))
-	//{
-	//	pWarrior->Animator3D()->SetAnimClipEventIdx(
-	//		(UINT)WARRIOR_ANIMATION_TYPE::FAR_BREATH, -1, -1, 103, 130);
-
-	//	pWarrior->Animator3D()->SetAnimClipEventIdx(
-	//		(UINT)WARRIOR_ANIMATION_TYPE::NEAR_BREATH, -1, -1, 57, 114);
-
-	//	//pWarrior->Animator3D()->SetAnimClipEventIdx(
-	//	//	(UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH, -1, -1, 87, 140);
-
-	//	pWarrior->Animator3D()->SetAnimClipEventIdx(
-	//		(UINT)WARRIOR_ANIMATION_TYPE::ROCK_THROW, -1, -1, 93, -1);
-
-	//	pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::FAR_BREATH)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				tState = WARRIOR_STATE::IDLE;
-	//			});
-	//	pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::NEAR_BREATH)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				tState = WARRIOR_STATE::IDLE;
-	//			});
-	//	//pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH)
-	//	//	= std::make_shared<std::function<void()>>([=]()
-	//	//		{
-	//	//			tState = WARRIOR_STATE::IDLE;
-	//	//		});
-	//	pWarrior->Animator3D()->ProgressEvent((UINT)WARRIOR_ANIMATION_TYPE::FAR_BREATH)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				pBreath->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
-	//			});
-
-	//	pWarrior->Animator3D()->CompleteEvent((UINT)WARRIOR_ANIMATION_TYPE::FAR_BREATH)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				pBreath->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
-	//			});
-	//	//pWarrior->Animator3D()->ProgressEvent((UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH)
-	//	//	= std::make_shared<std::function<void()>>([=]()
-	//	//		{
-	//	//			pBreath->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
-	//	//		});
-
-	//	//pWarrior->Animator3D()->CompleteEvent((UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH)
-	//	//	= std::make_shared<std::function<void()>>([=]()
-	//	//		{
-	//	//			pBreath->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
-	//	//		});
-	//	pWarrior->Animator3D()->ProgressEvent((UINT)WARRIOR_ANIMATION_TYPE::NEAR_BREATH)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				pBreath->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
-	//			});
-
-	//	pWarrior->Animator3D()->CompleteEvent((UINT)WARRIOR_ANIMATION_TYPE::NEAR_BREATH)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				pBreath->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
-	//			});
-	//	pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_ENTER)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				pTailBeam->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
-	//	tState = WARRIOR_STATE::TAIL_BEAM_IDLE;
-	//			});
-	//	pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_IDLE)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				pTailBeam->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
-	//	tState = WARRIOR_STATE::TAIL_BEAM_EXIT;
-	//			});
-
-	//	pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_EXIT)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				tState = WARRIOR_STATE::IDLE;
-	//			});
-
-	//	pWarrior->Animator3D()->StartEvent((UINT)WARRIOR_ANIMATION_TYPE::ROCK_THROW)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				m_bRockThrow = false;
-	//				m_bRockFollow = true;
-	//			});
-	//	pWarrior->Animator3D()->ProgressEvent((UINT)WARRIOR_ANIMATION_TYPE::ROCK_THROW)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				m_bRockFollow = false;
-	//			});
-	//	pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::ROCK_THROW)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				tState = WARRIOR_STATE::IDLE;
-	//			});
-
-	//	//pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::DIE)
-	//	//	= std::make_shared<std::function<void()>>([=]()
-	//	//		{
-	//	//			if (pTailBeam)
-	//	//			{
-	//	//				DestroyObject(pTailBeam);
-	//	//			}
-	//	//if (pRock)
-	//	//{
-	//	//	DestroyObject(pRock);
-	//	//}
-	//	//if (pBreath)
-	//	//{
-	//	//	DestroyObject(pBreath);
-	//	//}
-	//	//if (pBreathCollider)
-	//	//{
-	//	//	DestroyObject(pBreathCollider);
-	//	//}
-	//	//if (pTailBeamCollider)
-	//	//{
-	//	//	DestroyObject(pTailBeamCollider);
-	//	//}
-	//	//if (pTailCollider)
-	//	//{
-	//	//	DestroyObject(pTailCollider);
-	//	//}
-	//	//if (pHeadCollider)
-	//	//{
-	//	//	DestroyObject(pHeadCollider);
-	//	//}
-	//	////if (pMouseCollider)
-	//	////{
-	//	////	DestroyObject(pMouseCollider);
-	//	////}
-	//	//if (pChestCollider)
-	//	//{
-	//	//	DestroyObject(pChestCollider);
-	//	//}
-	//	//if (pStomachCollider)
-	//	//{
-	//	//	DestroyObject(pStomachCollider);
-	//	//}
-	//	////pWarrior->SetDead(true);
-	//	//DestroyObject(pWarrior);
-	//	//		});
-	//}
-	//if (KEY_PRESSED(KEY::Q))
-	//{
-	//	DoFarBreath();
-	//}
-	//if (KEY_PRESSED(KEY::E))
-	//{
-	//	DoNearBreath();
-	//}
-	//if (KEY_PRESSED(KEY::R))
-	//{
-	//	DoThrowRock();
-	//}
-	//if (KEY_PRESSED(KEY::T))
-	//{
-	//	DoTailBeam();
-	//}
-	//if (KEY_PRESSED(KEY::Y))
-	//{
-	//	DoTailAttack();
-	//}
-
-
-	//beamMove();
-	//breathMove();
-	//rockMove();
-	//tailMove();
-	//colliderMove();
-
-	////if (iWarriorHp == 0)
-	////{
-	////	tState = WARRIOR_STATE::DIE;
-	////}
-	////if (tState == WARRIOR_STATE::DIE)
-	////{
-	////	pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::DIE, false);
-	////}
-	//if (tState == WARRIOR_STATE::IDLE)
-	//{
-	//	pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::IDLE, true);
-	//}
-	//if (tState == WARRIOR_STATE::TAIL_BEAM_IDLE)
-	//{
-	//	GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_IDLE, false, false);
-	//}
-	//if (tState == WARRIOR_STATE::TAIL_BEAM_EXIT)
-	//{
-	//	GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_EXIT, false, false);
-	//}
+	if (tState == WARRIOR_STATE::IDLE)
+	{
+		pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::IDLE, true);
+	}
+	if (tState == WARRIOR_STATE::TAIL_BEAM_IDLE)
+	{
+		GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_IDLE, false, false);
+	}
+	if (tState == WARRIOR_STATE::TAIL_BEAM_EXIT)
+	{
+		GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_EXIT, false, false);
+	}
 }
 
 void CWarriorScript::Attacked(int _Damage)

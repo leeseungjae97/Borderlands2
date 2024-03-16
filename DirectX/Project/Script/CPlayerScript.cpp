@@ -1127,24 +1127,30 @@ void CPlayerScript::Raycast(tRayInfo _RaycastInfo)
 
 			if(vFront.Dot(vDiff) > 0.0f)
 			{
-				m_pUI_HPFrontHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+				if (m_pUI_HPFrontHit)
+					m_pUI_HPFrontHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+
 				fHpFrontAcc = 0.0f;
 			}
 			else
 			{
-				m_pUI_HPBackHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+				if (m_pUI_HPBackHit)
+					m_pUI_HPBackHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+
 				fHpBackAcc = 0.0f;
 			}
 		}
 
 		if(rightTheta < -45.f && rightTheta > -135.f)
 		{
-			m_pUI_HPRightHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			if (m_pUI_HPRightHit)
+				m_pUI_HPRightHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 			fHpRightAcc = 0.0f;
 		}
 		if (rightTheta > 45.f && rightTheta < 135.f)
 		{
-			m_pUI_HPLeftHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			if(m_pUI_HPLeftHit)
+				m_pUI_HPLeftHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 			fHpLeftAcc = 0.0f;
 		}
 	}

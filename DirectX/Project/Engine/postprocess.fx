@@ -234,7 +234,9 @@ float4 PS_ToneMapping(VS_SCREEN_OUT _In) : SV_Target
 {
     float4 vHDRColor = BloomedHDRTargetTex.Sample(g_sam_anti_0, _In.vUV);
     float3 vToneMappedColor = ACESToneMapping(vHDRColor.xyz);
-    return float4(vToneMappedColor, 1.f);
+
+    //return float4(vToneMappedColor, 1.f);
+    return float4(pow(vToneMappedColor, 1 / 2.2f), vHDRColor.a);
 }
 
 static float mask[9] =

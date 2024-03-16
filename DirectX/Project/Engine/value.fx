@@ -78,7 +78,6 @@ cbuffer MATERIAL : register(b1)
 
     int g_iAnim;
     int g_iBoneCount;
-
     int g_iTexAnim;
     float g_fTexFlowSpeed;
 

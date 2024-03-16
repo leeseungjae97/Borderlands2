@@ -32,7 +32,7 @@ CCamera::CCamera()
 	, m_Frustum(this)
 	, m_ProjType(PROJ_TYPE::ORTHOGRAPHIC)
 	, m_iLayerMask(0)
-	, m_FOV(0.95f) // 55 degree
+	, m_FOV(0.7f) // 55 degree
 	, m_OrthoWidth(0.f)
 	, m_OrthoHeight(0.f)
 	, m_iCamIdx(-1)
@@ -379,114 +379,106 @@ void CCamera::render()
 	static Ptr<CMaterial> pToneMapping = CResMgr::GetInst()->FindRes<CMaterial>(L"ToneMappingMtrl");
 	static Ptr<CMaterial> pLaplacian = CResMgr::GetInst()->FindRes<CMaterial>(L"LaplacianMtrl");
 
-	// Deferred MRT
-	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED)->OMSet(true);
-	render_deferred();
-
-	// Deferred Light
-	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LIGHT)->OMSet(false);
-	const vector<CLight3D*>& vecLight3D = CRenderMgr::GetInst()->GetLight3D();
-	for (size_t i = 0; i < vecLight3D.size(); ++i)
+	if(this == CRenderMgr::GetInst()->GetMainCam())
 	{
-		vecLight3D[i]->render();
-	}
+		// Deferred MRT
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED)->OMSet(true);
+		render_deferred();
 
-	// Blur3
-	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LUMINANCE)->OMSet();
+		// Deferred Light
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LIGHT)->OMSet(false);
+		const vector<CLight3D*>& vecLight3D = CRenderMgr::GetInst()->GetLight3D();
+		for (size_t i = 0; i < vecLight3D.size(); ++i)
+		{
+			vecLight3D[i]->render();
+		}
 
-	pBlurV->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-	//pBlurV->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
-	//pBlurV->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
-	//BlurV->SetScalarParam(FLOAT_0, &f_blurFactor);
+		// Blur3
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LUMINANCE)->OMSet();
 
-	pBlurH->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-	//pBlurH->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
-	//pBlurH->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
-	//BlurH->SetScalarParam(FLOAT_0, &f_blurFactor);
+		pBlurV->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+		//pBlurV->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
+		//pBlurV->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
+		//BlurV->SetScalarParam(FLOAT_0, &f_blurFactor);
 
-	// X
-	pBlurV->UpdateData();
-	pScreen->render(0);
+		pBlurH->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+		//pBlurH->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
+		//pBlurH->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
+		//BlurH->SetScalarParam(FLOAT_0, &f_blurFactor);
 
-	// Y
-	pBlurH->UpdateData();
-	pScreen->render(0);
-
-	// HDR
-	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR)->OMSet();
-
-	pMerge->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ColorTargetTex"));
-	pMerge->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
-	pMerge->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-	pMerge->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
-	pMerge->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
-
-	pMerge->UpdateData();
-	pScreen->render(0);
-
-	// Outline
-	if (m_Outline)
-	{
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR_LINE)->OMSet();
-		pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
-		pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
-		pLaplacian->UpdateData();
+		// X
+		pBlurV->UpdateData();
 		pScreen->render(0);
+
+		// Y
+		pBlurH->UpdateData();
+		pScreen->render(0);
+
+		// HDR
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR)->OMSet();
+
+		pMerge->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ColorTargetTex"));
+		pMerge->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
+		pMerge->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+		pMerge->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
+		pMerge->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
+
+		pMerge->UpdateData();
+		pScreen->render(0);
+
+		// Outline
+		if (m_Outline)
+		{
+			CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR_LINE)->OMSet();
+			pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
+			pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+			pLaplacian->UpdateData();
+			pScreen->render(0);
+		}
+
+		// Bloom
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLOOMED_HDR)->OMSet();
+
+		if (m_Outline)
+			pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"OutlineHDRTargetTex"));
+		else
+			pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+
+		pEmissiveBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveBlurredTargetTex"));
+		pEmissiveBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+
+		pEmissiveBloom->UpdateData();
+		pScreen->render(0);
+
+		//pEmissiveBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseBlurredTargetTex"));
+		//pEmissiveBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
+
+		//pEmissiveBloom->UpdateData();
+		//pScreen->render(0);
+
+		//pSpecularBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+		//pSpecularBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularBlurredTargetTex"));
+		//pSpecularBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
+		//pSpecularBloom->UpdateData();
+		//pScreen->render(0);
+
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+		// Bloomed HDR ToneMapping -> LDR
+		pToneMapping->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"BloomedHDRTargetTex"));
+
+		pToneMapping->UpdateData();
+		pScreen->render(0);
+
+		render_forward();
+		render_decal();
+		render_transparent();
+
+		render_postprocess();
+	}else
+	{
+
+		render_ui();
 	}
-
-	// Bloom
-	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLOOMED_HDR)->OMSet();
-
-	if (m_Outline)
-		pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"OutlineHDRTargetTex"));
-	else
-		pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
-
-	pEmissiveBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveBlurredTargetTex"));
-	pEmissiveBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-
-	pEmissiveBloom->UpdateData();
-	pScreen->render(0);
-
-	//pEmissiveBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseBlurredTargetTex"));
-	//pEmissiveBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
-
-	//pEmissiveBloom->UpdateData();
-	//pScreen->render(0);
-
-	//pSpecularBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
-	//pSpecularBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularBlurredTargetTex"));
-	//pSpecularBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
-	//pSpecularBloom->UpdateData();
-	//pScreen->render(0);
-
-	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
-	// Bloomed HDR ToneMapping -> LDR
-	pToneMapping->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"BloomedHDRTargetTex"));
-
-	pToneMapping->UpdateData();
-	pScreen->render(0);
-
-	render_forward();
-	render_decal();
-	render_transparent();
-
-	render_postprocess();
-	render_ui();
-	//if (CRenderMgr::GetInst()->GetMainCam() == this)
-	//{
-	//	
-	//}
-	//else
-	//{
-	//	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
-
-	//	render_forward();
-	//	render_decal();
-	//	render_transparent();
-	//	// UI
-	//	render_ui();
-	//}
 }
 
 
@@ -531,7 +523,7 @@ void CCamera::render_deferred()
 			continue;
 
 		if (pair.second.size() <= 2
-			//|| pair.second[0].pObj->Animator2D()
+			|| pair.second[0].pObj->Animator2D()
 			|| pair.second[0].pObj->GetRenderComponent()->GetMaterial(pair.second[0].iMtrlIdx)->GetShader()->GetVSInst() == nullptr)
 		{
 			for (UINT i = 0; i < pair.second.size(); ++i)
@@ -650,7 +642,7 @@ void CCamera::render_forward()
 		// Animation2D 오브젝트거나(스프라이트 애니메이션 오브젝트)
 		// Shader 가 Instancing 을 지원하지 않는경우
 		if (pair.second.size() <= 2
-			//|| pair.second[0].pObj->Animator2D()
+			|| pair.second[0].pObj->Animator2D()
 			|| pair.second[0].pObj->GetRenderComponent()->GetMaterial(pair.second[0].iMtrlIdx)->GetShader()->GetVSInst() == nullptr)
 		{
 			// 해당 물체들은 단일 랜더링으로 전환
@@ -743,8 +735,9 @@ void CCamera::render_forward()
 
 void CCamera::render_shadowmap()
 {
-	g_transform.matView = m_matView;
-	g_transform.matProj = m_matProj;
+	UpdateMatrix();
+	//g_transform.matView = m_matView;
+	//g_transform.matProj = m_matProj;
 
 	for (size_t i = 0; i < m_vecShadow.size(); ++i)
 	{

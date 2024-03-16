@@ -15,6 +15,8 @@ CAnimator2D::CAnimator2D()
 
 CAnimator2D::~CAnimator2D()
 {
+	Safe_Del_Map(mAnimations);
+	Safe_Del_Map(mEvents);
 }
 
 void CAnimator2D::finaltick()
@@ -59,12 +61,15 @@ void CAnimator2D::UpdateData()
 
 	int iAnimUse = 1;
 	pMtrl->SetScalarParam(INT_0, &iAnimUse);
+
 	pMtrl->SetScalarParam(VEC2_0, &curSprite.leftTop);
 	pMtrl->SetScalarParam(VEC2_1, &curSprite.size);
 	pMtrl->SetScalarParam(VEC2_2, &curSprite.offset);
 	pMtrl->SetScalarParam(VEC2_3, &curSprite.sheetSize);
 
 	pMtrl->SetTexParam(TEX_0, m_pActiveSprite->GetSheet());
+
+	//pMtrl->UpdateData();
 }
 
 void CAnimator2D::ClearData()
@@ -72,10 +77,8 @@ void CAnimator2D::ClearData()
 	Ptr<CMaterial> pMtrl = MeshRender()->GetMaterial(m_iMtrlIdx);
 
 	int iAnimUse = 0;
-	pMtrl->SetScalarParam(INT_0, &iAnimUse);
-
-	Ptr<CTexture> pTex = nullptr;
-	pMtrl->SetTexParam(TEX_0, pTex);
+	//pMtrl->SetScalarParam(INT_0, &iAnimUse);
+	//pMtrl->SetTexParam(TEX_0, nullptr);
 }
 
 void CAnimator2D::begin()
@@ -153,38 +156,41 @@ void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 
 	m_iMtrlIdx = mtrlIdx;
 }
 
-void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 leftTop, Vector2 size,
-	UINT columnLength, UINT rowLength, Vector2 offset, Vector2 offsetOfCenterPos, int mtrlIdx)
-{
-	CAnimSprite* animSprite = FindAnimSprite(name);
-	if (nullptr != animSprite)
-		return;
-
-	animSprite = new CAnimSprite;
-	animSprite->SetAnimator(this);
-	animSprite->SetName(name);
-
-	animSprite->Create(name
-		, sheet
-		, leftTop
-		, size
-		, columnLength
-		, rowLength
-		, offset
-		, offsetOfCenterPos
-	);
-
-	mAnimations.insert(std::make_pair(name, animSprite));
-
-	Events* events = FindEvents(name);
-	if (nullptr != events)
-		return;
-
-	events = new Events();
-	mEvents.insert(std::make_pair(name, events));
-
-	m_iMtrlIdx = mtrlIdx;
-}
+//void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 leftTop, Vector2 size
+//	, UINT columnLength, UINT rowLength, Vector2 offset
+//	, Vector2 offsetOfCenterPos, float duration, float alpha, int mtrlIdx)
+//{
+//	CAnimSprite* animSprite = FindAnimSprite(name);
+//	if (nullptr != animSprite)
+//		return;
+//
+//	animSprite = new CAnimSprite;
+//	animSprite->SetAnimator(this);
+//	animSprite->SetName(name);
+//
+//	animSprite->Create(name
+//		, sheet
+//		, leftTop
+//		, size
+//		, columnLength
+//		, rowLength
+//		, offset
+//		, offsetOfCenterPos
+//		, duration
+//		, alpha
+//	);
+//
+//	mAnimations.insert(std::make_pair(name, animSprite));
+//
+//	Events* events = FindEvents(name);
+//	if (nullptr != events)
+//		return;
+//
+//	events = new Events();
+//	mEvents.insert(std::make_pair(name, events));
+//
+//	m_iMtrlIdx = mtrlIdx;
+//}
 
 void CAnimator2D::Create(const std::wstring& name, Ptr<CTexture> sheet, Vector2 leftTop, Vector2 size,
                          UINT columnLength, Vector2 offset, float duration, float alpha, int mtrlIdx)
@@ -243,16 +249,14 @@ Events* CAnimator2D::FindEvents(const std::wstring& name)
 void CAnimator2D::Play(const std::wstring& name, bool loop)
 {
 	m_iLoopCount = 0;
-	CAnimSprite* prevAnimation = m_pActiveSprite;
 	Events* events;
-	if (prevAnimation != nullptr)
+	if (m_pActiveSprite != nullptr)
 	{
-		prevAnimation->Reset();
-		events = FindEvents(prevAnimation->GetName());
+		m_pActiveSprite->Reset();
+		events = FindEvents(m_pActiveSprite->GetName());
 		if (events)
 			events->endEvent();
 	}
-
 
 	CAnimSprite* animation = FindAnimSprite(name);
 	if (animation)
@@ -311,12 +315,12 @@ void CAnimator2D::LoadFromLevelFile(FILE* _FILE)
 
 		mAnimations.insert(make_pair(str, animSprite));
 	}
+	wstring wsActiveSpriteName = L"";
 
-	//std::map<std::wstring, Events*> mEvents;
-	//Ptr<CTexture> m_pSpriteSheet;
-	//CAnimSprite* m_pActiveSprite;
+	LoadWString(wsActiveSpriteName, _FILE);
+	m_pActiveSprite = FindAnimSprite(wsActiveSpriteName);
 
-	SaveResRef(m_pSpriteSheet.Get(), _FILE);
+	LoadResRef(m_pSpriteSheet, _FILE);
 	fread(&m_iLoopCount, sizeof(int), 1, _FILE);
 	fread(&m_bLoop, sizeof(bool), 1, _FILE);
 }
@@ -330,7 +334,8 @@ void CAnimator2D::SaveToLevelFile(FILE* _File)
 		SaveWString(pair.first, _File);
 		pair.second->SaveToLevelFile(_File);
 	}
-
+	SaveWString(m_pActiveSprite->GetName(), _File);
+	SaveResRef(m_pSpriteSheet.Get(), _File);
 	fwrite(&m_iLoopCount, sizeof(int), 1, _File);
 	fwrite(&m_bLoop, sizeof(bool), 1, _File);
 }

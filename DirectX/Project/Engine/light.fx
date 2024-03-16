@@ -65,7 +65,10 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
     
     tLightColor LightColor = (tLightColor) 0.f;
     float fSpecPow = 0.f;
-    
+
+    //vViewNormal = mul(float4(vViewNormal, 1.f), g_matView).xyz;
+    //vViewPos = mul(float4(vViewPos, 1.f), g_matView).xyz;
+
     CalcLight3D(vViewPos, vViewNormal, LightIdx, LightColor, fSpecPow);
     
     float fShadowCoeff = 0.f;
@@ -118,8 +121,8 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
         //    fShadowCoeff = 0.9f;
         //}
     }
-    output.vDiffuse = LightColor.vDiffuse + LightColor.vAmbient;
-    output.vSpecular = g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
+    output.vDiffuse += LightColor.vDiffuse + LightColor.vAmbient;
+    output.vSpecular += g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
     output.vShadow = fShadowCoeff;
 
     output.vDiffuse.a = 1.f;
@@ -168,7 +171,7 @@ PS_OUT PS_PointLightShader(VS_OUT _in)
 
     output.vDiffuse += LightColor.vDiffuse + LightColor.vAmbient;
     output.vSpecular += g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
-    output.vShadow = 1.0f;
+    //output.vShadow = 1.0f;
     //output.vEmissive = (LightColor.vDiffuse + LightColor.vAmbient) * fSpecPow;
     output.vDiffuse.a = 1.f;
     output.vSpecular.a = 1.f;
@@ -265,14 +268,14 @@ float4 PS_MergeShader(VS_OUT _in) : SV_Target
     float fShadowCoeff = ShadowTargetTex.Sample(g_sam_anti_0, vScreenUV).x;
 
     float3 vColorDiffuse = vColor.xyz * vDiffuse.xyz;
-
+    vColorDiffuse *= fShadowCoeff;
     float3 vColorSpecular = vSpecular.xyz * vColor.a;
-
-    float3 vColorDiffuseShadow = vColorDiffuse * fShadowCoeff;
-    //vColorDiffuseShadow = (vColorDiffuseShadow + vColorDiffuse / 2.f);
     vColorSpecular *= fShadowCoeff;
 
-    vOutColor.xyz = vColorDiffuseShadow + vColorSpecular + vEmissive.xyz;
+    //float3 vColorDiffuseShadow = vColorDiffuse * fShadowCoeff;
+    //vColorDiffuseShadow = (vColorDiffuseShadow + vColorDiffuse / 2.f);
+
+    vOutColor.xyz = vColorDiffuse + vColorSpecular + vEmissive.xyz;
     vOutColor.a = 1.f;
 
     return vOutColor;

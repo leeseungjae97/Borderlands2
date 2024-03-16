@@ -122,15 +122,17 @@ public:
 		, float alpha
 	);
 
-	void Create(const wstring& name
-		, Ptr<CTexture> sheet
-		, Vector2 leftTop
-		, Vector2 size
-		, UINT columnLength
-		, UINT rowLength
-		, Vector2 offset
-		, Vector2 offsetOfCenterPos
-	);
+	//void Create(const wstring& name
+	//	, Ptr<CTexture> sheet
+	//	, Vector2 leftTop
+	//	, Vector2 size
+	//	, UINT columnLength
+	//	, UINT rowLength
+	//	, Vector2 offset
+	//	, Vector2 offsetOfCenterPos
+	//	, float duration
+	//	, float alpha
+	//);
 
 	void Create(std::wstring name
 		, Ptr<CTexture> sheet

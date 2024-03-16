@@ -77,8 +77,8 @@ void CMeshRender::render()
 
 	if (Animator3D())
 		Animator3D()->ClearData();
-	if (Animator2D())
-		Animator2D()->ClearData();
+	//if (Animator2D())
+	//	Animator2D()->ClearData();
 }
 
 void CMeshRender::render(UINT _iSubset, bool _Deferred)
@@ -125,6 +125,6 @@ void CMeshRender::render(UINT _iSubset, bool _Deferred)
 
 	if (Animator3D())
 		Animator3D()->ClearData();
-	if (Animator2D())
-		Animator2D()->ClearData();
+	//if (Animator2D())
+	//	Animator2D()->ClearData();
 }

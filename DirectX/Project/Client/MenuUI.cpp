@@ -287,6 +287,9 @@ void MenuUI::AddComponent(COMPONENT_TYPE _type)
 	case COMPONENT_TYPE::ANIMATOR3D:
 		pSelectedObject->AddComponent(new CAnimator3D);
 		break;
+	case COMPONENT_TYPE::ANIMATOR2D:
+		pSelectedObject->AddComponent(new CAnimator2D);
+		break;
 	case COMPONENT_TYPE::LIGHT3D:
 		pSelectedObject->AddComponent(new CLight3D);
 		break;

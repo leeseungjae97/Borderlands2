@@ -149,7 +149,6 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot)
 	int randY = RandMgr::GetInst()->GetRandMuzzleY(2);
 	Vec2 muzzleSize = Vec2(512.f / 2.f, 512.f / 2.f);
 
-	
 	Ptr<CMaterial> pMtrl = new CMaterial(true);
 	pMtrl->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3DShader"));
 	CResMgr::GetInst()->AddRes(L"GunFireMtrl", pMtrl);
@@ -161,16 +160,26 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot)
 	Light->AddComponent(new CLight3D);
 	Light->AddComponent(new CAnimator2D);
 
+	pMtrl->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\Tex_Assault_Muzzle_Flash_Front.png"));
+	pMtrl->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\StubFlat_Nrm.tga"));
+	Light->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	Light->MeshRender()->SetMaterial(pMtrl, 0);
+	//Light->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3DShaderMtrl"), 0);
+	//Light->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\Tex_Assault_Muzzle_Flash_Front.png"));
+	//Light->MeshRender()->GetMaterial(0)->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\Tex_Assault_Muzzle_Flash_Front.png"));
+
 	Light->Animator2D()->Create(L"muzzle"
-		, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\Tex_Assault_Muzzle_Flash_Front_.tga")
+		, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\Tex_Assault_Muzzle_Flash_Front.png")
 		, Vec2(muzzleSize.x * randX, muzzleSize.y * randY)
 		, muzzleSize
 		, 1
-		, 1
+		, 1	
 		, Vec2::Zero
 		, Vec2::Zero
+		, 0.01f
+		, 1.0f
 	);
-	Light->Animator2D()->Play(L"muzzle", false);
+	Light->Animator2D()->Play(L"muzzle", true);
 
 	Light->Light3D()->SetRadius(100.f);
 	Light->Light3D()->SetLightType(LIGHT_TYPE::POINT);
@@ -179,11 +188,9 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot)
 	Light->Light3D()->SetLifeSpan(0.01f);
 
 	Light->Transform()->SetRelativeRot(_vRot);
-	Light->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
-	Light->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	Light->MeshRender()->SetMaterial(pMtrl, 0);
+	//Light->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
 
-	SpawnGameObject(Light, _vPos, LAYER_TYPE::Light);
+	SpawnGameObject(Light, _vPos, LAYER_TYPE::Default);
 }
 
 void WeaponMgr::tick()

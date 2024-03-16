@@ -60,15 +60,14 @@ VS_OUT VS_Std3D_Deferred(VS_IN _in)
         Skinning(_in.vPos, _in.vTangent, _in.vBinormal, _in.vNormal, _in.vWeights, _in.vIndices, 0);
     }
 
-    // 로컬에서의 Normal 방향을 월드로 이동      
+    // 로컬에서의 Normal 방향을 월드로 이동
+    output.vPosition = mul(float4(_in.vPos, 1.f), g_matWVP);
+    output.vUV = _in.vUV;
+
     output.vViewPos = mul(float4(_in.vPos, 1.f), g_matWV);
-    
     output.vViewNormal = normalize(mul(float4(_in.vNormal, 0.f), g_matWV)).xyz;
     output.vViewTangent = normalize(mul(float4(_in.vTangent, 0.f), g_matWV)).xyz;
     output.vViewBinormal = normalize(mul(float4(_in.vBinormal, 0.f), g_matWV)).xyz;
-               
-    output.vPosition = mul(float4(_in.vPos, 1.f), g_matWVP);
-    output.vUV = _in.vUV;
 
     return output;
 }
@@ -86,31 +85,32 @@ VS_OUT VS_Std3D_Deferred_Inst(VTX_IN_INST _in)
     output.vUV = _in.vUV;
 
     output.vViewPos = mul(float4(_in.vPos, 1.f), _in.matWV);
-    output.vViewTangent = normalize(mul(float4(_in.vTangent, 0.f), _in.matWV));
-    output.vViewNormal = normalize(mul(float4(_in.vNormal, 0.f), _in.matWV));
-    output.vViewBinormal = normalize(mul(float4(_in.vBinormal, 0.f), _in.matWV));
+    output.vViewNormal = normalize(mul(float4(_in.vNormal, 0.f), _in.matWV)).xyz;
+    output.vViewTangent = normalize(mul(float4(_in.vTangent, 0.f), _in.matWV)).xyz;
+    output.vViewBinormal = normalize(mul(float4(_in.vBinormal, 0.f), _in.matWV)).xyz;
 
-    return output;  
+    return output;
 }
 
 struct PS_OUT
 {
-    float4 vColor       : SV_Target0;
-    float4 vNormal      : SV_Target1;
-    float4 vTangent      : SV_Target2;
-    float4 vPosition    : SV_Target3;
-    float4 vEmissive    : SV_Target4;
-    float4 vData        : SV_Target5;
+    float4 vColor : SV_Target0;
+    float4 vNormal : SV_Target1;
+    float4 vTangent : SV_Target2;
+    float4 vPosition : SV_Target3;
+    float4 vEmissive : SV_Target4;
+    float4 vData : SV_Target5;
     //float4 vDiffuse     : SV_Target5;
     //float4 vSpecular    : SV_Target6;
 };
 
-#define IsDead g_int_0
+#define bPerlinNoiseUse    g_int_1
+
 PS_OUT PS_Std3D_Deferred(VS_OUT _in)
 {
     PS_OUT output = (PS_OUT) 0.f;
    
-    output.vColor = float4(0.f, 0.f, 0.f, 1.f);
+    output.vColor.a = 1.0f;
     
     float3 vViewNormal = _in.vViewNormal;
 
@@ -118,24 +118,18 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
     float2 derivY = ddy(_in.vUV);
     float2 moveUV = _in.vUV;
     float4 vEmissiveCoeff = (float4) 0.f;
+
     if (g_iTexAnim)
     {
-        if (g_vTexFlowDir.x != 0.0f)
+        if (g_vTexFlowDir.x > 0.0f)
         {
             moveUV.x = _in.vUV.x + (g_AccTime * g_fTexFlowSpeed) * g_vTexFlowDir.x;
+
         }
-        if (g_vTexFlowDir.y != 0.0f)
+        if (g_vTexFlowDir.y > 0.0f)
         {
             moveUV.y = _in.vUV.y + (g_AccTime * g_fTexFlowSpeed) * g_vTexFlowDir.y;
         }
-        if (g_vTexFlowDir.y == 0.0f && g_vTexFlowDir.x == 0.0f)
-        {
-            if (g_fTexFlowSpeed != 0.0f)
-                moveUV.x = _in.vUV.x - g_AccTime * g_fTexFlowSpeed;
-            else
-                moveUV.x = _in.vUV.x - g_AccTime * 0.5f;
-        }
-            
 
         if (g_btex_7)
         {
@@ -144,10 +138,19 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
 
             vNoise = (vNoise - 0.5f) * 0.02f;
 
-            moveUV += vNoise.r;
+            moveUV.x += vNoise.x;
+            moveUV.y += vNoise.y;
         }
-            
-        //output.vColor = g_tex_0.SampleGrad(g_sam_anti_0, float3(moveUV, 1.f), derivX, derivY);
+
+        moveUV.x = moveUV.x - floor(moveUV.x);
+        moveUV.y = moveUV.y - floor(moveUV.y);
+
+        //if (moveUV.x < 0.0f)
+        //    moveUV.x = 1.f + moveUV.x;
+
+        //if (moveUV.y < 0.0f)
+        //    moveUV.y = 1.f + moveUV.y;
+
         //output.vColor.a = 1.f;
     }
 
@@ -156,13 +159,14 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
 
         if (g_btex_0_flow)
         {
+            //output.vColor = g_tex_0.Sample(g_sam_anti_0, moveUV);
             output.vColor = g_tex_0.SampleGrad(g_sam_anti_0, float3(moveUV, 1.f), derivX, derivY);
         }
         else
         {
-            output.vColor = g_tex_0.SampleGrad(g_sam_anti_0, float3(_in.vUV, 1.f), derivX, derivY);
+            output.vColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
         }
-        output.vColor.a = 1.f;
+        //output.vColor.a = 1.f;
 
         //output.vColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
         //if (output.vColor.a <= 0.f)
@@ -179,11 +183,12 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
         if (g_btex_1_flow)
         {
             //vNormal = g_tex_1.SampleGrad(g_sam_anti_0, float3(moveUV, 1.f), derivX, derivY);
-            vNormal = g_tex_1.Sample(g_sam_anti_0, float2(moveUV));
-        }else
+            vNormal = g_tex_1.Sample(g_sam_anti_0, moveUV);
+        }
+        else
         {
             //vNormal = g_tex_1.SampleGrad(g_sam_anti_0, float3(_in.vUV, 1.f), derivX, derivY);
-            vNormal = g_tex_1.Sample(g_sam_anti_0, float2(_in.vUV));
+            vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV);
         }
         
         // 0 ~ 1 범위의 값을 -1 ~ 1 로 확장        
@@ -192,31 +197,40 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
         float3x3 vRotateMat =
         {
             _in.vViewTangent,
-            -_in.vViewBinormal,
+            _in.vViewBinormal,
             _in.vViewNormal        
         };
         
         vViewNormal = normalize(mul(vNormal, vRotateMat));
-    }else
+    }
+    else
     {
         float3x3 vRotateMat =
         {
             _in.vViewTangent,
-            -_in.vViewBinormal,
+            _in.vViewBinormal,
             _in.vViewNormal        
         };
 
-        vViewNormal = normalize(mul(_in.vViewNormal, vRotateMat));
-        output.vTangent = normalize(float4(_in.vViewTangent, 1.f));
+        //vViewNormal = normalize(mul(_in.vViewNormal, vRotateMat));
+        //output.vTangent = normalize(float4(_in.vViewTangent, 1.f));
     }
     if (g_btex_3)
     {
         if (g_btex_3_flow)
         {
-            output.vEmissive += g_tex_3.Sample(g_sam_anti_0, moveUV);
+            if (g_btex_3_emis)
+                output.vEmissive += g_tex_3.Sample(g_sam_anti_0, moveUV);
+            else
+                output.vColor += g_tex_3.Sample(g_sam_anti_0, moveUV);
         }
         else
-            output.vEmissive += g_tex_3.Sample(g_sam_anti_0, _in.vUV);
+        {
+            if (g_btex_3_emis)
+                output.vEmissive += g_tex_3.Sample(g_sam_anti_0, _in.vUV);
+            else
+                output.vColor += g_tex_3.Sample(g_sam_anti_0, _in.vUV);
+        }
     }
 
     if (g_btex_4)
@@ -304,6 +318,9 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
     {
         output.vColor = PaperBurn(output.vColor, _in.vUV, g_tex_6, output.vEmissive);
     }
+  //  if (g_fEmisCoeff)
+		//output.vEmissive *= g_fEmisCoeff;
+
     output.vNormal = float4(vViewNormal, 1.f);
     output.vPosition = float4(_in.vViewPos, 1.f);
     output.vData = float4(0.f, 0.f, 0.f, 1.f);

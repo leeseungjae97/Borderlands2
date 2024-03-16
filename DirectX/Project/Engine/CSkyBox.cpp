@@ -112,6 +112,7 @@ void CSkyBox::SaveToLevelFile(FILE* _File)
 	fwrite(&m_Type, sizeof(UINT), 1, _File);
 	SaveResRef(m_SkyBoxTex.Get(), _File);
 	SaveResRef(m_SkyBoxMtrl.Get(), _File);
+	fwrite(&m_bFbxSkyBox, sizeof(bool), 1, _File);
 }
 
 void CSkyBox::LoadFromLevelFile(FILE* _FILE)
@@ -119,6 +120,21 @@ void CSkyBox::LoadFromLevelFile(FILE* _FILE)
 	fread(&m_Type, sizeof(UINT), 1, _FILE);
 	LoadResRef(m_SkyBoxTex, _FILE);
 	LoadResRef(m_SkyBoxMtrl, _FILE);
+	fread(&m_bFbxSkyBox, sizeof(bool), 1, _FILE);
+
+	if(m_bFbxSkyBox)
+	{
+		Ptr<CGraphicsShader> skyBoxShader = CResMgr::GetInst()->FindRes<CGraphicsShader>(L"SkyBoxShader");
+		m_SkyBoxMtrl = new CMaterial(true);
+		m_SkyBoxMtrl->SetShader(skyBoxShader);
+		CResMgr::GetInst()->AddRes(L"FbxSkyBox", m_SkyBoxMtrl);
+		SetFrustumCheck(false);
+
+		m_SkyBoxMtrl->SetTexParam(TEX_0, m_SkyBoxTex);
+		SKYBOX_TYPE mT = SKYBOX_TYPE::SPHERE;
+		m_SkyBoxMtrl->SetScalarParam(INT_0, &mT);
+		SetMaterial(m_SkyBoxMtrl, 0);
+	}
 }
 
 //void CSkyBox::FbxSky()

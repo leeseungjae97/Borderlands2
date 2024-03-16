@@ -83,12 +83,19 @@ int Light3DUI::render_update()
 
 	GetTarget()->Light3D()->SetLightColor(vLightColor);
 	GetTarget()->Light3D()->SetLightAmbient(vAmbient);
-	GetTarget()->Light3D()->SetLightType((LIGHT_TYPE)iLightType);
 	GetTarget()->Light3D()->SetLightDepthCoeff(fLightDepthCoeff);
 	GetTarget()->Light3D()->SetGaus(bGaus);
 	GetTarget()->Light3D()->SetShadow(bShadow);
 	GetTarget()->Light3D()->SetAngle(fAngle);
-	GetTarget()->Light3D()->SetRadius(fRadius);
+
+	if(fRadius != GetTarget()->Light3D()->GetRadius())
+	{
+		GetTarget()->Light3D()->SetRadius(fRadius);
+	}
+	if(GetTarget()->Light3D()->GetLightType() != (LIGHT_TYPE)iLightType)
+	{
+		GetTarget()->Light3D()->SetLightType((LIGHT_TYPE)iLightType);
+	}
 
 	return TRUE;
 }

@@ -42,6 +42,9 @@ public:
 	void SetSpriteSheet(Ptr<CTexture> sheet) { m_pSpriteSheet = sheet; }
 	void SetActiveAnimation(CAnimSprite* animation) { m_pActiveSprite = animation; }
 
+	CAnimSprite* GetActiveAnimation() { return m_pActiveSprite; }
+	Ptr<CTexture>& GetCurSpriteSheet() { return m_pSpriteSheet; }
+
 public:
     void Create(const std::wstring& name
 		, Ptr<CTexture> sheet
@@ -75,16 +78,6 @@ public:
 		, Vec2 offsetOfCenterPos
 		, float duration
 		, float alpha
-		, int mtrlIdx = 0
-	);
-	void Create(const std::wstring& name
-		, Ptr<CTexture> sheet
-		, Vec2 leftTop
-		, Vec2 size
-		, UINT columnLength
-		, UINT rowLength
-		, Vec2 offset
-		, Vec2 offsetOfCenterPos
 		, int mtrlIdx = 0
 	);
 

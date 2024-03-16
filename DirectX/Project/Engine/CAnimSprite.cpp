@@ -90,7 +90,7 @@ void CAnimSprite::SaveToLevelFile(FILE* _File)
 {
 	SaveResRef(mSheet.Get(), _File);
 
-	for(int i = 0 ; i < mSprites.size(); ++i)
+	for (int i = 0; i < mSprites.size(); ++i)
 	{
 		mSprites[i].SaveToLevelFile(_File);
 	}
@@ -110,7 +110,7 @@ void CAnimSprite::SaveToLevelFile(FILE* _File)
 }
 
 void CAnimSprite::Create(const wstring& name, Ptr<CTexture> sheet, Vector2 leftTop, Vector2 size, UINT columnLength,
-                         Vector2 offset, Vector2 offsetOfCenterPos, float duration, float alpha)
+	Vector2 offset, Vector2 offsetOfCenterPos, float duration, float alpha)
 {
 	SetName(name);
 	mSheet = sheet;
@@ -152,58 +152,77 @@ void CAnimSprite::Create(const wstring& name, Ptr<CTexture> sheet, Vector2 leftT
 	float height = (float)sheet->Height();
 	mSpriteLength = rowLength * columnLength;
 	mSpriteEndIndex = rowLength * columnLength;
-
-	for(size_t k = 0 ; k < rowLength; ++k)
+	Sprite sprite = {};
+	if (mSpriteLength == 1)
 	{
-		for (size_t i = 0; i < columnLength; ++i)
+		
+		sprite.leftTop.x = leftTop.x / width;
+		sprite.leftTop.y = leftTop.y / height;
+		sprite.size.x = size.x / width;
+		sprite.size.y = size.y / height;
+		sprite.offset.x = offset.x / width;
+		sprite.offset.y = offset.y / height;
+		sprite.offsetOfCenterPos.x = offsetOfCenterPos.x / width;
+		sprite.offsetOfCenterPos.y = offsetOfCenterPos.y / height;
+		sprite.sheetSize = Vector2(size.x / width, size.y / height);
+		sprite.duration = duration;
+		sprite.alpha = alpha;
+		mSprites.push_back(sprite);
+	}
+	else
+	{
+		for (size_t k = 0; k < rowLength; ++k)
 		{
-			Sprite sprite = {};
-			sprite.leftTop.x = leftTop.x + (i * size.x) / width;
-			sprite.leftTop.y = leftTop.y + (k * size.y)/ height;
-			sprite.size.x = size.x / width;
-			sprite.size.y = size.y / height;
-			sprite.offset.x = offset.x / width;
-			sprite.offset.y = offset.y / height;
-			sprite.offsetOfCenterPos.x = offsetOfCenterPos.x / width;
-			sprite.offsetOfCenterPos.y = offsetOfCenterPos.y / height;
-			sprite.sheetSize = Vector2(size.x / width, size.y / height);
-			sprite.duration = duration;
-			sprite.alpha = alpha;
+			for (size_t i = 0; i < columnLength; ++i)
+			{
+				sprite.leftTop.x = leftTop.x + (i * size.x) / width;
+				sprite.leftTop.y = leftTop.y + (k * size.y) / height;
+				sprite.size.x = size.x / width;
+				sprite.size.y = size.y / height;
+				sprite.offset.x = offset.x / width;
+				sprite.offset.y = offset.y / height;
+				sprite.offsetOfCenterPos.x = offsetOfCenterPos.x / width;
+				sprite.offsetOfCenterPos.y = offsetOfCenterPos.y / height;
+				sprite.sheetSize = Vector2(size.x / width, size.y / height);
+				sprite.duration = duration;
+				sprite.alpha = alpha;
 
-			mSprites.push_back(sprite);
+				mSprites.push_back(sprite);
+			}
 		}
 	}
+
 }
 
-void CAnimSprite::Create(const wstring& name, Ptr<CTexture> sheet, Vector2 leftTop, Vector2 size, UINT columnLength,
-	UINT rowLength, Vector2 offset, Vector2 offsetOfCenterPos)
-{
-	SetName(name);
-	mSheet = sheet;
-
-	float width = (float)sheet->Width();
-	float height = (float)sheet->Height();
-	mSpriteLength = rowLength * columnLength;
-	mSpriteEndIndex = rowLength * columnLength;
-
-	Sprite sprite = {};
-	sprite.leftTop.x = leftTop.x / width;
-	sprite.leftTop.y = leftTop.y / height;
-	sprite.size.x = size.x / width;
-	sprite.size.y = size.y / height;
-	sprite.offset.x = offset.x / width;
-	sprite.offset.y = offset.y / height;
-	sprite.offsetOfCenterPos.x = offsetOfCenterPos.x / width;
-	sprite.offsetOfCenterPos.y = offsetOfCenterPos.y / height;
-	sprite.sheetSize = Vector2(size.x / width, size.y / height);
-	sprite.duration = 1.f;
-	sprite.alpha = 1.f;
-
-	mSprites.push_back(sprite);
-}
+//void CAnimSprite::Create(const wstring& name, Ptr<CTexture> sheet, Vector2 leftTop, Vector2 size, UINT columnLength,
+//	UINT rowLength, Vector2 offset, Vector2 offsetOfCenterPos, float duration, float alpha)
+//{
+//	SetName(name);
+//	mSheet = sheet;
+//
+//	float width = (float)sheet->Width();
+//	float height = (float)sheet->Height();
+//	mSpriteLength = rowLength * columnLength;
+//	mSpriteEndIndex = rowLength * columnLength;
+//
+//	Sprite sprite = {};
+//	sprite.leftTop.x = leftTop.x / width;
+//	sprite.leftTop.y = leftTop.y / height;
+//	sprite.size.x = size.x / width;
+//	sprite.size.y = size.y / height;
+//	sprite.offset.x = offset.x / width;
+//	sprite.offset.y = offset.y / height;
+//	sprite.offsetOfCenterPos.x = offsetOfCenterPos.x / width;
+//	sprite.offsetOfCenterPos.y = offsetOfCenterPos.y / height;
+//	sprite.sheetSize = Vector2(size.x / width, size.y / height);
+//	sprite.duration = duration;
+//	sprite.alpha = alpha;
+//
+//	mSprites.push_back(sprite);
+//}
 
 void CAnimSprite::Create(std::wstring name, Ptr<CTexture> sheet, Vector2 leftTop, Vector2 size, UINT columnLength,
-                         Vector2 offset, float duration, float alpha)
+	Vector2 offset, float duration, float alpha)
 {
 	SetName(name);
 	mSheet = sheet;
@@ -254,11 +273,12 @@ void CAnimSprite::Reset()
 	mbComplete = false;
 	mbProgress = false;
 	mbStop = false;
-	if(mCustomStartIndex == 0)
+	if (mCustomStartIndex == 0)
 	{
 		mSpriteCurIndex = 0;
 		//mSpriteEndIndex = mSpriteLength;
-	}else
+	}
+	else
 	{
 		if (mbReverse)
 		{
@@ -271,7 +291,7 @@ void CAnimSprite::Reset()
 			mSpriteEndIndex = mCustomEndIndex == 0 ? mSprites.size() : mCustomEndIndex;
 		}
 	}
-	
+
 }
 
 void CAnimSprite::SetReverse(bool loop)

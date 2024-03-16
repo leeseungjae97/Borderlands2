@@ -49,8 +49,11 @@ int PlacementUI::render_update()
 		{
 			if(vPos != Vec3::Zero)
 			{
-				Vec3 vScale = pSelectedObject->Transform()->GetRelativeScale();
-				vPos.y += vScale.y / 2.f;
+				if(pSelectedObject->Transform())
+				{
+					Vec3 vScale = pSelectedObject->Transform()->GetRelativeScale();
+					vPos.y += vScale.y / 2.f;
+				}
 				pSelectedObject->Transform()->SetRelativePos(vPos);
 			}
 				

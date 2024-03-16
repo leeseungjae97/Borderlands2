@@ -54,6 +54,7 @@ void CLight3D::finaltick()
 
 	m_LightInfo.vWorldPos = Transform()->GetWorldPos();
 	m_LightInfo.vWorldDir = Transform()->GetWorldDir(DIR_TYPE::FRONT);
+	SetRadius(m_LightInfo.Radius);
 
 	m_LightIdx = CRenderMgr::GetInst()->RegisterLight3D(this, m_LightInfo);
 	
@@ -68,12 +69,13 @@ void CLight3D::finaltick()
 		//	DrawDebugSphere(Transform()->GetWorldMat(), Vec4(0.2f, 1.f, 0.2f, 1.f), 0.f, true);	
 	}
 
-	// 광원에 부착한 카메라 오브젝트도 위치를 광원 위치랑 동일하게..
-	// finaltick 호출시켜서 카메라 오브젝트의 카메라 컴포넌트의 view, proj 행렬 연산할수 있게 함
 	if ((UINT)LIGHT_TYPE::DIRECTIONAL == m_LightInfo.LightType)
 	{
-		*m_pCamObj->Transform() = *Transform();
-		m_pCamObj->finaltick_module();
+		if(m_pCamObj)
+		{
+			*m_pCamObj->Transform() = *Transform();
+			m_pCamObj->finaltick_module();
+		}
 	}	
 }
 void CLight3D::SetRadius(float _fRadius)
@@ -89,21 +91,24 @@ void CLight3D::SetLightType(LIGHT_TYPE _type)
 	
 	if (LIGHT_TYPE::DIRECTIONAL == _type)
 	{
-		m_pCamObj = new CGameObject;
-		m_pCamObj->AddComponent(new CTransform);
-		m_pCamObj->AddComponent(new CCamera);
+		if(nullptr == m_pCamObj)
+		{
+			m_pCamObj = new CGameObject;
+			m_pCamObj->AddComponent(new CTransform);
+			m_pCamObj->AddComponent(new CCamera);
 
-		m_pCamObj->Camera()->SetLayerMaskAll(true);
-		m_pCamObj->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, false);
+			m_pCamObj->Camera()->SetLayerMaskAll(true);
+			m_pCamObj->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, false);
+
+			m_pCamObj->Camera()->SetFarZ(100000.f);
+			m_pCamObj->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
+			m_pCamObj->Camera()->SetOrthoWidth(800000.f);
+			m_pCamObj->Camera()->SetOrthoHeight(800000.f);
+			m_pCamObj->Camera()->SetESM(false);
+		}
 
 		m_Mesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
 		m_Mtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"DirLightMtrl");
-
-		m_pCamObj->Camera()->SetFarZ(100000.f);
-		m_pCamObj->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
-		m_pCamObj->Camera()->SetOrthoWidth(800000.f);
-		m_pCamObj->Camera()->SetOrthoHeight(800000.f);
-		m_pCamObj->Camera()->SetESM(false);
 	}
 	if (LIGHT_TYPE::POINT == _type)
 	{
@@ -192,6 +197,7 @@ void CLight3D::SaveToLevelFile(FILE* _File)
 void CLight3D::LoadFromLevelFile(FILE* _File)
 {
 	fread(&m_LightInfo, sizeof(tLightInfo), 1, _File);
+	SetLightType((LIGHT_TYPE)m_LightInfo.LightType);
 
 	LoadResRef(m_Mesh, _File);
 	LoadResRef(m_Mtrl, _File);

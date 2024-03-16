@@ -283,6 +283,7 @@ void CTransform::SaveToLevelFile(FILE* _File)
 	fwrite(&m_vRelativePosOffset, sizeof(Vec3), 1, _File);
 	fwrite(&m_FollowOffset, sizeof(Vec3), 1, _File);
 	fwrite(&m_bAbsolute, sizeof(bool), 1, _File);
+	fwrite(&m_bBilboard, sizeof(bool), 1, _File);
 
 }
 
@@ -294,4 +295,5 @@ void CTransform::LoadFromLevelFile(FILE* _FILE)
 	fread(&m_vRelativePosOffset, sizeof(Vec3), 1, _FILE);
 	fread(&m_FollowOffset, sizeof(Vec3), 1, _FILE);
 	fread(&m_bAbsolute, sizeof(bool), 1, _FILE);
+	fread(&m_bBilboard, sizeof(bool), 1, _FILE);
 }

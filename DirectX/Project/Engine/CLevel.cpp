@@ -32,7 +32,7 @@ CLevel::CLevel()
 	m_arrLayer[(int)LAYER_TYPE::EnemyBullet]->SetName(L"EnemyBullet");
 	m_arrLayer[(int)LAYER_TYPE::Missile]->SetName(L"Missile");
 	m_arrLayer[(int)LAYER_TYPE::Light]->SetName(L"Light");
-	m_arrLayer[(int)LAYER_TYPE::ViewPortUI]->SetName(L"ViewPort UI");
+	m_arrLayer[(int)LAYER_TYPE::ViewPortUI]->SetName(L"ViewPortUI");
 }
 
 CLevel::~CLevel()

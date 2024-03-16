@@ -224,8 +224,8 @@ void PerlinNoiseFire(out float4 fragColor, in float2 fragCoord)
     q.y -= 0.6;
     float n = fbm(strength * q - float2(0, T3));
     float c = 1. - 16. * pow(max(0., length(q * float2(1.8 + q.y * 1.5, .75)) - n * max(0., q.y + .25)), 1.2);
-	float c1 = n * c * (0.5 + pow(uv.y,4.));
-    //float c1 = n * c * (1.5 - pow(2.50 * uv.y, 4.));
+	//float c1 = n * c * (0.5 + pow(uv.y,4.));
+    float c1 = n * c * (0.5 + pow(1.25 * uv.y, 4.));
     c1 = clamp(c1, 0., 1.);
 
     float3 col = float3(1.5 * c1, 1.5 * c1 * c1 * c1, c1 * c1 * c1 * c1 * c1 * c1);
@@ -369,22 +369,26 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightCo
     {
         // ViewSpace 에서의 광원의 방향
         vViewLightDir = normalize(mul(float4(normalize(lightInfo.vWorldDir.xyz), 0.f), g_matView)).xyz;
+        //float3 vWorldDir = normalize(lightInfo.vWorldDir.xyz);
     
         // ViewSpace 에서의 노말벡터와 광원의 방향을 내적 (램버트 코사인 법칙)    
         fLightPow = saturate(dot(_vViewNormal, -vViewLightDir));
+        //fLightPow = saturate(dot(_vViewNormal, vWorldDir));
     
         // 반사광
         float3 vViewReflect = normalize(vViewLightDir + 2.f * (dot(-vViewLightDir, _vViewNormal)) * _vViewNormal);
-        float3 vEye = normalize(_vViewPos);
+        float3 vEye = normalize(vViewLightDir);
    
         // 반사광의 세기 구하기
         fSpecPow = saturate(dot(vViewReflect, -vEye));
-        fSpecPow = pow(fSpecPow, 5);
+        fSpecPow = pow(fSpecPow, 60);
+
+        _vLightColor.vAmbient = lightInfo.Color.vAmbient;
     }
     if (1 == lightInfo.LightType)
     {
         float fDistPow = 1.f;
-        
+			
         // ViewSpace 에서의 광원의 위치
         float3 vLightViewPos = mul(float4(lightInfo.vWorldPos.xyz, 1.f), g_matView).xyz;
         
@@ -406,7 +410,9 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightCo
         
         // 반사광의 세기 구하기
         fSpecPow = saturate(dot(vViewReflect, -vEye));
-        fSpecPow = pow(fSpecPow, 10) * fDistPow;
+        fSpecPow = pow(fSpecPow, 60) * fDistPow;
+
+        _vLightColor.vAmbient = lightInfo.Color.vAmbient * fLightPow;
     }
     if (2 == lightInfo.LightType)
     {
@@ -452,7 +458,7 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightCo
     }
 
     _vLightColor.vDiffuse = lightInfo.Color.vDiffuse * fLightPow;
-    _vLightColor.vAmbient = lightInfo.Color.vAmbient * fLightPow;
+    
     _SpecPow += fSpecPow;
 }
 

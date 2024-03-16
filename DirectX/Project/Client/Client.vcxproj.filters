@@ -143,6 +143,9 @@
     <Filter Include="_UI\_InspectorUI\_ComponentUI\SkyBoxUI">
       <UniqueIdentifier>{9414e6de-2737-456c-86f8-e549a6f35499}</UniqueIdentifier>
     </Filter>
+    <Filter Include="_UI\_InspectorUI\_ComponentUI\Animator2DUI">
+      <UniqueIdentifier>{eacdbc9b-93f6-4da9-bbb9-bb1c8fe061b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -304,6 +307,9 @@
     </ClInclude>
     <ClInclude Include="SkyBoxUI.h">
       <Filter>_UI\_InspectorUI\_ComponentUI\SkyBoxUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Animator2DUI.h">
+      <Filter>_UI\_InspectorUI\_ComponentUI\Animator2DUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -474,6 +480,9 @@
     </ClCompile>
     <ClCompile Include="SkyBoxUI.cpp">
       <Filter>_UI\_InspectorUI\_ComponentUI\SkyBoxUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Animator2DUI.cpp">
+      <Filter>_UI\_InspectorUI\_ComponentUI\Animator2DUI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

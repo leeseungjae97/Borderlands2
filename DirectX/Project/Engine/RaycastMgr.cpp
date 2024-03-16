@@ -201,6 +201,9 @@ bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo, CGameObject** _Hover, RA
 		if (hit.block.actor->userData)
 		{
 			CCollider3D* otherCol = static_cast<CCollider3D*>(hit.block.actor->userData);
+			if (otherCol->GetOwner()->IsDead() 
+				|| otherCol->GetOwner()->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE) 
+				return false;
 
 			if (otherCol)
 			{

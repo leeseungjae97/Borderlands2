@@ -140,6 +140,17 @@ int MeshRenderUI::render_update()
 		string str = "";
 		tMtrlConst mtrlConst = mtrl->GetConst();
 
+		bool bTexAnim= mtrlConst.arrAnimData[2];
+		ImGui::Text("Texture flow ");
+		ImGui::SameLine();
+		str = bTexAnim ? "TRUE" : "FALSE";
+		str += "##TexAnimFlowBtn";
+		if(ImGui::Button(str.c_str()))
+		{
+			bTexAnim = !bTexAnim;
+		}
+		mtrl->SetTexFlow(bTexAnim);
+
 		float fTexFlowSpeed = mtrlConst.fTexFlowSpeed;
 		ImGui::Text("Tex Flow Speed : ");
 		ImGui::SameLine();
@@ -212,7 +223,7 @@ int MeshRenderUI::render_update()
 			pListUI->AddDynamic_Select(this, (UI_DELEGATE_1)&MeshRenderUI::SelectShader);
 		}
 
-		bool bTexFlow = false;
+		//bool bTexFlow = false;
 		for(int j = 0 ; j < TEX_PARAM::TEX_7 + 1; ++j)
 		{
 			
@@ -251,7 +262,7 @@ int MeshRenderUI::render_update()
 				bool bFlow = mtrlConst.arrTexFlow[j];
 				if(bFlow)
 				{
-					bTexFlow = true;
+					//bTexFlow = true;
 					str = "STOP##" + std::to_string(i) + "mtrl" + std::to_string(j) + "texStop";
 					if (ImGui::Button(str.c_str()))
 					{
@@ -306,7 +317,7 @@ int MeshRenderUI::render_update()
 				}
 			}
 		}
-		mtrl->SetTexFlow(bTexFlow);
+		//mtrl->SetTexFlow(bTexFlow);
 	}
 
 	return TRUE;
