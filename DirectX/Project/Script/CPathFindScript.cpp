@@ -27,54 +27,55 @@ void CPathFindScript::tick()
 
 void CPathFindScript::Move()
 {
-	CGameObject* pOwner = GetOwner();
-	Vec3 vPos = pOwner->Transform()->GetRelativePos();
-	Vec3 vFront = pOwner->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
-	if (m_vecQueryPath.empty())
-	{
-		vDestPos = vPos;
-		return;
-	}
-	Vec3 vPathPos = m_vecQueryPath.front();
+	CGameObject* pCamera = GetOwner();
 
-	if (vPathPos != vDestPos)
-	{
-		vPrevPos = vPos;
-		vDestPos = vPathPos;
-		fDestDist = fabs((vDestPos - vPos).Length());
-	}
+	//if (pCamera->GetName() != L"MainMenuCamera")
+	//	return;
 
-	float fRemainDist = fabs((vPrevPos - vPos).Length());
+	Vec3 vPos = pCamera->Transform()->GetRelativePos();
+	Vec3 vUp = pCamera->Transform()->GetRelativeDir(DIR_TYPE::UP);
+	Vec3 vRight = pCamera->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
 
-	if (fRemainDist < fDestDist)
-	{
-		Vec3 vDir = vDestPos - vPos;
-		vDir.Normalize();
+	vPos.x += sinf(m_Theta) * DT * 2000.f;
+	vPos.z -= cosf(m_Theta) * DT * 2000.f;
 
-		vPos += vDir * DT * 200.f;
-	}
-	else
-	{
-		auto iter = m_vecQueryPath.begin();
-		iter = m_vecQueryPath.erase(iter);
-	}
+	m_Theta += (2000.f * DT)/ m_fRadius;
 
-	pOwner->Transform()->SetRelativePos(vPos);
-	//Vec3 vOffsetPos = vDestPos;
-	//Vec3 vDir = vOffsetPos - vPos;
-	//vDir.Normalize();
-	//vDir.x = 0;
+	Vec3 vDiff = m_vTargetPos - vPos;
+	Vec3 vDir = vDiff;
+	vDir.Normalize();
+	vRight.Normalize();
 
+	float fAngle = vDir.Dot(vRight);
 
+	//Matrix rotMat = XMMatrixLookToLH(vPos, vDir, vUp);
+
+	//Quat quat;
+	//Vec3 vS, vT;
+	//rotMat.Decompose(vS, quat, vT);
+
+	//Vec3 vRot = physx::Util::QuaternionToVector3(quat);
+	Vec3 vRot = pCamera->Transform()->GetRelativeRot();
+	vRot.y += fAngle;
+	//vRot.y += (2000.f * DT) / m_fRadius;
+	pCamera->Transform()->SetRelativeRot(vRot);
+	pCamera->Transform()->SetRelativePos(vPos);
 }
 
 void CPathFindScript::finaltick()
 {
-	//if(KEY_TAP(KEY::Q))
-	//{
-	//	DoQuery();
-	//}
-	//Move();
+	if (KEY_TAP(KEY::G))
+	{
+		CGameObject* pCamera = GetOwner();
+		Vec3 vPos = pCamera->Transform()->GetRelativePos();
+		Vec3 vFront = pCamera->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+		m_vTargetPos = Vec3(0.f , vPos.y, 0.f);
+		m_fRadius = (m_vTargetPos - vPos).Length();
+		m_bMove = !m_bMove;
+	}
+
+	if (m_bMove)
+		Move();
 }
 void CPathFindScript::BeginOverlap(CCollider3D* _Other)
 {

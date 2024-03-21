@@ -97,10 +97,6 @@ ULONG64 CRenderComponent::GetInstID(UINT _iMtrlIdx)
 void CRenderComponent::render_shadowmap()
 {
 	Ptr<CMaterial> pShadowMapMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"ShadowMapMtrl");
-	//if(Animator2D())
-	//{
-	//	Animator2D()->UpdateData();
-	//}
 
 	if (Animator3D())
 	{
@@ -114,7 +110,7 @@ void CRenderComponent::render_shadowmap()
 	}
 
 	Transform()->UpdateData();
-	
+
 	for (int i = 0; i < GetMesh()->GetSubsetCount(); ++i)
 	{
 		// 재질 업데이트
@@ -122,15 +118,9 @@ void CRenderComponent::render_shadowmap()
 		// 렌더
 		GetMesh()->render(i);
 	}
-	//if(GetMesh()->GetSubsetCount() == 0)
-	//{
-	//	GetMesh()->render(0);
-	//}
 
 	if (Animator3D())
 		Animator3D()->ClearData();
-	//if (Animator2D())
-	//	Animator2D()->ClearData();
 }
 
 

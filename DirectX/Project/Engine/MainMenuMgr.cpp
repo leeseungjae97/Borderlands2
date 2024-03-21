@@ -2,6 +2,7 @@
 #include "MainMenuMgr.h"
 
 #include "CEventMgr.h"
+#include "CGizmo.h"
 #include "CLayer.h"
 #include "CLevel.h"
 #include "CLevelMgr.h"
@@ -63,7 +64,7 @@ void MainMenuMgr::makeHoverImg()
 	m_pHoverImg->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"MainMenuHoverMtrl"), 0);
 	m_pHoverImg->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, tex);
 
-	m_pHoverImg->Transform()->SetRelativeScale(Vec3(tex->Width(), tex->Height(), 1.f));
+	//m_pHoverImg->Transform()->SetRelativeScale(Vec3(tex->Width(), tex->Height(), 1.f));
 	m_pHoverImg->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
 
 	PreloadGameObject(m_pHoverImg, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::ViewPortUI);

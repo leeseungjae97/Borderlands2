@@ -152,6 +152,7 @@ void CGameObject::finaltick()
 	//{
 	//	if (-1 == m_iLayerIdx) m_iLayerIdx = m_Parent->GetLayerIndex();
 	//}
+
 	// 레이어 등록
 	CLayer* pCurLayer = CLevelMgr::GetInst()->GetCurLevel()->GetLayer(m_iLayerIdx);
 	pCurLayer->RegisterObject(this);
@@ -236,6 +237,7 @@ void CGameObject::AddChild(CGameObject* _Object)
 
 	// 부모 자식 연결
 	_Object->m_Parent = this;
+	_Object->SetLayerIdx(m_iLayerIdx);
 	m_vecChild.push_back(_Object);
 }
 

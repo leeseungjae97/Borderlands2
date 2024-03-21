@@ -3,12 +3,11 @@
 #ifndef FUNC_H
 #define FUNC_H
 
-// 오브젝트 생성
 class CGameObject;
 class CLevel;
 class CMesh;
 class CRigidBody;
-//class Ptr;
+
 void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
 void PreloadGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, LAYER_TYPE _Type);
 
@@ -16,6 +15,10 @@ void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, int _LayerIdx);
 void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, LAYER_TYPE _Type, bool _IntergratedCollider = false);
 
 void ChangeCurLevel(CLevel* _ChangeLevel);
+
+void LoadLevel(const wstring& _Name);
+CGameObject* LoadGameObject(FILE* _File, CLevel* _NewLevel, int _LayerIdx, bool _Root);
+
 
 void LevelRecognize();
 // 오브젝트 삭제

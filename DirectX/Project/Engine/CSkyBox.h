@@ -5,6 +5,7 @@ enum class SKYBOX_TYPE
 {
     SPHERE,
     CUBE,
+    HEMI_SPHERE,
 };
 class CSkyBox :
     public CRenderComponent

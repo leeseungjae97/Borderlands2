@@ -28,6 +28,7 @@ CWarriorScript::CWarriorScript()
 {
 	AddScriptParam(SCRIPT_PARAM::VEC4, &m_vRot, "offset rotate");
 	AddScriptParam(SCRIPT_PARAM::VEC4, &m_R, "rotate r");
+	AddScriptParam(SCRIPT_PARAM::FLOAT, &m_fScaleZ, "Scale z");
 }
 
 CWarriorScript::~CWarriorScript()
@@ -236,6 +237,9 @@ void CWarriorScript::initAnim()
 	pWarrior->Animator3D()->SetAnimClipEventIdx(
 		(UINT)WARRIOR_ANIMATION_TYPE::ROCK_THROW, -1, -1, 93, -1);
 
+	pWarrior->Animator3D()->SetAnimClipEventIdx(
+		(UINT)WARRIOR_ANIMATION_TYPE::TAIL_ATTACK, -1, -1, 166, -1);
+	
 	pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::FAR_BREATH)
 		= std::make_shared<std::function<void()>>([=]()
 			{
@@ -260,8 +264,17 @@ void CWarriorScript::initAnim()
 	pWarrior->Animator3D()->CompleteEvent((UINT)WARRIOR_ANIMATION_TYPE::FAR_BREATH)
 		= std::make_shared<std::function<void()>>([=]()
 			{
+				SoundMgr::GetInst()->Stop(wsFireBreathSound, SoundMgr::SOUND_TYPE::SFX);
 				pBreath->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 			});
+
+	pWarrior->Animator3D()->StartEvent((UINT)WARRIOR_ANIMATION_TYPE::FAR_BREATH)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				if (!SoundMgr::GetInst()->IsPlaying(wsFireBreathSound, SoundMgr::SOUND_TYPE::SFX))
+					SoundMgr::GetInst()->Play(wsFireBreathSound, pWarrior->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.8f, false);
+			});
+
 	pWarrior->Animator3D()->ProgressEvent((UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH)
 		= std::make_shared<std::function<void()>>([=]()
 			{
@@ -287,12 +300,14 @@ void CWarriorScript::initAnim()
 	pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_ENTER)
 		= std::make_shared<std::function<void()>>([=]()
 			{
+				SoundMgr::GetInst()->Play(wsBeamEnterSound, pWarrior->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.8f, false);
 				pTailBeam->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 				tState = WARRIOR_STATE::TAIL_BEAM_IDLE;
 			});
 	pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_IDLE)
 		= std::make_shared<std::function<void()>>([=]()
 			{
+				SoundMgr::GetInst()->Stop(wsBeamIdleSound, SoundMgr::SOUND_TYPE::SFX);
 				pTailBeam->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 				tState = WARRIOR_STATE::TAIL_BEAM_EXIT;
 			});
@@ -308,6 +323,15 @@ void CWarriorScript::initAnim()
 		= std::make_shared<std::function<void()>>([=]()
 			{
 				tState = WARRIOR_STATE::IDLE;
+			});
+
+	pWarrior->Animator3D()->ProgressEvent((UINT)WARRIOR_ANIMATION_TYPE::TAIL_ATTACK)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				PxVec3 _p = pTailCollider->Collider3D()->GetColliderPos().p;
+				Vec3 vPos = Vec3(_p.x, _p.y, _p.z);
+				if(!SoundMgr::GetInst()->IsPlaying(wsTailAttackSound, SoundMgr::SOUND_TYPE::SFX))
+					SoundMgr::GetInst()->Play(wsTailAttackSound, vPos, 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 1.0f, false);
 			});
 
 	pWarrior->Animator3D()->StartEvent((UINT)WARRIOR_ANIMATION_TYPE::ROCK_THROW)
@@ -331,6 +355,14 @@ void CWarriorScript::initAnim()
 		= std::make_shared<std::function<void()>>([=]()
 			{
 				tState = WARRIOR_STATE::IDLE;
+			});
+
+	pWarrior->Animator3D()->StartEvent((UINT)WARRIOR_ANIMATION_TYPE::APPEAR)
+		= std::make_shared<std::function<void()>>([=]()
+			{
+				Vec3 vPos = pWarrior->Transform()->GetRelativePos();
+				vPos.y = 1154.404;
+				pWarrior->Transform()->SetRelativePos(vPos);
 			});
 	pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::DIE)
 		= std::make_shared<std::function<void()>>([=]()
@@ -372,6 +404,11 @@ void CWarriorScript::breathMove()
 		vScale.z = fabs(vPosition.z);
 		pBreath->Transform()->SetRelativeScale(vScale);
 
+		if (!SoundMgr::GetInst()->IsPlaying(wsFireSound, SoundMgr::SOUND_TYPE::SFX))
+			SoundMgr::GetInst()->Play(wsFireSound, vCurPos + (rayInfo.vDir * vPosition.z), -1, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.8f, false);
+		else
+			SoundMgr::GetInst()->SetSoundPos(wsFireSound, SoundMgr::SOUND_TYPE::SFX, vCurPos + (rayInfo.vDir * vPosition.z));
+
 		pBreathCollider->Collider3D()->SetColliderPos(vCurPos + (rayInfo.vDir * vPosition.z));
 	}
 }
@@ -403,11 +440,12 @@ void CWarriorScript::beamMove()
 
 		pTailBeam->Transform()->SetRelativePos(vPos);
 		pTailBeam->Transform()->SetRelativeRot(vRot);
-
+		rotMat.Forward(vFront);
+		vFront.Normalize();
 		tRayInfo rayInfo{};
 		rayInfo.fDamage = 10.f;
 		rayInfo.iLayerIdx = (int)LAYER_TYPE::EnemyBullet;
-		rayInfo.vDir = pTailBeam->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+		rayInfo.vDir = vFront;
 		rayInfo.vStart = pTailBeam->Transform()->GetRelativePos();
 		rayInfo.matWorld = pTailBeam->Transform()->GetDrawRayMat();
 		rayInfo.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
@@ -420,7 +458,12 @@ void CWarriorScript::beamMove()
 
 		Vec3 vScale = pTailBeam->Transform()->GetRelativeScale();
 		vScale.z = fabs(vPosition.z);
+		vScale.z /= 1.5f;
 		pTailBeam->Transform()->SetRelativeScale(vScale);
+		if (!SoundMgr::GetInst()->IsPlaying(wsBeamIdleSound, SoundMgr::SOUND_TYPE::SFX))
+			SoundMgr::GetInst()->Play(wsBeamIdleSound, vCurPos + (rayInfo.vDir * vPosition.z), -1, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.8f, false);
+		else
+			SoundMgr::GetInst()->SetSoundPos(wsBeamIdleSound, SoundMgr::SOUND_TYPE::SFX, vCurPos + (rayInfo.vDir * vPosition.z));
 
 		pTailBeamCollider->Collider3D()->SetColliderPos(vCurPos + (rayInfo.vDir * vPosition.z));
 	}
@@ -457,7 +500,7 @@ void CWarriorScript::rockMove()
 
 				if (pRock->RigidBody()->IsRigidBodyCreate())
 				{
-					pRock->RigidBody()->SetLinearVelocity(vDir * 10000.f);
+					pRock->RigidBody()->SetLinearVelocity(vDir * 8000.f);
 					pRock->RigidBody()->GetDynamicBody()->setMaxLinearVelocity(50000.f);
 				}
 			}
@@ -467,7 +510,13 @@ void CWarriorScript::rockMove()
 			if (pRock)
 			{
 				if (pRock->Collider3D()->IsBeginOverlap() || pRock->Collider3D()->IsOnOverlap())
+				{
+					if(!SoundMgr::GetInst()->IsPlaying(wsRockCrashSound, SoundMgr::SOUND_TYPE::SFX))
+						SoundMgr::GetInst()->Play(wsRockCrashSound, pRock->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 1.0f, false);
+
 					pRock->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+				}
+
 			}
 		}
 	}
@@ -480,7 +529,7 @@ void CWarriorScript::tailMove()
 	{
 		int _TailIdx = pWarrior->Animator3D()->GetTailIdx();
 		Vec3 vPos = AnimationMgr::GetInst()->BonePos(_TailIdx, pWarrior);
-
+		vPos.y -= 50.f;
 		pTailCollider->Collider3D()->SetColliderPos(vPos);
 	}
 }
@@ -493,9 +542,11 @@ void CWarriorScript::paperBurn()
 	PlayerMgr::GetInst()->GetPlayer()->GetScript<CPlayerScript>()->AddExp(1);
 
 	CGameObject* pWarrior = GetOwner();
+	SoundMgr::GetInst()->Play(wsDeadSound, pWarrior->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.8f, false);
 	double dTime = AnimationMgr::GetInst()->GetCurAnimationTime(pWarrior->Animator3D());
 	pWarrior->MeshRender()->SetPaparBurn(true, (float)dTime);
 }
+
 void CWarriorScript::IsDie()
 {
 	CGameObject* pWarrior = GetOwner();
@@ -564,6 +615,7 @@ void CWarriorScript::IsDie()
 		//pWarrior->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 	}
 }
+
 void CWarriorScript::createUI()
 {
 	Ptr<CGraphicsShader> UIShader = (CGraphicsShader*)CResMgr::GetInst()->FindRes<CGraphicsShader>(L"UI2DShader").Get();
@@ -586,7 +638,10 @@ void CWarriorScript::createUI()
 		pUI_WarriorHPBack->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
 		pUI_WarriorHPBack->Transform()->SetRelativeScale(Vec3(700.f, 16.f, 1.f));
 		SpawnGameObject(pUI_WarriorHPBack, Vec3(0.f, 320.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		pUI_WarriorHPBack->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 	}
+
 	{
 		pMtrl = new CMaterial(true);
 		pMtrl->SetShader(adjustUIShader);
@@ -604,6 +659,8 @@ void CWarriorScript::createUI()
 		pUI_WarriorHP->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
 		pUI_WarriorHP->Transform()->SetRelativeScale(Vec3(695.f, 14.f, 1.f));
 		SpawnGameObject(pUI_WarriorHP, Vec3(0.f, 320.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		pUI_WarriorHP->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 	}
 	pWarriorText = new CUI();
 	pWarriorText->SetName(L"Warrior Text");
@@ -617,6 +674,8 @@ void CWarriorScript::createUI()
 	pWarriorText->SetOutline(true);
 	pWarriorText->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
 	SpawnGameObject(pWarriorText, Vec3(-150.f, 280.f, 1.f), LAYER_TYPE::ViewPortUI);
+
+	pWarriorText->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 }
 
 void CWarriorScript::colliderMove()
@@ -695,7 +754,7 @@ void CWarriorScript::makeAttackObject()
 		SpawnGameObject(pObj, vPos, LAYER_TYPE::EnemyBullet);
 		pBreath = pObj;
 	}
-	//pBreath->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	pBreath->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 
 
 	int tailWeaponIdx = pWarrior->Animator3D()->GetTailIdx();
@@ -743,9 +802,6 @@ void CWarriorScript::makeAttackObject()
 		pObj->AddComponent(new CGizmo);
 
 		pObj->SetName(L"fbx rock");
-		pObj->MeshRender()->GetMaterial(0)->SetTexFlow(true);
-		pObj->MeshRender()->GetMaterial(0)->SetFlowSpeed(-2.f);
-		pObj->MeshRender()->GetMaterial(0)->SetFlowDir(Vec2(0.5f, 0.0f));
 
 		SpawnGameObject(pObj, vPos, LAYER_TYPE::EnemyBullet);
 		pRock = pObj;
@@ -777,65 +833,62 @@ void CWarriorScript::tick()
 
 	if(pAttackBoundCollider->Collider3D()->IsColliderRigidCreate())
 	{
-		//Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
-		//Vec3 vFront = GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
-
-		//vPos += (vFront * 10000.f);
-
 		pAttackBoundCollider->Collider3D()->SetColliderPos(Vec3(-2083.733f, 1279.689f, 10716.288f));
 	}
 
-	//if(pAttackBoundCollider->Collider3D()->IsBeginOverlap() || pAttackBoundCollider->Collider3D()->IsOnOverlap())
-	//{
-	//	if(tState == WARRIOR_STATE::HIDE)
-	//	{
-	//		tState = WARRIOR_STATE::APPEAR;
-	//	}
+	if(pAttackBoundCollider->Collider3D()->IsBeginOverlap() || pAttackBoundCollider->Collider3D()->IsOnOverlap())
+	{
+		if(tState == WARRIOR_STATE::HIDE)
+		{
+			tState = WARRIOR_STATE::APPEAR;
 
-	//	if (tState == WARRIOR_STATE::IDLE)
-	//	{
-	//		m_fActAcc += DT;
+			pUI_WarriorHP->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			pUI_WarriorHPBack->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			pWarriorText->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 
-	//		int randStart = rand() % 20;
-	//		if (randStart == (int)m_fActAcc)
-	//		{
-	//			m_fActAcc = 0.0f;
-	//			m_RandBehavior = rand() % 5;
+			SoundMgr::GetInst()->Play(wsAppearSound, pWarrior->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 1.0f, false);
+		}
 
-	//			switch(m_RandBehavior)
-	//			{
-	//			case 0:
-	//			{
-	//				DoFarBreath();
-	//			}
-	//			break;
-	//			case 1:
-	//			{
-	//				DoNearBreath();
-	//			}
-	//			break;
-	//			case 2:
-	//			{
-	//				DoThrowRock();
-	//			}
-	//			break;
-	//			case 3:
-	//			{
-	//				DoTailBeam();
-	//			}
-	//			break;
-	//			case 4:
-	//			{
-	//				DoTailAttack();
-	//			}
-	//			break;
-	//			}
-	//		}
-	//	}else
-	//	{
-	//		m_fActAcc = 0.0f;
-	//	}
-	//}
+		if (tState == WARRIOR_STATE::IDLE)
+		{
+			m_fActAcc += DT;
+
+			int randStart = rand() % 20;
+			if (randStart == (int)m_fActAcc)
+			{
+				m_fActAcc = 0.0f;
+				m_RandBehavior = rand() % 4;
+
+				switch(m_RandBehavior)
+				{
+				case 0:
+				{
+					DoFarBreath();
+				}
+				break;
+				case 1:
+				{
+					DoThrowRock();
+					//DoNearBreath();
+				}
+				break;
+				case 2:
+				{
+					DoTailBeam();
+				}
+				break;
+				case 3:
+				{
+					DoTailAttack();
+				}
+				break;
+				}
+			}
+		}else
+		{
+			m_fActAcc = 0.0f;
+		}
+	}
 
 	//if (KEY_PRESSED(KEY::Q))
 	//{
@@ -876,6 +929,19 @@ void CWarriorScript::tick()
 	}
 	if (tState == WARRIOR_STATE::IDLE)
 	{
+		bool bPlay = false;
+		for(int i =0 ; i < 4; ++i)
+		{
+			if(SoundMgr::GetInst()->IsPlaying(wsIdleSound[i], SoundMgr::SOUND_TYPE::SFX))
+			{
+				bPlay = true;
+			}
+		}
+		if(!bPlay)
+		{
+			SoundMgr::GetInst()->Play(wsIdleSound[rand() % 4], pWarrior->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.5f, false);
+		}
+		
 		pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::IDLE, true);
 	}
 	if (tState == WARRIOR_STATE::TAIL_BEAM_IDLE)
@@ -906,57 +972,57 @@ void CWarriorScript::finaltick()
 	if (tState == WARRIOR_STATE::DIE)
 		return;
 
-	CGameObject* pWarrior = GetOwner();
-	static bool binit = false;
-	if (!binit)
-	{
-		if (GetOwner()->MeshRender()->GetMaterial(3) != nullptr)
-		{
-			GetOwner()->MeshRender()->GetMaterial(3)->SetTexFlow(true);
-		}
+	//CGameObject* pWarrior = GetOwner();
+	//static bool binit = false;
+	//if (!binit)
+	//{
+	//	if (GetOwner()->MeshRender()->GetMaterial(3) != nullptr)
+	//	{
+	//		GetOwner()->MeshRender()->GetMaterial(3)->SetTexFlow(true);
+	//	}
 
-		//makeAttackObject();
-		//makeCollider();
-		binit = true;
-	}
+	//	//makeAttackObject();
+	//	//makeCollider();
+	//	binit = true;
+	//}
 
-	if (KEY_TAP(KEY::F))
-	{
-		makeAttackObject();
-		makeCollider();
-		initAnim();
-	}
-	if (KEY_PRESSED(KEY::Q))
-	{
-		DoFarBreath();
-	}
-	if (KEY_PRESSED(KEY::E))
-	{
-		DoNearBreath();
-	}
-	if(KEY_PRESSED(KEY::U))
-	{
-		DoMidBreath();
-	}
-	if (KEY_PRESSED(KEY::R))
-	{
-		DoThrowRock();
-	}
-	if (KEY_PRESSED(KEY::T))
-	{
-		DoTailBeam();
-	}
-	if (KEY_PRESSED(KEY::Y))
-	{
-		DoTailAttack();
-	}
+	//if (KEY_TAP(KEY::F))
+	//{
+	//	makeAttackObject();
+	//	makeCollider();
+	//	initAnim();
+	//}
+	//if (KEY_PRESSED(KEY::Q))
+	//{
+	//	DoFarBreath();
+	//}
+	//if (KEY_PRESSED(KEY::E))
+	//{
+	//	DoNearBreath();
+	//}
+	//if(KEY_PRESSED(KEY::U))
+	//{
+	//	DoMidBreath();
+	//}
+	//if (KEY_PRESSED(KEY::R))
+	//{
+	//	DoThrowRock();
+	//}
+	//if (KEY_PRESSED(KEY::T))
+	//{
+	//	DoTailBeam();
+	//}
+	//if (KEY_PRESSED(KEY::Y))
+	//{
+	//	DoTailAttack();
+	//}
 
 
-	beamMove();
-	breathMove();
-	rockMove();
-	tailMove();
-	colliderMove();
+	//beamMove();
+	//breathMove();
+	//rockMove();
+	//tailMove();
+	//colliderMove();
 
 	//if (iWarriorHp == 0)
 	//{
@@ -966,18 +1032,18 @@ void CWarriorScript::finaltick()
 	//{
 	//	pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::DIE, false);
 	//}
-	if (tState == WARRIOR_STATE::IDLE)
-	{
-		pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::IDLE, true);
-	}
-	if (tState == WARRIOR_STATE::TAIL_BEAM_IDLE)
-	{
-		GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_IDLE, false, false);
-	}
-	if (tState == WARRIOR_STATE::TAIL_BEAM_EXIT)
-	{
-		GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_EXIT, false, false);
-	}
+	//if (tState == WARRIOR_STATE::IDLE)
+	//{
+	//	pWarrior->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::IDLE, true);
+	//}
+	//if (tState == WARRIOR_STATE::TAIL_BEAM_IDLE)
+	//{
+	//	GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_IDLE, false, false);
+	//}
+	//if (tState == WARRIOR_STATE::TAIL_BEAM_EXIT)
+	//{
+	//	GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::TAIL_BEAM_EXIT, false, false);
+	//}
 }
 
 void CWarriorScript::Attacked(int _Damage)

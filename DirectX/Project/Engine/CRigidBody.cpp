@@ -109,6 +109,7 @@ void CRigidBody::SetRigidBodyTrans(const PxTransform& trans)
 void CRigidBody::SetLinearVelocity(Vec3 _Velocity)
 {
 	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
+	if (nullptr == m_pDynamicBody) return;
 
 	PxVec3 prev_velocity = m_pDynamicBody->getLinearVelocity();
 	//if(GetOwner()->Collider3D())
@@ -130,24 +131,28 @@ void CRigidBody::SetLinearVelocity(Vec3 _Velocity)
 void CRigidBody::SetLinearVelocityZero()
 {
 	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
+	if (nullptr == m_pDynamicBody) return;
 	m_pDynamicBody->setLinearVelocity(PxVec3(0.f, 0.f, 0.f));
 }
 
 void CRigidBody::AddForce(Vec3 _Force)
 {
 	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
+	if (nullptr == m_pDynamicBody) return;
 	m_pDynamicBody->addForce(PxVec3(_Force.x, _Force.y, _Force.z));
 }
 
 void CRigidBody::AddTorque(Vec3 _Torque)
 {
 	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
+	if (nullptr == m_pDynamicBody) return;
 	m_pDynamicBody->addTorque(PxVec3(_Torque.x, _Torque.y, _Torque.z), PxForceMode::eVELOCITY_CHANGE);
 }
 
 void CRigidBody::SetAngularVelocity(Vec3 _Angular)
 {
 	if (m_tRigidType == RIGID_BODY_TYPE::STATIC) return;
+	if (nullptr == m_pDynamicBody) return;
 
 	m_pDynamicBody->setAngularVelocity(PxVec3(_Angular.x, _Angular.y, _Angular.z));
 }
@@ -173,7 +178,7 @@ Matrix CRigidBody::GetRigidBodyMatrix(Vec3 _vOffset)
 	PxTransform trans;
 	if (m_pDynamicBody)
 		trans = m_pDynamicBody->getGlobalPose();
-	else
+	if (m_pStaticBody)
 		trans = m_pStaticBody->getGlobalPose();
 
 

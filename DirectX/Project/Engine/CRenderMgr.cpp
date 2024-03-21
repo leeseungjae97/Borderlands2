@@ -20,7 +20,7 @@
 CRenderMgr::CRenderMgr()
     : m_Light2DBuffer(nullptr)
     , RENDER_FUNC(nullptr)
-    , m_pEditorCam(nullptr)
+    //, m_pEditorCam(nullptr)
     , m_MRT{}
 {
     Vec2 vResolution = CDevice::GetInst()->GetRenderResolution();
@@ -65,11 +65,11 @@ void CRenderMgr::render()
     {
         CLevel* pLevel = CLevelMgr::GetInst()->GetCurLevel();
         vector<CGameObject*> cams =pLevel->GetLayer((UINT)LAYER_TYPE::Camera)->GetObjects();
-        m_vecCam.clear();
-        vector<CCamera*>().swap(m_vecCam);
+        m_vecCam.resize(cams.size());
+
         for(int i = 0; i < cams.size(); ++i)
         {
-            m_vecCam.push_back(cams[i]->Camera());
+            m_vecCam[i] = cams[i]->Camera();
         }
     }
     // 광원 및 전역 데이터 업데이트 및 바인딩
@@ -91,34 +91,37 @@ void CRenderMgr::render()
 void CRenderMgr::render_play()
 {
     // 카메라 기준 렌더링
-    for (size_t i = 0; i < m_vecCam.size(); ++i)
+
+    //if (nullptr == m_vecCam[0])
+    //    return;
+
+    //m_vecCam[0]->SortObject();
+    //m_vecCam[0]->render();
+
+    //m_vecCam[1]->SortObject();
+    //m_vecCam[1]->render();
+
+    for (int i = 0; i < m_vecCam.size(); ++i)
     {
-        if (nullptr == m_vecCam[i])
-            continue;
+        //if (nullptr == m_vecCam[i])
+        //    continue;
 
         m_vecCam[i]->SortObject();
-
-        m_MRT[(UINT)MRT_TYPE::SWAPCHAIN]->OMSet();
 
         m_vecCam[i]->render();
     }
 
-    // Debug GameObject 그려질 때 쓸 Matrix 갱신
     m_vecCam[0]->FixedTransform();
 }
 
 void CRenderMgr::render_editor()
 {
-    if (nullptr == m_pEditorCam)
+    if (nullptr == m_vecCam[0])
         return;
 
-    // 물체 분류
-    m_pEditorCam->SortObject();
+    m_vecCam[0]->SortObject();
 
-    // 출력 타겟 지정    
-    m_MRT[(UINT)MRT_TYPE::SWAPCHAIN]->OMSet();
-
-    m_pEditorCam->render();    
+    m_vecCam[0]->render();
 }
 
 
@@ -135,25 +138,32 @@ int CRenderMgr::RegisterCamera(CCamera* _Cam, int _idx)
 
 void CRenderMgr::SetRenderFunc(bool _IsPlay)
 {
-    if(_IsPlay)
-        RENDER_FUNC = &CRenderMgr::render_play;
-    else
-        RENDER_FUNC = &CRenderMgr::render_editor;
+    RENDER_FUNC = &CRenderMgr::render_play;
+
+    //if(_IsPlay)
+    //    
+    //else
+    //    RENDER_FUNC = &CRenderMgr::render_editor;
 }
 
 CCamera* CRenderMgr::GetMainCam()
 {
-    if (CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
-    {
-        if (m_vecCam.empty())
-            return nullptr;
+    if (m_vecCam.empty())
+        return nullptr;
 
-        return m_vecCam[0];
-    }
-    else
-    {
-        return m_pEditorCam;
-    }
+    return m_vecCam[0];
+
+    //if (CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
+    //{
+	    //if (m_vecCam.empty())
+	    //    return nullptr;
+
+	    //return m_vecCam[0];
+    //}
+    //else
+    //{
+    //    return m_pEditorCam;
+    //}
 }
 
 CCamera* CRenderMgr::GetUICam()

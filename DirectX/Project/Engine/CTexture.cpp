@@ -521,6 +521,37 @@ int CTexture::Create(ComPtr<ID3D11Texture2D> _tex2D)
 	return S_OK;
 }
 
+int CTexture::Create(ComPtr<ID3D11ShaderResourceView> _tex2D)
+{
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	D3D11_TEXTURE2D_DESC tdesc;
+	_tex2D->GetDesc(&srvDesc);
+
+	m_Desc.Format = srvDesc.Format;
+
+	m_Desc.Width = srvDesc.Texture2D.MostDetailedMip + 1;
+	m_Desc.Height = srvDesc.Texture2D.MostDetailedMip + 1;
+	m_Desc.ArraySize = 1;
+
+	m_Desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	m_Desc.Usage = D3D11_USAGE_DEFAULT;
+	m_Desc.CPUAccessFlags = 0;
+
+	m_Desc.MipLevels = srvDesc.Texture2D.MipLevels;
+	m_Desc.SampleDesc.Count = 1;
+	m_Desc.SampleDesc.Quality = 0;
+
+	HRESULT hr = DEVICE->CreateTexture2D(&m_Desc, nullptr, m_Tex2D.GetAddressOf());
+
+	if (FAILED(DEVICE->CreateShaderResourceView(m_Tex2D.Get(), nullptr, m_SRV.GetAddressOf())))
+	{
+		return E_FAIL;
+	}
+
+	return S_OK;
+}
+
 int CTexture::Save(const wstring& _strRelativePath)
 {
 	wstring strFilePath = CPathMgr::GetInst()->GetContentPath();

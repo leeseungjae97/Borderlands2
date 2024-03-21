@@ -37,7 +37,6 @@ private:
     UINT                    m_iScriptType;
     vector<tScriptParam>    m_vecParam;
 
-
 public:
     void Destroy() { DestroyObject(GetOwner()); }
     void SetLifeSpan(float _Time) { GetOwner()->SetLifeSpan(_Time); }

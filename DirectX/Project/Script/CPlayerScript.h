@@ -48,6 +48,7 @@ private:
     CGameObject* m_pUI_HPFrontHit;
     CGameObject* m_pUI_HPLeftHit;
     CGameObject* m_pUI_HPRightHit;
+    CGameObject* m_pUI_FireHitEffect;
 
     float fHpFrontAcc;
     float fHpBackAcc;
@@ -65,6 +66,18 @@ private:
     class CUI*        m_pEnemyName;
     class CUI*        m_pEnemyLevel;
 
+
+    wstring wsPlayerWalkSound[5] =
+    {
+        L"sound\\walk\\player_walk_1.ogg",
+        L"sound\\walk\\player_walk_2.ogg",
+        L"sound\\walk\\player_walk_3.ogg",
+        L"sound\\walk\\player_walk_4.ogg",
+        L"sound\\walk\\player_walk_5.ogg",
+    };
+
+    int playerWalkIdx;
+    float fWalkSoundAcc;
 public:
     virtual void begin() override;
     virtual void tick() override;
@@ -100,6 +113,8 @@ public:
     void OnOverlap(CCollider3D* _Other) override;
     void EndOverlap(CCollider3D* _Other) override;
     void Raycast(tRayInfo _RaycastInfo) override;
+
+    void CustomReloadSound();
 
     CLONE(CPlayerScript);
 public:

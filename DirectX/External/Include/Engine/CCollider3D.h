@@ -25,7 +25,7 @@ private:
 
     Vec3            m_vScale;
     Vec3            m_vOffset;
-    bool            m_bFirstInit;
+    bool            m_bInit;
     bool            m_bAttachToRigidBody;
     bool            m_bUnity;
     bool            m_bCenter;
@@ -38,6 +38,7 @@ private:
 
     bool            m_bRaycast;
     bool            m_Release;
+    bool            m_bCreateShape;
     CGameObject*    m_pUnityOwner;
 
     wstring         m_debugMeshName;

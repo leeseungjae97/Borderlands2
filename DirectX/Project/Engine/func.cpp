@@ -11,6 +11,12 @@
 #include "ptr.h"
 #include "CResMgr.h"
 
+#include "components.h"
+
+#include <Script\CScriptMgr.h>
+
+#include "CScript.h"
+
 static int testObjectNumbering = 0;
 static vector<CGameObject*> vecTestObjGC;
 
@@ -151,12 +157,207 @@ void ChangeCurLevel(CLevel* _ChangeLevel)
 	CEventMgr::GetInst()->AddEvent(evn);
 }
 
+void LoadLevel(const wstring& _Name)
+{
+	wstring wsName = _Name + L".lv";
+	wsName = L"Level\\" + wsName;
+	wstring strPath = CPathMgr::GetInst()->GetContentPath();
+	strPath += wsName;
+
+	FILE* pFile = nullptr;
+
+	_wfopen_s(&pFile, strPath.c_str(), L"rb");
+
+	if (nullptr == pFile)
+	{
+		assert(nullptr);
+	}
+
+	CLevel* NewLevel = new CLevel;
+
+	// 레벨 이름
+	wstring strLevelName;
+	LoadWString(strLevelName, pFile);
+	NewLevel->SetName(strLevelName);
+
+
+	for (UINT i = 0; i < MAX_LAYER; ++i)
+	{
+		CLayer* pLayer = NewLevel->GetLayer(i);
+
+		// 레이어 이름
+		wstring LayerName;
+		LoadWString(LayerName, pFile);
+		pLayer->SetName(LayerName);
+
+		// 게임 오브젝트 개수
+		size_t objCount = 0;
+		fread(&objCount, sizeof(size_t), 1, pFile);
+
+		// 각 게임오브젝트
+		for (size_t j = 0; j < objCount; ++j)
+		{
+			CGameObject* pNewObj = LoadGameObject(pFile, NewLevel, i, true);
+			if (nullptr == pNewObj) continue;
+
+			NewLevel->AddGameObject(pNewObj, i, false);
+		}
+	}
+
+	fclose(pFile);
+
+	NewLevel->ChangeState(LEVEL_STATE::STOP);
+	NewLevel->ChangeState(LEVEL_STATE::LOAD);
+
+	tEvent evn = {};
+	evn.Type = EVENT_TYPE::LEVEL_LOAD;
+	evn.wParam = (DWORD_PTR)NewLevel;
+
+	CEventMgr::GetInst()->AddEvent(evn);
+}
+
+CGameObject* LoadGameObject(FILE* _File, CLevel* _NewLevel, int _LayerIdx, bool _Root)
+{
+	bool bOwned = false;
+	fread(&bOwned, sizeof(bool), 1, _File);
+
+	if (bOwned && _Root)
+		return FALSE;
+
+	CGameObject* pObject = new CGameObject;
+
+	// 이름
+	wstring Name;
+	LoadWString(Name, _File);
+	bool bItem = false;
+	bool bEqui = false;
+	bool bMelee = false;
+	bool bWarrior = false;
+
+	CGameObject::OBJECT_STATE state = CGameObject::OBJECT_STATE::VISIBLE;
+
+	fread(&bItem, sizeof(bool), 1, _File);
+	fread(&bEqui, sizeof(bool), 1, _File);
+	fread(&bMelee, sizeof(bool), 1, _File);
+	fread(&bWarrior, sizeof(bool), 1, _File);
+	fread(&state, sizeof(UINT), 1, _File);
+
+	pObject->SetIsItem(bItem);
+	pObject->SetIsEqui(bEqui);
+	pObject->SetMelee(bMelee);
+	pObject->SetIsOwned(bOwned);
+	pObject->SetIsWarrior(bWarrior);
+
+	pObject->SetObjectState(state);
+
+	pObject->SetName(Name);
+
+	// 컴포넌트
+	while (true)
+	{
+		UINT ComponentType = 0;
+		fread(&ComponentType, sizeof(UINT), 1, _File);
+
+		// 컴포넌트 정보의 끝을 확인
+		if ((UINT)COMPONENT_TYPE::END == ComponentType)
+			break;
+
+		CComponent* Component = nullptr;
+
+		switch ((COMPONENT_TYPE)ComponentType)
+		{
+		case COMPONENT_TYPE::TRANSFORM:
+			Component = new CTransform;
+			break;
+		case COMPONENT_TYPE::ANIMATOR3D:
+			Component = new CAnimator3D;
+			break;
+		case COMPONENT_TYPE::ANIMATOR2D:
+			Component = new CAnimator2D;
+			break;
+		case COMPONENT_TYPE::LIGHT3D:
+			Component = new CLight3D;
+			break;
+		case COMPONENT_TYPE::RIGIDBODY:
+			Component = new CRigidBody;
+			break;
+		case COMPONENT_TYPE::COLLIDER3D:
+			Component = new CCollider3D;
+			break;
+		case COMPONENT_TYPE::GIZMO:
+			Component = new CGizmo;
+			break;
+		case COMPONENT_TYPE::CAMERA:
+			Component = new CCamera;
+			break;
+		case COMPONENT_TYPE::MESHRENDER:
+			Component = new CMeshRender;
+			break;
+		case COMPONENT_TYPE::PARTICLESYSTEM:
+			Component = new CParticleSystem;
+			break;
+		case COMPONENT_TYPE::LANDSCAPE:
+			Component = new CLandScape;
+			break;
+		case COMPONENT_TYPE::DECAL:
+			Component = new CDecal;
+			break;
+		case COMPONENT_TYPE::SKYBOX:
+			Component = new CSkyBox;
+			break;
+		}
+
+		Component->LoadFromLevelFile(_File);
+		pObject->AddComponent(Component);
+	}
+
+
+	// 스크립트	
+	size_t ScriptCount = 0;
+	fread(&ScriptCount, sizeof(size_t), 1, _File);
+
+	for (size_t i = 0; i < ScriptCount; ++i)
+	{
+		wstring ScriptName;
+		LoadWString(ScriptName, _File);
+		CScript* pScript = CScriptMgr::GetScript(ScriptName);
+		pObject->AddComponent(pScript);
+		pScript->LoadFromLevelFile(_File);
+	}
+
+	// 자식 오브젝트		
+	size_t ChildCount = 0;
+	fread(&ChildCount, sizeof(size_t), 1, _File);
+
+	for (size_t i = 0; i < ChildCount; ++i)
+	{
+		CGameObject* ChildObject = LoadGameObject(_File, nullptr, 0, false);
+		if (nullptr == ChildObject)
+			continue;
+		pObject->AddChild(ChildObject);
+	}
+	size_t GunCount = 0;
+	fread(&GunCount, sizeof(size_t), 1, _File);
+
+	for (size_t i = 0; i < GunCount; ++i)
+	{
+		CGameObject* GunObject = LoadGameObject(_File, nullptr, 0, false);
+		if (nullptr == GunObject)
+			continue;
+		pObject->AddWeapon(GunObject, GunObject->IsMelee());
+		_NewLevel->AddGameObject(GunObject, (UINT)LAYER_TYPE::Item, false);
+	}
+
+	return pObject;
+}
+
 void LevelRecognize()
 {
 	tEvent evn = {};
 	evn.Type = EVENT_TYPE::LEVEL_RECOG;
 	CEventMgr::GetInst()->AddEvent(evn);
 }
+
 
 
 void DestroyObject(CGameObject* _DeletObject)

@@ -40,6 +40,7 @@ VS_OUT VS_Std2D(VS_IN _in)
     return output;
 }
 
+#define FlatFire g_int_0
 // 레스터라이저 스테이트
 float4 PS_Std2D(VS_OUT _in) : SV_Target
 {
@@ -50,11 +51,17 @@ float4 PS_Std2D(VS_OUT _in) : SV_Target
         vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
     }
 
-    if (0.f == vOutColor.a)
-        discard;
+    if (FlatFire)
+    {
+        //PerlinNoiseFire(vOutColor, _in.vUV);
+        mainImage(vOutColor, _in.vUV);
+        vOutColor += vOutColor;
 
-    if(g_int_2 == 1)
-        vOutColor = float4(1.f, 0.f, 0.f, 1.f);
+        return vOutColor;
+    }
+
+    if (vOutColor.a <= 0.f)
+        discard;
     
     return vOutColor;
 }
@@ -99,6 +106,8 @@ float4 PS_AdjustStd2D(VS_OUT _in) : SV_Target
     return vOutColor;
 }
 
+
+// DirecXTK Font PS
 #define IsCustomAlpha g_int_1
 #define Alpha g_float_1
 float4 PS_SpriteFontStd2D(float4 color : COLOR0, float2 texCoord : TEXCOORD0) : SV_Target0

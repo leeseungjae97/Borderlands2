@@ -260,6 +260,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="CRigidBody.h" />
     <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="SkillMgr.h" />
+    <ClInclude Include="SoundMgr.h" />
     <ClInclude Include="struct.h" />
     <ClInclude Include="CUI.h" />
     <ClInclude Include="TextMgr.h" />
@@ -360,6 +361,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="SkillMgr.cpp" />
     <ClCompile Include="CUI.cpp" />
+    <ClCompile Include="SoundMgr.cpp" />
     <ClCompile Include="TextMgr.cpp" />
     <ClCompile Include="WeaponMgr.cpp" />
   </ItemGroup>

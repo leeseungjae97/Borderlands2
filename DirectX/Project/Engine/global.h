@@ -45,6 +45,16 @@ typedef DirectX::SimpleMath::Vector3 Vec3;
 typedef DirectX::SimpleMath::Vector4 Vec4;
 typedef DirectX::SimpleMath::Quaternion Quat;
 
+#include <FMOD/fmod.h>
+#include <FMOD/fmod.hpp>
+#include <FMOD/fmod_codec.h>
+
+#ifdef _DEBUG
+#pragma comment(lib, "FMOD/fmodL64_vc.lib")
+#else
+#pragma comment(lib, "FMOD/fmod64_vc.lib")
+#endif
+
 // Fbx Loader
 #include <FBXLoader/fbxsdk.h>
 #include <PhysX/PxPhysicsAPI.h>

@@ -30,10 +30,10 @@ void FieldUIMgr::init()
 
 void FieldUIMgr::tick()
 {
-	if(KEY_TAP(KEY::B))
-	{
-		AddDamage(10, Vec3(0.f, 500.f, 0.f));
-	}
+	//if(KEY_TAP(KEY::B))
+	//{
+	//	AddDamage(10, Vec3(0.f, 500.f, 0.f));
+	//}
 }
 
 void FieldUIMgr::render()

@@ -1,36 +1,38 @@
 #pragma once
 #include "CRes.h"
 
-#include <FMOD/fmod.h>
-#include <FMOD/fmod.hpp>
-#include <FMOD/fmod_codec.h>
+#include "SoundMgr.h"
 
-#ifdef _DEBUG
-#pragma comment(lib, "FMOD/fmodL64_vc.lib")
-#else
-#pragma comment(lib, "FMOD/fmod64_vc.lib")
-#endif
+class CTransform;
 
 class CSound :
 	public CRes
 {
 public:
-	static FMOD::System* g_pFMOD;
+	Vec3 m_vPos;
+
+	CTransform* m_pTransform;
 
 private:
 	FMOD::Sound* m_pSound;
-	list<FMOD::Channel*>	m_listChannel;
+	FMOD::Channel* m_pChannel;
+
+	wstring m_wsSoundPath;
 
 public:
-	// 0 (무한반복) 0 ~ 1(Volume)
 	int Play(int _iRoopCount, float _fVolume = 1.f, bool _bOverlap = false);
 	void Stop();
 
-	// 0 ~ 1
-	void SetVolume(float _f, int _iChannelIdx);
+	void SetChannelPos(Vec3 _vPos, Vec3 vVel = Vec3::One);
+	void SetTransform(CTransform* trans) { m_pTransform = trans; }
+	void SetVolume(float _f);
+	void SetDistance(float _fMaxDist, float fMinDist = 0.f);
+	bool IsPlaying();
+	bool IsPlaying(const wstring& _wsPath);
+
+	void tick();
 
 private:
-	void RemoveChannel(FMOD::Channel* _pTargetChannel);
 	friend FMOD_RESULT CHANNEL_CALLBACK(FMOD_CHANNELCONTROL* channelcontrol, FMOD_CHANNELCONTROL_TYPE controltype
 		, FMOD_CHANNELCONTROL_CALLBACK_TYPE callbacktype
 		, void* commanddata1, void* commanddata2);
@@ -38,11 +40,9 @@ private:
 public:
 	virtual void UpdateData() {}
 
-	// 파일로 저장
 	virtual int Save(const wstring&) override { return S_OK; }
-
-	// 파일로부터 로딩
 	virtual int Load(const wstring& _strFilePath) override;
+	int LoadUnity(const wstring& _strFilePath);
 		
 public:
 	CSound();

@@ -25,9 +25,7 @@ void CMeshRender::render()
 {
 	if (nullptr == GetMesh() || nullptr == GetMaterial(0))
 		return;
-	//Ptr<CMaterial> pOutline = CResMgr::GetInst()->FindRes<CMaterial>(L"OutlineMtrl");
-	//MRT* mrt = CRenderMgr::GetInst()->GetCurMRT();
-
+	
 	vector<Ptr<CMaterial>> mats;
 	vector<int> renderSubsets;
 	for (int i = 0; i < GetMtrlCount(); ++i)
@@ -68,26 +66,19 @@ void CMeshRender::render()
 
 	for (int i = 0; i < mats.size(); ++i)
 	{
-		// 재질 업데이트
 		mats[i]->UpdateData();
 
-		// 렌더
 		GetMesh()->render(renderSubsets[i]);
 	}
 
 	if (Animator3D())
 		Animator3D()->ClearData();
-	//if (Animator2D())
-	//	Animator2D()->ClearData();
 }
 
 void CMeshRender::render(UINT _iSubset, bool _Deferred)
 {
 	if (nullptr == GetMesh() || nullptr == GetMaterial(_iSubset))
 		return;
-
-	//Ptr<CMaterial> pOutline = CResMgr::GetInst()->FindRes<CMaterial>(L"OutlineMtrl");
-	//MRT* mrt = CRenderMgr::GetInst()->GetCurMRT();
 
 	if (_Deferred)
 	{
@@ -104,14 +95,11 @@ void CMeshRender::render(UINT _iSubset, bool _Deferred)
 		}
 	}
 
-	Transform()->UpdateData();
-
 	if (Animator2D())
 	{
 		Animator2D()->UpdateData();
 	}
 
-	
 	if (Animator3D())
 	{
 		Animator3D()->UpdateData();
@@ -121,10 +109,10 @@ void CMeshRender::render(UINT _iSubset, bool _Deferred)
 
 	GetMaterial(_iSubset)->UpdateData();
 
+	Transform()->UpdateData();
+
 	GetMesh()->render(_iSubset);
 
 	if (Animator3D())
 		Animator3D()->ClearData();
-	//if (Animator2D())
-	//	Animator2D()->ClearData();
 }

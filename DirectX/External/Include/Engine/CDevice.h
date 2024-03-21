@@ -75,7 +75,7 @@ public:
 	ComPtr<ID3D11RasterizerState> GetRSState(RS_TYPE _Type) { return m_RSState[(UINT)_Type]; }
 	ComPtr<ID3D11DepthStencilState> GetDSState(DS_TYPE _Type) { return m_DSState[(UINT)_Type]; }
 	ComPtr<ID3D11BlendState> GetBSState(BS_TYPE _Type) { return m_BSState[(UINT)_Type]; }
-
+	ComPtr<ID3D11SamplerState> GetSState(int idx) { return m_Sampler[idx]; }
 	int GetShadowFilterIdx() { return m_iFilterIdx; }
 	int GetAdsIdx() { return m_iAdsIdx; }
 

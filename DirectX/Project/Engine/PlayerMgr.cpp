@@ -26,11 +26,11 @@ void PlayerMgr::init()
 
 void PlayerMgr::tick()
 {
-	if (CEventMgr::GetInst()->IsLevelChanged())
+	if (CEventMgr::GetInst()->IsLevelChanged() || CEventMgr::GetInst()->IsLevelLoad())
 	{
-		if(CLevelMgr::GetInst()->GetCurLevel()->GetName() != L"main menu level")
+		if(CLevelMgr::GetInst()->GetCurLevel()->GetName() == L"main level")
 		{
-			vector<CGameObject*> objects = CLevelMgr::GetInst()->GetCurLevel()->FindLayerByType(LAYER_TYPE::Player)->GetObjects();
+			vector<CGameObject*> objects = CLevelMgr::GetInst()->GetCurLevel()->FindLayerByType(LAYER_TYPE::Player)->GetParentObject();
 			for (int i = 0; i < objects.size(); ++i)
 			{
 				if (objects[i]->GetName() == L"player")
@@ -43,6 +43,22 @@ void PlayerMgr::tick()
 	}
 }
 
+void PlayerMgr::begin()
+{
+	if (CLevelMgr::GetInst()->GetCurLevel()->GetName() == L"main level")
+	{
+		vector<CGameObject*> objects = CLevelMgr::GetInst()->GetCurLevel()->FindLayerByType(LAYER_TYPE::Player)->GetParentObject();
+		for (int i = 0; i < objects.size(); ++i)
+		{
+			if (objects[i]->GetName() == L"player")
+			{
+				m_pPlayer = objects[i];
+				break;
+			}
+		}
+	}
+}
+
 Vec3 PlayerMgr::GetPlayerCameraPos()
 {
 	if (nullptr == m_pPlayer)
@@ -50,6 +66,9 @@ Vec3 PlayerMgr::GetPlayerCameraPos()
 
 	int iCameraIdx = m_pPlayer->Animator3D()->GetCameraIdx();
 	CRigidBody* rb = m_pPlayer->RigidBody();
+
+	if (nullptr == rb)
+		return Vec3::Zero;
 
 	Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iCameraIdx, m_pPlayer->Animator3D());
 	Vec3 vOffset = Vec3::Zero;

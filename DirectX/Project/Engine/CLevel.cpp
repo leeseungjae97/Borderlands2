@@ -5,12 +5,15 @@
 #include "CGameObject.h"
 
 #include "CRenderMgr.h"
+#include "NavigationMgr.h"
 #include "ParticleMgr.h"
+#include "PlayerMgr.h"
 #include "WeaponMgr.h"
 
 CLevel::CLevel()
 	: m_arrLayer{}
 	, m_State(LEVEL_STATE::STOP)
+	, m_iTickCnt(0)
 {
 	createScene();
 
@@ -46,6 +49,8 @@ CLevel::~CLevel()
 
 void CLevel::begin()
 {
+	m_iTickCnt = 0;
+
 	for (UINT i = 0; i < MAX_LAYER; ++i)
 	{
 		m_arrLayer[i]->begin();
@@ -55,6 +60,8 @@ void CLevel::begin()
 void CLevel::tick()
 {
 	if (m_State == LEVEL_STATE::NO_UPDATE_RENDER) return;
+
+	++m_iTickCnt;
 
 	for (UINT i = 0; i < MAX_LAYER; ++i)
 	{
@@ -141,9 +148,11 @@ void CLevel::ChangeState(LEVEL_STATE _State)
 
 	if (LEVEL_STATE::PLAY == m_State)
 	{
-		CRenderMgr::GetInst()->SetRenderFunc(true);
 		begin();
+		CRenderMgr::GetInst()->SetRenderFunc(true);
 		WeaponMgr::GetInst()->begin();
+		PlayerMgr::GetInst()->begin();
+		NavigationMgr::GetInst()->begin();
 		ParticleMgr::GetInst()->begin();
 	}
 	else

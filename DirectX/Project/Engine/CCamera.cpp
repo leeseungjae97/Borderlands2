@@ -36,8 +36,8 @@ CCamera::CCamera()
 	, m_OrthoWidth(0.f)
 	, m_OrthoHeight(0.f)
 	, m_iCamIdx(-1)
-    , m_NearZ(1.f)
-    , m_FarZ(1000000.f)
+	, m_NearZ(1.f)
+	, m_FarZ(1000000.f)
 	, m_bESM(false)
 	, m_fT{}
 	, m_Outline(true)
@@ -68,7 +68,7 @@ CCamera::CCamera(const CCamera& _Other)
 }
 
 CCamera::~CCamera()
-{	
+{
 }
 
 void CCamera::begin()
@@ -76,7 +76,7 @@ void CCamera::begin()
 	if (-1 != m_iCamIdx)
 	{
 		CameraMgr::GetInst()->AddCamObj(GetOwner()->GetName(), GetOwner());
-		CRenderMgr::GetInst()->RegisterCamera(this, m_iCamIdx);
+		//CRenderMgr::GetInst()->RegisterCamera(this, m_iCamIdx);
 	}
 }
 
@@ -124,14 +124,14 @@ void CCamera::CalcProjMat()
 	// 투영 행렬 계산
 	// =============
 	m_matProj = XMMatrixIdentity();
-	
+
 	if (PROJ_TYPE::ORTHOGRAPHIC == m_ProjType)
 	{
 		// 직교 투영
-		m_matProj =  XMMatrixOrthographicLH(m_OrthoWidth * (1.f / m_fScale), m_OrthoHeight * (1.f / m_fScale), m_NearZ, m_FarZ);
+		m_matProj = XMMatrixOrthographicLH(m_OrthoWidth * (1.f / m_fScale), m_OrthoHeight * (1.f / m_fScale), m_NearZ, m_FarZ);
 	}
 	else
-	{	
+	{
 		// 원근 투영
 		m_matProj = XMMatrixPerspectiveFovLH(m_FOV, m_fAspectRatio, m_NearZ, m_FarZ);
 	}
@@ -196,17 +196,6 @@ void CCamera::CalRay()
 	m_ray.vDir.Normalize();
 }
 
-void CCamera::CalRelativeRay()
-{
-	MRT* pMRT = CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN);
-	D3D11_VIEWPORT tVP = pMRT->GetViewPort();
-	
-	Vec2 vMousePos = CKeyMgr::GetInst()->GetMousePos();
-
-	//float mouseX = (2.0f * vMousePos.x / screenWidth) - 1.0f;
-	//float mouseY = 1.0f - (2.0f * vMousePos.y / screenHeight);
-}
-
 void CCamera::SortObject()
 {
 	// 이전 프레임 분류정보 제거
@@ -226,10 +215,15 @@ void CCamera::SortObject()
 			for (size_t j = 0; j < vecObject.size(); ++j)
 			{
 				CRenderComponent* pRenderCom = vecObject[j]->GetRenderComponent();
-				
-				// 렌더링 기능이 없는 오브젝트는 제외
+
 				if (nullptr == pRenderCom)
+				{
+					CUI* cui = static_cast<CUI*>(vecObject[j]);
+					if(cui)
+						m_vecText.push_back(vecObject[j]);
 					continue;
+				}
+					
 				if (vecObject[j]->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
 					continue;
 
@@ -333,8 +327,9 @@ void CCamera::SortObject_Shadow()
 	for (UINT i = 0; i < MAX_LAYER; ++i)
 	{
 		// 레이어 마스크 확인
-		if (i == (int)LAYER_TYPE::ViewPortUI) continue; // UI
-		if (i == (int)LAYER_TYPE::Default) continue;  // Default
+		if (i == (int)LAYER_TYPE::Camera) continue;
+		if (i == (int)LAYER_TYPE::Default) continue; 
+		if (i == (int)LAYER_TYPE::ViewPortUI) continue;
 
 		if (m_iLayerMask & (1 << i))
 		{
@@ -348,11 +343,11 @@ void CCamera::SortObject_Shadow()
 				if (vecObject[j]->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
 					continue;
 
-				//if (vecObject[j]->Camera()) 
-				//	continue;
+				if (vecObject[j]->Camera())
+					continue;
 
 				// 렌더링 기능이 없는 오브젝트는 제외
-				if (   nullptr == pRenderCom 
+				if (nullptr == pRenderCom
 					|| nullptr == pRenderCom->GetMaterial(0)
 					|| nullptr == pRenderCom->GetMaterial(0)->GetShader())
 					continue;
@@ -368,24 +363,26 @@ void CCamera::render()
 	CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
 	if (pCurLevel->GetState() == LEVEL_STATE::NO_UPDATE_RENDER) return;
 
-	static Ptr<CMesh> pScreen = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
 
-	static Ptr<CMaterial> pMerge = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
-	static Ptr<CMaterial> pBlurV = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurVMtrl");
-	static Ptr<CMaterial> pBlurH = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurHMtrl");
-	static Ptr<CMaterial> pGaussianBlur = CResMgr::GetInst()->FindRes<CMaterial>(L"GaussianBlurMtrl");
-	static Ptr<CMaterial> pEmissiveBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
-	static Ptr<CMaterial> pSpecularBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
-	static Ptr<CMaterial> pToneMapping = CResMgr::GetInst()->FindRes<CMaterial>(L"ToneMappingMtrl");
-	static Ptr<CMaterial> pLaplacian = CResMgr::GetInst()->FindRes<CMaterial>(L"LaplacianMtrl");
-
-	if(this == CRenderMgr::GetInst()->GetMainCam())
+	if (this == CRenderMgr::GetInst()->GetMainCam())
 	{
-		// Deferred MRT
+		//UpdateMatrix();
+
+		static Ptr<CMesh> pScreen = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
+
+		static Ptr<CMaterial> pMerge = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
+		static Ptr<CMaterial> pBlurV = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurVMtrl");
+		static Ptr<CMaterial> pBlurH = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurHMtrl");
+		static Ptr<CMaterial> pGaussianBlur = CResMgr::GetInst()->FindRes<CMaterial>(L"GaussianBlurMtrl");
+		static Ptr<CMaterial> pEmissiveBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
+		static Ptr<CMaterial> pSpecularBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
+		static Ptr<CMaterial> pToneMapping = CResMgr::GetInst()->FindRes<CMaterial>(L"ToneMappingMtrl");
+		static Ptr<CMaterial> pLaplacian = CResMgr::GetInst()->FindRes<CMaterial>(L"LaplacianMtrl");
+
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED)->OMSet(true);
 		render_deferred();
 
-		// Deferred Light
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LIGHT)->OMSet(false);
 		const vector<CLight3D*>& vecLight3D = CRenderMgr::GetInst()->GetLight3D();
 		for (size_t i = 0; i < vecLight3D.size(); ++i)
@@ -393,18 +390,10 @@ void CCamera::render()
 			vecLight3D[i]->render();
 		}
 
-		// Blur3
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LUMINANCE)->OMSet();
 
 		pBlurV->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-		//pBlurV->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
-		//pBlurV->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
-		//BlurV->SetScalarParam(FLOAT_0, &f_blurFactor);
-
 		pBlurH->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-		//pBlurH->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
-		//pBlurH->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
-		//BlurH->SetScalarParam(FLOAT_0, &f_blurFactor);
 
 		// X
 		pBlurV->UpdateData();
@@ -414,7 +403,6 @@ void CCamera::render()
 		pBlurH->UpdateData();
 		pScreen->render(0);
 
-		// HDR
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR)->OMSet();
 
 		pMerge->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ColorTargetTex"));
@@ -423,6 +411,7 @@ void CCamera::render()
 		pMerge->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
 		pMerge->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
 
+		// Merge
 		pMerge->UpdateData();
 		pScreen->render(0);
 
@@ -436,7 +425,7 @@ void CCamera::render()
 			pScreen->render(0);
 		}
 
-		// Bloom
+
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLOOMED_HDR)->OMSet();
 
 		if (m_Outline)
@@ -447,14 +436,9 @@ void CCamera::render()
 		pEmissiveBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveBlurredTargetTex"));
 		pEmissiveBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
 
+		// Bloom
 		pEmissiveBloom->UpdateData();
 		pScreen->render(0);
-
-		//pEmissiveBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseBlurredTargetTex"));
-		//pEmissiveBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
-
-		//pEmissiveBloom->UpdateData();
-		//pScreen->render(0);
 
 		//pSpecularBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
 		//pSpecularBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularBlurredTargetTex"));
@@ -474,11 +458,15 @@ void CCamera::render()
 		render_transparent();
 
 		render_postprocess();
-	}else
-	{
-
-		render_ui();
 	}
+	else
+	{
+		render_ui();
+		render_text();
+	}
+
+	if (m_iCamIdx == 0)
+		CRenderMgr::GetInst()->CopyRenderTarget();
 }
 
 
@@ -498,6 +486,7 @@ void CCamera::clear()
 	m_vecTransparent.clear();
 	m_vecPost.clear();
 	m_vecUI.clear();
+	m_vecText.clear();
 }
 
 void CCamera::clear_shadow()
@@ -569,7 +558,6 @@ void CCamera::render_deferred()
 			CInstancingBuffer::GetInst()->AddInstancingData(tInstData);
 		}
 
-		// 인스턴싱에 필요한 데이터를 세팅(SysMem -> GPU Mem)
 		CInstancingBuffer::GetInst()->SetData();
 
 		if (bHasAnim3D)
@@ -595,29 +583,29 @@ void CCamera::render_deferred()
 		if (pair.second.empty())
 			continue;
 
-		pair.second[0].pObj->Transform()->UpdateData();
+		//pair.second[0].pObj->Transform()->UpdateData();
 
 		for (auto& instObj : pair.second)
 		{
 			instObj.pObj->GetRenderComponent()->render(instObj.iMtrlIdx, true);
 		}
-		if (pair.second[0].pObj->Animator2D())
-		{
-			pair.second[0].pObj->Animator2D()->ClearData();
-		}
+		//if (pair.second[0].pObj->Animator2D())
+		//{
+		//	pair.second[0].pObj->Animator2D()->ClearData();
+		//}
 
-		if (pair.second[0].pObj->Animator3D())
-		{
-			pair.second[0].pObj->Animator3D()->ClearData();
-		}
+		//if (pair.second[0].pObj->Animator3D())
+		//{
+		//	pair.second[0].pObj->Animator3D()->ClearData();
+		//}
 	}
 
-	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED_DECAL)->OMSet();
+	//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED_DECAL)->OMSet();
 
-	for (size_t i = 0; i < m_vecDeferredDecal.size(); ++i)
-	{
-		m_vecDeferredDecal[i]->render();
-	}
+	//for (size_t i = 0; i < m_vecDeferredDecal.size(); ++i)
+	//{
+	//	m_vecDeferredDecal[i]->render();
+	//}
 }
 
 void CCamera::render_forward()
@@ -715,21 +703,21 @@ void CCamera::render_forward()
 		if (pair.second.empty())
 			continue;
 
-		pair.second[0].pObj->Transform()->UpdateData();
+		//pair.second[0].pObj->Transform()->UpdateData();
 
 		for (auto& instObj : pair.second)
 		{
 			instObj.pObj->GetRenderComponent()->render(instObj.iMtrlIdx, false);
 		}
-		if (pair.second[0].pObj->Animator2D())
-		{
-			pair.second[0].pObj->Animator2D()->ClearData();
-		}
+		//if (pair.second[0].pObj->Animator2D())
+		//{
+		//	pair.second[0].pObj->Animator2D()->ClearData();
+		//}
 
-		if (pair.second[0].pObj->Animator3D())
-		{
-			pair.second[0].pObj->Animator3D()->ClearData();
-		}
+		//if (pair.second[0].pObj->Animator3D())
+		//{
+		//	pair.second[0].pObj->Animator3D()->ClearData();
+		//}
 	}
 }
 
@@ -771,7 +759,7 @@ void CCamera::render_postprocess()
 
 	for (size_t i = 0; i < m_vecPost.size(); ++i)
 	{
-		CRenderMgr::GetInst()->CopyRenderTarget();
+
 		m_vecPost[i]->render();
 	}
 }
@@ -784,7 +772,18 @@ void CCamera::render_ui()
 	{
 		m_vecUI[i]->render();
 	}
+}
+
+void CCamera::render_text()
+{
+	for (size_t i = 0; i < m_vecText.size(); ++i)
+	{
+		m_vecText[i]->render();
+	}
+
 	FieldUIMgr::GetInst()->render();
+
+	UpdateMatrix();
 }
 
 void CCamera::FixedTransform()

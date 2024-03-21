@@ -34,7 +34,7 @@ void CLevelMgr::tick()
 		if(m_mapLevels.size() < 2)
 			LevelRecognize();
 		else
-			ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"main level"));
+			ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"main menu level"));
 
 		initMainLevel = false;
 	}
@@ -112,7 +112,7 @@ void CLevelMgr::ChangeLevel(CLevel* _NextLevel)
 	if (nullptr != m_pCurLevel)
 	{
 		prevState = m_pCurLevel->GetState();
-		m_pCurLevel->ChangeState(LEVEL_STATE::NO_UPDATE_RENDER);
+		//m_pCurLevel->ChangeState(LEVEL_STATE::NO_UPDATE_RENDER);
 	}
 	
 	m_pCurLevel = _NextLevel;
@@ -130,10 +130,10 @@ void CLevelMgr::DeleteLevel(const wstring& name)
 			++iter;
 		else
 		{
-
 			delete iter->second;
 			iter->second = nullptr;
 			iter = m_mapLevels.erase(iter);
+
 			return;
 		}
 	}

@@ -81,6 +81,9 @@ void RecastNavi::clean_up()
 
 bool RecastNavi::DoQuery(Vec3 vStartPos, Vec3 vEndPos)
 {
+	if (nullptr == m_navQuery)
+		return false;
+
 	m_startPos[0] = vStartPos.x;
 	m_startPos[1] = vStartPos.y;
 	m_startPos[2] = vStartPos.z;

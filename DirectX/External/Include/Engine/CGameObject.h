@@ -105,6 +105,8 @@ public:
 
     const vector<CScript*>& GetScripts() { return m_vecScript; }
 
+    void SetLayerIdx(int _Idx) { m_iLayerIdx = _Idx; }
+
     void SetLifeSpan(float _fTime)
     {
         if (m_bLifeSpan)

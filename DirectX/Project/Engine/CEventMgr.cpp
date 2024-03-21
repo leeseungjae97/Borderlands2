@@ -90,6 +90,7 @@ void CEventMgr::tick()
 			RES_TYPE type = (RES_TYPE)m_vecEvent[i].wParam;
 			CRes* pRes = (CRes*)m_vecEvent[i].lParam;
 			CResMgr::GetInst()->DeleteRes(type, pRes->GetKey());
+			m_LevelChanged = true;
 		}
 
 		break;

@@ -38,6 +38,8 @@ private:
     Vec4        m_vRot;
     Vec4        m_R;
 
+    float       m_fScaleZ;
+
     bool        m_bRockThrow;
     bool        m_bRockFollow;
 
@@ -50,6 +52,27 @@ private:
 
     float       m_fActAcc;
     int         m_RandBehavior;
+
+    wstring wsIdleSound[4] =
+    {
+        L"sound\\warrior\\warrior_idle_0.ogg",
+        L"sound\\warrior\\warrior_idle_1.ogg",
+        L"sound\\warrior\\warrior_idle_2.ogg",
+        L"sound\\warrior\\warrior_idle_3.ogg"
+    };
+
+    wstring wsBeamEnterSound = L"sound\\warrior\\warrior_beam_enter.ogg";
+    wstring wsBeamIdleSound = L"sound\\warrior\\beam.ogg";
+
+    wstring wsFireBreathSound= L"sound\\warrior\\warrior_fire_breath_far.ogg";
+    wstring wsFireSound= L"sound\\effect\\fire_2.ogg";
+    wstring wsRockCrashSound = L"sound\\warrior\\rock_crash.ogg";
+
+    wstring wsTailAttackSound = L"sound\\warrior\\warrior_tail_attack.ogg";
+
+    wstring wsDeadSound = L"sound\\warrior\\warrior_dead.ogg";
+    wstring wsAppearSound = L"sound\\warrior\\warrior_appear.ogg";
+
 
 public:
     void DoFarBreath();

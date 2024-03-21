@@ -18,9 +18,9 @@
 CUI::CUI()
 	: CGameObject()
 	, wsText(L"")
-	, vTextColor(Vector4(1.f, 1.f, 1.f, 1.f))
-	, vTextHoverColor(Vector4(1.f, 1.f, 1.f, 1.f))
-	, vTextNormalColor(Vector4(1.f, 1.f, 1.f, 1.f))
+	, vTextColor(Vector4(255.f  / 255.f, 255.f / 255.f, 255.f / 255.f, 255.f / 255.f))
+	, vTextHoverColor(Vector4(255.f / 255.f, 255.f / 255.f, 255.f / 255.f, 255.f / 255.f))
+	, vTextNormalColor(Vector4(255.f / 255.f, 255.f / 255.f, 255.f / 255.f, 255.f / 255.f))
 	, vTextOffset(Vector2::Zero)
 	, bOutline(false)
 	, bDraw3D(false)
@@ -108,20 +108,15 @@ void CUI::drawText()
 
 	Vec3 vPos = Transform()->GetRelativePos();
 	Vec3 vRot = Transform()->GetRelativeRot();
+
 	Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
 	vResol /= 2.f;
-
 	Vec2 vSize = TextMgr::GetInst()->GetTextSize(wsText, fTextScale);
 	vTextSize = vSize;
 	Vec2 vCenterPos = Vec2(vResol.x - (vSize.x / 2.f), vResol.y - (vSize.y / 2.f));
 
-	if(bDraw3D)
-	{
-		TextMgr::GetInst()->DrawSpriteText(wsText, Vec3::Zero, vRot.z, Vec2::Zero, Transform()->GetWorldMat(),1.0f,  bOutline, fTextScale);
-	}
-	else
-		TextMgr::GetInst()->DrawSpriteText(wsText, vCenterPos + Vec2(vPos.x, -vPos.y), vRot.z, Vec2::Zero, Vec3(vTextColor.x, vTextColor.y, vTextColor.z), bOutline, fTextScale);
-	
+	TextMgr::GetInst()->DrawSpriteText(wsText, vCenterPos + Vec2(vPos.x, -vPos.y), vRot.z, Vec2::Zero, vTextColor, true, fTextScale);
+
 	Transform()->SetRelativeScale(Vec3(vSize.x, vSize.y, 1.f));
-	DrawDebugRect(vPos, Vec2(vSize.x, vSize.y), Vec4(0.f, 1.f, 0.f, 1.f), vRot, 0.f, false);
 }
+

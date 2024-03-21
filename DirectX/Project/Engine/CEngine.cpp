@@ -21,6 +21,7 @@
 #include "PlayerMgr.h"
 #include "RandMgr.h"
 #include "RaycastMgr.h"
+#include "SoundMgr.h"
 #include "TextMgr.h"
 #include "WeaponMgr.h"
 
@@ -77,6 +78,8 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 
 	ParticleMgr::GetInst()->init();
 
+	SoundMgr::GetInst()->init();
+
 	return S_OK;
 }
 
@@ -97,8 +100,6 @@ void CEngine::tick()
 	CResMgr::GetInst()->tick();
 	CTimeMgr::GetInst()->tick();
 	CKeyMgr::GetInst()->tick();	
-	// FMOD Update
-	CSound::g_pFMOD->update();
 
 	CLevelMgr::GetInst()->tick();
 	PlayerMgr::GetInst()->tick();
@@ -108,6 +109,8 @@ void CEngine::tick()
 	FieldUIMgr::GetInst()->tick();
 
 	MainMenuMgr::GetInst()->tick();
+
+	SoundMgr::GetInst()->tick();
 }
 
 void CEngine::render()
@@ -116,5 +119,5 @@ void CEngine::render()
 
 	CTimeMgr::GetInst()->render();
 
-	KeyUseInfoMgr::GetInst()->render();
+	//KeyUseInfoMgr::GetInst()->render();
 }

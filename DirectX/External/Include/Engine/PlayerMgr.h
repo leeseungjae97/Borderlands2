@@ -31,6 +31,7 @@ public:
 public:
 	void init();
 	void tick();
+	void begin();
 
 public:
 	Vec3 GetPlayerCameraPos();

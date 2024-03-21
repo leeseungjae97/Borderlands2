@@ -96,7 +96,11 @@ void CWeaponScript::SetWeaponPos()
 	
 	pWeapon->Transform()->SetRelativePos(vPos);
 	if(bPlayer)
+	{
 		pWeapon->Transform()->SetRelativeRot(vRot + m_vPrevRot);
+	}
 	else
-		pWeapon->Transform()->SetRelativeRot(vRot);
+	{
+		pWeapon->Transform()->SetRelativeRot(vRot + vCurRot);
+	}
 }

@@ -21,10 +21,12 @@ CSkyBox::CSkyBox(bool _FromMeshData)
 	//SetSkyBoxType(m_Type);
 
 	//SetMaterial(, 0);
-	Ptr<CGraphicsShader> skyBoxShader= CResMgr::GetInst()->FindRes<CGraphicsShader>(L"SkyBoxShader");
+	Ptr<CGraphicsShader> skyBoxShader = CResMgr::GetInst()->FindRes<CGraphicsShader>(L"SkyBoxShader");
+
 	m_SkyBoxMtrl = new CMaterial(true);
 	m_SkyBoxMtrl->SetShader(skyBoxShader);
 	CResMgr::GetInst()->AddRes(L"FbxSkyBox", m_SkyBoxMtrl);
+
 	SetFrustumCheck(false);
 }
 
@@ -42,9 +44,13 @@ void CSkyBox::SetSkyBoxType(SKYBOX_TYPE _Type)
 		{
 			SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh"));
 		}
-		else
+		else if (m_Type == SKYBOX_TYPE::CUBE)
 		{
 			SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CubeMesh"));
+		}
+		else if (m_Type == SKYBOX_TYPE::HEMI_SPHERE)
+		{
+			SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"warrior_skybox.mesh"));
 		}
 
 		SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"SkyBoxMtrl"), 0);
@@ -61,14 +67,12 @@ void CSkyBox::render()
 	if (nullptr == GetMesh() || nullptr == GetMaterial(0))
 		return;
 
-	// Transform 에 UpdateData 요청
 	Transform()->UpdateData();
 
 	// 재질 업데이트
 	if (!m_bFbxSkyBox)
 	{
 		GetMaterial(0)->SetScalarParam(INT_0, &m_Type);
-
 		if (nullptr != m_SkyBoxTex)
 		{
 			if (m_SkyBoxTex->IsCube())
@@ -81,20 +85,8 @@ void CSkyBox::render()
 			}
 		}
 	}
-	else
-	{
-		if(GetMaterial(0)->GetShader()->GetDomain() == SHADER_DOMAIN::DOMAIN_DEFERRED)
-		{
-			m_SkyBoxTex = GetMaterial(0)->GetTexParam(TEX_0);
-			m_SkyBoxMtrl->SetTexParam(TEX_0, m_SkyBoxTex);
-			SKYBOX_TYPE mT = SKYBOX_TYPE::SPHERE;
-			m_SkyBoxMtrl->SetScalarParam(INT_0, &mT);
-			SetMaterial(m_SkyBoxMtrl, 0);
-		}
-	}
-	GetMaterial(0)->UpdateData();
 
-	// 렌더
+	GetMaterial(0)->UpdateData();
 	GetMesh()->render(0);
 }
 
@@ -122,18 +114,24 @@ void CSkyBox::LoadFromLevelFile(FILE* _FILE)
 	LoadResRef(m_SkyBoxMtrl, _FILE);
 	fread(&m_bFbxSkyBox, sizeof(bool), 1, _FILE);
 
-	if(m_bFbxSkyBox)
+	if (m_bFbxSkyBox)
 	{
-		Ptr<CGraphicsShader> skyBoxShader = CResMgr::GetInst()->FindRes<CGraphicsShader>(L"SkyBoxShader");
-		m_SkyBoxMtrl = new CMaterial(true);
-		m_SkyBoxMtrl->SetShader(skyBoxShader);
-		CResMgr::GetInst()->AddRes(L"FbxSkyBox", m_SkyBoxMtrl);
+		//Ptr<CGraphicsShader> skyBoxShader = CResMgr::GetInst()->FindRes<CGraphicsShader>(L"SkyBoxShader");
+		//m_SkyBoxMtrl = new CMaterial(true);
+		//m_SkyBoxMtrl->SetShader(skyBoxShader);
+
+		//CResMgr::GetInst()->AddRes(L"FbxSkyBox", m_SkyBoxMtrl);
+
 		SetFrustumCheck(false);
 
 		m_SkyBoxMtrl->SetTexParam(TEX_0, m_SkyBoxTex);
-		SKYBOX_TYPE mT = SKYBOX_TYPE::SPHERE;
-		m_SkyBoxMtrl->SetScalarParam(INT_0, &mT);
+		
+		SetSkyBoxType(m_Type);
 		SetMaterial(m_SkyBoxMtrl, 0);
+	}
+	else
+	{
+		SetSkyBoxType(m_Type);
 	}
 }
 

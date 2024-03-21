@@ -23,6 +23,8 @@ private:
 
     class PxCollisionCallBack*  m_PxCollisionCallBack;
 
+    int                         m_iTickCnt;
+
 public:
     void begin();
     void tick();
@@ -44,6 +46,7 @@ public:
     LEVEL_STATE GetState() { return m_State; }
     PxScene* GetScene() { return m_PxScene; }
 
+    int GetTickCnt() { return m_iTickCnt; }
 private:
     // 등록된 GameObject 제거
     void clear();

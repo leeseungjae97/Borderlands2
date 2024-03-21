@@ -61,8 +61,30 @@ void CEnemyScript::begin()
 	if (!pEnemy->Animator3D())
 		return;
 
-	pEnemy->Animator3D()->SetAnimClipEventIdx(
-		(UINT)ENEMY_ANIMATION_TYPE::MELEE, -1, -1, 15, -1);
+	if(ENEMY_TYPE::PSYCHO == tType)
+	{
+		pEnemy->Animator3D()->SetAnimClipEventIdx(
+			(UINT)ENEMY_ANIMATION_TYPE::MELEE, -1, -1, 15, -1);
+
+		pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::MELEE)
+			= std::make_shared<std::function<void()>>([=]()
+				{
+					tState = ENEMY_STATE::IDLE;
+				});
+		pEnemy->Animator3D()->ProgressEvent((UINT)ENEMY_ANIMATION_TYPE::MELEE)
+			= std::make_shared<std::function<void()>>([this]()
+				{
+					GetOwner()->GetWeapon(0)->GetScript<CAttackNormalScript>()->ManualAttack(true);
+				});
+
+		aggroSound = wsPsychoAggroSound;
+		deathSound = wsPsychoDeathSound;
+	}else
+	{
+		aggroSound = wsNomadAggroSound;
+		deathSound = wsNomadDeathSound;
+	}
+	
 
 	pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::RELOAD)
 		= std::make_shared<std::function<void()>>([=]()
@@ -70,16 +92,7 @@ void CEnemyScript::begin()
 				tState = ENEMY_STATE::IDLE;
 				iAmmo = 30;
 			});
-	pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::MELEE)
-		= std::make_shared<std::function<void()>>([=]()
-			{
-				tState = ENEMY_STATE::IDLE;
-			});
-	pEnemy->Animator3D()->ProgressEvent((UINT)ENEMY_ANIMATION_TYPE::MELEE)
-		= std::make_shared<std::function<void()>>([this]()
-			{
-				GetOwner()->GetWeapon(0)->GetScript<CAttackNormalScript>()->ManualAttack(true);
-			});
+
 	pEnemy->Animator3D()->EndEvent((UINT)ENEMY_ANIMATION_TYPE::WALK_FORWARD)
 		= std::make_shared<std::function<void()>>([=]()
 			{
@@ -96,9 +109,16 @@ void CEnemyScript::begin()
 
 void CEnemyScript::Move()
 {
-
+	
 	CGameObject* pEnemy = GetOwner();
 	Vec3 vPos = pEnemy->Transform()->GetRelativePos();
+
+	fMoveSoundAcc += DT;
+	if(fMoveSoundAcc > 0.3f)
+	{
+		SoundMgr::GetInst()->Play(wsEnemyWalkSound[rand() % 5], vPos, 0, 5.f, SoundMgr::SOUND_TYPE::SFX, 0.1f, false);
+		fMoveSoundAcc = 0.f;
+	}
 
 	// Enemy가 움직이지 않을 때 rigid 사용 못하게.
 	// 후에 움직이지 않아도 rigid를 사용 할 일이 있다면 STATE를 추가하여 예외처리
@@ -476,6 +496,7 @@ void CEnemyScript::Shoot()
 	Vec3 vScale = pEnemy->Transform()->GetRelativeScale();
 
 	vPos += vFront * vScale;
+	vPos.y += vScale.y;
 
 	tRayInfo raycast{};
 	raycast.fDamage = 10.f;
@@ -494,7 +515,7 @@ void CEnemyScript::Shoot()
 
 		Vec3 vMuzzlePos = WeaponMgr::GetInst()->GetWeaponMuzzlePos(pGun);
 		Vec3 vWeaponRot = pGun->Transform()->GetRelativeRot();
-
+		pGun->Animator3D()->Play((UINT)GUN_ANIMATION_TYPE::FIRE, false);
 		vWeaponRot.y -= 180.f;
 
 		WeaponMgr::GetInst()->MuzzleFlash(vMuzzlePos, vWeaponRot);
@@ -534,7 +555,7 @@ void CEnemyScript::Look()
 
 	Vec3 vFront = pEnemy->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
 	Vec3 vPos = pEnemy->Transform()->GetRelativePos();
-
+	vPos.y += pEnemy->Transform()->GetRelativeScale().y / 2.f;
 	tRayInfo raycast{};
 	raycast.fDamage = 0.f;
 	raycast.iLayerIdx = pEnemy->GetLayerIndex();
@@ -545,6 +566,7 @@ void CEnemyScript::Look()
 	raycast.tRayType = (UINT)RAYCAST_TYPE::LOOK;
 	raycast.matWorld = pEnemy->Transform()->GetDrawRayMat();
 	//RaycastMgr::GetInst()->AddRaycast(raycast);
+
 	RaycastMgr::GetInst()->DoOneHitRaycast(raycast, RAYCAST_GROUP_TYPE::Enemy);
 }
 
@@ -560,17 +582,27 @@ bool CEnemyScript::IsDetect()
 	float fLength = fabs(vDiff.Length());
 	if (fLength < ENEMY_LOOK_DIST[(UINT)tType])
 	{
+		static bool bDetectVoice = false;
+		if (!bDetectVoice)
+		{
+			SoundMgr::GetInst()->Play(aggroSound[rand() % 3], vPos, 0, 5.f, SoundMgr::SOUND_TYPE::SFX, 0.1f, false);
+			bDetectVoice = true;
+		}
+
 		return true;
 	}
 	return false;
 }
 
-void CEnemyScript::PaperBurn()
+void CEnemyScript::PaperBurn()	
 {
 	if (tState == ENEMY_STATE::DIE)
 		return;
 
 	PlayerMgr::GetInst()->GetPlayer()->GetScript<CPlayerScript>()->AddExp(5);
+
+	Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
+	SoundMgr::GetInst()->Play(deathSound[rand() % 3], vPos, 0, 5.f, SoundMgr::SOUND_TYPE::SFX, 0.1f, false);
 
 	CGameObject* pEnemy = GetOwner();
 	double dTime = AnimationMgr::GetInst()->GetCurAnimationTime(pEnemy->Animator3D());

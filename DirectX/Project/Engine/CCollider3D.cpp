@@ -9,7 +9,7 @@
 CCollider3D::CCollider3D(bool _AttachRigid, bool _Unity, COLLIDER_SHAPE_TYPE _Shape)
 	: CComponent(COMPONENT_TYPE::COLLIDER3D)
 	, m_PxColliderShape(nullptr)
-	, m_bFirstInit(false)
+	, m_bInit(false)
 	, m_bCenter(false)
 	, m_bRaycastable(true)
 	, m_tColliderShapeType(_Shape)
@@ -21,6 +21,7 @@ CCollider3D::CCollider3D(bool _AttachRigid, bool _Unity, COLLIDER_SHAPE_TYPE _Sh
 	, m_bRaycast(false)
 	, m_bUnity(_Unity)
 	, m_Release(false)
+	, m_bCreateShape(false)
 {
 	m_PxMaterial = PhysXMgr::GetInst()->GPhysics()->createMaterial(0.0f, 0.0f, 0.0f);
 
@@ -53,6 +54,7 @@ void CCollider3D::finaltick()
 		return;
 
 	setShapeToRigidBody();
+	
 	//if (CLevelMgr::GetInst()->GetCurLevel()->GetState() != LEVEL_STATE::PLAY)
 
 	colliderDebugDraw();
@@ -123,19 +125,21 @@ void CCollider3D::setShapeToRigidBody()
 	CRigidBody* _rb = GetOwner()->RigidBody();
 
 	if (m_bAttachToRigidBody && (nullptr == _rb || !_rb->IsRigidBodyCreate())) return;
+	if (!m_bAttachToRigidBody && m_PxColliderRigid) return;
 
+	if (m_bInit) return;
 
-	if (m_bFirstInit) return;
+	if(!m_bCreateShape)
+		createColliderShape();
 
-	if (!m_bFirstInit)
-	{
-		m_bFirstInit = true;
-	}
-
-	createColliderShape();
+	if (nullptr == m_PxColliderShape)
+		return;
 
 	if(!m_bAttachToRigidBody)
 	{
+		if (m_PxColliderRigid)
+			return;
+
 		Vec3 vPos = Vec3::Zero;
 		Vec3 vRot = Vec3::Zero;
 		if(!m_bUnity)
@@ -143,7 +147,6 @@ void CCollider3D::setShapeToRigidBody()
 			vPos = GetOwner()->Transform()->GetRelativePos();
 			vRot = GetOwner()->Transform()->GetRelativeRot();
 		}
-		
 		//Vec3 vScale = GetOwner()->Transform()->GetRelativeScale();
 
 		Quat quat; quat = Vector3ToQuaternion(vRot);
@@ -156,9 +159,11 @@ void CCollider3D::setShapeToRigidBody()
 		m_PxColliderRigid->setActorFlags(PxActorFlag::eDISABLE_GRAVITY);
 		m_PxColliderRigid->attachShape(*m_PxColliderShape);
 		PhysXMgr::GetInst()->GCurScene()->addActor(*m_PxColliderRigid);
+		m_bInit = true;
 	}else
 	{
 		_rb->AttachShape(m_PxColliderShape);
+		m_bInit = true;
 	}
 
 	//m_PxColliderShape->release();
@@ -173,9 +178,10 @@ void CCollider3D::createColliderShape()
 	{	if(GetOwner()->Animator3D())
 		{
 			Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
-			vPos.y -= GetOwner()->Animator3D()->GetHeadPos().y;
+			float diff = fabs(vPos.y - GetOwner()->Animator3D()->GetHeadPos().y);
+
 			m_vScale = GetOwner()->Transform()->GetRelativeScale();
-			m_vScale.y += vPos.y;
+			m_vScale.y += diff;
 		}
 			
 		else if (_rb && m_bAttachToRigidBody)
@@ -197,6 +203,10 @@ void CCollider3D::createColliderShape()
 	if(m_tColliderShapeType == COLLIDER_SHAPE_TYPE::MESH)
 	{
 		createTriangleMesh();
+	}
+	if(m_PxColliderShape)
+	{
+		m_bCreateShape = true;
 	}
 	//m_PxColliderShape = createTriggerShape(PxBoxGeometry(m_vScale.x + 2, m_vScale.y + 2, m_vScale.z + 2), *m_PxMaterial, true);
 	PxFilterData triggerFilterData;
@@ -237,9 +247,12 @@ void CCollider3D::createColliderShape()
 		triggerFilterData.word2 = 0x0000000f;
 		triggerFilterData.word3 = 0x0000000f;
 	}
-	
-	m_PxColliderShape->setSimulationFilterData(triggerFilterData);
-	m_PxColliderShape->setQueryFilterData(triggerFilterData);
+	if (nullptr != m_PxColliderShape)
+	{
+		m_PxColliderShape->setSimulationFilterData(triggerFilterData);
+		m_PxColliderShape->setQueryFilterData(triggerFilterData);
+
+	}
 }
 
 void CCollider3D::colliderDebugDraw()
@@ -247,7 +260,7 @@ void CCollider3D::colliderDebugDraw()
 	CRigidBody* _rb = GetOwner()->RigidBody();
 	
 	if (m_bAttachToRigidBody && (nullptr == _rb || !_rb->IsRigidBodyCreate())) return;
-	if (!m_bFirstInit) return;
+	if (!m_bInit) return;
 
 	physx::PxTransform pos;
 	if (_rb)

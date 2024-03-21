@@ -9,6 +9,8 @@
 #include "CWeightMapShader.h"
 #include "IndividualBoneSkinningShader.h"
 
+extern FMOD::System* g_pFMOD = nullptr;
+
 CResMgr::CResMgr()
 	: m_Changed(false)
 {
@@ -33,15 +35,15 @@ void CResMgr::init()
 
 void CResMgr::InitSound()
 {
-	FMOD::System_Create(&CSound::g_pFMOD);
+	FMOD::System_Create(&g_pFMOD);
 
-	if (nullptr == CSound::g_pFMOD)
+	if (nullptr == g_pFMOD)
 	{
 		assert(nullptr);
 	}
 
 	// 32개 채널 생성
-	CSound::g_pFMOD->init(32, FMOD_DEFAULT, nullptr);
+	g_pFMOD->init(32, FMOD_DEFAULT, nullptr);
 }
 
 
@@ -949,7 +951,7 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->SetKey(L"SkyBoxShader");
 	pShader->CreateVertexShader(L"shader\\skybox.fx", "VS_SkyBoxShader");
 	pShader->CreatePixelShader(L"shader\\skybox.fx", "PS_SkyBoxShader");
-	//pShader->SetRSType(RS_TYPE::CULL_FRONT);
+	pShader->SetRSType(RS_TYPE::CULL_FRONT);
 	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
 	//pShader->SetUseDepthStencil(false);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_MASK);
@@ -1332,16 +1334,15 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DShader"));
 	AddRes(L"Std2DShaderMtrl", pMtrl);
 
-	{
-		pMtrl = new CMaterial(true);
-		pMtrl->SetShader(FindRes<CGraphicsShader>(L"Std2DShader"));
-		AddRes(L"MainMenuHoverMtrl", pMtrl);
-	}
-
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"UI2DShader"));
 	AddRes(L"UI2DShaderMtrl", pMtrl);
 
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(FindRes<CGraphicsShader>(L"UI2DShader"));
+		AddRes(L"MainMenuHoverMtrl", pMtrl);
+	}
 
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"AdjustUI2DShader"));

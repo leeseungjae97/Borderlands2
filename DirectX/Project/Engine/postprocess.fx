@@ -86,6 +86,7 @@ VS_OUT VS_Distortion(VS_IN _in)
 float4 PS_Distortion(VS_OUT _in) : SV_Target
 {
     float2 vUV = _in.vPosition.xy / g_Resolution;
+    //float2 vUV = _in.vUV;
 
     if (g_btex_1)
     {
@@ -152,8 +153,6 @@ VS_SCREEN_OUT VS_Screen(VS_SCREEN_IN _In)
 }
 
 #define EmissiveTargetTex g_tex_0
-//#define DiffuseTargetTex g_tex_1
-//#define SpecularTargetTex g_tex_1
 
 float4 PS_BlurX(VS_SCREEN_OUT _In) : SV_Target
 {
@@ -166,12 +165,8 @@ float4 PS_BlurX(VS_SCREEN_OUT _In) : SV_Target
     {
         uv = t + float2(tu * i, 0);
         vOut += Weight[12 + i] * EmissiveTargetTex.Sample(g_sam_anti_0, uv);
-        //vOut.vDiffuse += Weight[12 + i] * DiffuseTargetTex.Sample(g_sam_anti_0, uv);
-        //vOut.vSpecular += Weight[6 + i] * SpecularTargetTex.Sample(g_sam_anti_0, uv);
     }
     vOut /= 6.2108f;
-    //vOut.vDiffuse /= 6.2108f;
-    //vOut.vSpecular /= 6.2108;
 
     return vOut;
 
@@ -187,12 +182,8 @@ float4 PS_BlurY(VS_SCREEN_OUT _In) : SV_Target
     {
         uv = t + float2(0, tu * i);
         vOut += Weight[12 + i] * EmissiveTargetTex.Sample(g_sam_anti_0, uv);
-        //vOut.vDiffuse += Weight[12 + i] * DiffuseTargetTex.Sample(g_sam_anti_0, uv);
-        //vOut.vSpecular += Weight[6 + i] * SpecularTargetTex.Sample(g_sam_anti_0, uv);
     }
     vOut /= 6.2108f;
-    //vOut.vDiffuse /= 6.2108f;
-    //vOut.vSpecular /= 6.2108;
 
     return vOut;
 }

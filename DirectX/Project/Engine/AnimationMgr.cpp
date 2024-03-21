@@ -30,10 +30,10 @@ void AnimationMgr::AdaptAnimation(CGameObject* _LayerObject, bool _AllLayer)
 		for (i = 0; i < MAX_LAYER; ++i)
 		{
 			layer = curLevel->GetLayer(i);
-			for (j = 0; j < layer->GetObjects().size(); ++j)
+			for (j = 0; j < layer->GetParentObject().size(); ++j)
 			{
-				meshRender = layer->GetObjects()[j]->MeshRender();
-				animator = layer->GetObjects()[j]->Animator3D();
+				meshRender = layer->GetParentObject()[j]->MeshRender();
+				animator = layer->GetParentObject()[j]->Animator3D();
 				if (nullptr != meshRender && nullptr != animator)
 				{
 					wstring otherMeshName = meshRender->GetMesh()->GetName();
@@ -55,10 +55,10 @@ void AnimationMgr::AdaptAnimation(CGameObject* _LayerObject, bool _AllLayer)
 		CAnimator3D* animator;
 		layer = curLevel->GetLayer(adaptLayerIdx);
 		int i;
-		for (i = 0; i < layer->GetObjects().size(); ++i)
+		for (i = 0; i < layer->GetParentObject().size(); ++i)
 		{
-			meshRender = layer->GetObjects()[i]->MeshRender();
-			animator = layer->GetObjects()[i]->Animator3D();
+			meshRender = layer->GetParentObject()[i]->MeshRender();
+			animator = layer->GetParentObject()[i]->Animator3D();
 			if (nullptr != meshRender && nullptr != animator)
 			{
 				otherMeshName = meshRender->GetMesh()->GetName();

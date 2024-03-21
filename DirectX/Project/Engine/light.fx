@@ -65,11 +65,9 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
     
     tLightColor LightColor = (tLightColor) 0.f;
     float fSpecPow = 0.f;
+    float fLightPow = 0.f;
 
-    //vViewNormal = mul(float4(vViewNormal, 1.f), g_matView).xyz;
-    //vViewPos = mul(float4(vViewPos, 1.f), g_matView).xyz;
-
-    CalcLight3D(vViewPos, vViewNormal, LightIdx, LightColor, fSpecPow);
+    CalcLight3D(vViewPos, vViewNormal, LightIdx, LightColor, fSpecPow, fLightPow);
     
     float fShadowCoeff = 0.f;
     float3 vWorldPos = mul(float4(vViewPos, 1.f), g_matViewInv).xyz;
@@ -166,12 +164,12 @@ PS_OUT PS_PointLightShader(VS_OUT _in)
         
     tLightColor LightColor = (tLightColor) 0.f;
     float fSpecPow = 0.f;
-    
-    CalcLight3D(vViewPos, vViewNormal, LightIdx, LightColor, fSpecPow);
+    float fLightPow = 0.f;
+    CalcLight3D(vViewPos, vViewNormal, LightIdx, LightColor, fSpecPow, fLightPow);
 
     output.vDiffuse += LightColor.vDiffuse + LightColor.vAmbient;
     output.vSpecular += g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
-    //output.vShadow = 1.0f;
+    output.vShadow = LightColor.vDiffuse + LightColor.vAmbient;
     //output.vEmissive = (LightColor.vDiffuse + LightColor.vAmbient) * fSpecPow;
     output.vDiffuse.a = 1.f;
     output.vSpecular.a = 1.f;

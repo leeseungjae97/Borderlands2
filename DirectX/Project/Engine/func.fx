@@ -97,6 +97,249 @@ void CalcLight2D(float3 _vWorldPos, float3 _vWorldDir, inout tLightColor _Light)
         }
     }
 }
+
+//static const float2x2 m = float2x2(0.8, 0.6, -0.6, 0.8);
+//static const float3x3 m3 = float3x3(0.8, 0.6, 0.0, -0.6, 0.80, 0.0, 0.0, 0.0, 1.0) *
+//                float3x3(1.0, 0.0, 0.0, 0.0, -0.60, 0.80, 0.0, 0.8, 0.6) *
+//                float3x3(0.8, 0.6, 0.0, -0.6, 0.80, 0.0, 0.0, 0.0, 1.0) *
+//                float3x3(1.0, 0.0, 0.0, 0.0, -0.60, 0.80, 0.0, 0.8, 0.6);
+
+//float n1f0(float p)
+//{
+//    return frac(sin(p * 1.7227636) * 803.0);
+//}
+
+//float n1f1(float p)
+//{
+//    return frac(sin(p * 1.42736 + 1.12) * 510.0);
+//}
+
+//float n1f2(float p)
+//{
+//    return frac(sin(p * 1.22712 + 12.161) * 520.0);
+//}
+
+
+//float n3f(float3 p)
+//{
+//    return frac(n1f0(p.x) + n1f1(p.y) + n1f2(p.z) + n1f0(p.x * 1.613) + n1f1(p.y * 3.112) + n1f2(p.z * 4.112));
+//}
+
+//float n3(float3 p)
+//{
+//    float3 b = floor(p);
+//    float3 e = b + (float3) 1.0;
+//    float3 f = smoothstep((float3) 1.0f, (float3)0.0f, frac
+//    (p));
+//    float c000 = n3f(b);
+//    float c001 = n3f(float3(b.x, b.y, e.z));
+//    float c010 = n3f(float3(b.x, e.y, b.z));
+//    float c011 = n3f(float3(b.x, e.y, e.z));
+//    float c100 = n3f(float3(e.x, b.y, b.z));
+//    float c101 = n3f(float3(e.x, b.y, e.z));
+//    float c110 = n3f(float3(e.x, e.y, b.z));
+//    float c111 = n3f(e);
+//    float4 z = lerp(float4(c000, c100, c010, c110), float4(c001, c101, c011, c111), f.z);
+//    float2 yz = lerp(z.xy, z.zw, f.y);
+//    return lerp(yz.x, yz.y, f.x);
+    
+//}
+
+
+//float fbm4(float3 p)
+//{
+//    float f = 0.0f;
+//    p = mul(m3, p);
+//    f += 0.5000 * n3(p);
+//    p = mul(m3, p) * 2.02;
+//    f += 0.2500 * n3(p);
+//    p = mul(m3, p) * 2.03;
+//    f += 0.1250 * n3(p);
+//    p = mul(m3, p) * 2.01;
+//    f += 0.0625 * n3(p);
+
+//    return f / 0.9375;
+//}
+
+//float fbm6(float3 p)
+//{
+//    float f = 0.0;
+//    p = mul(m3, p);
+//    f += 0.500000 * n3(p);
+//    p = mul(m3, p) * 2.02;
+//    f += 0.250000 * n3(p);
+//    p = mul(m3, p) * 2.03;
+//    f += 0.125000 * n3(p);
+//    p = mul(m3, p) * 2.01;
+//    f += 0.062500 * n3(p);
+//    p = mul(m3, p) *2.04;
+//    f += 0.031250 * n3(p);
+//    p = mul(m3, p) * 2.01;
+//    f += 0.015625 * n3(p);
+//    return f / 0.984375;
+//}
+
+//float grid(float2 p)
+//{
+//    p = sin(p * 3.1415);
+//    return smoothstep(-0.01, 0.01, p.x * p.y);
+//}
+
+//void BufferA(out float4 fragColor, in float2 fragCoord)
+//{
+//    float time = g_AccTime * 0.7;
+    
+//    float2 q = fragCoord.xy;
+//    float2 p = -1.0 + 2.0 * float2(q.x, 1.0 - q.y);
+//    p.y *= 0.3;
+//    p.y -= time * 1.5;
+//    float tc = time * 1.2;
+//    float tw1 = time * 2.5;
+//    float tw2 = time * 0.6;
+
+//    float3 vw1 = float3(p, tw1);
+//    vw1.y *= 2.8;
+//    float2 ofs1 = float2(fbm4(vw1), fbm4(vw1 + float3(10.0, 20.0, 50.0)));
+//    ofs1.y *= 0.3;
+//    ofs1.x *= 1.3;
+
+//    float3 vw2 = float3(p, tw2);
+//    vw2.y *= 0.8;
+//    float2 ofs2 = float2(fbm4(vw2), fbm4(vw2 + float3(10.0, 20.0, 50.0)));
+//    ofs2.y *= 0.3;
+//    ofs2.x *= 1.3;
+    
+//    float2 vs = (p + ofs1 * 0.5 + ofs2 * 0.9) * 4.0;
+//    float3 vc = float3(vs, tc);
+//    float l;
+//    l = fbm6(vc);
+//    l = smoothstep(0.0, 1.0, l);
+//    l = max(0.0, (l - pow((1.0 - q.y) * 0.8, 0.6)) * 1.8);
+//    float r = pow(l, 1.5);
+//    float g = pow(l, 3.0);
+//    float b = pow(l, 6.0);
+    
+//    //r = grid(vs);
+//    fragColor = float4(r, g, b, 1.0);
+    
+//}
+//#ifdef GL_ES
+//precision mediump float;
+//#endif
+
+//#define SIGMA 5.0
+
+//float normpdf(in float x, in float sigma)
+//{
+//    return 0.39894 * exp(-0.5 * x * x / (sigma * sigma)) / sigma;
+//}
+
+
+//void mainImage(out float4 fragColor, in float2 fragCoord)
+//{
+//    float4 vColor = (float4) 0.f;
+//    BufferA(vColor, fragCoord.xy);
+//    float3 c = vColor.xyz;
+//    //fragColor = float4(c, 1.0);
+//    //return;
+
+//    const int mSize = int(SIGMA * 11.0 / 7.0);
+//    const int kSize = (mSize - 1) / 2;
+//    float kernel[mSize];
+//    float3 finalColor = (float3) 0.0f;
+
+//    //create the 1-D kernel
+//    float sigma = SIGMA;
+//    float Z = 0.0;
+//    for (int j = 0; j <= kSize; ++j)
+//    {
+//        kernel[kSize + j] = kernel[kSize - j] = normpdf(float(j), sigma);
+//    }
+
+//    //get the normalization factor (as the gaussian has been clamped)
+//    for (int j = 0; j < mSize; ++j)
+//    {
+//        Z += kernel[j];
+//    }
+
+//    //read out the texels
+//    for (int i = -kSize; i <= kSize; ++i)
+//    {
+//        for (int j = -kSize; j <= kSize; ++j)
+//        {
+//            float4 vvColor= (float4)0.0f;
+//            BufferA(vvColor, fragCoord.xy + float2(float(i), float(j)));
+//            finalColor += kernel[kSize + j] * kernel[kSize + i] * vvColor;
+
+//        }
+//    }
+
+//    finalColor /= Z * Z;
+
+//    finalColor = c + pow(finalColor, (float3)0.5f) * 0.5;
+
+
+//    fragColor = float4(finalColor, 1.0);
+//}
+
+
+static const float3 c = float3(1, 0, -1);
+static const float2x2 m = 0.4f * float2x2(4, 3, -3, 4);
+
+// Created by David Hoskins and licensed under MIT.
+// See https://www.shadertoy.com/view/4djSRW.
+float hash12(float2 p)
+{
+    float3 p3 = frac(float3(p.xyx) * 0.1031f);
+    p3 += dot(p3, p3.yzx + 33.33f);
+    return frac(dot(p3.xy, p3.zz));
+}
+
+float lfnoise(float2 t)
+{
+    float2 i = floor(t);
+    t = c.xx * smoothstep(0., 1., frac(t));
+    float2 v1 = 2.0f * lerp(float2(hash12(i), hash12(i + c.xy)), float2(hash12(i + c.yx), hash12(i + c.xx)), t.y) - 1.0f;
+    return lerp(v1.x, v1.y, t.x);
+}
+
+float fbm2(float2 uv)
+{
+    float2 uv0 = uv;
+    uv = uv * float2(5.0f, 2.0f) - float2(-2.0f, -0.25f) - 3.1f * g_AccTime * c.yx;
+    float f = 1.0f;
+    float a = 0.5f;
+	float c = 2.5f;
+	
+    for (int i = 0; i < 5; ++i)
+    {
+        uv.x -= 0.15f * clamp(1. - pow(uv0.y, 4.), 0., 1.) * lfnoise(c * (uv + float(i) * .612 + g_AccTime));
+        c *= 2.;
+        f += a * lfnoise(uv + float(i) * .415);
+        a /= 2.;
+        uv = mul(m, uv);
+        //uv *= m;
+    }
+    return f / 2.;
+}
+
+void mainImage(out float4 fragColor, in float2 fragCoord)
+{
+    float2 uv = fragCoord.xy;
+    uv.y = 1.0 - uv.y;
+    fragColor = float4(
+    clamp(
+		1.5 * pow(clamp(pow(fbm2(uv), 1. + 50. * clamp(uv.y * uv.y, 0., 1.)) * 1.5, 0., 1.) * c.xxx, float3(1, 3, 6))
+		, 0.
+		, 1.
+		)
+    , 1.0
+    );
+
+    fragColor.a = fragColor.r + fragColor.g + fragColor.b;
+
+}
+
 float rand(float2 co)
 {
     return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453);
@@ -357,7 +600,7 @@ float4 PaperBurn(float4 vColor, float2 vUV, Texture2D BurnTex, inout float4 vEmi
     return vOut;
 }
 
-void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightColor _vLightColor, inout float _SpecPow)
+void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightColor _vLightColor, inout float _SpecPow, inout float _LightPow)
 {
     tLightInfo lightInfo = g_Light3DBuffer[_idx];
 

@@ -16,7 +16,7 @@ class CRenderMgr :
 	SINGLE(CRenderMgr);
 private:
 	vector<CCamera*>            m_vecCam;           // 현재 레벨 내에 존재하는 카메라를 등록 받아둠
-	CCamera* m_pEditorCam;       // 외부 에디터쪽에서 관리하는 카메라를 등록 받아둠
+	//CCamera* m_pEditorCam;       // 외부 에디터쪽에서 관리하는 카메라를 등록 받아둠
 
 	vector<tDebugShapeInfo>     m_vecShapeInfo;
 
@@ -42,7 +42,7 @@ public:
 
 public:
 	int RegisterCamera(CCamera* _Cam, int _idx);
-	void RegisterEditorCamera(CCamera* _Cam) { m_pEditorCam = _Cam; }
+	//void RegisterEditorCamera(CCamera* _Cam) { m_pEditorCam = _Cam; }
 	void SetRenderFunc(bool _IsPlay);
 	UINT RegisterLight2D(CLight2D* _Light2D, const tLightInfo& _Info)
 	{
@@ -66,7 +66,7 @@ public:
 	const vector<CLight2D*>& GetLight2D() { return m_vecLight2D; }
 	const vector<CLight3D*>& GetLight3D() { return m_vecLight3D; }
 
-	CCamera* GetEditorCam() { return m_pEditorCam; }
+	//CCamera* GetEditorCam() { return m_pEditorCam; }
 	CCamera* GetMainCam();
 	CCamera* GetUICam();
 	

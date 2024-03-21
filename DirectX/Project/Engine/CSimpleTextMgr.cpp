@@ -25,7 +25,7 @@ void CSimpleTextMgr::init()
 		assert(NULL);
 	}
 
-	if (FAILED(m_pFW1Factory->CreateFontWrapper(DEVICE, L"Arial", &m_pFontWrapper)))
+	if (FAILED(m_pFW1Factory->CreateFontWrapper(DEVICE, L"Compacta Bd BT", &m_pFontWrapper)))
 	{
 		assert(NULL);
 	}
@@ -45,6 +45,8 @@ void CSimpleTextMgr::DrawFont(const wchar_t* _pStr, float _fPosX, float _fPosY, 
 		_Color,// Text color, 0xAaBbGgRr
 		FW1_CENTER | FW1_RESTORESTATE
 	);
+	
+	//m_pFontWrapper->DrawString();
 }
 
 Vec2 CSimpleTextMgr::GetTextSize(const wchar_t* str, float size)

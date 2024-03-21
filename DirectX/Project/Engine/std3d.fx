@@ -52,6 +52,8 @@ struct VS_OUT
 
 #define bAnimUse        g_int_0
 #define bPerlinNoiseUse    g_int_1
+#define bAlphaUse    g_int_2
+#define FlatFire    g_int_3
 
 #define SpriteLeftTop   g_vec2_0
 #define SpriteSize      g_vec2_1
@@ -97,10 +99,10 @@ VS_OUT VS_Std3D_Inst(VTX_IN_INST _in)
 
 float4 PS_Std3D(VS_OUT _in) : SV_Target
 {
-    float4 vOutColor = (float4)1.0f;
+    float4 vOutColor = (float4) 1.0f;
 
     float3 vViewNormal = _in.vViewNormal;
-    float4 vEmissiveCoeff = (float4)0.0f;
+    float4 vEmissiveCoeff = (float4) 0.0f;
     float2 moveUV = _in.vUV;
     float fEmisCoeff = g_fEmisCoeff;
 
@@ -136,6 +138,15 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
 
         return vOutColor;
     }
+    if (FlatFire != 0)
+    {
+        //PerlinNoiseFire(vOutColor, _in.vUV);
+        mainImage(vOutColor, _in.vUV);
+        vOutColor *= 2.f;
+
+        return vOutColor;
+    }
+
 
 
     if (g_iTexAnim)
@@ -180,14 +191,15 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
             vOutColor = g_tex_0.Sample(g_sam_anti_0, UV);
             vEmissiveCoeff += g_tex_0.Sample(g_sam_anti_0, UV);
 
-        }else
+        }
+        else
         {
             if (g_btex_0_flow)
             {
                 vOutColor = g_tex_0.Sample(g_sam_anti_0, moveUV);
             }
             else
-				vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
+                vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
         }
 
         if (vOutColor.a <= 0.0f)
@@ -203,7 +215,7 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
         }
         else
         {
-        	vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV).xyz;
+            vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV).xyz;
         }
         
         
@@ -216,18 +228,19 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
             _in.vViewBinormal,
             _in.vViewNormal        
         };
-        
+         
         vViewNormal = normalize(mul(vNormal, vRotateMat));
-    }else
+    }
+    else
     {
-        //float3x3 vRotateMat =
-        //{
-        //    _in.vViewTangent,
-        //    _in.vViewBinormal,
-        //    _in.vViewNormal        
-        //};
+        float3x3 vRotateMat =
+        {
+            _in.vViewTangent,
+            _in.vViewBinormal,
+            _in.vViewNormal        
+        };
 
-        //vViewNormal = normalize(mul(_in.vViewNormal, vRotateMat));
+        vViewNormal = normalize(mul(vViewNormal, vRotateMat));
     }
     if (g_btex_2)
     {
@@ -266,20 +279,34 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
 
     if (g_btex_4)
     {
-        if (g_btex_4_flow)
+        if (bAlphaUse)
         {
-            if (g_btex_4_emis)
-				vEmissiveCoeff += g_tex_4.Sample(g_sam_anti_0, moveUV);
-            else
-                vOutColor += g_tex_4.Sample(g_sam_anti_0, moveUV);
+            float4 vAC = (float4) 0.f;
+            vAC = g_tex_4.Sample(g_sam_anti_0, _in.vUV);
+            if (vAC.a <= 0.0f)
+            {
+                discard;
+            }
+
         }
         else
         {
-            if (g_btex_4_emis)
-                vEmissiveCoeff += g_tex_4.Sample(g_sam_anti_0, _in.vUV);
+            if (g_btex_4_flow)
+            {
+                if (g_btex_4_emis)
+                    vEmissiveCoeff += g_tex_4.Sample(g_sam_anti_0, moveUV);
+                else
+                    vOutColor += g_tex_4.Sample(g_sam_anti_0, moveUV);
+            }
             else
-                vOutColor += g_tex_4.Sample(g_sam_anti_0, _in.vUV);
+            {
+                if (g_btex_4_emis)
+                    vEmissiveCoeff += g_tex_4.Sample(g_sam_anti_0, _in.vUV);
+                else
+                    vOutColor += g_tex_4.Sample(g_sam_anti_0, _in.vUV);
+            }
         }
+
     }
 
     if (g_btex_5)
@@ -337,7 +364,8 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
 
     for (uint i = 0; i < g_Light3DCount; ++i)
     {
-        CalcLight3D(_in.vViewPos, vViewNormal, i, lightColor, fSpecPow);
+        float fLightPow = 0.f;
+        CalcLight3D(_in.vViewPos, vViewNormal, i, lightColor, fSpecPow, fLightPow);
     }
 
     vOutColor.xyz = (vOutColor.xyz * lightColor.vDiffuse.xyz) + (vOutColor.xyz * lightColor.vAmbient.xyz)

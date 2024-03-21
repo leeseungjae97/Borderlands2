@@ -65,6 +65,61 @@ private:
 	Vec3 vPrevPos;
 	Vec3 vPrevPlayerPos;
 	float fDestDist;
+
+	Ptr<CSound> m_pVoice;
+
+	float fMoveSoundAcc;
+
+	wstring wsEnemyWalkSound[5] =
+	{
+		L"sound\\walk\\player_walk_1.ogg",
+		L"sound\\walk\\player_walk_2.ogg",
+		L"sound\\walk\\player_walk_3.ogg",
+		L"sound\\walk\\player_walk_4.ogg",
+		L"sound\\walk\\player_walk_5.ogg",
+	};
+
+
+	wstring wsPsychoAggroSound[3] =
+	{
+		L"sound\\psycho\\VOBD_Psycho1_HUM_Start_Aggro_01.ogg",
+		L"sound\\psycho\\VOBD_Psycho1_HUM_Start_Aggro_02.ogg",
+		L"sound\\psycho\\VOBD_Psycho1_HUM_Start_Aggro_04.ogg",
+	};
+
+	wstring wsPsychoMeleeSound[3] =
+	{
+		L"sound\\psycho\\VOBD_Psycho1_GEN_Start_Melee_01.ogg",
+		L"sound\\psycho\\VOBD_Psycho1_GEN_Start_Melee_02.ogg",
+		L"sound\\psycho\\VOBD_Psycho1_GEN_Start_Melee_03.ogg",
+	};
+
+	wstring wsPsychoDeathSound[4] =
+	{
+		L"sound\\psycho\\VOBD_Psycho1_GEN_React_Death_01.ogg",
+		L"sound\\psycho\\VOBD_Psycho1_GEN_React_Death_02.ogg",
+		L"sound\\psycho\\VOBD_Psycho1_GEN_React_Death_03.ogg",
+		L"sound\\psycho\\VOBD_Psycho1_GEN_React_Death_04.ogg",
+	};
+
+	wstring wsNomadAggroSound[3] =
+	{
+		L"sound\\nomad\\VOBD_Nomad_HUM_Start_Aggro_01.ogg",
+		L"sound\\nomad\\VOBD_Nomad_HUM_Start_Aggro_02.ogg",
+		L"sound\\nomad\\VOBD_Nomad_HUM_Start_Aggro_03.ogg",
+	};
+	wstring wsNomadDeathSound[4] =
+	{
+		L"sound\\nomad\\VOBD_Nomad_GEN_React_Death_01.ogg",
+		L"sound\\nomad\\VOBD_Nomad_GEN_React_Death_02.ogg",
+		L"sound\\nomad\\VOBD_Nomad_GEN_React_Death_02.ogg",
+		L"sound\\nomad\\VOBD_Nomad_GEN_React_Death_02.ogg",
+	};
+
+
+	wstring* aggroSound;
+	wstring* deathSound;
+
 private:
 	void Move();
 	bool Rotate();

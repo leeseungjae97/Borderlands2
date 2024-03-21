@@ -10,6 +10,12 @@ private:
     Vec3 vPrevPos;
     float fDestDist;
 
+    bool        m_bMove;
+    Vec4        m_vTargetPos;
+
+    float       m_Theta;
+    float       m_fRadius;
+
 public:
     void DoQuery();
 

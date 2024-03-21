@@ -15,6 +15,8 @@
 #include "CTransform.h"
 #include "RandMgr.h"
 
+#include <Script/CScriptMgr.h>
+
 WeaponMgr::WeaponMgr()
 	: iCurWeaponIdx(0)
 	, iCurWeaponName(L"smg")
@@ -143,8 +145,12 @@ void WeaponMgr::Play(GUN_ANIMATION_TYPE _Type, bool _Loop)
 	m_arrWeapons[iCurWeaponIdx]->Animator3D()->Play((UINT)_Type, _Loop);
 }
 
-void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot)
+void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot, CGameObject* _pp)
 {
+	int soundIdx = rand() % 6;
+
+	SoundMgr::GetInst()->Play(wsWeaponFireSound[soundIdx], _vPos, 0, 10.f, SoundMgr::SOUND_TYPE::SFX);
+
 	int randX = RandMgr::GetInst()->GetRandMuzzleX(2);
 	int randY = RandMgr::GetInst()->GetRandMuzzleY(2);
 	Vec2 muzzleSize = Vec2(512.f / 2.f, 512.f / 2.f);
@@ -160,6 +166,14 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot)
 	Light->AddComponent(new CLight3D);
 	Light->AddComponent(new CAnimator2D);
 
+	if(_pp)
+	{
+		CScript* pScript = CScriptMgr::GetScript((UINT)MOVE_SCRIPT);
+		Light->AddComponent((CComponent*)pScript);
+
+		Light->SetWeaponOwner(_pp);
+	}
+
 	pMtrl->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\Tex_Assault_Muzzle_Flash_Front.png"));
 	pMtrl->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\effect\\StubFlat_Nrm.tga"));
 	Light->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
@@ -173,7 +187,7 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot)
 		, Vec2(muzzleSize.x * randX, muzzleSize.y * randY)
 		, muzzleSize
 		, 1
-		, 1	
+		, 1
 		, Vec2::Zero
 		, Vec2::Zero
 		, 0.01f
@@ -181,13 +195,14 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot)
 	);
 	Light->Animator2D()->Play(L"muzzle", true);
 
-	Light->Light3D()->SetRadius(100.f);
+	Light->Light3D()->SetRadius(50.f);
 	Light->Light3D()->SetLightType(LIGHT_TYPE::POINT);
 	Light->Light3D()->SetLightColor(Vec3(1.f, 1.f, 0.f));
 	Light->Light3D()->SetLightAmbient(Vec3(0.65f, 0.65f, 0.65f));
-	Light->Light3D()->SetLifeSpan(0.01f);
+	Light->Light3D()->SetLifeSpan(0.001f);
 
 	Light->Transform()->SetRelativeRot(_vRot);
+	Light->Transform()->SetRelativePos(_vPos);
 	//Light->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
 
 	SpawnGameObject(Light, _vPos, LAYER_TYPE::Default);
@@ -219,14 +234,20 @@ void WeaponMgr::begin()
 	//			m_arrWeapons[weaponIdx]->Animator3D()->StopPlay();
 	//		});
 	//}
-	CLevel* curLevel = CLevelMgr::GetInst()->GetLevel(L"main level");
-	CLayer* layer = curLevel->GetLayer((int)LAYER_TYPE::Item);
-	for (int i = 0; i < layer->GetObjects().size(); ++i)
+	//CLevel* curLevel = CLevelMgr::GetInst()->GetLevel(L"main level");
+
+	CLevel* curLevel = CLevelMgr::GetInst()->GetCurLevel();
+	if(curLevel->GetName() == L"main level")
 	{
-		if(!layer->GetObjects()[i]->IsOwned())
-			AddWeapon(layer->GetObjects()[i]);
+		CLayer* layer = curLevel->GetLayer((int)LAYER_TYPE::Item);
+
+		for (int i = 0; i < layer->GetParentObject().size(); ++i)
+		{
+			if (!layer->GetParentObject()[i]->IsOwned())
+				AddWeapon(layer->GetParentObject()[i]);
+		}
+		ChangeWeapon(SMG_IDX, true);
 	}
-	ChangeWeapon(SMG_IDX, true);
 }
 
 

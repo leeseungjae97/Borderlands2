@@ -76,7 +76,7 @@ int MeshRenderUI::render_update()
 
 	if(nullptr != pMeshRender->GetMesh())
 	{
-		for (int i = 0; i < pMeshRender->GetMesh()->GetSubsetCount(); ++i)
+		for (int i = 0; i < pMeshRender->GetMtrlCount(); ++i)
 		{
 			Ptr<CMaterial> pMtrl = pMeshRender->GetMaterial(i);
 

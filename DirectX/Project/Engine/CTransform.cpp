@@ -270,7 +270,6 @@ void CTransform::UpdateData()
 	g_transform.matWV = g_transform.matWorld * g_transform.matView;
 	g_transform.matWVP = g_transform.matWV * g_transform.matProj;
 
-
 	pTransformBuffer->SetData(&g_transform);
 	pTransformBuffer->UpdateData();
 }

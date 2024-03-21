@@ -24,7 +24,7 @@
 
 CPlayerScript::CPlayerScript()
 	: CScript((UINT)SCRIPT_TYPE::PLAYER_SCRIPT)
-	, fSpeed(300.f)
+	, fSpeed(500.f)
 	, fJump(300.f)
 	, fRateOfFire(0.05f)
 	, fRateOfFireAcc(0.0f)
@@ -43,6 +43,8 @@ CPlayerScript::CPlayerScript()
 	, fHpBackAcc(0.f)
 	, fHpLeftAcc(0.f)
 	, fHpRightAcc(0.f)
+	, playerWalkIdx(0)
+	, fWalkSoundAcc(0)
 	, tState(PlayerMgr::PLAYER_STATE::IDLE)
 {
 	AddScriptParam(SCRIPT_PARAM::FLOAT, &fSpeed, "Player Speed");
@@ -59,25 +61,43 @@ void CPlayerScript::begin()
 	CGameObject* pPlayer = GetOwner();
 
 	CreateUI();
-	//for (int i = 0; i < 3; ++i)
-	//{
-	//	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD + i)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				tState = PlayerMgr::PLAYER_STATE::IDLE;
-	//				iAmmo = 30;
-	//			});
-	//	pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				tState = PlayerMgr::PLAYER_STATE::DRAW;
-	//			});
-	//	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
-	//		= std::make_shared<std::function<void()>>([=]()
-	//			{
-	//				tState = PlayerMgr::PLAYER_STATE::IDLE;
-	//			});
-	//}
+
+	pPlayer->Animator3D()->SetAnimClipEventIdx(
+		(UINT)PLAYER_ANIMATION_TYPE::SNIPER_RELOAD, -1, -1, 103, 130);
+
+
+	for (int i = 0; i < 3; ++i)
+	{
+		pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD + i)
+			= std::make_shared<std::function<void()>>([=]()
+				{
+					tState = PlayerMgr::PLAYER_STATE::IDLE;
+					iAmmo = 30;
+				});
+		pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
+			= std::make_shared<std::function<void()>>([=]()
+				{
+					if ((UINT)PLAYER_ANIMATION_TYPE::DRAW + i == (UINT)PLAYER_ANIMATION_TYPE::DRAW)
+					{
+						SoundMgr::GetInst()->Play(L"sound\\weapon\\smg_draw.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX);
+					}
+					if ((UINT)PLAYER_ANIMATION_TYPE::DRAW + i == (UINT)PLAYER_ANIMATION_TYPE::PISTOL_DRAW)
+					{
+						SoundMgr::GetInst()->Play(L"sound\\weapon\\pistol_draw.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX);
+					}
+					if ((UINT)PLAYER_ANIMATION_TYPE::DRAW + i == (UINT)PLAYER_ANIMATION_TYPE::SNIPER_DRAW)
+					{
+						SoundMgr::GetInst()->Play(L"sound\\weapon\\sniper_draw.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX);
+					}
+
+					tState = PlayerMgr::PLAYER_STATE::DRAW;
+				});
+		pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
+			= std::make_shared<std::function<void()>>([=]()
+				{
+					tState = PlayerMgr::PLAYER_STATE::IDLE;
+				});
+	}
 	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::SNIPER_FIRE)
 	//	= std::make_shared<std::function<void()>>([=]()
 	//		{
@@ -87,25 +107,25 @@ void CPlayerScript::begin()
 	//makeCollider();
 
 	// Test code
-	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD)
-		= std::make_shared<std::function<void()>>([=]()
-			{
-				tState = PlayerMgr::PLAYER_STATE::IDLE;
-				if(iAmmoRemain < iAmmoCapa)
-				{
-					iAmmo = iAmmoRemain;
-					iAmmoRemain = 0;
-				}else
-				{
-					iAmmoRemain -= (iAmmoCapa - iAmmo);
-					iAmmo = iAmmoCapa;
-				}
-			});
-	pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW)
-		= std::make_shared<std::function<void()>>([=]()
-			{
-				tState = PlayerMgr::PLAYER_STATE::IDLE;
-			});
+	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::RELOAD)
+	//	= std::make_shared<std::function<void()>>([=]()
+	//		{
+	//			tState = PlayerMgr::PLAYER_STATE::IDLE;
+	//			if(iAmmoRemain < iAmmoCapa)
+	//			{
+	//				iAmmo = iAmmoRemain;
+	//				iAmmoRemain = 0;
+	//			}else
+	//			{
+	//				iAmmoRemain -= (iAmmoCapa - iAmmo);
+	//				iAmmo = iAmmoCapa;
+	//			}
+	//		});
+	//pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW)
+	//	= std::make_shared<std::function<void()>>([=]()
+	//		{
+	//			tState = PlayerMgr::PLAYER_STATE::IDLE;
+	//		});
 }
 
 void CPlayerScript::tick()
@@ -120,7 +140,7 @@ void CPlayerScript::tick()
 	if (m_pHPText)
 		m_pHPText->SetText(std::to_wstring(iPlayerHp));
 
-	if(m_pLevelText)
+	if (m_pLevelText)
 		m_pLevelText->SetText(L"LV " + std::to_wstring(iLevel) + L" Soldier");
 
 	bool reverse = true;
@@ -128,9 +148,10 @@ void CPlayerScript::tick()
 	m_pUI_AMMO->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &ratio);
 	m_pUI_AMMO->MeshRender()->GetMaterial(0)->SetScalarParam(INT_0, &reverse);
 
+	//reverse = false;
 	ratio = 1.f - (float)iPlayerHp / (float)iPlayerHpCapa;
 	m_pUI_HP->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &ratio);
-	m_pUI_HP->MeshRender()->GetMaterial(0)->SetScalarParam(INT_0, &reverse);
+	//m_pUI_HP->MeshRender()->GetMaterial(0)->SetScalarParam(INT_0, &reverse);
 
 	if (iExp >= iExpMax)
 		iExp = 0;
@@ -192,13 +213,13 @@ void CPlayerScript::tick()
 		m_pUI_HPRightHit->MeshRender()->GetMaterial(0)->SetScalarParam(INT_1, &alpha);
 		m_pUI_HPRightHit->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_1, &time);
 
-		if(fHpRightAcc > 3.f && fHpRightAcc - 3.f < 2.f)
+		if (fHpRightAcc > 3.f && fHpRightAcc - 3.f < 2.f)
 		{
 			time = 0.5f - (((fHpRightAcc - 3.f) / 2.f) * 0.5);
 			m_pUI_HPRightHit->MeshRender()->GetMaterial(0)->SetScalarParam(INT_1, &alpha);
 			m_pUI_HPRightHit->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_1, &time);
 		}
-		if(fHpRightAcc > 5.f)
+		if (fHpRightAcc > 5.f)
 		{
 			fHpRightAcc = 0.0f;
 			m_pUI_HPRightHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
@@ -226,13 +247,14 @@ void CPlayerScript::tick()
 			m_pUI_HPLeftHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 		}
 	}
-	
+
+	CustomReloadSound();
 }
 
 void CPlayerScript::finaltick()
 {
 	static bool init = false;
-	if(!init)
+	if (!init)
 	{
 		//CreateUI();
 		init = true;
@@ -258,10 +280,30 @@ void CPlayerScript::CreateUI()
 	Ptr<CMaterial> pMtrl = nullptr;
 	Ptr<CTexture> pTex = nullptr;
 	Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
-	Vec2 vHalfR = vResol / 2.f;
-	float backWidth = 0;
-	float backHeight = 0;
 
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"UI2DShader"));
+		CResMgr::GetInst()->AddRes(L"Character Damage Fire Mtrl", pMtrl);
+
+		bool flatFire = true;
+		pMtrl->SetScalarParam(INT_0, &flatFire);
+
+		m_pUI_FireHitEffect = new CGameObject;
+
+		m_pUI_FireHitEffect->SetName(L"UI Damage Fire");
+		m_pUI_FireHitEffect->AddComponent(new CTransform);
+		m_pUI_FireHitEffect->AddComponent(new CMeshRender);
+
+		m_pUI_FireHitEffect->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_FireHitEffect->MeshRender()->SetMaterial(pMtrl, 0);
+
+		m_pUI_FireHitEffect->Transform()->SetRelativeScale(Vec3(1280.f, 1400.f, 1.f));
+		//m_pUI_FireHitEffect->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 90.f * DegToRad()));
+		SpawnGameObject(m_pUI_FireHitEffect, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		//m_pUI_FireHitEffect->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
 	{
 		pMtrl = new CMaterial(true);
 		pMtrl->SetShader(UIShader);
@@ -456,7 +498,7 @@ void CPlayerScript::CreateUI()
 		SpawnGameObject(m_pUI_EXP, Vec3(0.f, -317.f, 0.f), LAYER_TYPE::ViewPortUI);
 	}
 	{
-		
+
 		pMtrl = new CMaterial(true);
 		pMtrl->SetShader(adjustUIShader);
 		CResMgr::GetInst()->AddRes(L"DamageHp", pMtrl);
@@ -562,12 +604,13 @@ void CPlayerScript::CreateUI()
 		m_pUI_HPRightHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 	}
 
+
 	m_pAmmoText = new CUI();
 	m_pAmmoText->SetName(L"Ammo Text");
 	m_pAmmoText->AddComponent(new CTransform);
-	m_pAmmoText->AddComponent(new CMeshRender);
-	m_pAmmoText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	m_pAmmoText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
+	//m_pAmmoText->AddComponent(new CMeshRender);
+	//m_pAmmoText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	//m_pAmmoText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
 	m_pAmmoText->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
 
 	//m_pAmmoText->SetTextSize(Vec2(10.f, 10.f));
@@ -581,9 +624,9 @@ void CPlayerScript::CreateUI()
 	m_pHPText = new CUI();
 	m_pHPText->SetName(L"HP Text");
 	m_pHPText->AddComponent(new CTransform);
-	m_pHPText->AddComponent(new CMeshRender);
-	m_pHPText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	m_pHPText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
+	//m_pHPText->AddComponent(new CMeshRender);
+	//m_pHPText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	//m_pHPText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
 	m_pHPText->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
 
 	//m_pHPText->SetTextSize(Vec2(20.f, 20.f));
@@ -597,23 +640,23 @@ void CPlayerScript::CreateUI()
 	m_pLevelText = new CUI();
 	m_pLevelText->SetName(L"Level Text");
 	m_pLevelText->AddComponent(new CTransform);
-	m_pLevelText->AddComponent(new CMeshRender);
-	m_pLevelText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	m_pLevelText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
+	//m_pLevelText->AddComponent(new CMeshRender);
+	//m_pLevelText->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	//m_pLevelText->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
 	m_pLevelText->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
 	m_pLevelText->SetTextScale(0.75f);
 	m_pLevelText->SetOutline(true);
 	//m_pLevelText->SetTextSize(Vec2(5.f, 5.f));
 	m_pLevelText->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
-	m_pLevelText->SetText(L"LV "+std::to_wstring(iLevel) + L" Soldier");
+	m_pLevelText->SetText(L"LV " + std::to_wstring(iLevel) + L" Soldier");
 	SpawnGameObject(m_pLevelText, Vec3(-111.f, -359.f, 1.f), LAYER_TYPE::ViewPortUI);
 
 	m_pEnemyLevel = new CUI();
 	m_pEnemyLevel->SetName(L"Enemy Level Text");
 	m_pEnemyLevel->AddComponent(new CTransform);
-	m_pEnemyLevel->AddComponent(new CMeshRender);
-	m_pEnemyLevel->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	m_pEnemyLevel->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
+	//m_pEnemyLevel->AddComponent(new CMeshRender);
+	//m_pEnemyLevel->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	//m_pEnemyLevel->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
 	m_pEnemyLevel->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
 	m_pEnemyLevel->SetTextScale(0.6f);
 	m_pEnemyLevel->SetOutline(true);
@@ -623,9 +666,9 @@ void CPlayerScript::CreateUI()
 	m_pEnemyName = new CUI();
 	m_pEnemyName->SetName(L"Enemy Name Text");
 	m_pEnemyName->AddComponent(new CTransform);
-	m_pEnemyName->AddComponent(new CMeshRender);
-	m_pEnemyName->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-	m_pEnemyName->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
+	//m_pEnemyName->AddComponent(new CMeshRender);
+	//m_pEnemyName->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	//m_pEnemyName->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"AdjustUI2DShaderMtrl"), 0);
 	m_pEnemyName->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
 	m_pEnemyName->SetTextScale(0.5f);
 	m_pEnemyName->SetOutline(true);
@@ -653,7 +696,7 @@ void CPlayerScript::Look()
 	if (hoverEnemy)
 	{
 		if (hoverEnemy->GetScript<CEnemyScript>())
-		{	
+		{
 			m_pEnemyName->SetText(hoverEnemy->GetScript<CEnemyScript>()->GetEnemyName());
 			wstring str = L"01";
 			m_pEnemyLevel->SetText(str);
@@ -729,7 +772,7 @@ void CPlayerScript::ShootBullet()
 	Vec3 vPos = WeaponMgr::GetInst()->GetCurWeaponMuzzlePos();
 	Vec3 vRot = WeaponMgr::GetInst()->GetCurWeapon()->Transform()->GetRelativeRot();
 
-	WeaponMgr::GetInst()->MuzzleFlash(vPos, vRot);
+	WeaponMgr::GetInst()->MuzzleFlash(vPos, vRot, GetOwner());
 
 	WeaponMgr::GetInst()->Play(GUN_ANIMATION_TYPE::FIRE, false);
 
@@ -742,7 +785,7 @@ void CPlayerScript::ShootBullet()
 	{
 		FieldUIMgr::GetInst()->AddDamage(10.f, rayInfo.vStart + (rayInfo.vDir * vPosition.z));
 	}
-	
+
 	CGameObject* pGun = WeaponMgr::GetInst()->GetCurWeapon();
 	int weaponIdx = WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::FIRE);
 
@@ -776,7 +819,7 @@ void CPlayerScript::ShootMissile()
 
 void CPlayerScript::Reload()
 {
-	if (tState == PlayerMgr::PLAYER_STATE::RELOAD || tState == PlayerMgr::PLAYER_STATE::DRAW 
+	if (tState == PlayerMgr::PLAYER_STATE::RELOAD || tState == PlayerMgr::PLAYER_STATE::DRAW
 		|| iAmmoRemain == 0)
 		return;
 
@@ -815,6 +858,13 @@ void CPlayerScript::Movement()
 	CGameObject* pPlayer = GetOwner();
 
 	Vec3 vPlayerPos = pPlayer->Transform()->GetRelativePos();
+
+	//if (nullptr == pPlayer->RigidBody())
+	//{
+	//	pPlayer->Transform()->SetRelativePos(vPlayerPos);
+	//	return;
+	//}
+
 	Vec3 vPlayerCamPos = PlayerMgr::GetInst()->GetPlayerCameraPos();
 	Vec3 vCamRot = pCamObj->Transform()->GetRelativeRot();
 
@@ -845,6 +895,8 @@ void CPlayerScript::Movement()
 	UINT uiIdle = (1 << 2);
 	UINT flag = uiIdle;
 
+	bool bMove = false;
+
 	if (KEY_PRESSED(KEY::_1))
 	{
 		Draw(SMG_IDX);
@@ -872,22 +924,26 @@ void CPlayerScript::Movement()
 	{
 		flag |= uiFront;
 		final_velocity += vPlayerFront * _fSpeed;
+		bMove = true;
 	}
 	if (KEY_PRESSED(KEY::S))
 	{
 		flag |= uiBack;
 		final_velocity += vPlayerFront * -_fSpeed;
+		bMove = true;
 	}
 	if (KEY_PRESSED(KEY::A))
 	{
 		flag |= uiLeft;
 		final_velocity += vPlayerRight * -_fSpeed;
+		bMove = true;
 	}
 
 	if (KEY_PRESSED(KEY::D))
 	{
 		flag |= uiRight;
 		final_velocity += vPlayerRight * _fSpeed;
+		bMove = true;
 	}
 	if (KEY_PRESSED(KEY::SPACE))
 	{
@@ -944,6 +1000,17 @@ void CPlayerScript::Movement()
 		else if (flag & uiIdle)
 		{
 			pPlayer->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::IDLE), true);
+		}
+		if (bMove)
+		{
+			fWalkSoundAcc += DT;
+			if (fWalkSoundAcc > 0.5f)
+			{
+				++playerWalkIdx;
+				playerWalkIdx %= 5;
+				SoundMgr::GetInst()->Play(wsPlayerWalkSound[playerWalkIdx], vPlayerPos, 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.5f);
+				fWalkSoundAcc = 0.f;
+			}
 		}
 	}
 }
@@ -1043,6 +1110,7 @@ void CPlayerScript::Burn()
 {
 	if (bBurn)
 	{
+		m_pUI_FireHitEffect->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 		fBurnTickAcc += DT;
 		fBurnAcc += DT;
 		if (fBurnTickAcc > 1.f)
@@ -1058,12 +1126,16 @@ void CPlayerScript::Burn()
 			bBurn = false;
 		}
 	}
+	else
+	{
+		m_pUI_FireHitEffect->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
 }
 
 void CPlayerScript::AddExp(int _iExp)
 {
 	iExp += _iExp;
-	if(iExp <= iExpMax)
+	if (iExp <= iExpMax)
 	{
 		iLevel = iExp % iExpMax;
 		iExp = 0;
@@ -1114,7 +1186,7 @@ void CPlayerScript::Raycast(tRayInfo _RaycastInfo)
 	{
 		iPlayerHp -= _RaycastInfo.fDamage;
 		Vec3 vRight = GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
-		Vec3 vFront= GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+		Vec3 vFront = GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
 		Vec3 vPos = GetOwner()->Transform()->GetRelativePos();
 		float rightTheta = _RaycastInfo.vDir.Dot(vRight);
 
@@ -1125,7 +1197,7 @@ void CPlayerScript::Raycast(tRayInfo _RaycastInfo)
 			Vec3 vDiff = _RaycastInfo.vStart - vPos;
 			vDiff.Normalize();
 
-			if(vFront.Dot(vDiff) > 0.0f)
+			if (vFront.Dot(vDiff) > 0.0f)
 			{
 				if (m_pUI_HPFrontHit)
 					m_pUI_HPFrontHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
@@ -1141,7 +1213,7 @@ void CPlayerScript::Raycast(tRayInfo _RaycastInfo)
 			}
 		}
 
-		if(rightTheta < -45.f && rightTheta > -135.f)
+		if (rightTheta < -45.f && rightTheta > -135.f)
 		{
 			if (m_pUI_HPRightHit)
 				m_pUI_HPRightHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
@@ -1149,12 +1221,69 @@ void CPlayerScript::Raycast(tRayInfo _RaycastInfo)
 		}
 		if (rightTheta > 45.f && rightTheta < 135.f)
 		{
-			if(m_pUI_HPLeftHit)
+			if (m_pUI_HPLeftHit)
 				m_pUI_HPLeftHit->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 			fHpLeftAcc = 0.0f;
 		}
 	}
-		
+
+}
+
+void CPlayerScript::CustomReloadSound()
+{
+	if (tState != PlayerMgr::PLAYER_STATE::RELOAD)
+		return;
+	CGameObject* pPlayer = GetOwner();
+	int weaponIdx = WeaponMgr::GetInst()->GetCurWeaponIdx();
+	int animIdx = GetOwner()->Animator3D()->GetCurAnimClip()->GetClipIdx();
+
+	if(weaponIdx == PISTOL_IDX)
+	{
+		if(animIdx == 10)
+		{
+			SoundMgr::GetInst()->Play(L"sound\\weapon\\pistol_release_mag.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.2, false);
+		}
+		if (animIdx == 33)
+		{
+			SoundMgr::GetInst()->Play(L"sound\\weapon\\pistol_load_mag.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.2, false);
+		}
+		if (animIdx == 50)
+		{
+			SoundMgr::GetInst()->Play(L"sound\\weapon\\pistol_slider.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.2, false);
+		}
+	}
+
+	if (weaponIdx == SMG_IDX)
+	{
+		if (animIdx == 20)
+		{
+			SoundMgr::GetInst()->Play(L"sound\\weapon\\pistol_release_mag.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.2, false);
+		}
+		if (animIdx == 63)
+		{
+			SoundMgr::GetInst()->Play(L"sound\\weapon\\smg_load_mag.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.2, false);
+		}
+		if (animIdx == 104)
+		{
+			SoundMgr::GetInst()->Play(L"sound\\weapon\\smg_slider.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.2, false);
+		}
+	}
+
+	if (weaponIdx == SNIPER_IDX)
+	{
+		if (animIdx == 17)
+		{
+			SoundMgr::GetInst()->Play(L"sound\\weapon\\sniper_release_mag.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.2, false);
+		}
+		if (animIdx == 50)
+		{
+			SoundMgr::GetInst()->Play(L"sound\\weapon\\sniper_load_mag.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.2, false);
+		}
+		if (animIdx == 93)
+		{
+			SoundMgr::GetInst()->Play(L"sound\\weapon\\sniper_slider.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.2, false);
+		}
+	}
 }
 
 void CPlayerScript::SaveToLevelFile(FILE* _File)

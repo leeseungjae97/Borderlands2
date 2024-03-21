@@ -69,6 +69,24 @@ void NavigationMgr::tick()
 	DrawDebug();
 }
 
+void NavigationMgr::begin()
+{
+	if (CEventMgr::GetInst()->IsLevelLoad())
+	{
+		m_vecMapObj.clear();
+		vector<CGameObject*>().swap(m_vecMapObj);
+
+		CLevel* pLevel = CLevelMgr::GetInst()->GetCurLevel();
+		vector<CGameObject*> maps = pLevel->FindLayerByType(LAYER_TYPE::Terrain)->GetObjects();
+		for (int i = 0; i < maps.size(); ++i)
+		{
+			m_vecMapObj.push_back(maps[i]);
+		}
+
+		MapChange(m_iMap);
+	}
+}
+
 CGameObject* NavigationMgr::GetMap(int _Idx)
 {
 	if (_Idx >= m_vecMapObj.size())

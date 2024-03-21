@@ -57,6 +57,8 @@ private:
     vector<CGameObject*>    m_vecPost;
 
     vector<CGameObject*>    m_vecShadow;
+    vector<CGameObject*>    m_vecText;
+
 
 public:
     void SetProjType(PROJ_TYPE _Type) { m_ProjType = _Type; }
@@ -104,7 +106,7 @@ public:
 
 protected:
     void CalRay();
-    void CalRelativeRay();
+
 public:
     void SortObject();
     void SortObject_Shadow();
@@ -129,6 +131,7 @@ private:
     void render_transparent();
     void render_postprocess();
     void render_ui();
+    void render_text();
 
 
     void CalcViewMat();

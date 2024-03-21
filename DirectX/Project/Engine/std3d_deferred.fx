@@ -9,8 +9,8 @@ struct VS_IN
     float3 vPos : POSITION;
     float2 vUV : TEXCOORD;
     
-    float3 vNormal : NORMAL;
     float3 vTangent : TANGENT;
+    float3 vNormal : NORMAL;
     float3 vBinormal : BINORMAL;
 
     float4 vWeights : BLENDWEIGHT;
@@ -133,25 +133,16 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
 
         if (g_btex_7)
         {
-            float2 vNoiseUV = float2(_in.vUV.x - (g_AccTime * g_fTexFlowSpeed), _in.vUV.y);
+            float2 vNoiseUV = float2(_in.vUV);
             float4 vNoise = g_tex_7.Sample(g_sam_anti_0, vNoiseUV);
 
             vNoise = (vNoise - 0.5f) * 0.02f;
 
-            moveUV.x += vNoise.x;
-            moveUV.y += vNoise.y;
+            moveUV += vNoise.r;
         }
 
         moveUV.x = moveUV.x - floor(moveUV.x);
         moveUV.y = moveUV.y - floor(moveUV.y);
-
-        //if (moveUV.x < 0.0f)
-        //    moveUV.x = 1.f + moveUV.x;
-
-        //if (moveUV.y < 0.0f)
-        //    moveUV.y = 1.f + moveUV.y;
-
-        //output.vColor.a = 1.f;
     }
 
     if (g_btex_0)
@@ -166,39 +157,29 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
         {
             output.vColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
         }
-        //output.vColor.a = 1.f;
 
-        //output.vColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
-        //if (output.vColor.a <= 0.f)
-        //{
-        //    discard;
-        //}
-      
+        if (output.vColor.a <= 0.f)
+            discard;
     }
     
     if (g_btex_1)
     {
-        //float3 vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV).xyz;
         float3 vNormal = (float3) 0.f;
         if (g_btex_1_flow)
         {
-            //vNormal = g_tex_1.SampleGrad(g_sam_anti_0, float3(moveUV, 1.f), derivX, derivY);
             vNormal = g_tex_1.Sample(g_sam_anti_0, moveUV);
         }
         else
         {
-            //vNormal = g_tex_1.SampleGrad(g_sam_anti_0, float3(_in.vUV, 1.f), derivX, derivY);
             vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV);
-        }
-        
-        // 0 ~ 1 범위의 값을 -1 ~ 1 로 확장        
+        }  
         vNormal = vNormal * 2.f - 1.f;
         
         float3x3 vRotateMat =
         {
             _in.vViewTangent,
             _in.vViewBinormal,
-            _in.vViewNormal        
+            _in.vViewNormal
         };
         
         vViewNormal = normalize(mul(vNormal, vRotateMat));
@@ -212,9 +193,9 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
             _in.vViewNormal        
         };
 
-        //vViewNormal = normalize(mul(_in.vViewNormal, vRotateMat));
-        //output.vTangent = normalize(float4(_in.vViewTangent, 1.f));
+        vViewNormal = normalize(mul(vViewNormal, vRotateMat));
     }
+
     if (g_btex_3)
     {
         if (g_btex_3_flow)

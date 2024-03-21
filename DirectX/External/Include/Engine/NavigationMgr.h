@@ -14,6 +14,7 @@ private:
 public:
 	void init();
 	void tick();
+	void begin();
 
 	void AddMap(CGameObject* _MapObj) { m_vecMapObj.push_back(_MapObj); }
 	CGameObject* GetMap(int _Idx);

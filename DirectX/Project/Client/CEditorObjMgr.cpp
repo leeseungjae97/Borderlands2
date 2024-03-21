@@ -79,24 +79,23 @@ void CEditorObjMgr::init()
 	//m_DebugShape[(UINT)SHAPE_TYPE::MESH]->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"DebugShapeMtrl"), 0);
 
 	// EditorObject »ý¼º
-	CGameObjectEx* pEditorCamObj = new CGameObjectEx;
-	pEditorCamObj->SetName(L"EditCam");
 
-	pEditorCamObj->AddComponent(new CTransform);
-	pEditorCamObj->AddComponent(new CCamera);
-	pEditorCamObj->AddComponent(new CCameraMoveScript);
-	pEditorCamObj->Transform()->SetRelativePos(Vec3(0.f, 0.f, 0.f));
+	//CGameObjectEx* pEditorCamObj = new CGameObjectEx;
+	//pEditorCamObj->SetName(L"EditCam");
 
-	pEditorCamObj->Camera()->SetFarZ(1000000.f);
-	pEditorCamObj->Camera()->SetLayerMaskAll(true);
-	//pEditorCamObj->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
-	pEditorCamObj->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
+	//pEditorCamObj->AddComponent(new CTransform);
+	//pEditorCamObj->AddComponent(new CCamera);
+	//pEditorCamObj->AddComponent(new CCameraMoveScript);
+	//pEditorCamObj->Transform()->SetRelativePos(Vec3(0.f, 0.f, 0.f));
 
-	m_vecEditorObj.push_back(pEditorCamObj);
-	CRenderMgr::GetInst()->RegisterEditorCamera(pEditorCamObj->Camera());
+	//pEditorCamObj->Camera()->SetFarZ(1000000.f);
+	//pEditorCamObj->Camera()->SetLayerMaskAll(true);
+	////pEditorCamObj->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
+	//pEditorCamObj->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
+
+	//m_vecEditorObj.push_back(pEditorCamObj);
+	//CRenderMgr::GetInst()->RegisterEditorCamera(pEditorCamObj->Camera());
 }
-
-
 
 void CEditorObjMgr::progress()
 {
