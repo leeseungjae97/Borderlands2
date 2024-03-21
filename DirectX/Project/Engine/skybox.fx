@@ -40,27 +40,30 @@ float4 PS_SkyBoxShader(VS_SKY_OUT _in) : SV_Target
     float4 vOutColor = (float4) 0.f;
     
     // 0 : Sphere Type
-    if (g_btex_0)
+    if (0 == SKYBOX_TYPE)
     {
-        vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
+        if (g_btex_0)
+        {
+            vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
+        }
     }
     
     // 1 : Cube Type
-    //else if (1 == SKYBOX_TYPE)
-    //{
-    //    if (g_btexcube_0)
-    //    {
-    //        float3 vUV = normalize(_in.vPos);
-    //        vOutColor = g_cube_0.Sample(g_sam_anti_0, vUV);
-    //    }
-    //}
-    //else if(2 == SKYBOX_TYPE)
-    //{
-    //    if (g_btex_0)
-    //    {
-    //        vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
-    //    }
-    //}
+    else if (1 == SKYBOX_TYPE)
+    {
+        if (g_btexcube_0)
+        {
+            float3 vUV = normalize(_in.vPos);
+            vOutColor = g_cube_0.Sample(g_sam_anti_0, vUV);
+        }
+    }
+    else if (2 == SKYBOX_TYPE)
+    {
+        if (g_btex_0)
+        {
+            vOutColor = g_tex_0.Sample(g_sam_anti_0, _in.vUV);
+        }
+    }
 
     return vOutColor;
 }

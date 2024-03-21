@@ -168,17 +168,30 @@ void CreateLevels()
 
 	//PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pSkyBox = nullptr;
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\warrior_skybox.fbx");
+	//	pSkyBox = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f), true);
+	//	pSkyBox->SetName(L"SkyBox");
+
+	//	PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
+	//}
+
 	{
-		Ptr<CMeshData> pMeshData = nullptr;
-		CGameObject* pSkyBox = nullptr;
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\warrior_skybox.fbx");
-		pSkyBox = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f), true);
+		CGameObject* pSkyBox = new CGameObject;
 		pSkyBox->SetName(L"SkyBox");
 
-		//pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\Sky.tga"));
-		//pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
+		pSkyBox->AddComponent(new CTransform);
+		pSkyBox->AddComponent(new CSkyBox);
+
+		pSkyBox->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100));
+		pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::HEMI_SPHERE);
+		pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\Zone3BossSky_Dif.png"));
+
 		PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 	}
+
 	//{
 	//	Ptr<CMeshData> pMeshData = nullptr;
 	//	CGameObject* pSkyBox = nullptr;

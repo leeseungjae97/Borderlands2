@@ -159,6 +159,8 @@ CGameObject* CMeshData::Instantiate(Vec3 scale, bool _Sky)
 		{
 			pNewObj->SkyBox()->SetMaterial(m_vecMtrl[i], i);
 		}
+		pNewObj->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::HEMI_SPHERE);
+		
 		
 	}else
 	{

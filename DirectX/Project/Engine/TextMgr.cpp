@@ -61,8 +61,8 @@ void TextMgr::DrawSpriteText(const wstring& str, Vec3 m_fontPos, float _fRotate,
 	m_spriteBatch->Begin(SpriteSortMode_Deferred
 		, CDevice::GetInst()->GetBSState(BS_TYPE::ALPHA_BLEND).Get()
 		, CDevice::GetInst()->GetSState(0).Get()
-		, CDevice::GetInst()->GetDSState(DS_TYPE::LESS_EQUAL).Get()
-		, CDevice::GetInst()->GetRSState(RS_TYPE::CULL_BACK).Get()
+		, CDevice::GetInst()->GetDSState(DS_TYPE::NO_WRITE).Get()
+		, CDevice::GetInst()->GetRSState(RS_TYPE::CULL_NONE).Get()
 		, [=]
 		{
 			tMtrlConst m_Const;

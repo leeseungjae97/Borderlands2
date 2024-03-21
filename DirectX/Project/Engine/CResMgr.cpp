@@ -934,9 +934,9 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->CreatePixelShader(L"shader\\std2d.fx", "PS_SpriteFontStd2D");
 	//pShader->SetRSType(RS_TYPE::WIRE_FRAME);
 	pShader->SetRSType(RS_TYPE::CULL_NONE);
-	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
 	pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_UI);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_TRANSPARENT);
 
 	AddRes(pShader->GetKey(), pShader);
 
@@ -951,10 +951,10 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->SetKey(L"SkyBoxShader");
 	pShader->CreateVertexShader(L"shader\\skybox.fx", "VS_SkyBoxShader");
 	pShader->CreatePixelShader(L"shader\\skybox.fx", "PS_SkyBoxShader");
-	pShader->SetRSType(RS_TYPE::CULL_FRONT);
+	pShader->SetRSType(RS_TYPE::CULL_NONE);
 	pShader->SetDSType(DS_TYPE::LESS_EQUAL);
 	//pShader->SetUseDepthStencil(false);
-	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_MASK);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_TRANSPARENT);
 
 	pShader->AddTexParam(TEX_0, "Output Texture");
 
