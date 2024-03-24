@@ -160,7 +160,7 @@ int CDevice::CreateView()
     
     // RenderTarget 용 텍스쳐 등록
     CResMgr::GetInst()->CreateTexture(L"RenderTargetTex", tex2D);
-
+    
     // DepthStencil 용도 텍스쳐 생성
     CResMgr::GetInst()->CreateTexture(L"DepthStencilTex"
         , (UINT)m_vRenderResolution.x, (UINT)m_vRenderResolution.y

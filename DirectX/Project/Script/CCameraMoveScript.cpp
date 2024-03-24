@@ -63,9 +63,16 @@ void CCameraMoveScript::scopeCameraMove()
 
 	Vec3 vPos = WeaponMgr::GetInst()->GetCurWeaponMuzzlePos();
 	Vec3 vRot = cam->GetOwner()->Transform()->GetRelativeRot();
+	pCamera->Transform()->SetRelativeRot(vRot);
+	Vec3 vFront = pCamera->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+	vPos += vFront * 150.f;
 
 	pCamera->Transform()->SetRelativePos(vPos);
-	pCamera->Transform()->SetRelativeRot(vRot);
+}
+
+void CCameraMoveScript::warriorCameraMove()
+{
+
 }
 
 void CCameraMoveScript::tick()
@@ -74,6 +81,7 @@ void CCameraMoveScript::tick()
 	//	cameraDebugMove();
 	//else
 	cameraFollowMove();
+	scopeCameraMove();
 }
 
 void CCameraMoveScript::finaltick()
@@ -81,7 +89,7 @@ void CCameraMoveScript::finaltick()
 	if (CLevelMgr::GetInst()->GetCurLevel()->GetState() != LEVEL_STATE::PLAY)
 		cameraDebugMove();
 
-	scopeCameraMove();
+
 
 
 	//if(KEY_TAP(KEY::G))
@@ -153,62 +161,4 @@ void CCameraMoveScript::cameraFollowMove()
 	if (GetOwner()->GetName() == L"EditCam"
 		|| nullptr == GetOwner()->GetFollowObj()) 
 		return;
-
-	//Vec3 vPos = GetOwner()->GetFollowObj()->Transform()->GetRelativePos();
-	//Vec3 vRot = GetOwner()->GetFollowObj()->Transform()->GetRelativeRot();
-
-	//Vec3 vCurRot = GetOwner()->Transform()->GetRelativeRot();
-
-	//Vec3 vFront = GetOwner()->GetFollowObj()->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
-	//Vec3 vUp = GetOwner()->GetFollowObj()->Transform()->GetRelativeDir(DIR_TYPE::UP);
-	//Vec3 vRight = GetOwner()->GetFollowObj()->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
-
-	//CRigidBody* _db = GetOwner()->GetFollowObj()->RigidBody();
-
-	//Vec2 vMouseDir = CKeyMgr::GetInst()->GetMouseDir();
-
-	//vCurRot.y += (DT * vMouseDir.x * 1.f);
-	//vCurRot.x -= (DT * vMouseDir.y * 1.f);
-	//vCurRot.z = 0;
-
-	//GetOwner()->GetFollowObj()->Transform()->SetRelativeRot(Vec3(0.f, vCurRot.y, 0.f));
-	//GetOwner()->Transform()->SetRelativeRot(vCurRot);
-
-	////vPos -= vFront;
-	//vPos += GetOwner()->Transform()->GetFollowOffset();
-	//GetOwner()->Transform()->SetRelativePos(vPos);
-
-	//float fSpeed = 100.f;
-	//Vec3 final_velocity = Vec3(0.f, 0.f, 0.f);
-
-	//if (KEY_PRESSED(KEY::LSHIFT))
-	//{
-	//	fSpeed *= 2.f;
-	//}
-	//if (KEY_PRESSED(KEY::W))
-	//{
-	//	final_velocity += vFront * DT * fSpeed;
-	//}
-
-	//if (KEY_PRESSED(KEY::S))
-	//{
-	//	final_velocity += vFront * DT * -fSpeed;
-	//}
-
-	//if (KEY_PRESSED(KEY::A))
-	//{
-	//	final_velocity += vRight * DT * -fSpeed;
-	//}
-
-	//if (KEY_PRESSED(KEY::D))
-	//{
-	//	final_velocity += vRight * DT * fSpeed;
-	//}
-
-	//if (KEY_PRESSED(KEY::SPACE))
-	//{
-	//	final_velocity += vUp * DT * 50.f;
-	//}
-
-	//_db->SetLinearVelocity(final_velocity * fSpeed);
 }

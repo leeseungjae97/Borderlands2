@@ -72,7 +72,16 @@ void CPlayerScript::begin()
 			= std::make_shared<std::function<void()>>([=]()
 				{
 					tState = PlayerMgr::PLAYER_STATE::IDLE;
-					iAmmo = 30;
+					if (iAmmoRemain < iAmmoCapa)
+					{
+						iAmmo = iAmmoRemain;
+						iAmmoRemain = 0;
+					}
+					else
+					{
+						iAmmoRemain -= (iAmmoCapa - iAmmo);
+						iAmmo = iAmmoCapa;
+					}
 				});
 		pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
 			= std::make_shared<std::function<void()>>([=]()
@@ -781,10 +790,10 @@ void CPlayerScript::ShootBullet()
 	if (!bHitEnemy && 0.0f < vPosition.z) // 충돌이 없을 때 distance가 0
 		ParticleMgr::GetInst()->DoParticle(ParticleMgr::PARTICLE_SETTING_TYPE::BULLET_IMPACT, rayInfo.vStart + (rayInfo.vDir * vPosition.z));
 
-	if (bHitEnemy)
-	{
-		FieldUIMgr::GetInst()->AddDamage(10.f, rayInfo.vStart + (rayInfo.vDir * vPosition.z));
-	}
+	//if (bHitEnemy)
+	//{
+	//	FieldUIMgr::GetInst()->AddDamage(10.f, rayInfo.vStart + (rayInfo.vDir * vPosition.z));
+	//}
 
 	CGameObject* pGun = WeaponMgr::GetInst()->GetCurWeapon();
 	int weaponIdx = WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::FIRE);
@@ -854,6 +863,9 @@ void CPlayerScript::Movement()
 	CGameObject* pCamObj = GetOwner()->GetFollowObj();
 	if (nullptr == pCamObj)
 		pCamObj = CameraMgr::GetInst()->GetCamObj(L"MainCamera");
+
+	if (pCamObj->Camera()->IsCinematic())
+		return;
 
 	CGameObject* pPlayer = GetOwner();
 

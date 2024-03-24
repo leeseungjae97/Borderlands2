@@ -4,9 +4,11 @@
 #include "CAnimation3DShader.h"
 #include "CColorMapShader.h"
 #include "CCopyBoneShader.h"
+#include "CEngine.h"
 #include "CHeightMapShader.h"
 #include "CRayCastShader.h"
 #include "CWeightMapShader.h"
+#include "DownScaleShader.h"
 #include "IndividualBoneSkinningShader.h"
 
 extern FMOD::System* g_pFMOD = nullptr;
@@ -1281,6 +1283,11 @@ void CResMgr::CreateDefaultComputeShader()
 	pCS->SetKey(L"IBSCS");
 	pCS->CreateComputeShader(L"shader\\individual_bone_skinning.fx", "CS_IndividualBone");
 	AddRes(pCS->GetKey(), pCS);
+
+	pCS = new DownScaleShader(1024, 1, 1);
+	pCS->SetKey(L"DownScaleCS");
+	pCS->CreateComputeShader(L"shader\\downscale.fx", "CS_DownScale");
+	AddRes(pCS->GetKey(), pCS);
 }
 
 void CResMgr::CreateDefaultMaterial()
@@ -1467,6 +1474,33 @@ Ptr<CTexture> CResMgr::CreateTexture(const wstring& _strKey, UINT _Width, UINT _
 	return pTex;
 }
 
+Ptr<CTexture> CResMgr::CreateUAVTexture(const wstring& _strKey, UINT _Width, UINT _Height, DXGI_FORMAT _pixelformat,
+	UINT _BindFlag, D3D11_USAGE _Usage)
+{
+	Ptr<CTexture> pTex = FindRes<CTexture>(_strKey);
+
+	assert(nullptr == pTex);
+
+	Vec2 vRS = CEngine::GetInst()->GetWindowResolution();
+	unsigned int PixelCount = vRS.x * vRS.y;
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC DsUAV = {};
+	DsUAV.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	DsUAV.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	DsUAV.Buffer.FirstElement = 0;
+	DsUAV.Buffer.NumElements = PixelCount / 16;
+
+	pTex = new CTexture(true);
+	if (FAILED(pTex->Create(_Width, _Height, _pixelformat, DsUAV, _BindFlag, _Usage)))
+	{
+		assert(nullptr);
+	}
+
+	AddRes<CTexture>(_strKey, pTex);
+
+	return pTex;
+}
+
 Ptr<CTexture> CResMgr::CreateTexture(const wstring& _strKey, ComPtr<ID3D11Texture2D> _Tex2D)
 {
 	Ptr<CTexture> pTex = FindRes<CTexture>(_strKey);
@@ -1483,6 +1517,7 @@ Ptr<CTexture> CResMgr::CreateTexture(const wstring& _strKey, ComPtr<ID3D11Textur
 
 	return pTex;
 }
+
 
 Ptr<CMeshData> CResMgr::LoadFBX(const wstring& _strPath)
 {

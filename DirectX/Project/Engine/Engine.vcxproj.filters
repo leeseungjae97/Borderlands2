@@ -280,6 +280,9 @@
     <ClInclude Include="SoundMgr.h">
       <Filter>Source\_Manager\SoundMgr</Filter>
     </ClInclude>
+    <ClInclude Include="DownScaleShader.h">
+      <Filter>Source\_Resource\Shader\ComputeShader\DownScaleShader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -549,6 +552,9 @@
     <ClCompile Include="SoundMgr.cpp">
       <Filter>Source\_Manager\SoundMgr</Filter>
     </ClCompile>
+    <ClCompile Include="DownScaleShader.cpp">
+      <Filter>Source\_Resource\Shader\ComputeShader\DownScaleShader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -767,9 +773,6 @@
     <Filter Include="Source\_Resource\Shader\ComputeShader\LandScapePathShader">
       <UniqueIdentifier>{6f3947b0-018a-433e-9e77-d7f6046c59ef}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\_Resource\Shader\ComputeShader\ParticleShader">
-      <UniqueIdentifier>{9fad93fe-4fb8-4d90-8aa2-09968ae6cd9c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\_Resource\Shader\ComputeShader\ParticleUpdate">
       <UniqueIdentifier>{12834beb-ba3f-4987-aee4-cf905f38179d}</UniqueIdentifier>
     </Filter>
@@ -814,6 +817,9 @@
     </Filter>
     <Filter Include="Source\_Manager\SoundMgr">
       <UniqueIdentifier>{0bae6d2f-4d59-448c-b512-1c1e1697e734}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\DownScaleShader">
+      <UniqueIdentifier>{f2a7c5f2-7bb1-47de-82d0-b082a066c393}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -900,6 +906,9 @@
     </FxCompile>
     <FxCompile Include="particle_update.fx">
       <Filter>Source\_ShaderCode\Effect</Filter>
+    </FxCompile>
+    <FxCompile Include="downscale.fx">
+      <Filter>Source\_ShaderCode</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

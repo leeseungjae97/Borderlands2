@@ -41,6 +41,7 @@ private:
     tRay        m_ray;
     tRay        m_RelativeRay;
     bool        m_Outline;
+    bool        m_bCinematic;
 
     map<ULONG64, vector<tInstObj>>		m_mapInstGroup_D;	    // Deferred
     map<ULONG64, vector<tInstObj>>		m_mapInstGroup_F;	    // Foward ( Opaque, Mask )	
@@ -103,6 +104,9 @@ public:
     const tRay& GetRelativeRay() { return m_RelativeRay; }
     bool IsOutline() { return m_Outline; }
     void SetOutline(bool _Outline) { m_Outline = _Outline; }
+
+    void SetCinematic(bool _Cinematic) { m_bCinematic = _Cinematic; }
+    bool IsCinematic() { return m_bCinematic; }
 
 protected:
     void CalRay();

@@ -13,6 +13,7 @@ public:
     void mainMenuCameraMove();
     void scopeCameraMove();
 
+    void warriorCameraMove();
 public:
     virtual void tick() override;
     virtual void finaltick() override;

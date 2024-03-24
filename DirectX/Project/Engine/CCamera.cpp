@@ -363,22 +363,24 @@ void CCamera::render()
 	CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
 	if (pCurLevel->GetState() == LEVEL_STATE::NO_UPDATE_RENDER) return;
 
-	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+	
 
-	if (this == CRenderMgr::GetInst()->GetMainCam())
+	static Ptr<CMesh> pScreen = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
+
+	static Ptr<CMaterial> pMerge = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
+	static Ptr<CMaterial> pBlurV = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurVMtrl");
+	static Ptr<CMaterial> pBlurH = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurHMtrl");
+	static Ptr<CMaterial> pGaussianBlur = CResMgr::GetInst()->FindRes<CMaterial>(L"GaussianBlurMtrl");
+	static Ptr<CMaterial> pEmissiveBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
+	static Ptr<CMaterial> pSpecularBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
+	static Ptr<CMaterial> pToneMapping = CResMgr::GetInst()->FindRes<CMaterial>(L"ToneMappingMtrl");
+	static Ptr<CMaterial> pLaplacian = CResMgr::GetInst()->FindRes<CMaterial>(L"LaplacianMtrl");
+
+	if (m_iCamIdx == 0)
 	{
 		//UpdateMatrix();
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
 
-		static Ptr<CMesh> pScreen = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
-
-		static Ptr<CMaterial> pMerge = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
-		static Ptr<CMaterial> pBlurV = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurVMtrl");
-		static Ptr<CMaterial> pBlurH = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurHMtrl");
-		static Ptr<CMaterial> pGaussianBlur = CResMgr::GetInst()->FindRes<CMaterial>(L"GaussianBlurMtrl");
-		static Ptr<CMaterial> pEmissiveBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
-		static Ptr<CMaterial> pSpecularBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
-		static Ptr<CMaterial> pToneMapping = CResMgr::GetInst()->FindRes<CMaterial>(L"ToneMappingMtrl");
-		static Ptr<CMaterial> pLaplacian = CResMgr::GetInst()->FindRes<CMaterial>(L"LaplacianMtrl");
 
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED)->OMSet(true);
 		render_deferred();
@@ -387,10 +389,11 @@ void CCamera::render()
 		const vector<CLight3D*>& vecLight3D = CRenderMgr::GetInst()->GetLight3D();
 		for (size_t i = 0; i < vecLight3D.size(); ++i)
 		{
-			vecLight3D[i]->render();
+			vecLight3D[i]->render(m_iCamIdx);
 		}
 
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LUMINANCE)->OMSet();
+		
 
 		pBlurV->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
 		pBlurH->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
@@ -458,15 +461,52 @@ void CCamera::render()
 		render_transparent();
 
 		render_postprocess();
+
+		CRenderMgr::GetInst()->CopyRenderTarget();
 	}
-	else
+	if (m_iCamIdx == 1)
 	{
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+
 		render_ui();
 		render_text();
 	}
 
-	if (m_iCamIdx == 0)
+	if (m_iCamIdx == 2)
+	{
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_RENDER)->OMSet();
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_DEFERRED_RENDER)->OMSet(true);
+		render_deferred();
+
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_LIGHT_RENDER)->OMSet(false);
+		const vector<CLight3D*>& vecLight3D = CRenderMgr::GetInst()->GetLight3D();
+		for (size_t i = 0; i < vecLight3D.size(); ++i)
+		{
+			vecLight3D[i]->render(m_iCamIdx);
+		}
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_RENDER)->OMSet();
+
+		pMerge->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeColorTargetTex"));
+		pMerge->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeDiffuseTargetTex"));
+		pMerge->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeEmissiveTargetTex"));
+		pMerge->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeSpecularTargetTex"));
+		pMerge->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeShadowTargetTex"));
+
+		// Merge
+		pMerge->UpdateData();
+		pScreen->render(0);
+
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_RENDER)->OMSet();
+
+		render_forward();
+		render_decal();
+		render_transparent();
+		render_postprocess();
+
 		CRenderMgr::GetInst()->CopyRenderTarget();
+
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+	}
 }
 
 

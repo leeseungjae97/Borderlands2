@@ -32,6 +32,7 @@ private:
 	void (CRenderMgr::* RENDER_FUNC)(void);
 
 	Ptr<CTexture>               m_RTCopyTex;
+	Ptr<CTexture>               m_RTCopyDownScaleTex;
 
 	MRT*						m_MRT[(UINT)MRT_TYPE::END];
 

@@ -121,24 +121,34 @@ void CLight3D::SetLightType(LIGHT_TYPE _type)
 	//	m_Mesh = CResMgr::GetInst()->FindRes<CMesh>(L"ConeMesh");
 	//	m_Mtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"SpotLightMtrl");
 	//}
-	if (nullptr != m_Mtrl)
-	{
-		m_Mtrl->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
-		m_Mtrl->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"PositionTargetTex"));
-	}
+	//if (nullptr != m_Mtrl)
+	//{
+
+	//}
 }
 
-void CLight3D::render()
+void CLight3D::render(int _CamIdx)
 {
 	Transform()->UpdateData();
 
 	m_Mtrl->SetScalarParam(INT_0, &m_LightIdx);
-
+	if (_CamIdx == 0)
+	{
+		m_Mtrl->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
+		m_Mtrl->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"PositionTargetTex"));
+		m_Mtrl->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"DynamicShadowMapTex"));
+	}
+	else
+	{
+		m_Mtrl->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeNormalTargetTex"));
+		m_Mtrl->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"ScopePositionTargetTex"));
+		m_Mtrl->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeDynamicShadowMapTex"));
+	}
 	if (m_LightInfo.LightType == (UINT)LIGHT_TYPE::DIRECTIONAL)
 	{
 		Matrix matVP = m_pCamObj->Camera()->GetViewMat() * m_pCamObj->Camera()->GetProjMat();
 		m_Mtrl->SetScalarParam(MAT_0, &matVP);
-		m_Mtrl->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"DynamicShadowMapTex"));
+
 		int IsShadow = m_bShadow;
 		int IsGau = m_bGaus;
 		m_Mtrl->SetScalarParam(INT_1, &IsShadow);
@@ -147,6 +157,9 @@ void CLight3D::render()
 		m_Mtrl->SetScalarParam(FLOAT_1, &m_f[0]);
 		m_Mtrl->SetScalarParam(FLOAT_2, &m_f[1]);
 		m_Mtrl->SetScalarParam(FLOAT_3, &m_f[2]);
+	}
+	if (m_LightInfo.LightType  == (UINT)LIGHT_TYPE::POINT)
+	{
 	}
 	//if(m_LightInfo.LightType == (UINT)LIGHT_TYPE::SPOT)
 	//{

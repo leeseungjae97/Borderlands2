@@ -59,7 +59,7 @@ public:
     std::shared_ptr<std::function<void()>>& LightFunc() { return m_pFunc; }
 public:
     virtual void finaltick() override;
-    void render();
+    void render(int _CamIdx);
     void render_shadowmap();
 
     virtual void SaveToLevelFile(FILE* _File) override;

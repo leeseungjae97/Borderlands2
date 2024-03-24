@@ -152,6 +152,7 @@ bool RaycastMgr::DoOneHitRaycast(tRayInfo _RaycastInfo, Vec3* HitPosition, RAYCA
 
 				if (CollisionMgr::GetInst()->IsLayerIntersect(iOtherLayoutIdx, iBulletLayoutIndex))
 				{
+					_RaycastInfo.fDist = hit.block.distance;
 					if (otherCol->IsUnityCollider())
 					{
 						otherCol->Raycast(_RaycastInfo);

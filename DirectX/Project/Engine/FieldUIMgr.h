@@ -12,7 +12,8 @@ public:
 		Vec3 vDir;
 		float fAcc;
 		float fAlpha;
-		int iDamage;
+		Vec4 vColor;
+		wstring wsText;
 	};
 public:
 	Matrix BilBoardMat;
@@ -24,6 +25,7 @@ public:
 	void render();
 
 	void AddDamage(int _Damage, Vec3 _vPos);
+	void AddText(const wstring& _Text, Vec3 _vPos);
 public:
 	FieldUIMgr();
 	virtual ~FieldUIMgr();

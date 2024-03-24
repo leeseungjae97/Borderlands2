@@ -53,7 +53,7 @@ void TextMgr::DrawSpriteText(const wstring& str, Vec2 m_fontPos, float _fRotate,
 	m_spriteBatch->End();
 }
 
-void TextMgr::DrawSpriteText(const wstring& str, Vec3 m_fontPos, float _fRotate, Vec2 _vScale, Matrix matWorld, float alpha, bool Outline, float fScale)
+void TextMgr::DrawSpriteText(const wstring& str, Vec3 m_fontPos, Vec4 _vColor, float _fRotate, Vec2 _vScale, Matrix matWorld, float alpha, bool Outline, float fScale)
 {
 	CCamera* cam = CRenderMgr::GetInst()->GetMainCam();
 	Matrix WVP = matWorld * cam->GetViewMat() * cam->GetProjMat();
@@ -91,7 +91,7 @@ void TextMgr::DrawSpriteText(const wstring& str, Vec3 m_fontPos, float _fRotate,
 	}
 
 	m_font->DrawString(m_spriteBatch.get(), str.c_str(),
-		m_fontPos, Colors::White, _fRotate, _vScale, fScale, SpriteEffects_FlipVertically, m_fontPos.z);
+		m_fontPos, _vColor, _fRotate, _vScale, fScale, SpriteEffects_FlipVertically, m_fontPos.z);
 	
 	m_spriteBatch->End();
 	m_spriteBatch->SetRotation(DXGI_MODE_ROTATION_UNSPECIFIED);

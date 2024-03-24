@@ -60,7 +60,7 @@ void FieldUIMgr::render()
 		vPos.y = vPos.y + 100.f * sinf(fTheta) * dt.fAcc - ((0.5f * 9.81f) * (dt.fAcc * dt.fAcc));
 
 		BilBoardMat = Matrix::CreateConstrainedBillboard(vPos, vCamPos, vCamUp);
-		TextMgr::GetInst()->DrawSpriteText(std::to_wstring(dt.iDamage), Vec3::Zero, 0.f, Vec2::Zero, BilBoardMat, dt.fAlpha,true, 0.75f);
+		TextMgr::GetInst()->DrawSpriteText(dt.wsText, Vec3::Zero, dt.vColor, 0.f, Vec2::Zero, BilBoardMat, dt.fAlpha,true, 0.75f);
 
 		m_vecText[i] = dt;
 	}
@@ -84,6 +84,30 @@ void FieldUIMgr::AddDamage(int _Damage, Vec3 _vPos)
 		vDir,
 		0.0f,
 		1.0f,
-		_Damage
+		Vec4(1.f, 1.f, 1.f, 1.f),
+		std::to_wstring(_Damage)
 	});
+}
+
+void FieldUIMgr::AddText(const wstring& _Text, Vec3 _vPos)
+{
+	CCamera* cam = CRenderMgr::GetInst()->GetMainCam();
+	Vec3 vCamRight = cam->GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
+
+	Vec3 vDir = Vec3::One;
+
+	if (rand() % 2)
+		vDir = vCamRight;
+	else
+		vDir = -vCamRight;
+
+	vDir.Normalize();
+	m_vecText.push_back({
+		_vPos,
+		vDir,
+		0.0f,
+		1.0f,
+		Vec4(1.f, 0.f, 0.f, 1.f),
+		_Text
+		});
 }

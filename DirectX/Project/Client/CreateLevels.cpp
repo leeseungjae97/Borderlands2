@@ -66,10 +66,25 @@ void CreateLevels()
 		pUICam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, true);
 		PreloadGameObject(pUICam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
 	}
+	{
+		CGameObject* pScopeCam = new CGameObject;
+		pScopeCam->SetName(L"ScopeCamera");
 
+		pScopeCam->AddComponent(new CTransform);
+		pScopeCam->AddComponent(new CCamera);
+		pScopeCam->AddComponent(new CCameraMoveScript);
+
+		pScopeCam->Camera()->SetFarZ(1000000.f);
+		pScopeCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
+		pScopeCam->Camera()->SetCameraIndex(2);
+		pScopeCam->Camera()->SetLayerMaskAll(true);
+		pScopeCam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, false);
+		pScopeCam->Camera()->SetLayerMask((int)LAYER_TYPE::Camera, false);
+		PreloadGameObject(pScopeCam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
+	}
 	//{
 	//	CGameObject* pScopeCam = new CGameObject;
-	//	pScopeCam->SetName(L"ScopeCamera");
+	//	pScopeCam->SetName(L"followCamera");
 
 	//	pScopeCam->AddComponent(new CTransform);
 	//	pScopeCam->AddComponent(new CCamera);
@@ -77,7 +92,7 @@ void CreateLevels()
 
 	//	pScopeCam->Camera()->SetFarZ(1000000.f);
 	//	pScopeCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
-	//	pScopeCam->Camera()->SetCameraIndex(2);
+	//	pScopeCam->Camera()->SetCameraIndex(3);
 	//	pScopeCam->Camera()->SetLayerMaskAll(true);
 	//	pScopeCam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, false);
 	//	pScopeCam->Camera()->SetLayerMask((int)LAYER_TYPE::Camera, false);
@@ -347,41 +362,6 @@ void CreateLevels()
 		PreloadGameObject(pObj, Vec3(200.f, 10.f, 200.f), LAYER_TYPE::Terrain);
 	}
 
-	for(int i =0 ; i < 2 ; ++i)
-	{
-		Ptr<CMeshData> pMeshData = nullptr;
-		CGameObject* pObj = nullptr;
-
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
-		pObj = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
-		wstring str = L"fbx nomad" + std::to_wstring(i);
-		pObj->SetName(str);
-
-		pObj->AddComponent(new CEnemyScript(CEnemyScript::ENEMY_TYPE::NOMAD));
-		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
-		pObj->AddComponent(new CCollider3D);
-		pObj->AddComponent(new CGizmo);
-
-		pObj->RigidBody()->SetCreature(true);
-
-		PreloadGameObject(pObj, Vec3(500.f, 100.f, 1000.f + (i * 150.f)), LAYER_TYPE::Enemy);
-
-		{
-			Ptr<CMeshData> pMeshData = nullptr;
-			CGameObject* pGun = nullptr;
-			pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\dahl.fbx");
-			pGun = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
-			pGun->SetName(L"enemy_gun");
-
-			pGun->AddComponent(new CWeaponScript);
-			pGun->AddComponent(new CGizmo);
-			pGun->SetIsItem(true);
-			pObj->AddWeapon(pGun);
-
-			PreloadGameObject(pGun, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
-		}
-	}
-
 	{
 		CGameObject* pObj = new CGameObject;
 		pObj->SetName(L"Fire1");
@@ -541,42 +521,76 @@ void CreateLevels()
 		PreloadGameObject(pObj, Vec3(-1854.156, -10154.404, 4439.329), LAYER_TYPE::Enemy);
 	}
 
-	{
-		
-		Ptr<CMeshData> pMeshData = nullptr;
-		CGameObject* pAxe = nullptr;
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\buzz_axe.fbx");
-		pAxe = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
-		pAxe->SetName(L"enemy_axe");
-		//pAxe->Transform()->SetRelativePosOffset()
+	//for (int i = 0; i < 2; ++i)
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
 
-		pAxe->AddComponent(new CCollider3D(false));
-		pAxe->Collider3D()->SetRaycastable(false);
-		pAxe->Collider3D()->SetScale(Vec3(fDefaultScale / 2.f, fDefaultScale * 2.f, fDefaultScale));
-		pAxe->AddComponent(new CWeaponScript);
-		pAxe->AddComponent(new CAttackNormalScript);
-		pAxe->GetScript<CAttackNormalScript>()->SetManual(true);
-		pAxe->AddComponent(new CGizmo);
-		pAxe->SetIsItem(true);
-		
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+	//	pObj = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
+	//	wstring str = L"fbx nomad" + std::to_wstring(i);
+	//	pObj->SetName(str);
 
-		PreloadGameObject(pAxe, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::NoRaycastingCollider);
-		
-		CGameObject* pObj = nullptr;
+	//	pObj->AddComponent(new CEnemyScript(CEnemyScript::ENEMY_TYPE::NOMAD));
+	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
+	//	pObj->AddComponent(new CCollider3D);
+	//	pObj->AddComponent(new CGizmo);
 
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\psycho.fbx");
-		pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
-		pObj->SetName(L"psycho");
-		pObj->AddComponent(new CEnemyScript(CEnemyScript::ENEMY_TYPE::PSYCHO));
-		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
-		pObj->AddComponent(new CCollider3D);
-		pObj->AddComponent(new CGizmo);
-		pObj->RigidBody()->SetCreature(true);
-		pObj->AddWeapon(pAxe, true);
+	//	pObj->RigidBody()->SetCreature(true);
 
-		PreloadGameObject(pObj, Vec3(400.f, 100.f, 500.f), LAYER_TYPE::Enemy);
+	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 1000.f + (i * 150.f)), LAYER_TYPE::Enemy);
 
-	}
+	//	{
+	//		Ptr<CMeshData> pMeshData = nullptr;
+	//		CGameObject* pGun = nullptr;
+	//		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\dahl.fbx");
+	//		pGun = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
+	//		pGun->SetName(L"enemy_gun");
+
+	//		pGun->AddComponent(new CWeaponScript);
+	//		pGun->AddComponent(new CGizmo);
+	//		pGun->SetIsItem(true);
+	//		pObj->AddWeapon(pGun);
+
+	//		PreloadGameObject(pGun, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
+	//	}
+	//}
+
+	//{
+	//	
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pAxe = nullptr;
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\buzz_axe.fbx");
+	//	pAxe = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
+	//	pAxe->SetName(L"enemy_axe");
+	//	//pAxe->Transform()->SetRelativePosOffset()
+
+	//	pAxe->AddComponent(new CCollider3D(false));
+	//	pAxe->Collider3D()->SetRaycastable(false);
+	//	pAxe->Collider3D()->SetScale(Vec3(fDefaultScale / 2.f, fDefaultScale * 2.f, fDefaultScale));
+	//	pAxe->AddComponent(new CWeaponScript);
+	//	pAxe->AddComponent(new CAttackNormalScript);
+	//	pAxe->GetScript<CAttackNormalScript>()->SetManual(true);
+	//	pAxe->AddComponent(new CGizmo);
+	//	pAxe->SetIsItem(true);
+	//	
+
+	//	PreloadGameObject(pAxe, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::NoRaycastingCollider);
+	//	
+	//	CGameObject* pObj = nullptr;
+
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\psycho.fbx");
+	//	pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
+	//	pObj->SetName(L"psycho");
+	//	pObj->AddComponent(new CEnemyScript(CEnemyScript::ENEMY_TYPE::PSYCHO));
+	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
+	//	pObj->AddComponent(new CCollider3D);
+	//	pObj->AddComponent(new CGizmo);
+	//	pObj->RigidBody()->SetCreature(true);
+	//	pObj->AddWeapon(pAxe, true);
+
+	//	PreloadGameObject(pObj, Vec3(400.f, 100.f, 500.f), LAYER_TYPE::Enemy);
+	//}
 
 	//{
 	//	Ptr<CMeshData> pMeshData = nullptr;

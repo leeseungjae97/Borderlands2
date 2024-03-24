@@ -2,6 +2,7 @@
 #include "CEnemyScript.h"
 
 #include <Engine/CameraMgr.h>
+#include <Engine/FieldUIMgr.h>
 #include <Engine/NavigationMgr.h>
 #include <Engine/RaycastMgr.h>
 #include <Engine\LandScapeMgr.h>
@@ -397,16 +398,21 @@ void CEnemyScript::BeginOverlap(CCollider3D* _Other)
 
 void CEnemyScript::Raycast(tRayInfo _RaycastInfo)
 {
-	if (pHeadCollider->Collider3D()->IsRaycast())
+	if(_RaycastInfo.tRayType == (UINT)RAYCAST_TYPE::SHOOT
+		&& _RaycastInfo.fDamage > 0)
 	{
-		Attacked(_RaycastInfo.fDamage * 2.f);
-	}
-	else
-	{
-		if (iEnemyHp < _RaycastInfo.fDamage)
-			iEnemyHp = 0;
+		if (pHeadCollider->Collider3D()->IsRaycast())
+		{
+			Attacked(_RaycastInfo.fDamage * 2.f);
+			FieldUIMgr::GetInst()->AddDamage(_RaycastInfo.fDamage * 2.f, _RaycastInfo.vStart + (_RaycastInfo.vDir * _RaycastInfo.fDist));
+			_RaycastInfo.vStart.y -= 20.f;
+			FieldUIMgr::GetInst()->AddText(L"CRITICAL!", _RaycastInfo.vStart + (_RaycastInfo.vDir * _RaycastInfo.fDist));
+		}
 		else
-			iEnemyHp -= _RaycastInfo.fDamage;
+		{
+			FieldUIMgr::GetInst()->AddDamage(_RaycastInfo.fDamage, _RaycastInfo.vStart + (_RaycastInfo.vDir * _RaycastInfo.fDist));
+			Attacked(_RaycastInfo.fDamage);
+		}
 	}
 }
 

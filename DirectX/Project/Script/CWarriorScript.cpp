@@ -2,8 +2,10 @@
 #include "CWarriorScript.h"
 
 #include <Engine/CUI.h>
+#include <Engine/FieldUIMgr.h>
 #include <Engine/RaycastMgr.h>
 #include <Engine\AnimationMgr.h>
+#include <Engine\CRenderMgr.h>
 
 #include "CAttackBurnScript.h"
 #include "CAttackNormalScript.h"
@@ -842,6 +844,9 @@ void CWarriorScript::tick()
 		{
 			tState = WARRIOR_STATE::APPEAR;
 
+			CRenderMgr::GetInst()->GetMainCam()->SetCinematic(true);
+			CRenderMgr::GetInst()->GetMainCam()->GetOwner()->Transform()->SetRelativePos(Vec3(-2083.733f, 3279.689f, 10716.288f));
+
 			pUI_WarriorHP->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 			pUI_WarriorHPBack->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 			pWarriorText->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
@@ -851,6 +856,9 @@ void CWarriorScript::tick()
 
 		if (tState == WARRIOR_STATE::IDLE)
 		{
+			if(CRenderMgr::GetInst()->GetMainCam()->IsCinematic())
+				CRenderMgr::GetInst()->GetMainCam()->SetCinematic(false);
+
 			m_fActAcc += DT;
 
 			int randStart = rand() % 20;
@@ -958,6 +966,25 @@ void CWarriorScript::tick()
 	}
 	if (tState == WARRIOR_STATE::APPEAR)
 	{
+		Vec3 vPos = CRenderMgr::GetInst()->GetMainCam()->GetOwner()->Transform()->GetRelativePos();
+		Vec3 vUp = CRenderMgr::GetInst()->GetMainCam()->GetOwner()->Transform()->GetRelativeDir(DIR_TYPE::UP);
+
+		PxVec3 headPos = pHeadCollider->Collider3D()->GetColliderPos().p;
+		Vec3 vHeadPos = Vec3(headPos.x, headPos.y, headPos.z);
+
+		Vec3 vDiff = vHeadPos - vPos;
+		vDiff.Normalize();
+
+		Matrix rotMat = XMMatrixLookToLH(vPos, vDiff, vUp);
+
+		Quat quat;
+		Vec3 vS, vT;
+		rotMat.Decompose(vS, quat, vT);
+
+		Vec3 vRot = physx::Util::QuaternionToVector3(quat);
+
+		CRenderMgr::GetInst()->GetMainCam()->GetOwner()->Transform()->SetRelativeRot(Vec3(vRot.x, -vRot.y, 0.f));
+
 		GetOwner()->Animator3D()->Play((UINT)WARRIOR_ANIMATION_TYPE::APPEAR, false, false);
 	}
 }
@@ -1056,11 +1083,18 @@ void CWarriorScript::Attacked(int _Damage)
 
 void CWarriorScript::Raycast(tRayInfo _RaycastInfo)
 {
+	if ((UINT)RAYCAST_TYPE::SHOOT != _RaycastInfo.tRayType
+		|| _RaycastInfo.fDamage == 0)
+		return;
+
 	if (pHeadCollider)
 	{
 		if (pHeadCollider->Collider3D()->IsRaycast())
 		{
 			Attacked(_RaycastInfo.fDamage * 2);
+			FieldUIMgr::GetInst()->AddDamage(_RaycastInfo.fDamage * 2.f, _RaycastInfo.vStart + (_RaycastInfo.vDir * _RaycastInfo.fDist));
+			_RaycastInfo.vStart.y -= 20.f;
+			FieldUIMgr::GetInst()->AddText(L"CRITICAL!", _RaycastInfo.vStart + (_RaycastInfo.vDir * _RaycastInfo.fDist));
 		}
 	}
 	if (pStomachCollider)
@@ -1068,6 +1102,7 @@ void CWarriorScript::Raycast(tRayInfo _RaycastInfo)
 		if (pStomachCollider->Collider3D()->IsRaycast())
 		{
 			Attacked(_RaycastInfo.fDamage);
+			FieldUIMgr::GetInst()->AddDamage(_RaycastInfo.fDamage, _RaycastInfo.vStart + (_RaycastInfo.vDir * _RaycastInfo.fDist));
 		}
 	}
 	if (pMouseCollider)
@@ -1075,6 +1110,7 @@ void CWarriorScript::Raycast(tRayInfo _RaycastInfo)
 		if (pMouseCollider->Collider3D()->IsRaycast())
 		{
 			Attacked(_RaycastInfo.fDamage * 3);
+			FieldUIMgr::GetInst()->AddDamage(_RaycastInfo.fDamage, _RaycastInfo.vStart + (_RaycastInfo.vDir * _RaycastInfo.fDist));
 		}
 	}
 	if (pChestCollider)
@@ -1082,6 +1118,7 @@ void CWarriorScript::Raycast(tRayInfo _RaycastInfo)
 		if (pChestCollider->Collider3D()->IsRaycast())
 		{
 			Attacked(_RaycastInfo.fDamage * 2);
+			FieldUIMgr::GetInst()->AddDamage(_RaycastInfo.fDamage, _RaycastInfo.vStart + (_RaycastInfo.vDir * _RaycastInfo.fDist));
 		}
 	}
 }

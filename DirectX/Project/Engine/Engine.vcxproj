@@ -175,6 +175,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="AnimationMgr.h" />
     <ClInclude Include="CAnimator2D.h" />
     <ClInclude Include="CAnimSprite.h" />
+    <ClInclude Include="DownScaleShader.h" />
     <ClInclude Include="FieldUIMgr.h" />
     <ClInclude Include="IndividualBoneSkinningShader.h" />
     <ClInclude Include="CameraMgr.h" />
@@ -271,6 +272,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CAnimator2D.cpp" />
     <ClCompile Include="CAnimSprite.cpp" />
     <ClCompile Include="ChunkyTriMesh.cpp" />
+    <ClCompile Include="DownScaleShader.cpp" />
     <ClCompile Include="FieldUIMgr.cpp" />
     <ClCompile Include="IndividualBoneSkinningShader.cpp" />
     <ClCompile Include="CameraMgr.cpp" />
@@ -381,6 +383,10 @@ call EngineCopy.bat</Command>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="downscale.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="individual_bone_skinning.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>

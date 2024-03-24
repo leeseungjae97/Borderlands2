@@ -27,6 +27,8 @@ private:
 public:
     int Create(UINT _Width, UINT _Height, DXGI_FORMAT _pixelformat
         , UINT _BindFlag, D3D11_USAGE _Usage);
+    int Create(UINT _Width, UINT _Height, DXGI_FORMAT _pixelformat, D3D11_UNORDERED_ACCESS_VIEW_DESC _uavDesc
+        , UINT _BindFlag, D3D11_USAGE _Usage);
     int CreateArrayTexture(const vector<Ptr<CTexture>>& _vecTex, int _iMipLevel);
     void GenerateMip(UINT _iMipLevel);
 
@@ -42,7 +44,12 @@ public:
     UINT GetSlicePitch()const { return (UINT)m_Image.GetImages()->slicePitch; }
     void* GetSysMem() { return m_Image.GetPixels(); }
 
+    ScratchImage* GetScratchImage() { return &m_Image; }
+
+    void ResizeTex(UINT _iWidth, UINT _iHeight, ScratchImage* image);
+
     const Image* GetImage(int index) { return m_Image.GetImage(0, 0, index); }
+    const Image* GetImages() { return m_Image.GetImages(); }
 
     const D3D11_TEXTURE2D_DESC&         GetDesc()   { return m_Desc; }
 	ComPtr<ID3D11Texture2D>             GetTex2D()  { return m_Tex2D; }
