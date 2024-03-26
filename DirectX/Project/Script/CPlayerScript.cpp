@@ -72,16 +72,16 @@ void CPlayerScript::begin()
 			= std::make_shared<std::function<void()>>([=]()
 				{
 					tState = PlayerMgr::PLAYER_STATE::IDLE;
-					if (iAmmoRemain < iAmmoCapa)
-					{
-						iAmmo = iAmmoRemain;
-						iAmmoRemain = 0;
-					}
-					else
-					{
-						iAmmoRemain -= (iAmmoCapa - iAmmo);
-						iAmmo = iAmmoCapa;
-					}
+		if (iAmmoRemain < iAmmoCapa)
+		{
+			iAmmo = iAmmoRemain;
+			iAmmoRemain = 0;
+		}
+		else
+		{
+			iAmmoRemain -= (iAmmoCapa - iAmmo);
+			iAmmo = iAmmoCapa;
+		}
 				});
 		pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
 			= std::make_shared<std::function<void()>>([=]()
@@ -90,16 +90,16 @@ void CPlayerScript::begin()
 					{
 						SoundMgr::GetInst()->Play(L"sound\\weapon\\smg_draw.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX);
 					}
-					if ((UINT)PLAYER_ANIMATION_TYPE::DRAW + i == (UINT)PLAYER_ANIMATION_TYPE::PISTOL_DRAW)
-					{
-						SoundMgr::GetInst()->Play(L"sound\\weapon\\pistol_draw.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX);
-					}
-					if ((UINT)PLAYER_ANIMATION_TYPE::DRAW + i == (UINT)PLAYER_ANIMATION_TYPE::SNIPER_DRAW)
-					{
-						SoundMgr::GetInst()->Play(L"sound\\weapon\\sniper_draw.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX);
-					}
+		if ((UINT)PLAYER_ANIMATION_TYPE::DRAW + i == (UINT)PLAYER_ANIMATION_TYPE::PISTOL_DRAW)
+		{
+			SoundMgr::GetInst()->Play(L"sound\\weapon\\pistol_draw.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX);
+		}
+		if ((UINT)PLAYER_ANIMATION_TYPE::DRAW + i == (UINT)PLAYER_ANIMATION_TYPE::SNIPER_DRAW)
+		{
+			SoundMgr::GetInst()->Play(L"sound\\weapon\\sniper_draw.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX);
+		}
 
-					tState = PlayerMgr::PLAYER_STATE::DRAW;
+		tState = PlayerMgr::PLAYER_STATE::DRAW;
 				});
 		pPlayer->Animator3D()->EndEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
 			= std::make_shared<std::function<void()>>([=]()
@@ -139,6 +139,48 @@ void CPlayerScript::begin()
 
 void CPlayerScript::tick()
 {
+	if (GetOwner()->IsDead())
+		return;
+
+	if (CRenderMgr::GetInst()->GetMainCam()->IsCinematic())
+	{
+		m_pUI_HP->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pUI_HP_BACK->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pUI_AMMO->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pUI_AMMO_Back->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pUI_AmmoIcon->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pUI_EXP->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pUI_ExpBar_Back->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pUI_CrossHair->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+
+		m_pAmmoText->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pHPText->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pLevelText->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pEnemyName->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pEnemyLevel->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
+	else
+	{
+		m_pUI_HP->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pUI_HP_BACK->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pUI_AMMO->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pUI_AMMO_Back->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pUI_EnemyHp->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pUI_EnemyHp_Back->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pUI_AmmoIcon->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pUI_EXP->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pUI_ExpBar_Back->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pUI_CrossHair->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+
+		m_pAmmoText->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pHPText->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pLevelText->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pEnemyName->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		m_pEnemyLevel->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+	}
+
 	Look();
 	Movement();
 	Burn();
@@ -286,9 +328,70 @@ void CPlayerScript::CreateUI()
 {
 	Ptr<CGraphicsShader> UIShader = (CGraphicsShader*)CResMgr::GetInst()->FindRes<CGraphicsShader>(L"UI2DShader").Get();
 	Ptr<CGraphicsShader> adjustUIShader = (CGraphicsShader*)CResMgr::GetInst()->FindRes<CGraphicsShader>(L"AdjustUI2DShader").Get();
+	Ptr<CGraphicsShader> UIMaskShader = (CGraphicsShader*)CResMgr::GetInst()->FindRes<CGraphicsShader>(L"UIMask2DShader").Get();
 	Ptr<CMaterial> pMtrl = nullptr;
 	Ptr<CTexture> pTex = nullptr;
 	Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(UIMaskShader);
+		CResMgr::GetInst()->AddRes(L"SniperSightLeft", pMtrl);
+
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\sniper_sight_left.png");
+		m_pUI_Scope_Left = new CGameObject;
+
+		m_pUI_Scope_Left->SetName(L"UI Scope Left");
+		m_pUI_Scope_Left->AddComponent(new CTransform);
+		m_pUI_Scope_Left->AddComponent(new CMeshRender);
+
+		m_pUI_Scope_Left->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_Scope_Left->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_Scope_Left->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_Scope_Left->Transform()->SetRelativeScale(Vec3(500.f, 768.f, 1.f));
+		SpawnGameObject(m_pUI_Scope_Left, Vec3(-390.f, 0.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		m_pUI_Scope_Left->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(UIMaskShader);
+		CResMgr::GetInst()->AddRes(L"SniperSightRight", pMtrl);
+
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\sniper_sight_right.png");
+		m_pUI_Scope_Right = new CGameObject;
+
+		m_pUI_Scope_Right->SetName(L"UI Scope Right");
+		m_pUI_Scope_Right->AddComponent(new CTransform);
+		m_pUI_Scope_Right->AddComponent(new CMeshRender);
+
+		m_pUI_Scope_Right->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_Scope_Right->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_Scope_Right->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_Scope_Right->Transform()->SetRelativeScale(Vec3(500.f, 768.f, 1.f));
+		SpawnGameObject(m_pUI_Scope_Right, Vec3(390.f, 0.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		m_pUI_Scope_Right->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(UIMaskShader);
+		CResMgr::GetInst()->AddRes(L"SniperSightAim", pMtrl);
+
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\sniper_sight.png");
+		m_pUI_Scope_Aim = new CGameObject;
+
+		m_pUI_Scope_Aim->SetName(L"UI Scope Aim");
+		m_pUI_Scope_Aim->AddComponent(new CTransform);
+		m_pUI_Scope_Aim->AddComponent(new CMeshRender);
+
+		m_pUI_Scope_Aim->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_Scope_Aim->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_Scope_Aim->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_Scope_Aim->Transform()->SetRelativeScale(Vec3(800.f, 800.f, 1.f));
+		SpawnGameObject(m_pUI_Scope_Aim, Vec3(0.f, 24.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		m_pUI_Scope_Aim->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
 
 	{
 		pMtrl = new CMaterial(true);
@@ -320,18 +423,18 @@ void CPlayerScript::CreateUI()
 
 		pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\player_hp_back.png");
 
-		m_pUI_EnemyHp_Back = new CGameObject;
-		m_pUI_EnemyHp_Back->SetName(L"UI HP BACK");
-		m_pUI_EnemyHp_Back->AddComponent(new CTransform);
-		m_pUI_EnemyHp_Back->AddComponent(new CMeshRender);
+		m_pUI_HP_BACK = new CGameObject;
+		m_pUI_HP_BACK->SetName(L"UI HP BACK");
+		m_pUI_HP_BACK->AddComponent(new CTransform);
+		m_pUI_HP_BACK->AddComponent(new CMeshRender);
 
-		m_pUI_EnemyHp_Back->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
-		m_pUI_EnemyHp_Back->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UIHPBackMtrl"), 0);
-		m_pUI_EnemyHp_Back->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
-		m_pUI_EnemyHp_Back->Transform()->SetRelativeScale(Vec3(238.f, 38.f, 1.f));
-		m_pUI_EnemyHp_Back->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 3.f * DegToRad()));
+		m_pUI_HP_BACK->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_HP_BACK->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"UIHPBackMtrl"), 0);
+		m_pUI_HP_BACK->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_HP_BACK->Transform()->SetRelativeScale(Vec3(238.f, 38.f, 1.f));
+		m_pUI_HP_BACK->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 3.f * DegToRad()));
 
-		SpawnGameObject(m_pUI_EnemyHp_Back, Vec3(-497.f, -331.f, 0.f), LAYER_TYPE::ViewPortUI);
+		SpawnGameObject(m_pUI_HP_BACK, Vec3(-497.f, -331.f, 0.f), LAYER_TYPE::ViewPortUI);
 	}
 	{
 		pMtrl = new CMaterial(true);
@@ -871,12 +974,6 @@ void CPlayerScript::Movement()
 
 	Vec3 vPlayerPos = pPlayer->Transform()->GetRelativePos();
 
-	//if (nullptr == pPlayer->RigidBody())
-	//{
-	//	pPlayer->Transform()->SetRelativePos(vPlayerPos);
-	//	return;
-	//}
-
 	Vec3 vPlayerCamPos = PlayerMgr::GetInst()->GetPlayerCameraPos();
 	Vec3 vCamRot = pCamObj->Transform()->GetRelativeRot();
 
@@ -895,7 +992,75 @@ void CPlayerScript::Movement()
 	pPlayer->Transform()->SetRelativeRot(vCamRot);
 	pCamObj->Transform()->SetRelativeRot(vCamRot);
 
-	pCamObj->Transform()->SetRelativePos(vPlayerCamPos);
+	static float facc = 0.0f;
+	Vec3 vPlayerScopePos = WeaponMgr::GetInst()->GetCurWeaponScopePos(pPlayer);
+	Vec3 vLerpPos = XMVectorLerp(vPlayerCamPos, vPlayerScopePos, facc);
+
+	if(WeaponMgr::GetInst()->GetCurWeaponIdx() == SNIPER_IDX)
+	{
+		if (KEY_PRESSED(KEY::RBTN))
+		{
+			facc += DT * 4.0f;
+			if (facc >= 1.f)
+			{
+				facc = 1.f;
+				Vec3 vFront = pCamObj->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
+				vFront *= 100.f;
+				vLerpPos += vFront;
+				pCamObj->Camera()->SetFOV(0.1f);
+
+				m_pUI_Scope_Aim->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+				m_pUI_Scope_Left->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+				m_pUI_Scope_Right->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+				m_pUI_CrossHair->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			}
+			pCamObj->Transform()->SetRelativePos(vLerpPos);
+		}
+		else
+		{
+			m_pUI_Scope_Aim->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			m_pUI_Scope_Right->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			m_pUI_Scope_Left->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			m_pUI_CrossHair->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+
+			facc -= DT * 4.0f;
+			pCamObj->Camera()->SetFOV(0.7f);
+			if (facc < 0.f)
+			{
+				facc = 0.f;
+				vLerpPos = vPlayerCamPos;
+			}
+			pCamObj->Transform()->SetRelativePos(vLerpPos);
+		}
+	}
+	else
+	{
+		if (KEY_PRESSED(KEY::RBTN))
+		{
+			facc += DT * 4.0f;
+			if (facc > 1.f)
+			{
+				facc = 1.f;
+				vLerpPos = vPlayerScopePos;
+			}
+			m_pUI_CrossHair->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			pCamObj->Transform()->SetRelativePos(vLerpPos);
+		}
+		else
+		{
+			facc -= DT * 4.0f;
+			if (facc < 0.f)
+			{
+				facc = 0.f;
+				vLerpPos = vPlayerCamPos;
+			}
+			m_pUI_CrossHair->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			pCamObj->Transform()->SetRelativePos(vLerpPos);
+		}
+
+	}
+
+	
 
 	float _fSpeed = fSpeed;
 	Vec3 final_velocity = Vec3(0.00f, 0.00f, 0.00f);
@@ -1013,6 +1178,7 @@ void CPlayerScript::Movement()
 		{
 			pPlayer->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::IDLE), true);
 		}
+
 		if (bMove)
 		{
 			fWalkSoundAcc += DT;
@@ -1249,9 +1415,9 @@ void CPlayerScript::CustomReloadSound()
 	int weaponIdx = WeaponMgr::GetInst()->GetCurWeaponIdx();
 	int animIdx = GetOwner()->Animator3D()->GetCurAnimClip()->GetClipIdx();
 
-	if(weaponIdx == PISTOL_IDX)
+	if (weaponIdx == PISTOL_IDX)
 	{
-		if(animIdx == 10)
+		if (animIdx == 10)
 		{
 			SoundMgr::GetInst()->Play(L"sound\\weapon\\pistol_release_mag.ogg", pPlayer->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 0.2, false);
 		}

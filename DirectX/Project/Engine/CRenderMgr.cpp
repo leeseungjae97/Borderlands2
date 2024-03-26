@@ -14,7 +14,6 @@
 #include "CLight3D.h"
 
 #include "CResMgr.h"
-#include "DownScaleShader.h"
 
 #include "mMRT.h"
 
@@ -187,23 +186,8 @@ CCamera* CRenderMgr::GetUICam()
 void CRenderMgr::CopyRenderTarget()
 {
 	Ptr<CTexture> pRTTex = CResMgr::GetInst()->FindRes<CTexture>(L"ScopeRenderTex");
-	Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
-
-	//pRTTex->ResizeTex(vResol.x / 4.f, vResol.y / 4.f, m_RTCopyDownScaleTex->GetScratchImage());
-	//Resize(*pRTTex->GetImages(), vResol.x / 4.f, vResol.y / 4.f, TEX_FILTER_DEFAULT, *m_RTCopyDownScaleTex->GetScratchImage());
 
 	CONTEXT->CopyResource(m_RTCopyTex->GetTex2D().Get(), pRTTex->GetTex2D().Get());
-	//CONTEXT->CopyResource(m_RTCopyDownScaleTex->GetTex2D().Get(), pRTTex->GetTex2D().Get());
-
-	//Ptr<DownScaleShader> pDownScaleCS = (DownScaleShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"DownScaleCS").Get();
-
-	//pDownScaleCS->SetDownScale(Vec2(vResol.x / 4.f, vResol.y / 4.f));
-	//pDownScaleCS->SetOriginTex(m_RTCopyTex);
-	//pDownScaleCS->SetDownScaleTex(m_RTCopyDownScaleTex);
-	//pDownScaleCS->UpdateData();
-	//pDownScaleCS->Execute();
-
-	//CONTEXT->CopyResource(m_RTCopyDownScaleTex->GetTex2D().Get(), pRTTex->GetTex2D().Get());
 }
 
 MRT* CRenderMgr::GetMRT(MRT_TYPE _Type)

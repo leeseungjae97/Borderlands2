@@ -13,6 +13,7 @@ public:
 		SPRINT,
 		WALK,
 		IDLE,
+		SIGHT,
 	};
 
 private:

@@ -1,6 +1,10 @@
 #include "pch.h"
+
+#include <Engine/CRenderMgr.h>
+
 #include "CAttackNormalScript.h"
 
+#include "CCameraMoveScript.h"
 #include "CPlayerScript.h"
 
 CAttackNormalScript::CAttackNormalScript()
@@ -51,6 +55,7 @@ void CAttackNormalScript::BeginOverlap(CCollider3D* _Other)
 		{
 			bManualAttack = false;
 			//player->Attacked(10.f);
+			CRenderMgr::GetInst()->GetMainCam()->GetOwner()->GetScript<CCameraMoveScript>()->SetShake(true, 30);
 			player->Raycast(raycast);
 		}
 	}
@@ -62,6 +67,7 @@ void CAttackNormalScript::BeginOverlap(CCollider3D* _Other)
 		bAttack = true;
 
 		//player->Attacked(10.f);
+		CRenderMgr::GetInst()->GetMainCam()->GetOwner()->GetScript<CCameraMoveScript>()->SetShake(true, 30);
 		player->Raycast(raycast);
 	}
 
@@ -90,6 +96,7 @@ void CAttackNormalScript::OnOverlap(CCollider3D* _Other)
 		{
 			bManualAttack = false;
 			//player->Attacked(10.f);
+			CRenderMgr::GetInst()->GetMainCam()->GetOwner()->GetScript<CCameraMoveScript>()->SetShake(true, 30);
 			player->Raycast(raycast);
 		}
 	}
@@ -101,6 +108,7 @@ void CAttackNormalScript::OnOverlap(CCollider3D* _Other)
 		bAttack = true;
 
 		//player->Attacked(10.f);
+		CRenderMgr::GetInst()->GetMainCam()->GetOwner()->GetScript<CCameraMoveScript>()->SetShake(true, 30);
 		player->Raycast(raycast);
 	}
 }

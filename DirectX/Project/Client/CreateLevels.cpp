@@ -505,21 +505,21 @@ void CreateLevels()
 	//	PreloadGameObject(pObj, Vec3(100.f, 100.f, 100.f), LAYER_TYPE::Environment);
 	//}
 
-	{
-		Ptr<CMeshData> pMeshData = nullptr;
-		CGameObject* pObj = nullptr;
+	//{
+	//	Ptr<CMeshData> pMeshData = nullptr;
+	//	CGameObject* pObj = nullptr;
 
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\warrior_2.fbx");
-		pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
-		pObj->Transform()->SetRelativeRot(Vec3(0.f, -90 * DegToRad(), 0.f));
-		pObj->SetName(L"fbx warrior");
+	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\warrior_2.fbx");
+	//	pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
+	//	pObj->Transform()->SetRelativeRot(Vec3(0.f, -90 * DegToRad(), 0.f));
+	//	pObj->SetName(L"fbx warrior");
 
-		pObj->AddComponent(new CCollider3D(false));
-		pObj->AddComponent(new CWarriorScript);
-		pObj->SetIsWarrior(true);
+	//	pObj->AddComponent(new CCollider3D(false));
+	//	pObj->AddComponent(new CWarriorScript);
+	//	pObj->SetIsWarrior(true);
 
-		PreloadGameObject(pObj, Vec3(-1854.156, -10154.404, 4439.329), LAYER_TYPE::Enemy);
-	}
+	//	PreloadGameObject(pObj, Vec3(-1854.156, -10154.404, 4439.329), LAYER_TYPE::Enemy);
+	//}
 
 	//for (int i = 0; i < 2; ++i)
 	//{

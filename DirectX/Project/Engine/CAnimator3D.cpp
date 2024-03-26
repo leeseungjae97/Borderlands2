@@ -40,6 +40,7 @@ CAnimator3D::CAnimator3D()
 	, m_iStomachIdx(0)
 	, m_iMouseIdx(0)
 	, m_iChestIdx(0)
+	, m_iScopeIdx(0)
 	, m_bUpdate(false)
 	, mClips{}
 	, mEvents{}
@@ -125,11 +126,13 @@ void CAnimator3D::finaltick()
 	{
 		if (m_pNextClip)
 		{
-			m_pNextClip->finlatick();
+			m_pNextClip->finaltick();
 			m_pNextClip->SetSpeedAdj(m_fSpeedAdj);
 
 			CustomEvent(m_pCurClip);
 			m_vHeadPos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
+			if (m_iScopeIdx != 0)
+				m_vScopePos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iScopeIdx].vTranslate;
 		}
 
 		m_fBlendAcc += DT;
@@ -147,9 +150,11 @@ void CAnimator3D::finaltick()
 	{
 		if (m_pCurClip)
 		{
+			if(m_iScopeIdx != 0)
+				m_vScopePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iScopeIdx].vTranslate;
 			
 			m_pCurClip->SetSpeedAdj(m_fSpeedAdj);
-			m_pCurClip->finlatick();
+			m_pCurClip->finaltick();
 
 			CustomEvent(m_pCurClip);
 			
@@ -270,6 +275,10 @@ void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 		{
 			m_iCameraIdx = i;
 		}
+		if (bone.strBoneName == L"Scope_1")
+		{
+			m_iScopeIdx = i;
+		}
 		if (bone.strBoneName == L"R_Weapon_Bone")
 		{
 			m_iWeaponRHandIdx = i;
@@ -306,7 +315,6 @@ void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 	}
 	m_vHeadPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
 	m_vMuzzlePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponMuzzleIdx].vTranslate;
-	
 }
 
 CAnimClip* CAnimator3D::GetAnimClip(const wstring& _AnimClipName)
@@ -496,14 +504,14 @@ void CAnimator3D::Play(const wstring& _Name, bool _Loop)
 	if (nullptr == pCheckClip)
 		return;
 
-	m_fSpeedAdj = 1.0f;
-
 	if (pCheckClip == m_pCurClip)
 	{
 		if (m_bLoop)
 			return;
 
 		m_pCurClip->Reset();
+
+		m_fSpeedAdj = 1.0f;
 
 		events = FindEvents(m_pCurClip->GetName());
 		if (events)
@@ -524,6 +532,8 @@ void CAnimator3D::Play(const wstring& _Name, bool _Loop)
 		events = FindEvents(m_pNextClip->GetName());
 		if (events)
 			events->startEvent();
+
+		m_fSpeedAdj = 1.0f;
 
 		m_bStop = false;
 
@@ -554,6 +564,8 @@ void CAnimator3D::Play(const wstring& _Name, bool _Loop)
 
 			SetBlend(true, 0.1f);
 
+			m_fSpeedAdj = 1.0f;
+
 			events = FindEvents(m_pNextClip->GetName());
 			if (events)
 				events->startEvent();
@@ -562,6 +574,8 @@ void CAnimator3D::Play(const wstring& _Name, bool _Loop)
 		{
 			m_pCurClip = pCheckClip;
 			m_pCurClip->Reset();
+
+			m_fSpeedAdj = 1.0f;
 
 			events = FindEvents(m_pCurClip->GetName());
 			if (events)
@@ -584,8 +598,6 @@ void CAnimator3D::Play(UINT _type, bool _Loop, bool _Force)
 	if (nullptr == pCheckClip)
 		return;
 
-	m_fSpeedAdj = 1.0f;
-
 	if (pCheckClip == m_pCurClip)
 	{
 		if(m_bLoop)
@@ -593,6 +605,8 @@ void CAnimator3D::Play(UINT _type, bool _Loop, bool _Force)
 
 		if(_Force)
 		{
+			m_fSpeedAdj = 1.0f;
+
 			m_pCurClip->Reset();
 
 			events = FindEvents(m_pCurClip->GetName());
@@ -612,6 +626,8 @@ void CAnimator3D::Play(UINT _type, bool _Loop, bool _Force)
 
 		if (_Force)
 		{
+			m_fSpeedAdj = 1.0f;
+
 			m_pNextClip->Reset();
 
 			events = FindEvents(m_pNextClip->GetName());
@@ -642,7 +658,9 @@ void CAnimator3D::Play(UINT _type, bool _Loop, bool _Force)
 		}
 		m_pNextClip = pCheckClip;
 		m_pNextClip->Reset();
-		
+
+		m_fSpeedAdj = 1.0f;
+
 		SetBlend(true, 0.1f);
 
 		events = FindEvents(m_pNextClip->GetName());
@@ -653,6 +671,9 @@ void CAnimator3D::Play(UINT _type, bool _Loop, bool _Force)
 	{
 		m_pCurClip = pCheckClip;
 		m_pCurClip->Reset();
+
+		m_fSpeedAdj = 1.0f;
+
 		events = FindEvents(m_pCurClip->GetName());
 		if (events)
 			events->startEvent();
@@ -829,6 +850,7 @@ void CAnimator3D::SaveToLevelFile(FILE* _pFile)
 	fwrite(&m_iChestIdx, sizeof(int), 1, _pFile);
 
 	fwrite(&m_vMuzzlePos, sizeof(Vec4), 1, _pFile);
+	fwrite(&m_vScopePos, sizeof(Vec4), 1, _pFile);
 
 	mapSize = m_mapPreDefineAnim.size();
 	fwrite(&mapSize, sizeof(UINT), 1, _pFile);
@@ -924,6 +946,7 @@ void CAnimator3D::LoadFromLevelFile(FILE* _pFile)
 	fread(&m_iChestIdx, sizeof(int), 1, _pFile);
 
 	fread(&m_vMuzzlePos, sizeof(Vec4), 1, _pFile);
+	fread(&m_vScopePos, sizeof(Vec4), 1, _pFile);
 
 	mapSize = m_mapPreDefineAnim.size();
 	fread(&mapSize, sizeof(UINT), 1, _pFile);

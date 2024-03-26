@@ -34,7 +34,7 @@ void CMaterial::UpdateData()
 
 		if(m_PaperBurnConst.paperAcc >= 1.f)
 		{
-			//m_PaperBurnConst.paperAcc = 1.f;
+			//m_PaperBurnConst.paperAcc = 0.0f;
 			//m_PaperBurnConst.paperBurn = false;
 			m_PaperBurnConst.paperBurnEnd = true;
 		}

@@ -93,11 +93,13 @@ void CWeaponScript::SetWeaponPos()
 	}
 
 	m_vPrevRot = XMVectorLerpV(m_vPrevRot, vCurRot, Vec3(0.3f, 0.3f, 0.3f));
-	
 	pWeapon->Transform()->SetRelativePos(vPos);
 	if(bPlayer)
 	{
-		pWeapon->Transform()->SetRelativeRot(vRot + m_vPrevRot);
+		if(KEY_PRESSED(KEY::RBTN))
+			pWeapon->Transform()->SetRelativeRot(vCurRot);
+		else
+			pWeapon->Transform()->SetRelativeRot(vRot + vCurRot);
 	}
 	else
 	{

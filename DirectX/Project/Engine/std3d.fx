@@ -54,6 +54,7 @@ struct VS_OUT
 #define bPerlinNoiseUse    g_int_1
 #define bAlphaUse    g_int_2
 #define FlatFire    g_int_3
+#define NoLight    g_int_4
 
 #define SpriteLeftTop   g_vec2_0
 #define SpriteSize      g_vec2_1
@@ -361,15 +362,19 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
         vOutColor = PaperBurn(vOutColor, _in.vUV, g_tex_6);
         return vOutColor;
     }
-
-    for (uint i = 0; i < g_Light3DCount; ++i)
+    if (!NoLight)
     {
-        float fLightPow = 0.f;
-        CalcLight3D(_in.vViewPos, vViewNormal, i, lightColor, fSpecPow, fLightPow);
-    }
-
-    vOutColor.xyz = (vOutColor.xyz * lightColor.vDiffuse.xyz) + (vOutColor.xyz * lightColor.vAmbient.xyz)
+        for (uint i = 0; i < g_Light3DCount; ++i)
+        {
+            float fLightPow = 0.f;
+            CalcLight3D(_in.vViewPos, vViewNormal, i, lightColor, fSpecPow, fLightPow);
+        }
+        vOutColor.xyz = (vOutColor.xyz * lightColor.vDiffuse.xyz) + (vOutColor.xyz * lightColor.vAmbient.xyz)
 					+ vEmissiveCoeff.xyz * fEmisCoeff;
+    }else
+    {
+        vOutColor.xyz = vOutColor.xyz + vEmissiveCoeff.xyz * fEmisCoeff;
+    }
 
     return vOutColor;
 }

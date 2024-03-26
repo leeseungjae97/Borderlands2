@@ -32,7 +32,7 @@ CCamera::CCamera()
 	, m_Frustum(this)
 	, m_ProjType(PROJ_TYPE::ORTHOGRAPHIC)
 	, m_iLayerMask(0)
-	, m_FOV(0.7f) // 55 degree
+	, m_FOV(0.7f)
 	, m_OrthoWidth(0.f)
 	, m_OrthoHeight(0.f)
 	, m_iCamIdx(-1)

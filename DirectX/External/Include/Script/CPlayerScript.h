@@ -35,6 +35,7 @@ private:
     bool        bJump;
 
     CGameObject* m_pUI_HP;
+    CGameObject* m_pUI_HP_BACK;
     CGameObject* m_pUI_AMMO;
     CGameObject* m_pUI_AMMO_Back;
     CGameObject* m_pUI_EnemyHp;
@@ -49,6 +50,10 @@ private:
     CGameObject* m_pUI_HPLeftHit;
     CGameObject* m_pUI_HPRightHit;
     CGameObject* m_pUI_FireHitEffect;
+
+    CGameObject* m_pUI_Scope_Left;
+    CGameObject* m_pUI_Scope_Right;
+    CGameObject* m_pUI_Scope_Aim;
 
     float fHpFrontAcc;
     float fHpBackAcc;

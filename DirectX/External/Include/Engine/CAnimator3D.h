@@ -60,10 +60,12 @@ private:
 	int							m_iKnuckleIdx;
 	int							m_iStomachIdx;
 	int							m_iMouseIdx;
+	int							m_iScopeIdx;
 	int							m_iChestIdx;
 
 	Vec4						m_vHeadPos;
 	Vec4						m_vMuzzlePos;
+	Vec4						m_vScopePos;
 
 	double						m_fSpeedAdj;
 
@@ -153,12 +155,14 @@ public:
 	int GetMouseIdx() { return m_iMouseIdx; }
 	int GetChestIdx() { return m_iChestIdx; }
 	int GetStomachIdx() { return m_iStomachIdx; }
+	int GetScopeIdx() { return m_iScopeIdx; }
 
 	int GetFireBreathIdx() { return m_iFireBreathIdx; }
 	int GetTailIdx() { return m_iTailWeaponIdx; }
 
 	Vec4 GetHeadPos();
 	Vec4 GetMuzzlePos() { return m_vMuzzlePos; }
+	Vec4 GetScopePos() { return m_vScopePos; }
 
 public:
 	void Play(const wstring& _Name, bool _Loop);

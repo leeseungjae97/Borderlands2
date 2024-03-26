@@ -77,6 +77,9 @@ Matrix CCollider3D::GetColliderWorldMat()
 
 void CCollider3D::EndOverlap(CCollider3D* _OhterCol)
 {
+	if (GetOwner()->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
+		return;
+
 	m_bBeginOverlap = false;
 	m_bOnOverlap = false;
 	m_bEndOverlap = true;
@@ -89,6 +92,9 @@ void CCollider3D::EndOverlap(CCollider3D* _OhterCol)
 
 void CCollider3D::OnOverlap(CCollider3D* _OhterCol)
 {
+	if (GetOwner()->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
+		return;
+
 	m_bBeginOverlap = false;
 	m_bOnOverlap = true;
 	m_bEndOverlap = false;
@@ -101,6 +107,9 @@ void CCollider3D::OnOverlap(CCollider3D* _OhterCol)
 
 void CCollider3D::BeginOverlap(CCollider3D* _OhterCol)
 {
+	if (GetOwner()->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
+		return;
+
 	m_bBeginOverlap = true;
 	m_bOnOverlap = false;
 	m_bEndOverlap = false;
@@ -113,6 +122,9 @@ void CCollider3D::BeginOverlap(CCollider3D* _OhterCol)
 
 void CCollider3D::Raycast(tRayInfo _RaycastInfo)
 {
+	if (GetOwner()->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
+		return;
+
 	m_bRaycast = true;
 	for (auto script : GetOwner()->GetScripts())
 	{

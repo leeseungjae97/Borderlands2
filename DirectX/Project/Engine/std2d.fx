@@ -106,6 +106,24 @@ float4 PS_AdjustStd2D(VS_OUT _in) : SV_Target
     return vOutColor;
 }
 
+float4 PS_MaskStd2D(VS_OUT _in) : SV_Target
+{
+    float4 vOutColor = (float4) 0.f;
+        
+    if (g_btex_0)
+    {
+        vOutColor = g_tex_0.Sample(g_sam_linear_2, _in.vUV);
+    }
+
+    if (0.f == vOutColor.a)
+        discard;
+
+    if (IsCustomAlpha)
+        vOutColor.a = Alpha;
+
+    return vOutColor;
+}
+
 
 // DirecXTK Font PS
 #define IsCustomAlpha g_int_1

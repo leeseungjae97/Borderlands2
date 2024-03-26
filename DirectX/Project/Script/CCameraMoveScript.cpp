@@ -72,6 +72,42 @@ void CCameraMoveScript::scopeCameraMove()
 
 void CCameraMoveScript::warriorCameraMove()
 {
+	if (!m_bShake)
+		return;
+
+	CGameObject* pCamera = GetOwner();
+
+	if (m_iShake > m_iShakeLoop)
+	{
+		m_iShake = 0;
+		m_bShake = false;
+		return;
+	}
+	
+	Vec3 vPos = pCamera->Transform()->GetRelativePos();
+	static int randShakeRange[5] = 
+	{
+		10, 15, 20, 30, 50
+	};
+
+	int randX = randShakeRange[rand() % 5];
+	int randY = randShakeRange[rand() % 5];
+
+	int signXRand = rand() % 2;
+	int signYRand = rand() % 2;
+
+	randX *= signXRand ? -1 : 1;
+	randY *= signYRand ? -1 : 1;
+
+	vPos.x += randX;
+	vPos.y += randY;
+
+	pCamera->Transform()->SetRelativePos(vPos);
+	++m_iShake;
+}
+
+void CCameraMoveScript::shakeCameraMove()
+{
 
 }
 
@@ -90,8 +126,13 @@ void CCameraMoveScript::finaltick()
 		cameraDebugMove();
 
 
+	if (KEY_TAP(KEY::G))
+	{
+		m_bMove = !m_bMove;
+	}
 
-
+	if (m_bMove)
+		cameraFollowMove();
 	//if(KEY_TAP(KEY::G))
 	//{
 	//	CGameObject* pCamera = GetOwner();
@@ -159,6 +200,6 @@ void CCameraMoveScript::cameraDebugMove()
 void CCameraMoveScript::cameraFollowMove()
 {
 	if (GetOwner()->GetName() == L"EditCam"
-		|| nullptr == GetOwner()->GetFollowObj()) 
+		|| nullptr == GetOwner()->GetFollowObj())
 		return;
 }

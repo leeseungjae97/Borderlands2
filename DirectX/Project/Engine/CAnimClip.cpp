@@ -30,7 +30,7 @@ CAnimClip::~CAnimClip()
 }
 
 
-void CAnimClip::finlatick()
+void CAnimClip::finaltick()
 {
 	if(!m_bFinish)
 		m_fTime += DT * m_fSpeedAdj;

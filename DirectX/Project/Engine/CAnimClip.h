@@ -30,7 +30,7 @@ private:
 	int						m_iEventComplete;
 
 public:
-	void finlatick();
+	void finaltick();
 	void Create(const std::wstring& name, const tMTAnimClip _AnimClips, int _StartIdx, int _EndIdx, bool _bLoop);
 	void Create(const std::wstring& name, const vector<tMTAnimClip>* _AnimClips, bool _bLoop);
 

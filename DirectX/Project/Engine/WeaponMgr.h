@@ -18,6 +18,12 @@ private:
 		L"sound\\effect\\gun_fire5.ogg",
 		L"sound\\effect\\gun_fire6.ogg",
 	};
+	Vec3 vWeaponScopeOffset[3] =
+	{
+		Vec3(0.f, 0.f, 0.f),
+		Vec3(0.f, 0.f, 0.f),
+		Vec3(0.f, 0.f, 0.f)
+	};
 public:
 	bool ChangeWeapon(int _Idx, bool _Force = false);
 	void AddWeapon(CGameObject* _Weapon);
@@ -35,6 +41,9 @@ public:
 	Vec3 GetWeaponMuzzlePos(CGameObject* _Gun);
 	Vec3 GetOwnerWeaponRot(CGameObject* _Owner, bool bRight = true);
 	Vec3 GetOwnerWeaponPos(CGameObject* _Owner, bool bRight = true);
+	Vec3 GetCurWeaponScopePos(CGameObject* _Owner);
+
+	Vec3 GetCurWeaponOffset() { return vWeaponScopeOffset[iCurWeaponIdx]; }
 	void MuzzleFlash(Vec3 _vPos, Vec3 _vRot, CGameObject* _pp = nullptr);
 public:
 	void tick();

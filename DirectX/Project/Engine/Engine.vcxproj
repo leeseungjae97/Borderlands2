@@ -204,6 +204,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="CollisionMgr.h" />
     <ClInclude Include="InputGeom.h" />
     <ClInclude Include="MainMenuMgr.h" />
+    <ClInclude Include="MapMgr.h" />
     <ClInclude Include="MouseMgr.h" />
     <ClInclude Include="NavigationMgr.h" />
     <ClInclude Include="ParticleMgr.h" />
@@ -304,6 +305,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CollisionMgr.cpp" />
     <ClCompile Include="InputGeom.cpp" />
     <ClCompile Include="MainMenuMgr.cpp" />
+    <ClCompile Include="MapMgr.cpp" />
     <ClCompile Include="MouseMgr.cpp" />
     <ClCompile Include="NavigationMgr.cpp" />
     <ClCompile Include="ParticleMgr.cpp" />

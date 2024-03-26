@@ -35,6 +35,9 @@ private:
     CGameObject* pStomachCollider;
     CGameObject* pChestCollider;
 
+    CGameObject* pWarriorAppearTextImage;
+    CGameObject* pWarriorAppearImage;
+
     Vec4        m_vRot;
     Vec4        m_R;
 
@@ -72,6 +75,7 @@ private:
 
     wstring wsDeadSound = L"sound\\warrior\\warrior_dead.ogg";
     wstring wsAppearSound = L"sound\\warrior\\warrior_appear.ogg";
+    wstring wsAppearSound2 = L"sound\\warrior\\warrior_appear_[cut_20sec].mp3";
 
 
 public:

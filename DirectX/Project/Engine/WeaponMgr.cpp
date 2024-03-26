@@ -136,6 +136,25 @@ Vec3 WeaponMgr::GetOwnerWeaponPos(CGameObject* _Owner, bool bRight)
 	return vPos;
 }
 
+Vec3 WeaponMgr::GetCurWeaponScopePos(CGameObject* _Owner)
+{
+	int iWeaponHandIdx = _Owner->Animator3D()->GetWeaponRHandIdx();
+	Vec3 vPos = _Owner->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, _Owner->Animator3D());
+	Vec3 vScopePos= m_arrWeapons[iCurWeaponIdx]->Animator3D()->GetScopePos();
+
+	vPos += vScopePos;
+	CRigidBody* rb = _Owner->RigidBody();
+	Vec3 vOffset = Vec3::Zero;
+	if (_Owner->Animator3D())
+	{
+		vOffset.y -= (_Owner->Transform()->GetRelativeScale().y / 2.f);
+		vOffset += _Owner->Transform()->GetRelativePosOffset();
+	}
+
+	vPos = XMVector3TransformCoord(vPos, rb->GetRigidBodyMatrix(vOffset));
+	return vPos;
+}
+
 
 void WeaponMgr::Play(GUN_ANIMATION_TYPE _Type, bool _Loop)
 {
