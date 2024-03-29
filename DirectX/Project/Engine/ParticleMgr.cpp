@@ -2,7 +2,7 @@
 #include "ParticleMgr.h"
 
 #include "CGizmo.h"
-#include "CParticleUpdateShader.h"
+#include "CParticleSystem.h"
 #include "CResMgr.h"
 #include "CStructuredBuffer.h"
 #include "CTransform.h"

@@ -283,7 +283,9 @@
     <ClInclude Include="DownScaleShader.h">
       <Filter>Source\_Resource\Shader\ComputeShader\DownScaleShader</Filter>
     </ClInclude>
-    <ClInclude Include="MapMgr.h" />
+    <ClInclude Include="MapMgr.h">
+      <Filter>Source\_Manager\MapMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -556,7 +558,9 @@
     <ClCompile Include="DownScaleShader.cpp">
       <Filter>Source\_Resource\Shader\ComputeShader\DownScaleShader</Filter>
     </ClCompile>
-    <ClCompile Include="MapMgr.cpp" />
+    <ClCompile Include="MapMgr.cpp">
+      <Filter>Source\_Manager\MapMgr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">

@@ -915,7 +915,6 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
 	pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_UI);
-
 	AddRes(pShader->GetKey(), pShader);
 
 	pShader = new CGraphicsShader;
@@ -1125,6 +1124,43 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->SetRSType(RS_TYPE::CULL_BACK);
 	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_LIGHT);
+
+	AddRes(pShader->GetKey(), pShader);
+
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"MapMergeShader");
+
+	pShader->CreateVertexShader(L"shader\\light.fx", "VS_MergeShader");
+	pShader->CreatePixelShader(L"shader\\light.fx", "PS_MapMergeShader");
+
+	pShader->SetRSType(RS_TYPE::CULL_BACK);
+	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_LIGHT);
+
+	AddRes(pShader->GetKey(), pShader);
+
+	//pShader = new CGraphicsShader;
+	//pShader->SetKey(L"MapShader");
+
+	//pShader->CreateVertexShader(L"shader\\light.fx", "VS_MergeShader");
+	//pShader->CreatePixelShader(L"shader\\light.fx", "PS_MapShader");
+
+	//pShader->SetRSType(RS_TYPE::CULL_BACK);
+	//pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+	//pShader->SetDomain(SHADER_DOMAIN::DOMAIN_UI);
+
+	//AddRes(pShader->GetKey(), pShader);
+
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"MapShader");
+
+	pShader->CreateVertexShader(L"shader\\std2d.fx", "VS_Std2D");
+	pShader->CreatePixelShader(L"shader\\std2d.fx", "PS_Std2D_Map");
+
+	pShader->SetRSType(RS_TYPE::CULL_NONE);
+	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+	pShader->SetBSType(BS_TYPE::ALPHA_BLEND);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_UI);
 
 	AddRes(pShader->GetKey(), pShader);
 
@@ -1400,6 +1436,10 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"MergeShader"));
 	AddRes(L"MergeMtrl", pMtrl);
+
+	//pMtrl = new CMaterial(true);
+	//pMtrl->SetShader(FindRes<CGraphicsShader>(L"MapShader"));
+	//AddRes(L"MapMtrl", pMtrl);
 
 	// DecalMtrl
 	pMtrl = new CMaterial(true);

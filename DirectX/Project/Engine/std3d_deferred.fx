@@ -183,17 +183,20 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
         };
         
         vViewNormal = normalize(mul(vNormal, vRotateMat));
+        output.vNormal = float4(vViewNormal, 1.f);
     }
     else
     {
-        float3x3 vRotateMat =
-        {
-            _in.vViewTangent,
-            _in.vViewBinormal,
-            _in.vViewNormal        
-        };
+        //float3x3 vRotateMat =
+        //{
+        //    _in.vViewTangent,
+        //    _in.vViewBinormal,
+        //    _in.vViewNormal
+        //};
 
-        vViewNormal = normalize(mul(vViewNormal, vRotateMat));
+        //vViewNormal = normalize(mul(_in.vViewNormal, vRotateMat));
+        vViewNormal = _in.vViewNormal;
+        output.vNormal = float4(vViewNormal, 1.f);
     }
 
     if (g_btex_3)
@@ -302,7 +305,7 @@ PS_OUT PS_Std3D_Deferred(VS_OUT _in)
   //  if (g_fEmisCoeff)
 		//output.vEmissive *= g_fEmisCoeff;
 
-    output.vNormal = float4(vViewNormal, 1.f);
+    
     output.vPosition = float4(_in.vViewPos, 1.f);
     output.vData = float4(0.f, 0.f, 0.f, 1.f);
     return output;

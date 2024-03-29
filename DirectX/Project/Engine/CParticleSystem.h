@@ -1,7 +1,7 @@
 #pragma once
 #include "CRenderComponent.h"
 
-#include "ptr.h"
+//#include "ptr.h"
 #include "CParticleUpdateShader.h"
 
 class CStructuredBuffer;

@@ -1,5 +1,8 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Engine\MouseMgr.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\NavigationMgr.cpp"
 
 
@@ -28,7 +31,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\CLight3D.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\CMaterial.cpp"
 

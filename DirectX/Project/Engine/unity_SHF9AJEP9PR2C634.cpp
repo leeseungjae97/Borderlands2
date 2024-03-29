@@ -30,5 +30,5 @@
 #include "E:\directx11_3d\DirectX\Project\Engine\MainMenuMgr.cpp"
 
 
-#include "E:\directx11_3d\DirectX\Project\Engine\MouseMgr.cpp"
+#include "E:\directx11_3d\DirectX\Project\Engine\MapMgr.cpp"
 

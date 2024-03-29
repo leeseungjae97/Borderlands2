@@ -878,14 +878,15 @@ void CPlayerScript::ShootBullet()
 	rayInfo.vStart = MainCam->Transform()->GetRelativePos();
 	rayInfo.matWorld = MainCam->Transform()->GetDrawRayMat();
 	rayInfo.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
+
 	//RaycastMgr::GetInst()->SetPlayerRayInfo(rayInfo);
+
 	Vec3 vPosition;
 	RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo, &vPosition, RAYCAST_GROUP_TYPE::Player);
 	Vec3 vPos = WeaponMgr::GetInst()->GetCurWeaponMuzzlePos();
 	Vec3 vRot = WeaponMgr::GetInst()->GetCurWeapon()->Transform()->GetRelativeRot();
 
 	WeaponMgr::GetInst()->MuzzleFlash(vPos, vRot, GetOwner());
-
 	WeaponMgr::GetInst()->Play(GUN_ANIMATION_TYPE::FIRE, false);
 
 	Recoil();

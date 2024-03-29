@@ -1,5 +1,8 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Engine\Engine.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\extern.cpp"
 
 
@@ -28,7 +31,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\CRayCastShader.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\RandMgr.cpp"
 

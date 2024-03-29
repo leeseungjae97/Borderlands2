@@ -4,6 +4,7 @@
 #include "CameraMgr.h"
 #include "CAnimator2D.h"
 #include "CAnimator3D.h"
+#include "CConstBuffer.h"
 #include "CDevice.h"
 #include "CEngine.h"
 #include "CRenderMgr.h"
@@ -366,7 +367,6 @@ void CCamera::render()
 	
 
 	static Ptr<CMesh> pScreen = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
-
 	static Ptr<CMaterial> pMerge = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
 	static Ptr<CMaterial> pBlurV = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurVMtrl");
 	static Ptr<CMaterial> pBlurH = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurHMtrl");
@@ -424,10 +424,11 @@ void CCamera::render()
 			CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR_LINE)->OMSet();
 			pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
 			pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+			int branch = 0;
+			pLaplacian->SetScalarParam(INT_0, &branch);
 			pLaplacian->UpdateData();
 			pScreen->render(0);
 		}
-
 
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLOOMED_HDR)->OMSet();
 
@@ -463,13 +464,16 @@ void CCamera::render()
 		render_postprocess();
 
 		CRenderMgr::GetInst()->CopyRenderTarget();
+
 	}
-	if (m_iCamIdx == 1)
+	if (m_iCamIdx == 3)
 	{
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
 
 		render_ui();
 		render_text();
+
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
 	}
 
 	if (m_iCamIdx == 2)
@@ -502,6 +506,41 @@ void CCamera::render()
 		render_decal();
 		render_transparent();
 		render_postprocess();
+
+		CRenderMgr::GetInst()->CopyRenderTarget();
+
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+	}
+
+	if (m_iCamIdx == 1)
+	{
+		//static Ptr<CMaterial> pMap = CResMgr::GetInst()->FindRes<CMaterial>(L"MapMtrl");
+
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::MAP_RENDER)->OMSet();
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::MAP_DEFERRED_RENDER)->OMSet(true);
+		render_deferred();
+
+		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::MAP_RENDER)->OMSet();
+		//pMap->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"MapColorTargetTex"));
+		//pMap->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"MapEmissiveTargetTex"));
+		//pMap->UpdateData();
+		//pScreen->render(0);
+		 
+		//render_forward();
+		//render_transparent();
+		//render_decal();
+		//render_postprocess();
+
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::MAP_RENDER)->OMSet();
+		pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"MapNormalTargetTex"));
+		pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"MapColorTargetTex"));
+
+		int branch = 1;
+		pLaplacian->SetScalarParam(INT_0, &branch);
+		pLaplacian->UpdateData();
+		pScreen->render(0);
+
+		render_map_marker();
 
 		CRenderMgr::GetInst()->CopyRenderTarget();
 
@@ -645,6 +684,69 @@ void CCamera::render_deferred()
 	//for (size_t i = 0; i < m_vecDeferredDecal.size(); ++i)
 	//{
 	//	m_vecDeferredDecal[i]->render();
+	//}
+}
+
+void CCamera::render_map_marker()
+{
+	UpdateMatrix();
+
+	//for (auto& pair : m_mapSingleObj)
+	//{
+	//	pair.second.clear();
+	//}
+
+	CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
+	CLayer* pEnemyLayer = pCurLevel->GetLayer((UINT)LAYER_TYPE::Enemy);
+
+	vector<CGameObject*> enemies = pEnemyLayer->GetParentObject();
+	
+	for(int i =0 ; i < enemies.size(); ++i)
+	{
+		CTransform* pTrans = enemies[i]->Transform();
+		if (nullptr == pTrans)
+			continue;
+
+		Vec3 vPos = enemies[i]->Transform()->GetRelativePos();
+		vPos.y += 10000.f;
+		
+		CConstBuffer* pTransformBuffer = CDevice::GetInst()->GetConstBuffer(CB_TYPE::TRANSFORM);
+		//Matrix matTr = XMMatrixTranslation(vPos.x, vPos.y, vPos.z);
+		Matrix matSc = XMMatrixScaling(500.f, 500.f, 500.f);
+
+		Vec3 vCamPos = Transform()->GetRelativePos();
+		Vec3 vCamUp = Transform()->GetRelativeDir(DIR_TYPE::UP);
+		Matrix matWorld = matSc;
+		matWorld *= Matrix::CreateConstrainedBillboard(vPos, vCamPos, vCamUp);
+
+		g_transform.matWorld = matWorld;
+		Matrix matWorldInv = XMMatrixInverse(nullptr, g_transform.matWorld);
+
+		g_transform.matWorldInv = matWorldInv;
+		g_transform.matWV = g_transform.matWorld * g_transform.matView;
+		g_transform.matWVP = g_transform.matWV * g_transform.matProj;
+
+		pTransformBuffer->SetData(&g_transform);
+		pTransformBuffer->UpdateData();
+
+		Ptr<CMesh> pMarkerMesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
+		Ptr<CMaterial> pMarkerMaterial = new CMaterial;
+		pMarkerMaterial->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"UI2DShader").Get());
+		pMarkerMaterial->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\enemy_marker.png"));
+		pMarkerMaterial->UpdateData();
+
+		pMarkerMesh->render(0);
+	}
+
+	//for (auto& pair : m_mapSingleObj)
+	//{
+	//	if (pair.second.empty())
+	//		continue;
+
+	//	for (auto& instObj : pair.second)
+	//	{
+	//		instObj.pObj->GetRenderComponent()->render(instObj.iMtrlIdx, true);
+	//	}
 	//}
 }
 

@@ -133,6 +133,9 @@ void CAnimator3D::finaltick()
 			m_vHeadPos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
 			if (m_iScopeIdx != 0)
 				m_vScopePos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iScopeIdx].vTranslate;
+
+			if (m_iWeaponMuzzleIdx != 0)
+				m_vMuzzlePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponMuzzleIdx].vTranslate;
 		}
 
 		m_fBlendAcc += DT;
@@ -152,7 +155,10 @@ void CAnimator3D::finaltick()
 		{
 			if(m_iScopeIdx != 0)
 				m_vScopePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iScopeIdx].vTranslate;
-			
+
+			if (m_iWeaponMuzzleIdx != 0)
+				m_vMuzzlePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponMuzzleIdx].vTranslate;
+
 			m_pCurClip->SetSpeedAdj(m_fSpeedAdj);
 			m_pCurClip->finaltick();
 
@@ -311,10 +317,13 @@ void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 		{
 			m_iKnuckleIdx = i;
 		}
-		
 	}
-	m_vHeadPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
-	m_vMuzzlePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponMuzzleIdx].vTranslate;
+
+	if(m_iHeadIdx != 0)
+		m_vHeadPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
+
+	if(m_iScopeIdx != 0 )
+		m_vScopePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iScopeIdx].vTranslate;
 }
 
 CAnimClip* CAnimator3D::GetAnimClip(const wstring& _AnimClipName)

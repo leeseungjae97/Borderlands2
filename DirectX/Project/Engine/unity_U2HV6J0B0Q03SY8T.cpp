@@ -1,5 +1,8 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Engine\CResMgr.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\CScript.cpp"
 
 
@@ -28,7 +31,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\CWeightMapShader.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\Engine.cpp"
 

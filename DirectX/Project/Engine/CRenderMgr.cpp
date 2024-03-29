@@ -30,8 +30,13 @@ CRenderMgr::CRenderMgr()
 		, D3D11_USAGE_DEFAULT);
 
 	m_RTCopyDownScaleTex = CResMgr::GetInst()->CreateUAVTexture(L"RTCopyDownScaleTex"
-		, (UINT)vResolution.x / 4.f, (UINT)vResolution.y / 4.f
+		, (UINT)500, (UINT)500
 		, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
+		, D3D11_USAGE_DEFAULT);
+
+	m_RTCopyTex2 = CResMgr::GetInst()->CreateTexture(L"RTCopyTex2"
+		, (UINT)vResolution.x, (UINT)vResolution.y
+		, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE
 		, D3D11_USAGE_DEFAULT);
 
 	CResMgr::GetInst()->FindRes<CMaterial>(L"GrayMtrl")->SetTexParam(TEX_0, m_RTCopyTex);
@@ -108,8 +113,8 @@ void CRenderMgr::render_play()
 
 	for (int i = 0; i < m_vecCam.size(); ++i)
 	{
-		//if (nullptr == m_vecCam[i])
-		//    continue;
+		if (nullptr == m_vecCam[i])
+		    continue;
 
 		m_vecCam[i]->SortObject();
 
@@ -178,7 +183,7 @@ CCamera* CRenderMgr::GetUICam()
 		if (m_vecCam.empty())
 			return nullptr;
 
-		return m_vecCam[1];
+		return m_vecCam[3];
 	}
 	return nullptr;
 }
@@ -186,8 +191,10 @@ CCamera* CRenderMgr::GetUICam()
 void CRenderMgr::CopyRenderTarget()
 {
 	Ptr<CTexture> pRTTex = CResMgr::GetInst()->FindRes<CTexture>(L"ScopeRenderTex");
-
 	CONTEXT->CopyResource(m_RTCopyTex->GetTex2D().Get(), pRTTex->GetTex2D().Get());
+
+	pRTTex = CResMgr::GetInst()->FindRes<CTexture>(L"MapRenderTex");
+	CONTEXT->CopyResource(m_RTCopyTex2->GetTex2D().Get(), pRTTex->GetTex2D().Get());
 }
 
 MRT* CRenderMgr::GetMRT(MRT_TYPE _Type)
@@ -250,6 +257,8 @@ void CRenderMgr::Clear()
 void CRenderMgr::CreateMRT()
 {
 	Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
+	//Vec2 vMapResol = Vec2(500.f, 500.f);
+	Vec2 vMapResol = vResol;
 	// ====================
 	// SwapChain MRT
 	// ====================
@@ -501,6 +510,75 @@ void CRenderMgr::CreateMRT()
 
 		m_MRT[(UINT)MRT_TYPE::SCOPE_SHADOWMAP_RENDER]->Create(arrRTTex, 1, pDSTex);
 		m_MRT[(UINT)MRT_TYPE::SCOPE_SHADOWMAP_RENDER]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
+	}
+
+	{
+		m_MRT[(UINT)MRT_TYPE::MAP_DEFERRED_RENDER] = new MRT;
+		
+		Ptr<CTexture> arrRTTex[8] = {};
+		arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"MapColorTargetTex", vMapResol.x, vMapResol.y
+			, DXGI_FORMAT_R8G8B8A8_UNORM
+			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+		arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"MapNormalTargetTex", vMapResol.x, vMapResol.y
+			, DXGI_FORMAT_R32G32B32A32_FLOAT
+			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+		arrRTTex[2] = CResMgr::GetInst()->CreateTexture(L"MapTangentTargetTex", vMapResol.x, vMapResol.y
+			, DXGI_FORMAT_R32G32B32A32_FLOAT
+			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+		arrRTTex[3] = CResMgr::GetInst()->CreateTexture(L"MapPositionTargetTex", vMapResol.x, vMapResol.y
+			, DXGI_FORMAT_R32G32B32A32_FLOAT
+			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+		arrRTTex[4] = CResMgr::GetInst()->CreateTexture(L"MapEmissiveTargetTex", vMapResol.x, vMapResol.y
+			, DXGI_FORMAT_R8G8B8A8_UNORM
+			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+		arrRTTex[5] = CResMgr::GetInst()->CreateTexture(L"MapDataTargetTex", vMapResol.x, vMapResol.y
+			, DXGI_FORMAT_R32G32B32A32_FLOAT
+			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+		m_MRT[(UINT)MRT_TYPE::MAP_DEFERRED_RENDER]->Create(arrRTTex, 6, nullptr);
+		m_MRT[(UINT)MRT_TYPE::MAP_DEFERRED_RENDER]->SetClearColor(Vec4(43.f / 255.f, 76.f / 255.f, 93.f / 255.f, 1.f), 0);
+	}
+	{
+		m_MRT[(UINT)MRT_TYPE::MAP_LINE] = new MRT;
+
+
+		Ptr<CTexture> arrRTTex[8] = {};
+		arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"OutlineMapTargetTex", vMapResol.x, vMapResol.y
+			, DXGI_FORMAT_R8G8B8A8_UNORM
+			, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+
+		m_MRT[(UINT)MRT_TYPE::MAP_LINE]->Create(arrRTTex, 1, nullptr);
+		m_MRT[(UINT)MRT_TYPE::MAP_LINE]->SetClearColor(Vec4(1.f, 0.f, 1.f, 1.f), 0);
+	}
+	{
+		m_MRT[(UINT)MRT_TYPE::MAP_RENDER] = new MRT;
+
+		Ptr<CTexture> arrRTTex[8] = {};
+
+		arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"MapRenderTex", vMapResol.x, vMapResol.y
+			, DXGI_FORMAT_R8G8B8A8_UNORM
+			, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE);
+
+		Ptr<CTexture> pDSTex = CResMgr::GetInst()->CreateTexture(L"MapDepthStencilTex", vMapResol.x, vMapResol.y
+			, DXGI_FORMAT_D24_UNORM_S8_UINT, D3D11_BIND_DEPTH_STENCIL, D3D11_USAGE_DEFAULT);
+
+		m_MRT[(UINT)MRT_TYPE::MAP_RENDER]->Create(arrRTTex, 1, pDSTex);
+		m_MRT[(UINT)MRT_TYPE::MAP_RENDER]->SetClearColor(Vec4(1.f, 0.f, 0.f, 1.f), 0);
+	}
+	{
+		m_MRT[(UINT)MRT_TYPE::MAP_COLOR] = new MRT;
+
+		Ptr<CTexture> arrRTTex[8] = {};
+
+		arrRTTex[0] = CResMgr::GetInst()->FindRes<CTexture>(L"MapColorTargetTex");
+
+		m_MRT[(UINT)MRT_TYPE::MAP_COLOR]->Create(arrRTTex, 1, nullptr);
+		m_MRT[(UINT)MRT_TYPE::MAP_COLOR]->SetClearColor(Vec4(0.f, 0.f, 0.f, 1.f), 0);
 	}
 }
 

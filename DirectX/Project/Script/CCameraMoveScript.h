@@ -18,6 +18,7 @@ public:
 
     void warriorCameraMove();
     void shakeCameraMove();
+    void mapCameraMove();
 
     void SetShake(bool _bShake, int _iLoopCnt) { m_bShake = _bShake; m_iShakeLoop = _iLoopCnt; }
 public:

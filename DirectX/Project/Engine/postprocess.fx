@@ -197,7 +197,7 @@ PS_BLUR_OUT PS_GaussianBlur(VS_SCREEN_OUT _In)
     return vOut;
 }
 
-#define HDRTargetTex g_tex_0
+#define TargetTex g_tex_0
 #define BlurredTargetTex g_tex_1
 #define OriginTargetTex g_tex_2
 
@@ -205,7 +205,7 @@ float4 PS_Bloom(VS_SCREEN_OUT _In) : SV_Target
 {
     float4 vOut = (float4)0.0f;
 
-    float4 vHDRColor = HDRTargetTex.Sample(g_sam_anti_0, _In.vUV);
+    float4 vHDRColor = TargetTex.Sample(g_sam_anti_0, _In.vUV);
     float4 vBlurred = BlurredTargetTex.Sample(g_sam_anti_0, _In.vUV);
     float4 vOrigin = OriginTargetTex.Sample(g_sam_anti_0, _In.vUV);
 
@@ -236,30 +236,62 @@ static float mask[9] =
     -1, 8, -1,
     -1, -1, -1
 };
-static float coord[3] = { -1, 0, 1 };
+static float coord[3] = { -2, 0, 2 };
+static float mapCoord[3] = { -5, 0, 5 };
 
-#define DiffuseTargetTex g_tex_0
-#define HDRTargetTex g_tex_1
+#define NormalTargetTex g_tex_0
+#define TargetTex g_tex_1
 
+#define MapLaplacian g_int_0
 float4 PS_Laplacian(VS_SCREEN_OUT _In) : SV_Target
 {
     float4 vColor = (float4) 0.f;
-    float4 vRet = HDRTargetTex.Sample(g_sam_anti_0, _In.vUV);
+    float4 vRet = (float4) 0.f;
+
+    if (MapLaplacian == 1)
+    {
+		//vRet = TargetTex.Sample(g_sam_anti_0, _In.vUV);
+    }
+    else 
+        vRet = TargetTex.Sample(g_sam_anti_0, _In.vUV);
 
     for (int i = 0; i < 9; ++i)
     {
-        vColor -= mask[i] * (DiffuseTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(coord[i % 3] / g_Resolution.x, coord[i / 3] / g_Resolution.y)));
+        if (MapLaplacian == 1)
+            vColor -= mask[i] * (NormalTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(mapCoord[i % 3] / g_Resolution.x, mapCoord[i / 3] / g_Resolution.y)));
+        else
+            vColor -= mask[i] * (NormalTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(coord[i % 3] / g_Resolution.x, coord[i / 3] / g_Resolution.y)));
     }
-    float gray = dot(vColor, float4(1.0f, 1.0f, 1.0f, 1.0f));
+    float gray = 0.f;
 
-    float threshold = 0.1f;
+    float threshold = 0.5f;
     float outlineIntensity = 10.f;
     
-    float4 vImpactColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-    float4 outline = vImpactColor * saturate((gray - threshold) * outlineIntensity);
+    float4 vImpactColor = (float4) 0.f;
     
-    vRet.rgb = lerp(vRet.rgb, outline.rgb, outline.a);
-    vRet.a = 1.f;
+    if (MapLaplacian == 1)
+    {
+        gray = dot(vColor, float4(1.0f, 1.0f, 1.0f, 1.0f));
+        vImpactColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+    else
+    {
+        gray = dot(vColor, float4(1.0f, 1.0f, 1.0f, 1.0f));
+        vImpactColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    }
+
+    float4 outline = vImpactColor * saturate((gray - threshold) * outlineIntensity);
+    if (MapLaplacian == 1)
+    {
+        vRet.rgb = float3(43.f / 255.f, 76.f / 255.f, 93.f / 255.f);
+        vRet.rgb = lerp(vRet.rgb, outline.rgb, outline.a);
+        vRet.a = 1.f;
+    }
+    else
+    {
+        vRet.rgb = lerp(vRet.rgb, outline.rgb, outline.a);
+        vRet.a = 1.f;
+    }
 
     return vRet;
 }

@@ -6,6 +6,7 @@
 #include <Engine\CCamera.h>
 #include <Engine\WeaponMgr.h>
 #include <Engine\CRenderMgr.h>
+#include <Engine\PlayerMgr.h>
 
 CCameraMoveScript::CCameraMoveScript()
 	: CScript((UINT)SCRIPT_TYPE::CAMERA_MOVE_SCRIPT)
@@ -111,6 +112,21 @@ void CCameraMoveScript::shakeCameraMove()
 
 }
 
+void CCameraMoveScript::mapCameraMove()
+{
+	CGameObject* pCamera = GetOwner();
+	CCamera* cam = CRenderMgr::GetInst()->GetMainCam();
+
+	if (pCamera->GetName() != L"MapCamera")
+		return;
+
+	Vec3 vPos = PlayerMgr::GetInst()->GetPlayer()->Transform()->GetRelativePos();
+	Vec3 vRot = PlayerMgr::GetInst()->GetPlayer()->Transform()->GetRelativeRot();
+	vPos.y = 100000.f;
+	pCamera->Transform()->SetRelativePos(vPos);
+	pCamera->Transform()->SetRelativeRot(Vec3(90.f * DegToRad(), vRot.y, 0.f));
+}
+
 void CCameraMoveScript::tick()
 {
 	//if (CLevelMgr::GetInst()->GetCurLevel()->GetState() != LEVEL_STATE::PLAY)
@@ -118,6 +134,7 @@ void CCameraMoveScript::tick()
 	//else
 	cameraFollowMove();
 	scopeCameraMove();
+	mapCameraMove();
 }
 
 void CCameraMoveScript::finaltick()

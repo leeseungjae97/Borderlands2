@@ -62,6 +62,7 @@ void WeaponMgr::AddWeapon(CGameObject* _Weapon)
 void WeaponMgr::SetEqui(int _Idx, bool _Equi)
 {
 	m_arrWeapons[_Idx]->SetIsEqui(_Equi);
+
 	if (!_Equi)
 		m_arrWeapons[_Idx]->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 	else
@@ -92,7 +93,6 @@ Vec3 WeaponMgr::GetWeaponMuzzlePos(CGameObject* _Gun)
 {
 	Vec3 vPos = _Gun->Animator3D()->GetMuzzlePos();
 	vPos = XMVector3TransformCoord(vPos, _Gun->Transform()->GetWorldMat());
-
 	return vPos;
 }
 
@@ -189,7 +189,6 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot, CGameObject* _pp)
 	{
 		CScript* pScript = CScriptMgr::GetScript((UINT)MOVE_SCRIPT);
 		Light->AddComponent((CComponent*)pScript);
-
 		Light->SetWeaponOwner(_pp);
 	}
 

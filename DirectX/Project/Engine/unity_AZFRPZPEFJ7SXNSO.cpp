@@ -1,5 +1,8 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Engine\RandMgr.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\RaycastMgr.cpp"
 
 
@@ -28,7 +31,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\TextMgr.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\WeaponMgr.cpp"
 

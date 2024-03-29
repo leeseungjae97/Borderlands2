@@ -174,6 +174,26 @@ void FBXLoader::LoadMesh(FbxMesh* _pFbxMesh)
 
 	//delete list;
 
+	//int iTangentCnt = _pFbxMesh->GetElementTangentCount();
+	//int iBinormalCnt = _pFbxMesh->GetElementBinormalCount();
+	//int iNormalCnt = _pFbxMesh->GetElementNormalCount();
+
+	//if (0 == iNormalCnt)
+	//{
+	//	_pFbxMesh->InitNormals();
+	//	_pFbxMesh->GenerateNormals(true);
+	//}
+	//if (0 == iTangentCnt)
+	//{
+	//	_pFbxMesh->InitTangents();
+	//	_pFbxMesh->GenerateTangentsData(0, true);
+	//}
+	//if(0 == iBinormalCnt)
+	//{
+	//	_pFbxMesh->InitBinormals();
+	//	_pFbxMesh->CreateElementBinormal();
+	//}
+
 	for (int i = 0; i < iPolyCnt; ++i)
 	{
 		int iPolySize = _pFbxMesh->GetPolygonSize(i);
@@ -184,7 +204,7 @@ void FBXLoader::LoadMesh(FbxMesh* _pFbxMesh)
 		for (int j = 0; j < iPolySize; ++j)
 		{
 			int iIdx = _pFbxMesh->GetPolygonVertex(i, j);
-			
+
 			arrIdx[j] = iIdx;
 
 			GetUV(_pFbxMesh, &Container, iIdx, _pFbxMesh->GetTextureUVIndex(i, j));
@@ -200,7 +220,7 @@ void FBXLoader::LoadMesh(FbxMesh* _pFbxMesh)
 		Container.vecIdx[iSubsetIdx].push_back(arrIdx[2]);
 		Container.vecIdx[iSubsetIdx].push_back(arrIdx[1]);
 	}
-	
+
 	LoadAnimationData(_pFbxMesh, &Container);
 }
 
@@ -276,9 +296,13 @@ void FBXLoader::GetTangent(FbxMesh* _pMesh
 
 		FbxVector4 vTangent = pTangent->GetDirectArray().GetAt(iTangentIdx);
 
+		//_pContainer->vecTangent[_iIdx].x = (float)vTangent.mData[0];
+		//_pContainer->vecTangent[_iIdx].y = (float)vTangent.mData[2];
+		//_pContainer->vecTangent[_iIdx].z = (float)vTangent.mData[1];
+
 		_pContainer->vecTangent[_iIdx].x = (float)vTangent.mData[0];
-		_pContainer->vecTangent[_iIdx].y = (float)vTangent.mData[2];
-		_pContainer->vecTangent[_iIdx].z = (float)vTangent.mData[1];
+		_pContainer->vecTangent[_iIdx].y = (float)vTangent.mData[1];
+		_pContainer->vecTangent[_iIdx].z = (float)vTangent.mData[2];
 	}
 	if (0 == iTangentCnt)
 	{
@@ -304,9 +328,13 @@ void FBXLoader::GetTangent(FbxMesh* _pMesh
 
 		FbxVector4 vTangent = pTangent->GetDirectArray().GetAt(iTangentIdx);
 
+		//_pContainer->vecTangent[_iIdx].x = (float)vTangent.mData[0];
+		//_pContainer->vecTangent[_iIdx].y = (float)vTangent.mData[2];
+		//_pContainer->vecTangent[_iIdx].z = (float)vTangent.mData[1];
+
 		_pContainer->vecTangent[_iIdx].x = (float)vTangent.mData[0];
-		_pContainer->vecTangent[_iIdx].y = (float)vTangent.mData[2];
-		_pContainer->vecTangent[_iIdx].z = (float)vTangent.mData[1];
+		_pContainer->vecTangent[_iIdx].y = (float)vTangent.mData[1];
+		_pContainer->vecTangent[_iIdx].z = (float)vTangent.mData[2];
 	}
 	//else
 	//{
@@ -378,9 +406,13 @@ void FBXLoader::GetBinormal(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx,
 
 		FbxVector4 vBinormal = pBinormal->GetDirectArray().GetAt(iBinormalIdx);
 
+		//_pContainer->vecBinormal[_iIdx].x = (float)vBinormal.mData[0];
+		//_pContainer->vecBinormal[_iIdx].y = (float)vBinormal.mData[2];
+		//_pContainer->vecBinormal[_iIdx].z = (float)vBinormal.mData[1];
+
 		_pContainer->vecBinormal[_iIdx].x = (float)vBinormal.mData[0];
-		_pContainer->vecBinormal[_iIdx].y = (float)vBinormal.mData[2];
-		_pContainer->vecBinormal[_iIdx].z = (float)vBinormal.mData[1];
+		_pContainer->vecBinormal[_iIdx].y = (float)vBinormal.mData[1];
+		_pContainer->vecBinormal[_iIdx].z = (float)vBinormal.mData[2];
 	}
 	//else
 	//{
@@ -421,8 +453,12 @@ void FBXLoader::GetNormal(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx, i
 	FbxVector4 vNormal = pNormal->GetDirectArray().GetAt(iNormalIdx);
 
 	_pContainer->vecNormal[_iIdx].x = (float)vNormal.mData[0];
-	_pContainer->vecNormal[_iIdx].y = (float)vNormal.mData[2];
-	_pContainer->vecNormal[_iIdx].z = (float)vNormal.mData[1];
+	_pContainer->vecNormal[_iIdx].y = (float)vNormal.mData[1];
+	_pContainer->vecNormal[_iIdx].z = (float)vNormal.mData[2];
+
+	//_pContainer->vecNormal[_iIdx].x = (float)vNormal.mData[0];
+	//_pContainer->vecNormal[_iIdx].y = (float)vNormal.mData[2];
+	//_pContainer->vecNormal[_iIdx].z = (float)vNormal.mData[1];
 }
 
 void FBXLoader::GetUV(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx, int _iUVIndex)
@@ -442,15 +478,16 @@ void FBXLoader::GetUV(FbxMesh* _pMesh, tContainer* _pContainer, int _iIdx, int _
 			iUVIdx = pUV->GetIndexArray().GetAt(_iIdx);
 			break;
 		}
-	}else if(pUV->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+	}
+	else if (pUV->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
 	{
 		iUVIdx = _iUVIndex;
 	}
 
 	FbxVector2 vUV = pUV->GetDirectArray().GetAt(iUVIdx);
-	
+
 	FbxLayerElement::EMappingMode mapping = pUV->GetMappingMode();
-	
+
 	_pContainer->vecUV[_iIdx].x = (float)vUV.mData[0];
 	_pContainer->vecUV[_iIdx].y = 1.f - (float)vUV.mData[1];
 }

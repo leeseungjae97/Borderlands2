@@ -1,5 +1,8 @@
 #include "pch.h"
 
+#include "E:\directx11_3d\DirectX\Project\Engine\CMaterial.cpp"
+
+
 #include "E:\directx11_3d\DirectX\Project\Engine\CMesh.cpp"
 
 
@@ -28,7 +31,4 @@
 
 
 #include "E:\directx11_3d\DirectX\Project\Engine\CRes.cpp"
-
-
-#include "E:\directx11_3d\DirectX\Project\Engine\CResMgr.cpp"
 

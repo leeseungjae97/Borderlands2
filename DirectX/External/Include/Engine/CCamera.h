@@ -130,6 +130,7 @@ private:
     void clear_shadow();
 
     void render_deferred();
+    void render_map_marker();
     void render_forward();
     void render_decal();
     void render_transparent();

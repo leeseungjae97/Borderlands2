@@ -51,20 +51,28 @@ void CreateLevels()
 		pMainCam->Camera()->SetLayerMask((int)LAYER_TYPE::Camera, false);
 		PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
 	}
-
 	{
-		CGameObject* pUICam = new CGameObject;
-		pUICam->SetName(L"UICamera");
+		CGameObject* pMapCam = new CGameObject;
+		pMapCam->SetName(L"MapCamera");
 
-		pUICam->AddComponent(new CTransform);
-		pUICam->AddComponent(new CCamera);
+		pMapCam->AddComponent(new CTransform);
+		pMapCam->AddComponent(new CCamera);
+		pMapCam->AddComponent(new CCameraMoveScript);
 
-		pUICam->Camera()->SetFarZ(1000000.f);
-		pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
-		pUICam->Camera()->SetCameraIndex(1);
-		pUICam->Camera()->SetLayerMaskAll(false);
-		pUICam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, true);
-		PreloadGameObject(pUICam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
+		pMapCam->Camera()->SetFarZ(1000000.f);
+		pMapCam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
+		pMapCam->Camera()->SetOrthoWidth(1000.f);
+		pMapCam->Camera()->SetOrthoHeight(1000.f);
+		pMapCam->Camera()->SetScale(0.15f);
+		//pMapCam->Camera()->SetFOV(2.1f);
+		pMapCam->Camera()->SetCameraIndex(1);
+		pMapCam->Camera()->SetLayerMaskAll(false);
+		pMapCam->Camera()->SetLayerMask((int)LAYER_TYPE::Terrain, true);
+		//pMapCam->Camera()->SetLayerMask((int)LAYER_TYPE::Enemy, true);
+		//pMapCam->Camera()->SetLayerMask((int)LAYER_TYPE::Environment, true);
+
+		//pMapCam->Transform()->SetRelativeRot(Vec3(0.f, ));
+		PreloadGameObject(pMapCam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
 	}
 	{
 		CGameObject* pScopeCam = new CGameObject;
@@ -81,6 +89,21 @@ void CreateLevels()
 		pScopeCam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, false);
 		pScopeCam->Camera()->SetLayerMask((int)LAYER_TYPE::Camera, false);
 		PreloadGameObject(pScopeCam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
+	}
+
+	{
+		CGameObject* pUICam = new CGameObject;
+		pUICam->SetName(L"UICamera");
+
+		pUICam->AddComponent(new CTransform);
+		pUICam->AddComponent(new CCamera);
+
+		pUICam->Camera()->SetFarZ(1000000.f);
+		pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
+		pUICam->Camera()->SetCameraIndex(3);
+		pUICam->Camera()->SetLayerMaskAll(false);
+		pUICam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, true);
+		PreloadGameObject(pUICam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
 	}
 	//{
 	//	CGameObject* pScopeCam = new CGameObject;
@@ -230,7 +253,30 @@ void CreateLevels()
 	//pObject->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 0.f));
 
 	//PreloadGameObject(pObject, Vec3(0.f, 0.f, 0.f), 1);
+	
+	//{
+	//	Ptr<CMaterial> pMtrl = nullptr;
+	//	pMtrl = new CMaterial(true);
+	//	pMtrl->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"MapShader"));
+	//	CResMgr::GetInst()->AddRes(L"UIMapMtrl", pMtrl);
 
+	//	CGameObject* m_pUI_Map = new CGameObject;
+
+	//	m_pUI_Map->SetName(L"UI Map");
+	//	m_pUI_Map->AddComponent(new CTransform);
+	//	m_pUI_Map->AddComponent(new CMeshRender);
+
+	//	m_pUI_Map->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+	//	m_pUI_Map->MeshRender()->SetMaterial(pMtrl, 0);
+
+	//	m_pUI_Map->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\map.png"));
+	//	m_pUI_Map->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\map_mask.png"));
+	//	m_pUI_Map->MeshRender()->GetMaterial(0)->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"RTCopyTex2"));
+
+	//	m_pUI_Map->Transform()->SetRelativeScale(Vec3(250.f, 200.f, 1.f));
+	//	m_pUI_Map->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 3.f * Util::DegToRad()));
+	//	PreloadGameObject(m_pUI_Map, Vec3(517.f, 250.f, 0.f), LAYER_TYPE::ViewPortUI);
+	//}
 	{
 		Ptr<CMeshData> pMeshData = nullptr;
 		CGameObject* pObj = nullptr;
@@ -521,40 +567,40 @@ void CreateLevels()
 	//	PreloadGameObject(pObj, Vec3(-1854.156, -10154.404, 4439.329), LAYER_TYPE::Enemy);
 	//}
 
-	//for (int i = 0; i < 2; ++i)
-	//{
-	//	Ptr<CMeshData> pMeshData = nullptr;
-	//	CGameObject* pObj = nullptr;
+	for (int i = 0; i < 2; ++i)
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
 
-	//	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
-	//	pObj = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
-	//	wstring str = L"fbx nomad" + std::to_wstring(i);
-	//	pObj->SetName(str);
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\nomad.fbx");
+		pObj = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
+		wstring str = L"fbx nomad" + std::to_wstring(i);
+		pObj->SetName(str);
 
-	//	pObj->AddComponent(new CEnemyScript(CEnemyScript::ENEMY_TYPE::NOMAD));
-	//	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
-	//	pObj->AddComponent(new CCollider3D);
-	//	pObj->AddComponent(new CGizmo);
+		pObj->AddComponent(new CEnemyScript(CEnemyScript::ENEMY_TYPE::NOMAD));
+		pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
+		pObj->AddComponent(new CCollider3D);
+		pObj->AddComponent(new CGizmo);
 
-	//	pObj->RigidBody()->SetCreature(true);
+		pObj->RigidBody()->SetCreature(true);
 
-	//	PreloadGameObject(pObj, Vec3(500.f, 100.f, 1000.f + (i * 150.f)), LAYER_TYPE::Enemy);
+		PreloadGameObject(pObj, Vec3(500.f, 100.f, 1000.f + (i * 150.f)), LAYER_TYPE::Enemy);
 
-	//	{
-	//		Ptr<CMeshData> pMeshData = nullptr;
-	//		CGameObject* pGun = nullptr;
-	//		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\dahl.fbx");
-	//		pGun = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
-	//		pGun->SetName(L"enemy_gun");
+		{
+			Ptr<CMeshData> pMeshData = nullptr;
+			CGameObject* pGun = nullptr;
+			pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\dahl.fbx");
+			pGun = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
+			pGun->SetName(L"enemy_gun");
 
-	//		pGun->AddComponent(new CWeaponScript);
-	//		pGun->AddComponent(new CGizmo);
-	//		pGun->SetIsItem(true);
-	//		pObj->AddWeapon(pGun);
+			pGun->AddComponent(new CWeaponScript);
+			pGun->AddComponent(new CGizmo);
+			pGun->SetIsItem(true);
+			pObj->AddWeapon(pGun);
 
-	//		PreloadGameObject(pGun, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
-	//	}
-	//}
+			PreloadGameObject(pGun, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
+		}
+	}
 
 	//{
 	//	
@@ -651,7 +697,7 @@ void CreateLevels()
 		pUICam->AddComponent(new CCamera);
 		pUICam->Camera()->SetFarZ(1000000.f);
 		pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
-		pUICam->Camera()->SetCameraIndex(1);
+		pUICam->Camera()->SetCameraIndex(3);
 		pUICam->Camera()->SetLayerMaskAll(false);
 		pUICam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, true);
 		PreloadGameObject(pUICam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);

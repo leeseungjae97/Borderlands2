@@ -121,6 +121,85 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
     }
     output.vDiffuse += LightColor.vDiffuse + LightColor.vAmbient;
     output.vSpecular += g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
+    output.vShadow += fShadowCoeff;
+
+    output.vDiffuse.a = 1.f;
+    output.vSpecular.a = 1.f;
+    
+    return output;
+}
+
+PS_OUT PS_ObjectDirLightShader(VS_OUT _in)
+{
+    PS_OUT output = (PS_OUT) 0.f;
+    
+    float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
+    float3 vViewPos = PositionTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
+    float3 vViewNormal = NormalTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
+    
+    if (vViewPos.x == 0.f && vViewPos.y == 0.f && vViewPos.z == 0.f)
+    {
+        discard;
+    }
+    
+    tLightColor LightColor = (tLightColor) 0.f;
+    float fSpecPow = 0.f;
+    float fLightPow = 0.f;
+
+    CalcLight3D(vViewPos, vViewNormal, LightIdx, LightColor, fSpecPow, fLightPow);
+    
+    float fShadowCoeff = 0.f;
+    float3 vWorldPos = mul(float4(vViewPos, 1.f), g_matViewInv).xyz;
+    float4 vLightProj = mul(float4(vWorldPos, 1.f), LightVP);
+    float2 vShadowMapUV = vLightProj.xy / vLightProj.w;
+    vShadowMapUV.x = vShadowMapUV.x / 2.f + 0.5f;
+    vShadowMapUV.y = (1.f - vShadowMapUV.y / 2.f) - 0.5f;
+
+    //output.vDiffuse = LightColor.vDiffuse + LightColor.vAmbient;
+    //output.vSpecular = g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
+    //output.vShadow = fShadowCoeff;
+
+    if (vShadowMapUV.x < 0.f || 1.f < vShadowMapUV.x ||
+        vShadowMapUV.y < 0.f || 1.f < vShadowMapUV.y)
+    {
+        fShadowCoeff = 0.f;
+    }
+    else
+    {
+        float fDepth = vLightProj.z / vLightProj.w;
+        //float fDepth = vLightProj.z;
+        //float fDepth = ShadowMapTargetTex.Sample(g_sam_anti_0, vShadowMapUV);
+        fDepth -= DepthCoeff;
+        float SMAP_SIZE = FloatCoeff1;
+        float SMAP_DX = 1.0f / SMAP_SIZE;
+
+        const float dx = SMAP_DX;
+
+        const float2 offsets[9] =
+        {
+            float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
+	        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+	        float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
+        };
+
+        [unroll]
+        for (int i = 0; i < 9; ++i)
+        {
+            fShadowCoeff += ShadowMapTargetTex.SampleCmpLevelZero(g_shadow_sampler,
+            vShadowMapUV.xy + offsets[i], fDepth).r;
+        }
+        fShadowCoeff /= FloatCoeff2;
+        //fShadowCoeff = PCF(ShadowMapTargetTex, vShadowMapUV, fDepth - DepthCoeff, FloatCoeff1, float2(FloatCoeff2, FloatCoeff3));
+        
+        //if (fShadowDepth != 0.f && (fDepth > fShadowDepth + 0.00001f))
+        //{
+        //    output.vDiffuse *= 0.3f;
+        //    output.vSpecular = 0.f;
+        //    fShadowCoeff = 0.9f;
+        //}
+    }
+    output.vDiffuse += LightColor.vDiffuse + LightColor.vAmbient;
+    output.vSpecular += g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
     output.vShadow = fShadowCoeff;
 
     output.vDiffuse.a = 1.f;
@@ -146,7 +225,7 @@ PS_OUT PS_PointLightShader(VS_OUT _in)
     float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
     
     float3 vViewPos = PositionTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
-    float3 vViewNormal = NormalTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
+    float3 vViewNormal = NormalTargetTex.Sample(g_sam_linear_2, vScreenUV).xyz;
 
     if (vViewPos.x == 0.f && vViewPos.y == 0.f && vViewPos.z == 0.f)
     {
@@ -239,9 +318,9 @@ PS_OUT PS_SpotLightShader(VS_OUT _in)
 }
 
 #define ColorTargetTex    g_tex_0
-#define DiffuseTargetTex  g_tex_1
-#define SpecularTargetTex g_tex_2
-#define EmissiveTargetTex g_tex_3
+#define NormalTargetTex  g_tex_1
+#define EmissiveTargetTex g_tex_2
+#define SpecularTargetTex g_tex_3
 #define ShadowTargetTex   g_tex_4
 // =====================================
 VS_OUT VS_MergeShader(VS_IN _in)
@@ -259,8 +338,8 @@ float4 PS_MergeShader(VS_OUT _in) : SV_Target
     
     float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
 
-    float4 vColor = ColorTargetTex.Sample(g_sam_anti_0, vScreenUV);
-    float4 vDiffuse = DiffuseTargetTex.Sample(g_sam_anti_0, vScreenUV);
+	float4 vColor = ColorTargetTex.Sample(g_sam_anti_0, vScreenUV);
+    float4 vDiffuse = NormalTargetTex.Sample(g_sam_anti_0, vScreenUV);
     float4 vEmissive = EmissiveTargetTex.Sample(g_sam_anti_0, vScreenUV);
     float4 vSpecular = SpecularTargetTex.Sample(g_sam_anti_0, vScreenUV);
     float fShadowCoeff = ShadowTargetTex.Sample(g_sam_anti_0, vScreenUV).x;
@@ -277,6 +356,38 @@ float4 PS_MergeShader(VS_OUT _in) : SV_Target
     vOutColor.a = 1.f;
 
     return vOutColor;
+}
+
+VS_OUT VS_MapShader(VS_IN _in)
+{
+    VS_OUT output = (VS_OUT) 0.f;
+
+    //output.vPosition = float4(_in.vPos.xyz, 1.f);
+    output.vPosition = float4(_in.vPos.xyz * 2.f, 1.f);
+    
+    return output;
+}
+
+#define ColorTargetTex      g_tex_0
+#define EmissiveTargetTex   g_tex_1
+float4 PS_MapMergeShader(VS_OUT _in) : SV_Target
+{
+    float4 vOutColor = (float4) 0.f;
+    
+    float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
+
+    float4 vColor = ColorTargetTex.Sample(g_sam_anti_0, vScreenUV);
+    //float4 vEmissive = EmissiveTargetTex.Sample(g_sam_anti_0, vScreenUV);
+    
+    //vColorDiffuse *= fShadowCoeff;
+    //float3 vColorSpecular = vSpecular.xyz * vColor.a;
+    //vColorSpecular *= fShadowCoeff;
+
+    //float3 vColorDiffuseShadow = vColorDiffuse * fShadowCoeff;
+    //vColorDiffuseShadow = (vColorDiffuseShadow + vColorDiffuse / 2.f);
+    vColor.a = 1.f;
+
+    return vColor;
 }
 
 VS_OUT VS_MShader(VS_IN _in)

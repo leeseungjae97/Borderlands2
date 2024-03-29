@@ -14,6 +14,7 @@
 #include "FieldUIMgr.h"
 #include "KeyUseInfoMgr.h"
 #include "MainMenuMgr.h"
+#include "MapMgr.h"
 #include "NavigationMgr.h"
 #include "ObjPickerMgr.h"
 #include "ParticleMgr.h"
@@ -106,6 +107,8 @@ void CEngine::tick()
 	WeaponMgr::GetInst()->tick();
 	RaycastMgr::GetInst()->tick();
 	NavigationMgr::GetInst()->tick();
+
+	MapMgr::GetInst()->tick();
 	FieldUIMgr::GetInst()->tick();
 
 	MainMenuMgr::GetInst()->tick();
