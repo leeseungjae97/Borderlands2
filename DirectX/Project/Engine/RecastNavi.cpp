@@ -35,7 +35,6 @@ RecastNavi::RecastNavi()
 	, m_nsmoothPath(0)
 {
 	m_BuildContext = new RecastBuildContext;
-	m_geom = new InputGeom;
 
 	m_filter.setAreaCost(POLYAREA_GROUND, 1.0f);
 	m_filter.setAreaCost(POLYAREA_WATER, 1.0f);
@@ -76,6 +75,8 @@ void RecastNavi::clean_up()
 	m_navMesh = 0;
 	dtFreeNavMeshQuery(m_navQuery);
 	m_navQuery = 0;
+	delete m_geom;
+	m_geom = 0;
 }
 
 
@@ -510,9 +511,12 @@ void RecastNavi::MakeQuery(dtNavMeshQuery* _Query)
 
 }
 
-void RecastNavi::HandleBuild(CGameObject* _Obj)
+void RecastNavi::HandleBuild(CGameObject* _Obj, const wstring& _wsMeshName)
 {
 	clean_up();
+
+	if(nullptr == m_geom)
+		m_geom = new InputGeom;
 
 	if (!m_geom->CreateGeom(_Obj->MeshRender()->GetMesh(), _Obj->Transform()->GetWorldMat(), _Obj->Transform()->GetRelativeScale()))
 	{
@@ -844,7 +848,7 @@ void RecastNavi::HandleBuild(CGameObject* _Obj)
 
 	Ptr<CMesh> convertCMesh = new CMesh;
 	convertCMesh->Create(vecVer.data(), vecVer.size(), vecIdx.data(), vecIdx.size());
-	CResMgr::GetInst()->AddRes<CMesh>(L"NaviMesh", convertCMesh);
+	CResMgr::GetInst()->AddRes<CMesh>(_wsMeshName, convertCMesh);
 	//DrawDebugMesh(World, L"NaviMesh", 1, Vec4(1.f, 1.f, 1.f, 1.f), 100000000000000.f, true);
 
 	{

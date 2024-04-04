@@ -116,6 +116,20 @@ private:
 		L"sound\\nomad\\VOBD_Nomad_GEN_React_Death_02.ogg",
 	};
 
+	wstring wsLoaderAggroSound[3] =
+	{
+		L"sound\\gun_loader\\VOBD_Loader_HUM_Start_Aggro_01.ogg",
+		L"sound\\gun_loader\\VOBD_Loader_HUM_Start_Aggro_02.ogg",
+		L"sound\\gun_loader\\VOBD_Loader_HUM_Start_Aggro_03.ogg",
+	};
+	wstring wsLoaderDeathSound[4] =
+	{
+		L"sound\\gun_loader\\VOBD_Loader_GEN_React_Death_01.ogg",
+		L"sound\\gun_loader\\VOBD_Loader_GEN_React_Death_02.ogg",
+		L"sound\\gun_loader\\VOBD_Loader_GEN_React_Death_03.ogg",
+		L"sound\\gun_loader\\VOBD_Loader_GEN_React_Death_04.ogg",
+	};
+
 
 	wstring* aggroSound;
 	wstring* deathSound;
@@ -142,7 +156,7 @@ public:
 	void Attacked(float fDamage);
 	void Shoot();
 	bool Melee();
-	void Look();
+	bool Look();
 	bool IsDetect();
 
 	void PaperBurn();

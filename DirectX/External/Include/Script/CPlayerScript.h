@@ -65,11 +65,16 @@ private:
     CGameObject* m_pUI_ShieldLeftHit;
     CGameObject* m_pUI_ShieldRightHit;
 
+    CGameObject* m_pUI_ReloadIcon;
+    float   fReloadGlitter;
+
     class CUI*        m_pAmmoText;
     class CUI*        m_pHPText;
     class CUI*        m_pLevelText;
+    class CUI*        m_pReloadText;
     class CUI*        m_pEnemyName;
     class CUI*        m_pEnemyLevel;
+    
 
 
     wstring wsPlayerWalkSound[5] =

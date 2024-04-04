@@ -23,24 +23,6 @@ CRenderMgr::CRenderMgr()
 	//, m_pEditorCam(nullptr)
 	, m_MRT{}
 {
-	Vec2 vResolution = CDevice::GetInst()->GetRenderResolution();
-	m_RTCopyTex = CResMgr::GetInst()->CreateTexture(L"RTCopyTex"
-		, (UINT)vResolution.x, (UINT)vResolution.y
-		, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE
-		, D3D11_USAGE_DEFAULT);
-
-	m_RTCopyDownScaleTex = CResMgr::GetInst()->CreateUAVTexture(L"RTCopyDownScaleTex"
-		, (UINT)500, (UINT)500
-		, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
-		, D3D11_USAGE_DEFAULT);
-
-	m_RTCopyTex2 = CResMgr::GetInst()->CreateTexture(L"RTCopyTex2"
-		, (UINT)vResolution.x, (UINT)vResolution.y
-		, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE
-		, D3D11_USAGE_DEFAULT);
-
-	CResMgr::GetInst()->FindRes<CMaterial>(L"GrayMtrl")->SetTexParam(TEX_0, m_RTCopyTex);
-	CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl")->SetTexParam(TEX_0, m_RTCopyTex);
 }
 
 CRenderMgr::~CRenderMgr()
@@ -59,6 +41,30 @@ CRenderMgr::~CRenderMgr()
 
 void CRenderMgr::init()
 {
+	Vec2 vResolution = CDevice::GetInst()->GetRenderResolution();
+	m_RTCopyTex = CResMgr::GetInst()->CreateTexture(L"RTCopyTex"
+		, (UINT)vResolution.x, (UINT)vResolution.y
+		, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE
+		, D3D11_USAGE_DEFAULT);
+
+	m_RTCopyDownScaleTex = CResMgr::GetInst()->CreateUAVTexture(L"RTCopyDownScaleTex"
+		, (UINT)500, (UINT)500
+		, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
+		, D3D11_USAGE_DEFAULT);
+
+	m_RTCopyTex2 = CResMgr::GetInst()->CreateTexture(L"RTCopyTex2"
+		, (UINT)vResolution.x, (UINT)vResolution.y
+		, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE
+		, D3D11_USAGE_DEFAULT);
+
+	m_RTCopyTex3 = CResMgr::GetInst()->CreateTexture(L"RTCopyTex3"
+		, (UINT)vResolution.x, (UINT)vResolution.y
+		, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE
+		, D3D11_USAGE_DEFAULT);
+
+	CResMgr::GetInst()->FindRes<CMaterial>(L"GrayMtrl")->SetTexParam(TEX_0, m_RTCopyTex);
+	CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl")->SetTexParam(TEX_0, m_RTCopyTex);
+
 	// Light2DBuffer 구조화 버퍼 생성
 	m_Light2DBuffer = new CStructuredBuffer;
 	m_Light2DBuffer->Create(sizeof(tLightInfo), 10, SB_TYPE::READ_ONLY, true);
@@ -67,6 +73,8 @@ void CRenderMgr::init()
 	m_Light3DBuffer->Create(sizeof(tLightInfo), 10, SB_TYPE::READ_ONLY, true);
 
 	CreateMRT();
+
+	CResMgr::GetInst()->RoadResource();
 }
 
 void CRenderMgr::render()
@@ -183,7 +191,12 @@ CCamera* CRenderMgr::GetUICam()
 		if (m_vecCam.empty())
 			return nullptr;
 
-		return m_vecCam[3];
+		for(int i = 0 ; i < m_vecCam.size(); ++i)
+		{
+			if(m_vecCam[i]->GetCamIdx() == 3)
+				return m_vecCam[i];
+		}
+		
 	}
 	return nullptr;
 }
@@ -195,6 +208,9 @@ void CRenderMgr::CopyRenderTarget()
 
 	pRTTex = CResMgr::GetInst()->FindRes<CTexture>(L"MapRenderTex");
 	CONTEXT->CopyResource(m_RTCopyTex2->GetTex2D().Get(), pRTTex->GetTex2D().Get());
+
+	pRTTex = CResMgr::GetInst()->FindRes<CTexture>(L"RenderTargetTex");
+	CONTEXT->CopyResource(m_RTCopyTex3->GetTex2D().Get(), pRTTex->GetTex2D().Get());
 }
 
 MRT* CRenderMgr::GetMRT(MRT_TYPE _Type)
@@ -204,11 +220,9 @@ MRT* CRenderMgr::GetMRT(MRT_TYPE _Type)
 
 void CRenderMgr::UpdateData()
 {
-	// GlobalData 에 광원 개수정보 세팅
 	GlobalData.Light2DCount = m_vecLight2DInfo.size();
 	GlobalData.Light3DCount = m_vecLight3DInfo.size();
 
-	// 구조화버퍼의 크기가 모자라면 더 크게 새로 만든다.
 	if (m_Light2DBuffer->GetElementCount() < m_vecLight2DInfo.size())
 	{
 		m_Light2DBuffer->Create(sizeof(tLightInfo), m_vecLight2DInfo.size(), SB_TYPE::READ_ONLY, true);
@@ -218,14 +232,12 @@ void CRenderMgr::UpdateData()
 		m_Light3DBuffer->Create(sizeof(tLightInfo), m_vecLight3DInfo.size(), SB_TYPE::READ_ONLY, true);
 	}
 
-	// 구조화버퍼로 광원 데이터를 옮긴다.
 	m_Light2DBuffer->SetData(m_vecLight2DInfo.data(), sizeof(tLightInfo) * m_vecLight2DInfo.size());
 	m_Light3DBuffer->SetData(m_vecLight3DInfo.data(), sizeof(tLightInfo) * m_vecLight3DInfo.size());
 
 	m_Light2DBuffer->UpdateData(12, PIPELINE_STAGE::PS_PIXEL);
 	m_Light3DBuffer->UpdateData(13, PIPELINE_STAGE::PS_PIXEL);
 
-	// 전역 상수 데이터 바인딩
 	CConstBuffer* pGlobalBuffer = CDevice::GetInst()->GetConstBuffer(CB_TYPE::GLOBAL);
 	pGlobalBuffer->SetData(&GlobalData, sizeof(tGlobal));
 	pGlobalBuffer->UpdateData();
@@ -234,7 +246,6 @@ void CRenderMgr::UpdateData()
 
 void CRenderMgr::render_shadowmap()
 {
-	// ShadowMap MRT 로 교체
 	GetMRT(MRT_TYPE::SHADOWMAP)->OMSet();
 	//m_MRT[(UINT)MRT_TYPE::SHADOWMAP]->OMSet();
 

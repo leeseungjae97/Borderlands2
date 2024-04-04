@@ -1,12 +1,14 @@
 #include "pch.h"
 #include "MapMgr.h"
 
+#include "CCamera.h"
 #include "CEventMgr.h"
 #include "CGameObject.h"
 #include "CLayer.h"
 #include "CLevel.h"
 #include "CLevelMgr.h"
 #include "CMeshRender.h"
+#include "CRenderMgr.h"
 #include "CResMgr.h"
 #include "CTransform.h"
 #include "physx_util.h"
@@ -22,6 +24,26 @@ MapMgr::~MapMgr()
 
 void MapMgr::tick()
 {
+	if (CRenderMgr::GetInst()->GetMainCam() && CRenderMgr::GetInst()->GetMainCam()->IsCinematic())
+	{
+		if (m_pUI_Map)
+			m_pUI_Map->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		if (m_pUI_MapMarker)
+			m_pUI_MapMarker->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		if (m_pUI_MapMarkerRange)
+			m_pUI_MapMarkerRange->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}else
+	{
+		if(CLevelMgr::GetInst()->GetCurLevel()->GetName() != L"main menu level")
+		{
+			if (m_pUI_Map)
+				m_pUI_Map->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			if (m_pUI_MapMarker)
+				m_pUI_MapMarker->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			if (m_pUI_MapMarkerRange)
+				m_pUI_MapMarkerRange->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		}
+	}
 }
 
 void MapMgr::init()
@@ -90,4 +112,11 @@ void MapMgr::begin()
 		m_pUI_MapMarkerRange->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 90.f * Util::DegToRad()));
 		SpawnGameObject(m_pUI_MapMarkerRange, Vec3(517.f, 310.f, 0.f), LAYER_TYPE::ViewPortUI);
 	}
+
+	if (m_pUI_Map)
+		m_pUI_Map->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	if (m_pUI_MapMarker)
+		m_pUI_MapMarker->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	if (m_pUI_MapMarkerRange)
+		m_pUI_MapMarkerRange->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 }

@@ -28,7 +28,7 @@ void PlayerMgr::tick()
 {
 	if (CEventMgr::GetInst()->IsLevelChanged() || CEventMgr::GetInst()->IsLevelLoad())
 	{
-		if(CLevelMgr::GetInst()->GetCurLevel()->GetName() == L"main level")
+		if(CLevelMgr::GetInst()->GetCurLevel()->GetName() != L"main menu level")
 		{
 			vector<CGameObject*> objects = CLevelMgr::GetInst()->GetCurLevel()->FindLayerByType(LAYER_TYPE::Player)->GetParentObject();
 			for (int i = 0; i < objects.size(); ++i)
@@ -45,7 +45,7 @@ void PlayerMgr::tick()
 
 void PlayerMgr::begin()
 {
-	if (CLevelMgr::GetInst()->GetCurLevel()->GetName() == L"main level")
+	if (CLevelMgr::GetInst()->GetCurLevel()->GetName() != L"main menu level")
 	{
 		vector<CGameObject*> objects = CLevelMgr::GetInst()->GetCurLevel()->FindLayerByType(LAYER_TYPE::Player)->GetParentObject();
 		for (int i = 0; i < objects.size(); ++i)

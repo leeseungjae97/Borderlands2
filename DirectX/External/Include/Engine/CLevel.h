@@ -25,6 +25,7 @@ private:
 
     int                         m_iTickCnt;
 
+    bool                        m_bLevelEnd;
 public:
     void begin();
     void tick();
@@ -47,6 +48,9 @@ public:
     PxScene* GetScene() { return m_PxScene; }
 
     int GetTickCnt() { return m_iTickCnt; }
+
+    bool GetLevelEnd() { return m_bLevelEnd; }
+    void SetLevelEnd(bool _bEnd) { m_bLevelEnd = _bEnd; }
 private:
     // 등록된 GameObject 제거
     void clear();

@@ -71,20 +71,20 @@ void NavigationMgr::tick()
 
 void NavigationMgr::begin()
 {
-	if (CEventMgr::GetInst()->IsLevelLoad())
-	{
-		m_vecMapObj.clear();
-		vector<CGameObject*>().swap(m_vecMapObj);
+	//if (CEventMgr::GetInst()->IsLevelLoad())
+	//{
+	//	m_vecMapObj.clear();
+	//	vector<CGameObject*>().swap(m_vecMapObj);
 
-		CLevel* pLevel = CLevelMgr::GetInst()->GetCurLevel();
-		vector<CGameObject*> maps = pLevel->FindLayerByType(LAYER_TYPE::Terrain)->GetObjects();
-		for (int i = 0; i < maps.size(); ++i)
-		{
-			m_vecMapObj.push_back(maps[i]);
-		}
+	//	CLevel* pLevel = CLevelMgr::GetInst()->GetCurLevel();
+	//	vector<CGameObject*> maps = pLevel->FindLayerByType(LAYER_TYPE::Terrain)->GetObjects();
+	//	for (int i = 0; i < maps.size(); ++i)
+	//	{
+	//		m_vecMapObj.push_back(maps[i]);
+	//	}
 
-		MapChange(m_iMap);
-	}
+	//	MapChange(m_iMap);
+	//}
 }
 
 CGameObject* NavigationMgr::GetMap(int _Idx)
@@ -107,15 +107,13 @@ void NavigationMgr::MapChange(int _Idx)
 		m_pMapObj = m_vecMapObj[m_iMap];
 	}
 	m_wsMapName = m_pMapObj->GetName();
-	m_pRecast->HandleBuild(m_pMapObj);
+	m_pRecast->HandleBuild(m_pMapObj, m_wsMapName);
 }
 
 void NavigationMgr::MakeMapQuery(dtNavMeshQuery* _Query)
 {
-	assert(m_pRecast);
-
+	//assert(m_pRecast);
 	m_pRecast->MakeQuery(_Query);
-	
 }
 
 bool NavigationMgr::DoQuery(Vec3 vStart, Vec3 vEnd, vector<Vec3>* vec, int* pathSize)
@@ -152,5 +150,5 @@ void NavigationMgr::DrawDebug()
 		return;
 
 	Matrix World= m_pMapObj->Transform()->GetWorldMat();
-	DrawDebugMesh(World, L"NaviMesh", 1, Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
+	DrawDebugMesh(World, m_wsMapName, 1, Vec4(1.f, 1.f, 1.f, 1.f), 0.f, true);
 }

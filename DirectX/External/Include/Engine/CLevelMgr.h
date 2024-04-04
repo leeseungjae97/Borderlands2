@@ -11,7 +11,7 @@ class CLevelMgr :
 private:
     map<wstring, CLevel*> m_mapLevels;
 
-    CLevel*     m_pCurLevel;
+    CLevel* m_pCurLevel;
 
 public:
     map<wstring, CLevel*> GetLevels() { return m_mapLevels; }
@@ -30,6 +30,7 @@ public:
     void InsertLevel(const wstring& _strName, CLevel* _Level);
     void LoadLevel(CLevel* _Level);
 
+    void CheckLevelClear();
 public:
     void init();
     void tick();

@@ -8,6 +8,9 @@
 #include <Engine/CLevel.h>
 #include <Engine/WarriorMgr.h>
 
+#include <Script/CWarriorScript.h>
+#include <Script/CConstructorScript.h>
+
 
 Animator3DUI::Animator3DUI()
 	: ComponentUI("##Animator3D", COMPONENT_TYPE::ANIMATOR3D)
@@ -130,10 +133,15 @@ int Animator3DUI::render_update()
 		STRS = GUN_ANIMATION_TYPE_STR;
 		STRSSIZE = (int)GUN_ANIMATION_TYPE::END;
 	}
-	else if (GetTarget()->IsWarrior())
+	else if (GetTarget()->GetScript<CWarriorScript>())
 	{
 		STRS = WARRIOR_ANIMATION_TYPE_STR;
 		STRSSIZE = (int)WARRIOR_ANIMATION_TYPE::END;
+	}
+	else if (GetTarget()->GetScript<CConstructorScript>())
+	{
+		STRS = CONSTRUCTOR_ANIMATION_TYPE_STR;
+		STRSSIZE = (int)CONSTRUCTOR_ANIMATION_TYPE::END;
 	}
 	else if (GetTarget()->GetLayerIndex() == (int)LAYER_TYPE::Enemy)
 	{

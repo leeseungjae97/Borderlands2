@@ -46,6 +46,10 @@ void CWeaponScript::finaltick()
 	//SetWeaponPos();
 }
 
+void CWeaponScript::ShootBullet()
+{
+}
+
 void CWeaponScript::SetWeaponPos()
 {
 	if (m_bStopFollow)

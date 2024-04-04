@@ -8,13 +8,17 @@
 #include <Script/CScriptMgr.h>
 
 #include "CCamera.h"
+#include "CEventMgr.h"
 #include "CKeyMgr.h"
+#include "CLevel.h"
+#include "CLevelMgr.h"
 #include "CRenderMgr.h"
 #include "CTimeMgr.h"
 #include "physx_util.h"
 #include "TextMgr.h"
 
 FieldUIMgr::FieldUIMgr()
+	: pLevelName(nullptr)
 {
 }
 
@@ -34,6 +38,67 @@ void FieldUIMgr::tick()
 	//{
 	//	AddDamage(10, Vec3(0.f, 500.f, 0.f));
 	//}
+	static bool spawn = false;
+	if(CEventMgr::GetInst()->IsLevelLoad())
+	{
+		spawn = false;
+		if (CLevelMgr::GetInst()->GetCurLevel()->GetName() == L"main menu level")
+			return;
+
+		if (nullptr == pLevelName)
+		{
+			pLevelName = new CUI;
+			pLevelName->SetName(L"Level Name");
+			pLevelName->AddComponent(new CTransform);
+			pLevelName->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
+			pLevelName->SetTextScale(2.0f);
+			pLevelName->SetOutline(true);
+			pLevelName->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
+		}
+		
+		
+
+		//if (CLevelMgr::GetInst()->GetCurLevel()->GetName() == L"main level 1")
+		//{
+		//	SpawnGameObject(pLevelName, Vec3(0.f, 100.f, 1.f), LAYER_TYPE::ViewPortUI);
+		//	pLevelName->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		//	pLevelName->SetText(L"Hyperion City");
+		//	pLevelName->Transform()->SetRelativePos(Vec3(0.f, 100.f, 0.f));
+		//	spawn = true;
+		//}
+		//if (CLevelMgr::GetInst()->GetCurLevel()->GetName() == L"main level 2")
+		//{
+		//	SpawnGameObject(pLevelName, Vec3(0.f, 100.f, 1.f), LAYER_TYPE::ViewPortUI);
+		//	pLevelName->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+		//	pLevelName->SetText(L"Vault of The Warrior");
+		//	pLevelName->Transform()->SetRelativePos(Vec3(0.f, 100.f, 0.f));
+		//	spawn = true;
+		//}
+	}
+
+	static float mT = 0.0f;
+
+	if(spawn)
+	{
+		mT += DT;
+		if (pLevelName)
+		{
+			Vec3 vPos = pLevelName->Transform()->GetRelativePos();
+			vPos.y += DT * 10.f;
+			pLevelName->Transform()->SetRelativePos(vPos);
+		}
+
+		if (mT > 10.f)
+		{
+			if (pLevelName)
+			{
+				pLevelName->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			}
+
+			mT = 0.0f;
+		}
+	}
+
 }
 
 void FieldUIMgr::render()

@@ -62,6 +62,7 @@ private:
 	int							m_iMouseIdx;
 	int							m_iScopeIdx;
 	int							m_iChestIdx;
+	int							m_iEyeIdx;
 
 	Vec4						m_vHeadPos;
 	Vec4						m_vMuzzlePos;
@@ -155,6 +156,7 @@ public:
 	int GetMouseIdx() { return m_iMouseIdx; }
 	int GetChestIdx() { return m_iChestIdx; }
 	int GetStomachIdx() { return m_iStomachIdx; }
+	int GetEyeIdx() { return m_iEyeIdx; }
 	int GetScopeIdx() { return m_iScopeIdx; }
 
 	int GetFireBreathIdx() { return m_iFireBreathIdx; }

@@ -19,6 +19,8 @@ public:
 	Matrix BilBoardMat;
 	float  fTheta;
 	vector<DamageText> m_vecText;
+
+	class CUI* pLevelName;
 public:
 	void init();
 	void tick();

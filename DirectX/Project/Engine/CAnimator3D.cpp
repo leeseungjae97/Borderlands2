@@ -38,6 +38,7 @@ CAnimator3D::CAnimator3D()
 	, m_iTailWeaponIdx(0)
 	, m_iKnuckleIdx(0)
 	, m_iStomachIdx(0)
+	, m_iEyeIdx(0)
 	, m_iMouseIdx(0)
 	, m_iChestIdx(0)
 	, m_iScopeIdx(0)
@@ -104,6 +105,7 @@ CAnimator3D::~CAnimator3D()
 
 	for (tMTBone& bone : m_pVecBones)
 	{
+
 		for (auto& pair : bone.vecKeyFrame)
 		{
 			pair.second.clear();
@@ -134,8 +136,8 @@ void CAnimator3D::finaltick()
 			if (m_iScopeIdx != 0)
 				m_vScopePos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iScopeIdx].vTranslate;
 
-			if (m_iWeaponMuzzleIdx != 0)
-				m_vMuzzlePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponMuzzleIdx].vTranslate;
+			//if (m_iWeaponMuzzleIdx != 0)
+			//	m_vMuzzlePos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iWeaponMuzzleIdx].vTranslate;
 		}
 
 		m_fBlendAcc += DT;
@@ -156,8 +158,9 @@ void CAnimator3D::finaltick()
 			if(m_iScopeIdx != 0)
 				m_vScopePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iScopeIdx].vTranslate;
 
-			if (m_iWeaponMuzzleIdx != 0)
-				m_vMuzzlePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponMuzzleIdx].vTranslate;
+			//if (m_iWeaponMuzzleIdx != 0)
+			//	m_vMuzzlePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponMuzzleIdx].vTranslate;
+				
 
 			m_pCurClip->SetSpeedAdj(m_fSpeedAdj);
 			m_pCurClip->finaltick();
@@ -317,6 +320,10 @@ void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 		{
 			m_iKnuckleIdx = i;
 		}
+		if (bone.strBoneName == L"Eye")
+		{
+			m_iEyeIdx = i;
+		}
 	}
 
 	if(m_iHeadIdx != 0)
@@ -324,6 +331,9 @@ void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
 
 	if(m_iScopeIdx != 0 )
 		m_vScopePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iScopeIdx].vTranslate;
+
+	if(m_iWeaponMuzzleIdx != 0)
+		m_vMuzzlePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponMuzzleIdx].vTranslate;
 }
 
 CAnimClip* CAnimator3D::GetAnimClip(const wstring& _AnimClipName)
@@ -857,6 +867,7 @@ void CAnimator3D::SaveToLevelFile(FILE* _pFile)
 	fwrite(&m_iStomachIdx, sizeof(int), 1, _pFile);
 	fwrite(&m_iMouseIdx, sizeof(int), 1, _pFile);
 	fwrite(&m_iChestIdx, sizeof(int), 1, _pFile);
+	fwrite(&m_iEyeIdx, sizeof(int), 1, _pFile);
 
 	fwrite(&m_vMuzzlePos, sizeof(Vec4), 1, _pFile);
 	fwrite(&m_vScopePos, sizeof(Vec4), 1, _pFile);
@@ -953,6 +964,7 @@ void CAnimator3D::LoadFromLevelFile(FILE* _pFile)
 	fread(&m_iStomachIdx, sizeof(int), 1, _pFile);
 	fread(&m_iMouseIdx, sizeof(int), 1, _pFile);
 	fread(&m_iChestIdx, sizeof(int), 1, _pFile);
+	fread(&m_iEyeIdx, sizeof(int), 1, _pFile);
 
 	fread(&m_vMuzzlePos, sizeof(Vec4), 1, _pFile);
 	fread(&m_vScopePos, sizeof(Vec4), 1, _pFile);

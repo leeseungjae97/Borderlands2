@@ -24,9 +24,13 @@ private:
     UINT								m_iLayoutOffset_0;
     UINT								m_iLayoutOffset_1;
 
+    vector<wstring>     m_vecResPath;
+
 public:
     void init();
     void tick();
+
+    void RoadResource();
 
 private:
     void InitSound();
@@ -35,7 +39,7 @@ private:
     void CreateDefaultGraphicsShader();
     void CreateDefaultComputeShader();
     void CreateDefaultMaterial();  
-
+    
 
 
 public:
@@ -65,6 +69,9 @@ public:
     Ptr<T> Load(const wstring& _strKey, const wstring& _strRelativePath);
 
     void AddInputLayout(DXGI_FORMAT _eFormat, const char* _strSemanticName, UINT _iSlotNum, UINT _iSemanticIdx);
+
+    void FindFileName(const wstring& folderPath);
+    RES_TYPE GetResTypeByExt(const wstring& _relativepath);
 private:
     void DeleteRes(RES_TYPE _type, const wstring& _strKey);
 
@@ -108,6 +115,10 @@ RES_TYPE GetResType()
 template<typename T>
 inline Ptr<T> CResMgr::FindRes(const wstring& _strKey)
 {
+    if (_strKey == L"RTCopyTex")
+    {
+        int a = 0;
+    }
     RES_TYPE type = GetResType<T>();
       
     map<wstring, Ptr<CRes>>::iterator iter = m_arrRes[(UINT)type].find(_strKey);
@@ -121,6 +132,10 @@ inline Ptr<T> CResMgr::FindRes(const wstring& _strKey)
 template<typename T>
 inline void CResMgr::AddRes(const wstring& _strKey, Ptr<T> _Res)
 {
+    if (_strKey == L"RTCopyTex")
+    {
+        int a = 0;
+    }
     // 중복키로 리소스 추가하려는 경우
     //assert( ! FindRes<T>(_strKey).Get() );
     //if(FindRes<T>(_strKey).Get())

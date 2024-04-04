@@ -80,10 +80,16 @@ void CEnemyScript::begin()
 
 		aggroSound = wsPsychoAggroSound;
 		deathSound = wsPsychoDeathSound;
-	}else
+	}
+	if (ENEMY_TYPE::NOMAD== tType)
 	{
 		aggroSound = wsNomadAggroSound;
 		deathSound = wsNomadDeathSound;
+	}
+	if (ENEMY_TYPE::GUN_LOADER == tType)
+	{
+		aggroSound = wsLoaderAggroSound;
+		deathSound = wsLoaderDeathSound;
 	}
 	
 
@@ -219,7 +225,7 @@ bool CEnemyScript::Rotate()
 	vRot.y += includeAngle * DT * fRotateSpeed;
 	pEnemy->Transform()->SetRelativeRot(vRot);
 
-	if (areAlmostEqual(includeAngle, 0.0f, 5.f))
+	if (areAlmostEqual(includeAngle, 0.0f, 0.1f))
 	{
 		return true;
 	}
@@ -348,14 +354,16 @@ void CEnemyScript::tick()
 	{
 		if (IsDetect())
 		{
-
 			if (ENEMY_RANGE[(UINT)tType])
 			{
 				if (Rotate())
 				{
-					if (fRateOfFireAcc >= fRateOfFire)
+					if (Look())
 					{
-						Shoot();
+						if (fRateOfFireAcc >= fRateOfFire)
+						{
+							Shoot();
+						}
 					}
 				}
 			}
@@ -363,11 +371,15 @@ void CEnemyScript::tick()
 			{
 				if(vPrevPlayerPos != PlayerMgr::GetInst()->GetPlayer()->Transform()->GetRelativePos())
 					doPathQuery();
+
 				if (Rotate())
 				{
 					Melee();
 				}
-				Move();
+				if (Look())
+				{
+					Move();
+				}
 			}
 		}
 	}
@@ -506,7 +518,7 @@ void CEnemyScript::Shoot()
 
 	tRayInfo raycast{};
 	raycast.fDamage = 10.f;
-	raycast.iLayerIdx = pEnemy->GetLayerIndex();
+	raycast.iLayerIdx = (UINT)LAYER_TYPE::EnemyBullet;
 	raycast.vStart = vPos;
 	raycast.vDir = vFront;
 	raycast.vDir.y = 0.f;
@@ -555,16 +567,21 @@ bool CEnemyScript::Melee()
 	return false;
 }
 
-void CEnemyScript::Look()
+bool CEnemyScript::Look()
 {
 	CGameObject* pEnemy = GetOwner();
 
 	Vec3 vFront = pEnemy->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
 	Vec3 vPos = pEnemy->Transform()->GetRelativePos();
-	vPos.y += pEnemy->Transform()->GetRelativeScale().y / 2.f;
+	//vPos.y += pEnemy->Transform()->GetRelativeScale().y / 2.f;
+	Vec3 vScale = pEnemy->Transform()->GetRelativeScale();
+
+	vPos += vFront * vScale;
+	vPos.y += vScale.y;
+
 	tRayInfo raycast{};
 	raycast.fDamage = 0.f;
-	raycast.iLayerIdx = pEnemy->GetLayerIndex();
+	raycast.iLayerIdx = (UINT)LAYER_TYPE::EnemyBullet;
 	raycast.vStart = vPos;
 	raycast.vDir = vFront;
 	raycast.vDir.y = 0.f;
@@ -573,7 +590,11 @@ void CEnemyScript::Look()
 	raycast.matWorld = pEnemy->Transform()->GetDrawRayMat();
 	//RaycastMgr::GetInst()->AddRaycast(raycast);
 
-	RaycastMgr::GetInst()->DoOneHitRaycast(raycast, RAYCAST_GROUP_TYPE::Enemy);
+	if(RaycastMgr::GetInst()->DoOneHitRaycast(raycast, RAYCAST_GROUP_TYPE::Enemy))
+	{
+		return true;
+	}
+	return false;
 }
 
 bool CEnemyScript::IsDetect()

@@ -33,6 +33,7 @@ private:
 
 	Ptr<CTexture>               m_RTCopyTex;
 	Ptr<CTexture>               m_RTCopyTex2;
+	Ptr<CTexture>               m_RTCopyTex3;
 	Ptr<CTexture>               m_RTCopyDownScaleTex;
 
 	MRT*						m_MRT[(UINT)MRT_TYPE::END];

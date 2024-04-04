@@ -33,7 +33,7 @@ void SoundMgr::begin()
 		m_pAudioListener = curLevel->GetLayer((UINT)LAYER_TYPE::Camera)->GetParentObject()[0];
 	}
 
-	if (curLevel->GetName() == L"main level")
+	if (curLevel->GetName() == L"main level 2")
 	{
 		m_pAudioListener = PlayerMgr::GetInst()->GetPlayer();
 
@@ -185,7 +185,7 @@ void SoundMgr::Play(const wstring& path, Vec3 _vPos, int _iRoopCount, float dist
 	case SOUND_TYPE::SFX:
 	{
 		Ptr<CSound> sound;
-		if(!_bOverlap)
+		if(_bOverlap)
 		{
 			sound = new CSound;
 			sound->LoadUnity(path);
@@ -201,7 +201,7 @@ void SoundMgr::Play(const wstring& path, Vec3 _vPos, int _iRoopCount, float dist
 	case SOUND_TYPE::END:
 	{
 		Ptr<CSound> sound;
-		if (!_bOverlap)
+		if (_bOverlap)
 		{
 			sound = new CSound;
 			sound->LoadUnity(path);
@@ -272,13 +272,23 @@ void SoundMgr::tick()
 			Play(L"sound\\sfx\\wind_1.ogg", Vec3(0.f, 0.f, 0.f), -1, 100.f, SoundMgr::SOUND_TYPE::SFX, 0.1f);
 			Play(L"sound\\effect\\fire.ogg", Vec3(0.f, 0.f, 0.f), -1, 100.f, SoundMgr::SOUND_TYPE::SFX, 0.3f);
 		}
+		if (curLevel->GetName() == L"main level 1")
+		{
+			m_pAudioListener = PlayerMgr::GetInst()->GetPlayer();
 
-		if (curLevel->GetName() == L"main level")
+			//Play(L"sound\\sfx\\lava.ogg", Vec3(0.f, 0.f, 0.f), -1, 100.f, SoundMgr::SOUND_TYPE::SFX, 0.1f);
+			Play(L"sound\\sfx\\level_1_sfx_1.ogg", Vec3(0.f, 0.f, 0.f), -1, 100.f, SoundMgr::SOUND_TYPE::SFX, 0.1f);
+			Play(L"sound\\sfx\\level_1_sfx_2.ogg", Vec3(0.f, 0.f, 0.f), -1, 100.f, SoundMgr::SOUND_TYPE::SFX, 0.1f);
+			Play(L"sound\\sfx\\wind_2.ogg", Vec3(0.f, 0.f, 0.f), -1, 100.f, SoundMgr::SOUND_TYPE::SFX, 0.1f);
+			Play(L"sound\\bgm\\main_level_1.ogg", Vec3(0.f, 0.f, 0.f), -1, 100.f, SoundMgr::SOUND_TYPE::BGM, 0.5f);
+		}
+
+		if (curLevel->GetName() == L"main level 2")
 		{
 			m_pAudioListener = PlayerMgr::GetInst()->GetPlayer();
 
 			Play(L"sound\\sfx\\lava.ogg", Vec3(0.f, 0.f, 0.f), -1, 100.f, SoundMgr::SOUND_TYPE::SFX, 0.1f);
-			Play(L"sound\\sfx\\main_level_sfx.ogg", Vec3(0.f, 0.f, 0.f), -1, 100.f, SoundMgr::SOUND_TYPE::SFX, 0.1f);
+			Play(L"sound\\sfx\\main_level_2_sfx.ogg", Vec3(0.f, 0.f, 0.f), -1, 100.f, SoundMgr::SOUND_TYPE::SFX, 0.1f);
 
 			Play(L"sound\\effect\\fire.ogg", Vec3(-2982.f, 1703.f, 17946.f), -1, 0.8f, SoundMgr::SOUND_TYPE::SFX, 0.1f);
 			Play(L"sound\\effect\\fire.ogg", Vec3(-2982.f, 1703.f, 16917.000), -1, 0.8f, SoundMgr::SOUND_TYPE::SFX, 0.1f);

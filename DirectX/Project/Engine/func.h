@@ -16,7 +16,7 @@ void SpawnGameObject(CGameObject* _NewObject, Vec3 _vWorldPos, LAYER_TYPE _Type,
 
 void ChangeCurLevel(CLevel* _ChangeLevel);
 
-void LoadLevel(const wstring& _Name);
+void LoadingLevel(const wstring& _Name);
 CGameObject* LoadGameObject(FILE* _File, CLevel* _NewLevel, int _LayerIdx, bool _Root);
 
 

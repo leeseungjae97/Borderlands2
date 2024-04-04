@@ -178,6 +178,7 @@ cd $(SolutionDir)\OutputFile\bin_d\</Command>
     <ClInclude Include="CAttackNormalScript.h" />
     <ClInclude Include="CBulletScript.h" />
     <ClInclude Include="CCameraMoveScript.h" />
+    <ClInclude Include="CConstructorScript.h" />
     <ClInclude Include="CCrossHairScript.h" />
     <ClInclude Include="CWeaponScript.h" />
     <ClInclude Include="CMissileScript.h" />
@@ -195,6 +196,7 @@ cd $(SolutionDir)\OutputFile\bin_d\</Command>
     <ClCompile Include="CAttackNormalScript.cpp" />
     <ClCompile Include="CBulletScript.cpp" />
     <ClCompile Include="CCameraMoveScript.cpp" />
+    <ClCompile Include="CConstructorScript.cpp" />
     <ClCompile Include="CCrossHairScript.cpp" />
     <ClCompile Include="CWeaponScript.cpp" />
     <ClCompile Include="CMissileScript.cpp" />

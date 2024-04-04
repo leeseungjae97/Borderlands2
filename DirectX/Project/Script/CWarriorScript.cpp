@@ -437,11 +437,9 @@ void CWarriorScript::beamMove()
 		Vec3 vDir = vDiff;
 		vDir.Normalize();
 
-
 		Matrix rotMat = XMMatrixLookToLH(vPos, vDir, vUp);
 
-		Quat quat;
-		Vec3 vS, vT;
+		Quat quat; Vec3 vS, vT;
 		rotMat.Decompose(vS, quat, vT);
 
 		vRot = physx::Util::QuaternionToVector3(quat);
@@ -450,6 +448,7 @@ void CWarriorScript::beamMove()
 		pTailBeam->Transform()->SetRelativeRot(vRot);
 		rotMat.Forward(vFront);
 		vFront.Normalize();
+
 		tRayInfo rayInfo{};
 		rayInfo.fDamage = 10.f;
 		rayInfo.iLayerIdx = (int)LAYER_TYPE::EnemyBullet;
@@ -457,7 +456,6 @@ void CWarriorScript::beamMove()
 		rayInfo.vStart = pTailBeam->Transform()->GetRelativePos();
 		rayInfo.matWorld = pTailBeam->Transform()->GetDrawRayMat();
 		rayInfo.tRayType = (UINT)RAYCAST_TYPE::SHOOT;
-
 
 		Vec3 vPosition;
 		RaycastMgr::GetInst()->DoOneHitRaycast(rayInfo, &vPosition, RAYCAST_GROUP_TYPE::Enemy);
@@ -877,7 +875,7 @@ void CWarriorScript::tick()
 		return;
 	}
 
-	if (CRenderMgr::GetInst()->GetMainCam()->IsCinematic())
+	if (CRenderMgr::GetInst()->GetMainCam() && CRenderMgr::GetInst()->GetMainCam()->IsCinematic())
 	{
 		pUI_WarriorHP->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 		pUI_WarriorHPBack->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
@@ -912,16 +910,15 @@ void CWarriorScript::tick()
 			CRenderMgr::GetInst()->GetMainCam()->SetCinematic(true);
 			CRenderMgr::GetInst()->GetMainCam()->GetOwner()->Transform()->SetRelativePos(Vec3(-2083.733f, 3279.689f, 10716.288f));
 
-			pUI_WarriorHP->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
-			pUI_WarriorHPBack->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
-			pWarriorText->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			pWarriorAppearImage->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			pWarriorAppearTextImage->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 
 			SoundMgr::GetInst()->Play(wsAppearSound2, pWarrior->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 1.0f, false);
 		}
 
 		if (tState == WARRIOR_STATE::IDLE)
 		{
-			if (CRenderMgr::GetInst()->GetMainCam()->IsCinematic())
+			if (CRenderMgr::GetInst()->GetMainCam() && CRenderMgr::GetInst()->GetMainCam()->IsCinematic())
 				CRenderMgr::GetInst()->GetMainCam()->SetCinematic(false);
 
 			if(pUI_WarriorHP->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
@@ -984,10 +981,10 @@ void CWarriorScript::tick()
 	colliderMove();
 
 
-	if(KEY_TAP(KEY::Q))
-	{
-		CRenderMgr::GetInst()->GetMainCam()->SetCinematic(false);
-	}
+	//if(KEY_TAP(KEY::Q))
+	//{
+	//	CRenderMgr::GetInst()->GetMainCam()->SetCinematic(false);
+	//}
 
 
 	float ratio = 1.f - GetHpRatio();
@@ -1052,14 +1049,13 @@ void CWarriorScript::tick()
 			}
 		}
 
-		if (!pWarriorAppearImage->IsDead())
-		{
-			pWarriorAppearImage->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
-		}
+		//if (!pWarriorAppearImage->IsDead())
+		//{
+		//}
 
 		if (!pWarriorAppearTextImage->IsDead())
 		{
-			pWarriorAppearTextImage->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			
 
 			Vec3 vTextPos = pWarriorAppearTextImage->Transform()->GetRelativePos();
 			if (vTextPos.z < 4000.0f)

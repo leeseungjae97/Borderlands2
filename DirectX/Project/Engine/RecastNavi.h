@@ -171,7 +171,7 @@ public:
 	int GetPathSize() { return m_nsmoothPath; }
 	int GetStraightPathSize() { return m_nstraightPath; }
 public:
-	void HandleBuild(CGameObject* _Obj);
+	void HandleBuild(CGameObject* _Obj, const wstring& _wsMeshName);
 	bool DoQuery(Vec3 vStartPos, Vec3 vEndPos);
 	bool Raycast(Vec3 vRayStart, Vec3 vRayEnd, float* hitTime);
 	Vec3 DoFindRandomId(bool bStart);

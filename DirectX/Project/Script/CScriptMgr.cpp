@@ -5,6 +5,7 @@
 #include "CAttackNormalScript.h"
 #include "CBulletScript.h"
 #include "CCameraMoveScript.h"
+#include "CConstructorScript.h"
 #include "CCrossHairScript.h"
 #include "CWeaponScript.h"
 #include "CMissileScript.h"
@@ -56,7 +57,8 @@ CScript * CScriptMgr::GetScript(const wstring& _strScriptName)
 		return new CPathFindScript;
 	if (L"CMoveScript" == _strScriptName)
 		return new CMoveScript;
-	
+	if (L"CConstructorScript" == _strScriptName)
+		return new CConstructorScript;
 	return nullptr;
 }
 
@@ -99,6 +101,9 @@ CScript * CScriptMgr::GetScript(UINT _iScriptType)
 		break;
 	case (UINT)SCRIPT_TYPE::MOVE_SCRIPT:
 		return new CMoveScript;
+		break;
+	case (UINT)SCRIPT_TYPE::CONSTRUCTOR_SCRIPT:
+		return new CConstructorScript;
 		break;
 		
 	}
@@ -155,6 +160,10 @@ const wchar_t * CScriptMgr::GetScriptName(CScript * _pScript)
 
 	case SCRIPT_TYPE::MOVE_SCRIPT:
 		return L"CMoveScript";
+		break;
+
+	case SCRIPT_TYPE::CONSTRUCTOR_SCRIPT:
+		return L"CConstructorScript";
 		break;
 	}
 	return nullptr;

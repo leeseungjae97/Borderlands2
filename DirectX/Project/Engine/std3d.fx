@@ -55,6 +55,9 @@ struct VS_OUT
 #define bAlphaUse    g_int_2
 #define FlatFire    g_int_3
 #define NoLight    g_int_4
+#define bAlpha    g_int_5
+
+#define fAlpha      g_float_1
 
 #define SpriteLeftTop   g_vec2_0
 #define SpriteSize      g_vec2_1
@@ -205,21 +208,18 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
 
         if (vOutColor.a <= 0.0f)
             discard;
+        if (bAlpha != 0)
+			vOutColor.a = fAlpha;
     }
 
     if (g_btex_1)
     {
-        float3 vNormal = (float3) 0.f;
-        if (g_btex_1_flow)
+        float3 vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV).xyz;
+        if (g_btex_1_flow == 1)
         {
             vNormal = g_tex_1.Sample(g_sam_anti_0, moveUV).xyz;
         }
-        else
-        {
-            vNormal = g_tex_1.Sample(g_sam_anti_0, _in.vUV).xyz;
-        }
-        
-        
+
         // 0 ~ 1 범위의 값을 -1 ~ 1 로 확장
         vNormal = vNormal * 2.f - 1.f;
         
@@ -227,21 +227,21 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
         {
             _in.vViewTangent,
             _in.vViewBinormal,
-            _in.vViewNormal        
+            _in.vViewNormal
         };
          
         vViewNormal = normalize(mul(vNormal, vRotateMat));
     }
     else
     {
-        float3x3 vRotateMat =
-        {
-            _in.vViewTangent,
-            _in.vViewBinormal,
-            _in.vViewNormal        
-        };
+        //float3x3 vRotateMat =
+        //{
+        //    _in.vViewTangent,
+        //    _in.vViewBinormal,
+        //    _in.vViewNormal        
+        //};
 
-        vViewNormal = normalize(mul(vViewNormal, vRotateMat));
+        //vViewNormal = normalize(mul(vViewNormal, vRotateMat));
     }
     if (g_btex_2)
     {

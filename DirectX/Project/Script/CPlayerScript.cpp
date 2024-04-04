@@ -18,6 +18,7 @@
 
 #include "CBulletScript.h"
 #include "CEnemyScript.h"
+#include "CWeaponScript.h"
 #include "CMissileScript.h"
 #include "CWarriorScript.h"
 
@@ -62,6 +63,14 @@ void CPlayerScript::begin()
 
 	CreateUI();
 
+	WeaponMgr::GetInst()->SetCurWeaponAmmo(iAmmo);
+	WeaponMgr::GetInst()->SetCurWeaponAmmoRemain(iAmmoRemain);
+	m_pUI_AmmoIcon->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\pistol_ammo.png"));
+	iAmmo = WeaponMgr::GetInst()->GetCurWeaponAmmo();
+	iAmmoRemain = WeaponMgr::GetInst()->GetCurWeaponAmmoRemain();
+	iAmmoCapa = WeaponMgr::GetInst()->GetCurWeaponAmmoCapa();
+	fRateOfFire = WeaponMgr::GetInst()->GetCurWeaponFireRate();
+
 	pPlayer->Animator3D()->SetAnimClipEventIdx(
 		(UINT)PLAYER_ANIMATION_TYPE::SNIPER_RELOAD, -1, -1, 103, 130);
 
@@ -72,16 +81,16 @@ void CPlayerScript::begin()
 			= std::make_shared<std::function<void()>>([=]()
 				{
 					tState = PlayerMgr::PLAYER_STATE::IDLE;
-		if (iAmmoRemain < iAmmoCapa)
-		{
-			iAmmo = iAmmoRemain;
-			iAmmoRemain = 0;
-		}
-		else
-		{
-			iAmmoRemain -= (iAmmoCapa - iAmmo);
-			iAmmo = iAmmoCapa;
-		}
+					if (iAmmoRemain < iAmmoCapa)
+					{
+						iAmmo = iAmmoRemain;
+						iAmmoRemain = 0;
+					}
+					else
+					{
+						iAmmoRemain -= (iAmmoCapa - iAmmo);
+						iAmmo = iAmmoCapa;
+					}
 				});
 		pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
 			= std::make_shared<std::function<void()>>([=]()
@@ -142,7 +151,7 @@ void CPlayerScript::tick()
 	if (GetOwner()->IsDead())
 		return;
 
-	if (CRenderMgr::GetInst()->GetMainCam()->IsCinematic())
+	if (CRenderMgr::GetInst()->GetMainCam() && CRenderMgr::GetInst()->GetMainCam()->IsCinematic())
 	{
 		m_pUI_HP->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 		m_pUI_HP_BACK->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
@@ -184,6 +193,32 @@ void CPlayerScript::tick()
 	Look();
 	Movement();
 	Burn();
+
+
+	
+	if (iAmmoCapa / 2 > iAmmo)
+	{
+		fReloadGlitter += DT;
+		if (fReloadGlitter > 0.5f)
+		{
+			CGameObject::OBJECT_STATE state = m_pUI_ReloadIcon->GetObjectState();
+			m_pReloadText->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			if(state == CGameObject::OBJECT_STATE::INVISIBLE)
+			{
+				m_pUI_ReloadIcon->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+			}else
+			{
+				m_pUI_ReloadIcon->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+			}
+			fReloadGlitter = 0.f;
+		}
+		
+	}else
+	{
+		fReloadGlitter = 0.f;
+		m_pUI_ReloadIcon->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		m_pReloadText->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
 
 	if (m_pAmmoText)
 		m_pAmmoText->SetText(std::to_wstring(iAmmo) + L" / " + std::to_wstring(iAmmoRemain));
@@ -715,7 +750,40 @@ void CPlayerScript::CreateUI()
 
 		m_pUI_HPRightHit->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 	}
+	{
+		pMtrl = new CMaterial(true);
+		pMtrl->SetShader(adjustUIShader);
+		CResMgr::GetInst()->AddRes(L"ReloadIcon", pMtrl);
 
+		Ptr<CTexture> pTex = CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\reload_alert.png");
+		m_pUI_ReloadIcon = new CGameObject;
+
+		m_pUI_ReloadIcon->SetName(L"UI Reload Icon");
+		m_pUI_ReloadIcon->AddComponent(new CTransform);
+		m_pUI_ReloadIcon->AddComponent(new CMeshRender);
+
+		m_pUI_ReloadIcon->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		m_pUI_ReloadIcon->MeshRender()->SetMaterial(pMtrl, 0);
+		m_pUI_ReloadIcon->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, pTex);
+		m_pUI_ReloadIcon->Transform()->SetRelativeScale(Vec3(60.f, 60.f, 1.f));
+		//m_pUI_ReloadIcon->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 90.f * DegToRad()));
+		SpawnGameObject(m_pUI_ReloadIcon, Vec3(60.f, -50.f, 0.f), LAYER_TYPE::ViewPortUI);
+
+		m_pUI_ReloadIcon->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	}
+	m_pReloadText = new CUI();
+	m_pReloadText->SetName(L"Reload Text");
+	m_pReloadText->AddComponent(new CTransform);
+	m_pReloadText->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
+
+	m_pReloadText->SetTextNormalColor(Vec4(1.f, 1.f, 1.f, 1.f));
+	m_pReloadText->SetText(L"[R] Reload");
+	m_pReloadText->Transform()->SetRelativeRot(Vec3(0.f, 0.f, 3 * DegToRad()));
+	m_pReloadText->SetTextScale(0.65f);
+	m_pReloadText->SetOutline(true);
+	SpawnGameObject(m_pReloadText, Vec3(205.f, -75.f, 1.f), LAYER_TYPE::ViewPortUI);
+
+	m_pReloadText->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 
 	m_pAmmoText = new CUI();
 	m_pAmmoText->SetName(L"Ammo Text");
@@ -872,7 +940,7 @@ void CPlayerScript::ShootBullet()
 	--iAmmo;
 
 	tRayInfo rayInfo{};
-	rayInfo.fDamage = 10.f;
+	rayInfo.fDamage = WeaponMgr::GetInst()->GetCurWeaponDamage();
 	rayInfo.iLayerIdx = pPlayer->GetLayerIndex();
 	rayInfo.vDir = MainCam->Transform()->GetRelativeDir(DIR_TYPE::FRONT);
 	rayInfo.vStart = MainCam->Transform()->GetRelativePos();
@@ -968,9 +1036,6 @@ void CPlayerScript::Movement()
 	if (nullptr == pCamObj)
 		pCamObj = CameraMgr::GetInst()->GetCamObj(L"MainCamera");
 
-	if (pCamObj->Camera()->IsCinematic())
-		return;
-
 	CGameObject* pPlayer = GetOwner();
 
 	Vec3 vPlayerPos = pPlayer->Transform()->GetRelativePos();
@@ -983,6 +1048,12 @@ void CPlayerScript::Movement()
 	Vec3 vPlayerRight = pPlayer->Transform()->GetRelativeDir(DIR_TYPE::RIGHT);
 
 	CRigidBody* pPlayerRB = pPlayer->RigidBody();
+
+	if (pCamObj->Camera()->IsCinematic())
+	{
+		pPlayerRB->SetLinearVelocityZero();
+		return;
+	}
 
 	Vec2 vMouseDir = CKeyMgr::GetInst()->GetMouseDir();
 
@@ -1077,20 +1148,50 @@ void CPlayerScript::Movement()
 
 	if (KEY_PRESSED(KEY::_1))
 	{
+		WeaponMgr::GetInst()->SetCurWeaponAmmo(iAmmo);
+		WeaponMgr::GetInst()->SetCurWeaponAmmoRemain(iAmmoRemain);
 		Draw(SMG_IDX);
+		m_pUI_AmmoIcon->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\smg_ammo.png"));
+		iAmmo = WeaponMgr::GetInst()->GetCurWeaponAmmo();
+		iAmmoRemain = WeaponMgr::GetInst()->GetCurWeaponAmmoRemain();
+		iAmmoCapa = WeaponMgr::GetInst()->GetCurWeaponAmmoCapa();
+		fRateOfFire = WeaponMgr::GetInst()->GetCurWeaponFireRate();
 	}
 	if (KEY_PRESSED(KEY::_2))
 	{
+		WeaponMgr::GetInst()->SetCurWeaponAmmo(iAmmo);
+		WeaponMgr::GetInst()->SetCurWeaponAmmoRemain(iAmmoRemain);
 		Draw(SNIPER_IDX);
+		m_pUI_AmmoIcon->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\sniper_ammo.png"));
+		iAmmo = WeaponMgr::GetInst()->GetCurWeaponAmmo();
+		iAmmoRemain = WeaponMgr::GetInst()->GetCurWeaponAmmoRemain();
+		iAmmoCapa = WeaponMgr::GetInst()->GetCurWeaponAmmoCapa();
+		fRateOfFire = WeaponMgr::GetInst()->GetCurWeaponFireRate();
 	}
 	if (KEY_PRESSED(KEY::_3))
 	{
+		WeaponMgr::GetInst()->SetCurWeaponAmmo(iAmmo);
+		WeaponMgr::GetInst()->SetCurWeaponAmmoRemain(iAmmoRemain);
 		Draw(PISTOL_IDX);
+		m_pUI_AmmoIcon->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\pistol_ammo.png"));
+		iAmmo = WeaponMgr::GetInst()->GetCurWeaponAmmo();
+		iAmmoRemain = WeaponMgr::GetInst()->GetCurWeaponAmmoRemain();
+		iAmmoCapa = WeaponMgr::GetInst()->GetCurWeaponAmmoCapa();
+		fRateOfFire = WeaponMgr::GetInst()->GetCurWeaponFireRate();
 	}
 
 	if (KEY_PRESSED(KEY::R))
 	{
 		Reload();
+	}
+
+	if (KEY_PRESSED(KEY::G))
+	{
+		CRenderMgr::GetInst()->GetMainCam()->SetFadeTime(2.f, true);
+	}
+	if (KEY_PRESSED(KEY::H))
+	{
+		CRenderMgr::GetInst()->GetMainCam()->SetFadeTime(2.f, false);
 	}
 
 	if (KEY_PRESSED(KEY::LSHIFT))
@@ -1359,6 +1460,9 @@ void CPlayerScript::EndOverlap(CCollider3D* _Other)
 
 void CPlayerScript::Raycast(tRayInfo _RaycastInfo)
 {
+	if (_RaycastInfo.tRayType == (UINT)RAYCAST_TYPE::LOOK)
+		return;
+
 	if (iPlayerHp < _RaycastInfo.fDamage)
 		iPlayerHp = 0;
 	else

@@ -225,7 +225,7 @@ PS_OUT PS_PointLightShader(VS_OUT _in)
     float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
     
     float3 vViewPos = PositionTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
-    float3 vViewNormal = NormalTargetTex.Sample(g_sam_linear_2, vScreenUV).xyz;
+    float3 vViewNormal = NormalTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
 
     if (vViewPos.x == 0.f && vViewPos.y == 0.f && vViewPos.z == 0.f)
     {
@@ -248,7 +248,9 @@ PS_OUT PS_PointLightShader(VS_OUT _in)
 
     output.vDiffuse += LightColor.vDiffuse + LightColor.vAmbient;
     output.vSpecular += g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
+
     output.vShadow = LightColor.vDiffuse + LightColor.vAmbient;
+    //output.vShadow = 1.f;
     //output.vEmissive = (LightColor.vDiffuse + LightColor.vAmbient) * fSpecPow;
     output.vDiffuse.a = 1.f;
     output.vSpecular.a = 1.f;
@@ -334,7 +336,7 @@ VS_OUT VS_MergeShader(VS_IN _in)
 
 float4 PS_MergeShader(VS_OUT _in) : SV_Target
 {
-    float4 vOutColor = (float4) 0.f;
+    float4 vOutColor = float4(0.f, 0.f, 0.f, 1.f);
     
     float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
 

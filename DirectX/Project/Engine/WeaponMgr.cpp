@@ -16,6 +16,7 @@
 #include "RandMgr.h"
 
 #include <Script/CScriptMgr.h>
+//#include <Script/CWeaponScript.h>
 
 WeaponMgr::WeaponMgr()
 	: iCurWeaponIdx(0)
@@ -84,6 +85,7 @@ CGameObject* WeaponMgr::GetCurWeapon()
 
 Vec3 WeaponMgr::GetCurWeaponMuzzlePos()
 {
+
 	Vec3 vPos = m_arrWeapons[iCurWeaponIdx]->Animator3D()->GetMuzzlePos();
 	vPos = XMVector3TransformCoord(vPos, m_arrWeapons[iCurWeaponIdx]->Transform()->GetWorldMat());
 	return vPos;
@@ -168,7 +170,7 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot, CGameObject* _pp)
 {
 	int soundIdx = rand() % 6;
 
-	SoundMgr::GetInst()->Play(wsWeaponFireSound[soundIdx], _vPos, 0, 10.f, SoundMgr::SOUND_TYPE::SFX);
+	SoundMgr::GetInst()->Play(wsWeaponFireSound[soundIdx], _vPos, 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 1.f, true);
 
 	int randX = RandMgr::GetInst()->GetRandMuzzleX(2);
 	int randY = RandMgr::GetInst()->GetRandMuzzleY(2);
@@ -226,6 +228,14 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot, CGameObject* _pp)
 	SpawnGameObject(Light, _vPos, LAYER_TYPE::Default);
 }
 
+void WeaponMgr::ShootBullet()
+{
+	CGameObject* pWeapon = GetCurWeapon();
+	//CScript* pScript = CScriptMgr::GetScript(L"CWeaponScript");
+	//pWeapon->GetScript<CWeaponScript>();
+	//pWeapon->GetSc
+}
+
 void WeaponMgr::tick()
 {
 	if(CEventMgr::GetInst()->IsLevelChanged())
@@ -255,7 +265,7 @@ void WeaponMgr::begin()
 	//CLevel* curLevel = CLevelMgr::GetInst()->GetLevel(L"main level");
 
 	CLevel* curLevel = CLevelMgr::GetInst()->GetCurLevel();
-	if(curLevel->GetName() == L"main level")
+	if(curLevel->GetName() != L"main menu level")
 	{
 		CLayer* layer = curLevel->GetLayer((int)LAYER_TYPE::Item);
 

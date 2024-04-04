@@ -58,7 +58,6 @@ void CLight3D::finaltick()
 
 	m_LightIdx = CRenderMgr::GetInst()->RegisterLight3D(this, m_LightInfo);
 	
-
 	if(m_bShowRange)
 	{
 		if((UINT)LIGHT_TYPE::DIRECTIONAL== m_LightInfo.LightType)
@@ -71,12 +70,14 @@ void CLight3D::finaltick()
 
 	if ((UINT)LIGHT_TYPE::DIRECTIONAL == m_LightInfo.LightType)
 	{
-		if(m_pCamObj)
+		if (m_pCamObj)
 		{
 			*m_pCamObj->Transform() = *Transform();
 			m_pCamObj->finaltick_module();
 		}
-	}	
+	}
+
+
 }
 void CLight3D::SetRadius(float _fRadius)
 {
@@ -96,21 +97,22 @@ void CLight3D::SetLightType(LIGHT_TYPE _type)
 			m_pCamObj = new CGameObject;
 			m_pCamObj->AddComponent(new CTransform);
 			m_pCamObj->AddComponent(new CCamera);
-
+			
 			m_pCamObj->Camera()->SetLayerMaskAll(true);
+			m_pCamObj->Camera()->SetLayerMask((int)LAYER_TYPE::Camera, false);
 			m_pCamObj->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, false);
-
+			
 			m_pCamObj->Camera()->SetFarZ(100000.f);
 			m_pCamObj->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
 			m_pCamObj->Camera()->SetOrthoWidth(800000.f);
 			m_pCamObj->Camera()->SetOrthoHeight(800000.f);
-			m_pCamObj->Camera()->SetESM(false);
 		}
 
 		m_Mesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
 		m_Mtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"DirLightMtrl");
 	}
-	if (LIGHT_TYPE::POINT == _type)
+
+	else if (LIGHT_TYPE::POINT == _type)
 	{
 		m_Mesh = CResMgr::GetInst()->FindRes<CMesh>(L"SphereMesh");
 		m_Mtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"PointLightMtrl");
@@ -123,7 +125,6 @@ void CLight3D::SetLightType(LIGHT_TYPE _type)
 	//}
 	//if (nullptr != m_Mtrl)
 	//{
-
 	//}
 }
 

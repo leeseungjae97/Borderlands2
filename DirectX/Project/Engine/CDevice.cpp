@@ -425,9 +425,13 @@ int CDevice::CreateSampler()
     //tSamDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
     DEVICE->CreateSamplerState(&tSamDesc, m_Sampler[2].GetAddressOf());
 
-    tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-    tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-    tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+    //tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+    //tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+    //tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+
+    tSamDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    tSamDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    tSamDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 
     tSamDesc.BorderColor[0] = (FLOAT)0.f;
     tSamDesc.BorderColor[1] = (FLOAT)0.f;

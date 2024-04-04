@@ -34,7 +34,7 @@ private:
     float       m_OrthoWidth;       // Orthgraphic 에서의 가로 투영 범위
     float       m_OrthoHeight;      // OrthGraphic 에서의 세로 투영 범위
 
-    bool        m_bESM;
+    //bool        m_bESM;
 
     float       m_fT[4];
 
@@ -42,6 +42,12 @@ private:
     tRay        m_RelativeRay;
     bool        m_Outline;
     bool        m_bCinematic;
+
+    float       m_fFadeAcc;
+    float       m_fFadeTime;
+    bool        m_bFade;
+    bool        m_bFadeIn;
+    bool        m_bDark;
 
     map<ULONG64, vector<tInstObj>>		m_mapInstGroup_D;	    // Deferred
     map<ULONG64, vector<tInstObj>>		m_mapInstGroup_F;	    // Foward ( Opaque, Mask )	
@@ -94,8 +100,8 @@ public:
     Matrix GetProjInvMat() { return m_matProjInv; }
     Matrix GetViewInvMat() { return m_matViewInv; }
 
-    void SetESM(bool _ESM) { m_bESM = _ESM; }
-    bool GetESM() { return m_bESM; }
+    //void SetESM(bool _ESM) { m_bESM = _ESM; }
+    //bool GetESM() { return m_bESM; }
 
     void SetFloatConstant(int _Index, float _Value) { m_fT[_Index] = _Value; }
     float GetFloatConstant(int _Index) { return m_fT[_Index]; }
@@ -108,6 +114,18 @@ public:
     void SetCinematic(bool _Cinematic) { m_bCinematic = _Cinematic; }
     bool IsCinematic() { return m_bCinematic; }
 
+    void SetFadeTime(float _fFadeTime, bool _bReverse)
+    {
+    	m_bFade = true;
+    	m_bFadeIn = _bReverse;
+        //if (m_bFadeIn)
+        //{
+        //    m_fFadeAcc = _fFadeTime;
+        //}
+	    m_fFadeTime = _fFadeTime;
+    }
+
+    int GetCamIdx() { return m_iCamIdx; }
 protected:
     void CalRay();
 

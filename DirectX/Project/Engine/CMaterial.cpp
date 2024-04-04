@@ -26,20 +26,6 @@ void CMaterial::UpdateData()
 
 	m_pShader->UpdateData();
 
-	if(m_PaperBurnConst.paperBurn)
-	{
-		if (!m_Const.arrTex[6])
-			SetTexParam(TEX_6, CResMgr::GetInst()->FindRes<CTexture>(L"texture//noise//noise_03.jpg"));
-		m_PaperBurnConst.paperAcc += DT / m_PaperBurnConst.paperTime;
-
-		if(m_PaperBurnConst.paperAcc >= 1.f)
-		{
-			//m_PaperBurnConst.paperAcc = 0.0f;
-			//m_PaperBurnConst.paperBurn = false;
-			m_PaperBurnConst.paperBurnEnd = true;
-		}
-	}
-
 	// Texture Update
 	for (UINT i = 0; i < TEX_END; ++i)
 	{
@@ -53,6 +39,21 @@ void CMaterial::UpdateData()
 		{
 			m_Const.arrTex[i] = 1;
 			m_arrTex[i]->UpdateData(i, PIPELINE_STAGE::PS_ALL);
+		}
+	}
+
+	if (m_PaperBurnConst.paperBurn)
+	{
+		if (m_Const.arrTex[6] == 0)
+			SetTexParam(TEX_6, CResMgr::GetInst()->FindRes<CTexture>(L"texture//noise//noise_03.jpg"));
+
+		m_PaperBurnConst.paperAcc += DT / m_PaperBurnConst.paperTime;
+
+		if (m_PaperBurnConst.paperAcc >= 1.f)
+		{
+			//m_PaperBurnConst.paperAcc = 0.0f;
+			//m_PaperBurnConst.paperBurn = false;
+			m_PaperBurnConst.paperBurnEnd = true;
 		}
 	}
 
@@ -73,20 +74,6 @@ void CMaterial::UpdateData_Instancing()
 
 	m_pShader->UpdateData_Instancing();
 
-	if (m_PaperBurnConst.paperBurn)
-	{
-		if (!m_Const.arrTex[6])
-			SetTexParam(TEX_6, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\noise\\noise_03.jpg"));
-		m_PaperBurnConst.paperAcc += DT / m_PaperBurnConst.paperTime;
-
-		if (m_PaperBurnConst.paperAcc >= 1.f)
-		{
-			//m_PaperBurnConst.paperAcc = 1.f;
-			//m_PaperBurnConst.paperBurn = false;
-			m_PaperBurnConst.paperBurnEnd = true;
-		}
-	}
-
 	// Texture Update
 	for (UINT i = 0; i < TEX_END; ++i)
 	{
@@ -101,6 +88,21 @@ void CMaterial::UpdateData_Instancing()
 		{
 			m_Const.arrTex[i] = 1;
 			m_arrTex[i]->UpdateData(i, PIPELINE_STAGE::PS_ALL);
+		}
+	}
+
+	if (m_PaperBurnConst.paperBurn)
+	{
+		if (m_Const.arrTex[6] == 0)
+			SetTexParam(TEX_6, CResMgr::GetInst()->FindRes<CTexture>(L"texture//noise//noise_03.jpg"));
+
+		m_PaperBurnConst.paperAcc += DT / m_PaperBurnConst.paperTime;
+
+		if (m_PaperBurnConst.paperAcc >= 1.f)
+		{
+			//m_PaperBurnConst.paperAcc = 1.f;
+			//m_PaperBurnConst.paperBurn = false;
+			m_PaperBurnConst.paperBurnEnd = true;
 		}
 	}
 

@@ -1,10 +1,15 @@
 #include "pch.h"
 #include "CLevelMgr.h"
 
+#include "CCamera.h"
 #include "CEngine.h"
 #include "CEventMgr.h"
 #include "CLevel.h"
 #include "CLayer.h"
+#include "CRenderMgr.h"
+#include "CTimeMgr.h"
+#include "CTransform.h"
+#include "CUI.h"
 #include "WeaponMgr.h"
 
 CLevelMgr::CLevelMgr()
@@ -24,6 +29,7 @@ void CLevelMgr::init()
 {
 	//m_pCurLevel = new CLevel;
 	//m_pCurLevel->ChangeState(LEVEL_STATE::STOP);
+	
 }
 
 void CLevelMgr::tick()
@@ -31,10 +37,15 @@ void CLevelMgr::tick()
 	static bool initMainLevel = true;
 	if(initMainLevel)
 	{
-		if(m_mapLevels.size() < 2)
-			LevelRecognize();
-		else
-			ChangeCurLevel(CLevelMgr::GetInst()->GetLevel(L"main menu level"));
+		//if(m_mapLevels.size() < 2)
+		//	LevelRecognize();
+		//else
+		//{
+		//	
+		//}
+
+		ChangeCurLevel(GetLevel(L"main menu level"));
+		GetLevel(L"main menu level")->ChangeState(LEVEL_STATE::PLAY);
 
 		initMainLevel = false;
 	}
@@ -45,7 +56,8 @@ void CLevelMgr::tick()
 	m_pCurLevel->clear();
 
 	if (LEVEL_STATE::PLAY == m_pCurLevel->GetState())
-	{	
+	{
+		CheckLevelClear();
 		m_pCurLevel->tick();		
 	}
 
@@ -181,4 +193,53 @@ void CLevelMgr::LoadLevel(CLevel* _Level)
 	InsertLevel(_Level->GetName(), _Level);
 
 	ChangeLevel(_Level);
+}
+
+void CLevelMgr::CheckLevelClear()
+{
+	if (m_pCurLevel->GetName() == L"main menu level")
+	{
+		if (m_pCurLevel->GetLevelEnd())
+		{
+			static float mL2 = 0.0f;
+			mL2 += DT;
+			CRenderMgr::GetInst()->GetMainCam()->SetFadeTime(2.f, false);
+
+			if (mL2 > 2.f)
+				LoadingLevel(L"main level 1");
+		}
+	}
+
+	if (m_pCurLevel->GetName() == L"main level 1")
+	{
+
+		if (m_pCurLevel->GetState() == LEVEL_STATE::PLAY
+			&& m_pCurLevel->GetTickCnt() > 0 && m_pCurLevel->GetTickCnt() < 10)
+		{
+			CRenderMgr::GetInst()->GetMainCam()->SetFadeTime(2.f, true);
+		}
+		if (m_pCurLevel->GetState() == LEVEL_STATE::PLAY
+			&& m_pCurLevel->GetTickCnt() > 0 && m_pCurLevel->GetTickCnt() < 10)
+		{
+
+		}
+		if (m_pCurLevel->GetLevelEnd())
+		{
+			static float mL = 0.0f;
+			mL += DT;
+			CRenderMgr::GetInst()->GetMainCam()->SetFadeTime(2.f, false);
+
+			if(mL > 2.f) 
+				LoadingLevel(L"main level 2");
+
+		}
+	}
+	if (m_pCurLevel->GetName() == L"main level 2")
+	{
+		if (m_pCurLevel->GetState() == LEVEL_STATE::PLAY
+			&& m_pCurLevel->GetTickCnt() > 0 && m_pCurLevel->GetTickCnt() < 10)
+		{
+			CRenderMgr::GetInst()->GetMainCam()->SetFadeTime(2.f, true);
+		}
+	}
 }

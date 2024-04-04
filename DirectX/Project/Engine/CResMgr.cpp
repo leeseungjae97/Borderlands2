@@ -30,7 +30,7 @@ void CResMgr::init()
 	CreateDefaultLayout();
 	CreateDefaultGraphicsShader();
 	CreateDefaultComputeShader();
-	CreateDefaultMaterial();	
+	CreateDefaultMaterial();
 }
 
 
@@ -863,6 +863,18 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_POSTPROCESS);
 
 	AddRes(pShader->GetKey(), pShader);
+
+	pShader = new CGraphicsShader;
+	pShader->SetKey(L"FadeShader");
+
+	pShader->CreateVertexShader(L"shader\\postprocess.fx", "VS_Screen");
+	pShader->CreatePixelShader(L"shader\\postprocess.fx", "PS_Fade");
+
+	pShader->SetRSType(RS_TYPE::CULL_NONE);
+	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
+	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_POSTPROCESS);
+
+	AddRes(pShader->GetKey(), pShader);
 	
 
 	// ============================
@@ -1058,7 +1070,7 @@ void CResMgr::CreateDefaultGraphicsShader()
 	pShader->CreateVertexShader(L"shader\\light.fx", "VS_PointLightShader");
 	pShader->CreatePixelShader(L"shader\\light.fx", "PS_PointLightShader");
 
-	pShader->SetRSType(RS_TYPE::CULL_FRONT);
+	pShader->SetRSType(RS_TYPE::CULL_NONE);
 	pShader->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
 	pShader->SetDomain(SHADER_DOMAIN::DOMAIN_LIGHT);
 	pShader->SetBSType(BS_TYPE::ONE_ONE);
@@ -1506,10 +1518,52 @@ void CResMgr::CreateDefaultMaterial()
 	pMtrl = new CMaterial(true);
 	pMtrl->SetShader(FindRes<CGraphicsShader>(L"LaplacianShader"));
 	AddRes(L"LaplacianMtrl", pMtrl);
+
+	pMtrl = new CMaterial(true);
+	pMtrl->SetShader(FindRes<CGraphicsShader>(L"FadeShader"));
+	AddRes(L"FadeMtrl", pMtrl);
+}
+
+void CResMgr::RoadResource()
+{
+	//m_vecResPath.clear();
+	wstring strContentPath = CPathMgr::GetInst()->GetContentPath();
+	FindFileName(strContentPath);
+
+	// 파일명으로 리소스 로딩
+	for (size_t i = 0; i < m_vecResPath.size(); ++i)
+	{
+		RES_TYPE type = GetResTypeByExt(m_vecResPath[i]);
+
+		if (type == RES_TYPE::END)
+			continue;
+
+		switch (type)
+		{
+		case RES_TYPE::MESHDATA:
+			CResMgr::GetInst()->Load<CMeshData>(m_vecResPath[i], m_vecResPath[i]);
+			break;
+		case RES_TYPE::MATERIAL:
+			CResMgr::GetInst()->Load<CMaterial>(m_vecResPath[i], m_vecResPath[i]);
+			break;
+		case RES_TYPE::PREFAB:
+
+			break;
+		case RES_TYPE::MESH:
+			CResMgr::GetInst()->Load<CMesh>(m_vecResPath[i], m_vecResPath[i]);
+			break;
+		case RES_TYPE::TEXTURE:
+			CResMgr::GetInst()->Load<CTexture>(m_vecResPath[i], m_vecResPath[i]);
+			break;
+		case RES_TYPE::SOUND:
+			CResMgr::GetInst()->Load<CSound>(m_vecResPath[i], m_vecResPath[i]);
+			break;
+		}
+	}
 }
 
 Ptr<CTexture> CResMgr::CreateTexture(const wstring& _strKey, UINT _Width, UINT _Height
-	, DXGI_FORMAT _pixelformat, UINT _BindFlag, D3D11_USAGE _Usage)
+                                     , DXGI_FORMAT _pixelformat, UINT _BindFlag, D3D11_USAGE _Usage)
 {
 	Ptr<CTexture> pTex =  FindRes<CTexture>(_strKey);
 
@@ -1520,7 +1574,6 @@ Ptr<CTexture> CResMgr::CreateTexture(const wstring& _strKey, UINT _Width, UINT _
 	{
 		assert(nullptr);
 	}
-
 	AddRes<CTexture>(_strKey, pTex);
 
 	return pTex;
@@ -1640,4 +1693,59 @@ void CResMgr::AddInputLayout(DXGI_FORMAT _eFormat, const char* _strSemanticName,
 		m_iLayoutOffset_0 += GetSizeofFormat(_eFormat);
 	else if (1 == _iSlotNum)
 		m_iLayoutOffset_1 += GetSizeofFormat(_eFormat);
+}
+
+void CResMgr::FindFileName(const wstring& folderPath)
+{
+	WIN32_FIND_DATA FindData = {};
+
+	wstring FolderPath = folderPath + L"*.*";
+
+	HANDLE hFindHandle = FindFirstFile(FolderPath.c_str(), &FindData);
+
+	while (FindNextFile(hFindHandle, &FindData))
+	{
+		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			if (!wcscmp(FindData.cFileName, L".."))
+			{
+				continue;
+			}
+
+			FindFileName(folderPath + FindData.cFileName + L"\\");
+			continue;
+		}
+
+		wstring strContentPath = CPathMgr::GetInst()->GetContentPath();
+		wstring RelativePath = folderPath + FindData.cFileName;
+		RelativePath = RelativePath.substr(strContentPath.length(), RelativePath.length() - strContentPath.length());
+
+		m_vecResPath.push_back(RelativePath);
+	}
+
+	FindClose(hFindHandle);
+}
+
+RES_TYPE CResMgr::GetResTypeByExt(const wstring& _relativepath)
+{
+	wchar_t szExt[50] = {};
+	_wsplitpath_s(_relativepath.c_str(), 0, 0, 0, 0, 0, 0, szExt, 50);
+	wstring strExt = szExt;
+
+	if (L".mdat" == strExt)
+		return RES_TYPE::MESHDATA;
+	else if (L".pref" == strExt)
+		return RES_TYPE::PREFAB;
+	else if (L".mesh" == strExt)
+		return RES_TYPE::MESH;
+	else if (L".mtrl" == strExt)
+		return RES_TYPE::MATERIAL;
+	else if (L".png" == strExt || L".jpg" == strExt
+		|| L".jpeg" == strExt || L".bmp" == strExt
+		|| L".tga" == strExt || L".dds" == strExt)
+		return RES_TYPE::TEXTURE;
+	else if (L".mp3" == strExt || L".wav" == strExt || L".oga" == strExt)
+		return RES_TYPE::SOUND;
+	else
+		return RES_TYPE::END;
 }

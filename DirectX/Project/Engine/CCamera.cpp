@@ -22,6 +22,7 @@
 #include "CLight3D.h"
 #include "CMeshRender.h"
 #include "CResMgr.h"
+#include "CTimeMgr.h"
 #include "FieldUIMgr.h"
 #include "mMRT.h"
 
@@ -39,9 +40,12 @@ CCamera::CCamera()
 	, m_iCamIdx(-1)
 	, m_NearZ(1.f)
 	, m_FarZ(1000000.f)
-	, m_bESM(false)
+	//, m_bESM(false)
 	, m_fT{}
 	, m_Outline(true)
+	, m_fFadeAcc(0.0f)
+	, m_fFadeTime(0.0f)
+	, m_bFade(false)
 	, m_ray{}
 {
 	SetName(L"Camera");
@@ -63,7 +67,9 @@ CCamera::CCamera(const CCamera& _Other)
 	, m_OrthoHeight(_Other.m_OrthoHeight)
 	, m_ProjType(_Other.m_ProjType)
 	, m_iLayerMask(_Other.m_iLayerMask)
-	, m_bESM(_Other.m_bESM)
+	//, m_bESM(_Other.m_bESM)
+	, m_fFadeAcc(0.0f)
+	, m_fFadeTime(0.0f)
 	, m_iCamIdx(-1)
 {
 }
@@ -364,8 +370,6 @@ void CCamera::render()
 	CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
 	if (pCurLevel->GetState() == LEVEL_STATE::NO_UPDATE_RENDER) return;
 
-	
-
 	static Ptr<CMesh> pScreen = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
 	static Ptr<CMaterial> pMerge = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
 	static Ptr<CMaterial> pBlurV = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurVMtrl");
@@ -375,12 +379,12 @@ void CCamera::render()
 	static Ptr<CMaterial> pSpecularBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
 	static Ptr<CMaterial> pToneMapping = CResMgr::GetInst()->FindRes<CMaterial>(L"ToneMappingMtrl");
 	static Ptr<CMaterial> pLaplacian = CResMgr::GetInst()->FindRes<CMaterial>(L"LaplacianMtrl");
+	static Ptr<CMaterial> pFade = CResMgr::GetInst()->FindRes<CMaterial>(L"FadeMtrl");
 
 	if (m_iCamIdx == 0)
 	{
 		//UpdateMatrix();
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
-
 
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED)->OMSet(true);
 		render_deferred();
@@ -465,6 +469,31 @@ void CCamera::render()
 
 		CRenderMgr::GetInst()->CopyRenderTarget();
 
+		if (m_bFade)
+		{
+			pFade->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"RTCopyTex3"));
+
+			float fadeRatio = (m_fFadeAcc / m_fFadeTime);
+
+			m_fFadeAcc += DT;
+
+			if (m_bFadeIn)
+				fadeRatio = 1.f - fadeRatio;
+
+			//	
+
+			pFade->SetScalarParam(FLOAT_0, &fadeRatio);
+			pFade->UpdateData();
+			pScreen->render(0);
+
+			
+			if (m_fFadeTime < m_fFadeAcc)
+			{
+				m_fFadeAcc = m_fFadeTime;
+				m_fFadeAcc = 0.f;
+				m_bFade = false;
+			}
+		}
 	}
 	if (m_iCamIdx == 3)
 	{
@@ -691,11 +720,6 @@ void CCamera::render_map_marker()
 {
 	UpdateMatrix();
 
-	//for (auto& pair : m_mapSingleObj)
-	//{
-	//	pair.second.clear();
-	//}
-
 	CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
 	CLayer* pEnemyLayer = pCurLevel->GetLayer((UINT)LAYER_TYPE::Enemy);
 
@@ -737,17 +761,6 @@ void CCamera::render_map_marker()
 
 		pMarkerMesh->render(0);
 	}
-
-	//for (auto& pair : m_mapSingleObj)
-	//{
-	//	if (pair.second.empty())
-	//		continue;
-
-	//	for (auto& instObj : pair.second)
-	//	{
-	//		instObj.pObj->GetRenderComponent()->render(instObj.iMtrlIdx, true);
-	//	}
-	//}
 }
 
 void CCamera::render_forward()

@@ -157,7 +157,7 @@ void ChangeCurLevel(CLevel* _ChangeLevel)
 	CEventMgr::GetInst()->AddEvent(evn);
 }
 
-void LoadLevel(const wstring& _Name)
+void LoadingLevel(const wstring& _Name)
 {
 	wstring wsName = _Name + L".lv";
 	wsName = L"Level\\" + wsName;

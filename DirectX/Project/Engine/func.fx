@@ -600,7 +600,8 @@ float4 PaperBurn(float4 vColor, float2 vUV, Texture2D BurnTex, inout float4 vEmi
     return vOut;
 }
 
-void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightColor _vLightColor, inout float _SpecPow, inout float _LightPow)
+void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx
+, inout tLightColor _vLightColor, inout float _SpecPow, inout float _LightPow)
 {
     tLightInfo lightInfo = g_Light3DBuffer[_idx];
 
@@ -631,20 +632,20 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightCo
     if (1 == lightInfo.LightType)
     {
         float fDistPow = 1.f;
-			
+        
         // ViewSpace 에서의 광원의 위치
         float3 vLightViewPos = mul(float4(lightInfo.vWorldPos.xyz, 1.f), g_matView).xyz;
         
         // 광원으로부터 오는 빛의 방향 구하기
         vViewLightDir = normalize(_vViewPos - vLightViewPos);
-
+        
         // 포인트 라이트로부터 거리체크
         float fDist = distance(_vViewPos, vLightViewPos);
         //float fDist = 0.4f;
         fDistPow = saturate(cos((fDist / lightInfo.Radius) * (PI / 2.f)));
         //fDistPow = saturate(1.f - (fDist / lightInfo.Radius));
                                
-        // ViewSpace 에서의 노말벡터와 광원의 방향을 내적 (램버트 코사인 법칙)    
+        // ViewSpace 에서의 노말벡터와 광원의 방향을 내적 (램버트 코사인 법칙)
         fLightPow = saturate(dot(_vViewNormal, -vViewLightDir)) * fDistPow;
         
         // 반사광
@@ -654,15 +655,14 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightCo
         // 반사광의 세기 구하기
         fSpecPow = saturate(dot(vViewReflect, -vEye));
         fSpecPow = pow(fSpecPow, 60) * fDistPow;
-
-        _vLightColor.vAmbient = lightInfo.Color.vAmbient * fLightPow;
+        _vLightColor.vAmbient += lightInfo.Color.vAmbient * fLightPow;
     }
     if (2 == lightInfo.LightType)
     {
         //float3 vViewLightPos = mul(float4(lightInfo.vWorldPos.xyz, 1.f), g_matView).xyz;
         //float3 _vViewLightDir = normalize(mul(float4(lightInfo.vWorldDir.xyz, 0.f), g_matView));
 
-        //// 물체 방향
+        ////물체 방향
         //float3 _vLookDir = normalize(vViewLightPos - _vViewPos);
         //vViewLightDir = dot(_vViewLightDir, _vLookDir);
 
@@ -697,10 +697,9 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx, inout tLightCo
         //fSpecPow = pow(fSpecPow, 20) * fDistPow;
         //_vLightColor.vDiffuse += _fSpotAtt;
         //_vLightColor.vAmbient += _fSpotAtt;
-
     }
-
-    _vLightColor.vDiffuse = lightInfo.Color.vDiffuse * fLightPow;
+    //_vLightColor.vAmbient += lightInfo.Color.vAmbient * fLightPow;
+    _vLightColor.vDiffuse += lightInfo.Color.vDiffuse * fLightPow;
     
     _SpecPow += fSpecPow;
 }

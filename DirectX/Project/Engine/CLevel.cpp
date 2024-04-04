@@ -13,8 +13,9 @@
 
 CLevel::CLevel()
 	: m_arrLayer{}
-	, m_State(LEVEL_STATE::STOP)
+	, m_State(LEVEL_STATE::PLAY)
 	, m_iTickCnt(0)
+	, m_bLevelEnd(false)
 {
 	createScene();
 

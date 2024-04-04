@@ -226,8 +226,30 @@ float4 PS_ToneMapping(VS_SCREEN_OUT _In) : SV_Target
     float4 vHDRColor = BloomedHDRTargetTex.Sample(g_sam_anti_0, _In.vUV);
     float3 vToneMappedColor = ACESToneMapping(vHDRColor.xyz);
 
-    //return float4(vToneMappedColor, 1.f);
+    //return vHDRColor;
+    //return float4(vToneMappedColor , 1.f);
     return float4(pow(vToneMappedColor, 1 / 2.2f), vHDRColor.a);
+}
+
+#define Fade g_float_0
+
+#define OriginTex g_tex_0
+float4 PS_Fade(VS_SCREEN_OUT _In) : SV_Target
+{
+    float4 vOutColor = OriginTex.Sample(g_sam_anti_0, _In.vUV);
+    //vOutColor += 0.1f;
+    //vOutColor.a = Fade;
+
+    if (vOutColor.r > 0.0f)
+        vOutColor.r -= Fade;
+
+    if (vOutColor.g > 0.0f)
+        vOutColor.g -= Fade;
+
+    if (vOutColor.b > 0.0f)
+        vOutColor.b -= Fade;
+
+    return vOutColor;
 }
 
 static float mask[9] =

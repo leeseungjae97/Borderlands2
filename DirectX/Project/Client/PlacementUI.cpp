@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "PlacementUI.h"
 
+#include <Engine/CCollider3D.h>
 #include <Engine/CGameObject.h>
 #include <Engine/CTransform.h>
 
@@ -53,8 +54,13 @@ int PlacementUI::render_update()
 				{
 					Vec3 vScale = pSelectedObject->Transform()->GetRelativeScale();
 					vPos.y += vScale.y / 2.f;
+					pSelectedObject->Transform()->SetRelativePos(vPos);
 				}
-				pSelectedObject->Transform()->SetRelativePos(vPos);
+				else
+				{
+					pSelectedObject->Collider3D()->SetColliderPos(vPos);
+				}
+				
 			}
 				
 		}

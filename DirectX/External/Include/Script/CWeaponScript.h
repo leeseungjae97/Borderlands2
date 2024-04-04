@@ -10,10 +10,13 @@ private:
     Vec4    m_vSign;
 
     Vec3    m_vPrevRot;
-
+    
 public:
     void tick() override;
 	void finaltick() override;
+    void ShootBullet();
+
+
 public:
     void SetWeaponPos();
     void SetEquiWeapon(bool _Equi) { m_bEquiWeapon = _Equi; }
