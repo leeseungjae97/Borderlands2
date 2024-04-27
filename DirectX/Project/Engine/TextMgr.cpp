@@ -21,7 +21,10 @@ TextMgr::~TextMgr()
 
 void TextMgr::init()
 {
-	m_font = std::make_unique<SpriteFont>(DEVICE, L"..\\bin\\content\\font\\compacta_bold_bt_32pt.spritefont");
+	wstring path = CPathMgr::GetInst()->GetContentPath();
+	path += L"\\font\\compacta_bold_bt_32pt.spritefont";
+
+	m_font = std::make_unique<SpriteFont>(DEVICE, path.c_str());
 	m_spriteBatch = std::make_unique<SpriteBatch>(CONTEXT);
 }
 

@@ -24,6 +24,7 @@
 #include "RaycastMgr.h"
 #include "SoundMgr.h"
 #include "TextMgr.h"
+#include "ThreadMgr.h"
 #include "WeaponMgr.h"
 
 CEngine::CEngine()
@@ -104,6 +105,7 @@ void CEngine::tick()
 	CKeyMgr::GetInst()->tick();	
 
 	CLevelMgr::GetInst()->tick();
+	
 	PlayerMgr::GetInst()->tick();
 	WeaponMgr::GetInst()->tick();
 	RaycastMgr::GetInst()->tick();
@@ -115,6 +117,8 @@ void CEngine::tick()
 	MainMenuMgr::GetInst()->tick();
 
 	SoundMgr::GetInst()->tick();
+
+	ThreadMgr::GetInst()->tick();
 }
 
 void CEngine::render()

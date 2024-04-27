@@ -1,5 +1,5 @@
 #pragma once
-#include "E:\directx11_3d\DirectX\External\Include\Engine\CScript.h"
+#include <Engine\CScript.h>
 class CBulletScript :
     public CScript
 {

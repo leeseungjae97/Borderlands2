@@ -54,8 +54,8 @@ void CConstructorScript::initAnim()
 		= std::make_shared<std::function<void()>>([=]()
 			{
 				SoundMgr::GetInst()->Stop(wsBeamIdleSound, SoundMgr::SOUND_TYPE::SFX);
-				pBeam->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
-				pBeamCollider->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	pBeam->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	pBeamCollider->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 			});
 	pCons->Animator3D()->EndEvent((UINT)CONSTRUCTOR_ANIMATION_TYPE::BEAM_EXIT)
 		= std::make_shared<std::function<void()>>([=]()
@@ -79,14 +79,14 @@ void CConstructorScript::initAnim()
 			{
 				//tState = CONSTRUCTOR_STATE::GROUND_TO_SKY;
 				SoundMgr::GetInst()->Play(wsToGroundSound, pCons->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 1.0f, false);
-				pSmashEffect->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
-				bSmash = true;
+	pSmashEffect->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
+	bSmash = true;
 			});
 	pCons->Animator3D()->EndEvent((UINT)CONSTRUCTOR_ANIMATION_TYPE::GROUND_TO_SKY)
 		= std::make_shared<std::function<void()>>([=]()
 			{
 				tState = CONSTRUCTOR_STATE::IDLE;
-				pSmashCollider->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+	pSmashCollider->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 			});
 	pCons->Animator3D()->ProgressEvent((UINT)CONSTRUCTOR_ANIMATION_TYPE::GROUND_TO_SKY)
 		= std::make_shared<std::function<void()>>([=]()
@@ -262,7 +262,7 @@ void CConstructorScript::createObject()
 		//pObj->Collider3D()->SetCenter(true);
 		//pObj->AddComponent(new CAttackNormalScript);
 		pObj->AddComponent(new CGizmo);
-		vPos.y = 150.f;
+		//vPos.y = 150.f;
 		pObj->SetName(L"fbx smash effect");
 		SpawnGameObject(pObj, vPos, LAYER_TYPE::Environment);
 		bool t = true;
@@ -328,7 +328,10 @@ void CConstructorScript::DoSmash()
 
 	CGameObject* pCons = GetOwner();
 
-	pSmashCollider->Collider3D()->SetColliderPos(pCons->Transform()->GetRelativePos());
+	Vec3 vPos = pCons->Transform()->GetRelativePos();
+	pSmashCollider->Collider3D()->SetColliderPos(vPos);
+	vPos.y += 50.f;
+	pSmashEffect->Transform()->SetRelativePos(vPos);
 	pSmashCollider->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
 
 	pCons->Animator3D()->Play((UINT)CONSTRUCTOR_ANIMATION_TYPE::SMASH_GROUND, false);
@@ -471,7 +474,6 @@ void CConstructorScript::smashEffect()
 
 		pSmashEffect->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 		pSmashCollider->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
-		fAlpha = 0.0f;
 	}
 	else
 	{
@@ -555,7 +557,7 @@ void CConstructorScript::tick()
 
 	float ratio = 1.f - GetHpRatio();
 	pUI_ConsHP->MeshRender()->GetMaterial(0)->SetScalarParam(FLOAT_0, &ratio);
-	
+
 
 	CGameObject* pCons = GetOwner();
 	fActAcc += DT;
@@ -605,7 +607,7 @@ void CConstructorScript::tick()
 
 	if (tState == CONSTRUCTOR_STATE::BEAM)
 	{
-		if(Rotate())
+		if (Rotate())
 			DoBeam();
 	}
 	if (bSmash)
@@ -633,7 +635,7 @@ void CConstructorScript::tick()
 		pAttackBoundCollider->Collider3D()->SetColliderPos(Vec3(9910.992, 200.368, 4333.719));
 	}
 
-	if(pAttackBoundCollider->Collider3D()->IsBeginOverlap() || pAttackBoundCollider->Collider3D()->IsOnOverlap())
+	if (pAttackBoundCollider->Collider3D()->IsBeginOverlap() || pAttackBoundCollider->Collider3D()->IsOnOverlap())
 	{
 		if (tState == CONSTRUCTOR_STATE::HIDE)
 		{
@@ -674,7 +676,7 @@ void CConstructorScript::tick()
 			SoundMgr::GetInst()->Play(wsLegSound, pCons->Transform()->GetRelativePos(), 0, 10.f, SoundMgr::SOUND_TYPE::SFX, 1.0f, true);
 		}
 
-		if(GetOwner()->Animator3D()->GetCurAnimClip()->GetClipIdx() > 43)
+		if (GetOwner()->Animator3D()->GetCurAnimClip()->GetClipIdx() > 43)
 		{
 			CRenderMgr::GetInst()->GetMainCam()->Transform()->SetRelativePos(Vec3(9207.647, 806.600, 4937.926));
 		}
@@ -727,20 +729,20 @@ void CConstructorScript::tick()
 
 void CConstructorScript::finaltick()
 {
-	if (tState == CONSTRUCTOR_STATE::DIE)
-	{
-		IsDie();
-		return;
-	}
+	//if (tState == CONSTRUCTOR_STATE::DIE)
+	//{
+	//	IsDie();
+	//	return;
+	//}
 
-	CGameObject* pCons = GetOwner();
+	//CGameObject* pCons = GetOwner();
 
-	if (KEY_TAP(KEY::Z))
-	{
-		initAnim();
-		createCollider();
-		createObject();
-	}
+	//if (KEY_TAP(KEY::Z))
+	//{
+	//	initAnim();
+	//	createCollider();
+	//	createObject();
+	//}
 	//if (KEY_PRESSED(KEY::Q))
 	//{
 	//	tState = CONSTRUCTOR_STATE::BEAM;

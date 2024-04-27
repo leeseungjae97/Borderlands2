@@ -60,12 +60,12 @@ void CTimeMgr::render()
 
 	if (1.f <= m_fTime)
 	{
-		swprintf_s(szBuff, L"FPS : %d, DT : %f", m_iCallCount, m_fDeltaTime);
+		//swprintf_s(szBuff, L"FPS : %d, DT : %f", m_iCallCount, m_fDeltaTime);
 		//SetWindowText(CEngine::GetInst()->GetMainWnd(), szBuff);	
 
 		m_fTime = 0.f;
 		m_iCallCount = 0;
 	}
 
-	CSimpleTextMgr::GetInst()->DrawFont(szBuff, 10, 20, 16, FONT_RGBA(255, 0, 0, 255));
+	//CSimpleTextMgr::GetInst()->DrawFont(szBuff, 10, 20, 16, FONT_RGBA(255, 0, 0, 255));
 }

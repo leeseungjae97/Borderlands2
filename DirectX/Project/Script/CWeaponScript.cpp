@@ -30,6 +30,17 @@ void CWeaponScript::tick()
 
 	CGameObject* pWeapon = GetOwner();
 
+	//static bool init = false;
+
+	//if(!init)
+	//{
+	//	if(pWeapon->Animator3D())
+	//	{
+	//		pWeapon->Animator3D()->Play((int)GUN_ANIMATION_TYPE::FIRE, false);
+	//		init = true;
+	//	}
+	//}
+
 	if (pWeapon->IsOwned())
 	{
 		if(pWeapon->GetWeaponOwner()->IsDead())
@@ -43,7 +54,18 @@ void CWeaponScript::tick()
 void CWeaponScript::finaltick()
 {
 	// Test Code;
-	//SetWeaponPos();
+	CGameObject* pWeapon = GetOwner();
+
+	static bool init = false;
+
+	if (!init)
+	{
+		if (pWeapon->Animator3D())
+		{
+			pWeapon->Animator3D()->Play((int)GUN_ANIMATION_TYPE::FIRE, false);
+			init = true;
+		}
+	}
 }
 
 void CWeaponScript::ShootBullet()
@@ -52,7 +74,7 @@ void CWeaponScript::ShootBullet()
 
 void CWeaponScript::SetWeaponPos()
 {
-	if (m_bStopFollow)
+	if (CLevelMgr::GetInst()->GetCurLevel()->GetName() == L"loading")
 		return;
 
 	CGameObject* pWeapon = GetOwner();
@@ -110,3 +132,5 @@ void CWeaponScript::SetWeaponPos()
 		pWeapon->Transform()->SetRelativeRot(vRot + vCurRot);
 	}
 }
+
+

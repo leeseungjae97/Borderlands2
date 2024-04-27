@@ -15,6 +15,9 @@ public:
     virtual void begin() override;
 
 public:
+    void Rotate();
+
+public:
     CLONE(CMoveScript)
 public:
     CMoveScript();

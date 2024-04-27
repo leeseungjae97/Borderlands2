@@ -16,10 +16,11 @@ public:
 	void finaltick() override;
     void ShootBullet();
 
-
 public:
     void SetWeaponPos();
     void SetEquiWeapon(bool _Equi) { m_bEquiWeapon = _Equi; }
+    void SetStopFollow(bool _Follow) { m_bStopFollow = _Follow; }
+
 public:
     CLONE(CWeaponScript);
 

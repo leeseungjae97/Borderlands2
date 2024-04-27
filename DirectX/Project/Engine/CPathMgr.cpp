@@ -20,15 +20,18 @@ void CPathMgr::init()
 	// 상위폴더로 감
 	int iLen = (int)wcslen(m_szContentPath);
 
+	int n = 0;
 	for (int i = iLen - 1; i >= 0; --i)
 	{
 		if (L'\\' == m_szContentPath[i])
 		{
 			m_szContentPath[i] = 0;
-			break;
+			++n;
+			if(n == 2)
+				break;
 		}
 	}
 
 	// + bin\\content
-	wcscat_s(m_szContentPath, L"\\bin\\content\\");		
+	wcscat_s(m_szContentPath, L"\\OutputFile\\bin\\content\\");		
 }

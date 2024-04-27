@@ -28,7 +28,117 @@
 #include <Script\CPathFindScript.h>
 #include <Script\CMoveScript.h>
 
+void CreateLoading()
+{
+	CLevel* pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"loading");
+	CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
+	pCurLevel->ChangeState(LEVEL_STATE::STOP);
 
+	Vec2 vResol = CEngine::GetInst()->GetWindowResolution();
+
+	{
+		CGameObject* pMainCam = new CGameObject;
+		pMainCam->SetName(L"MainCamera");
+
+		pMainCam->AddComponent(new CTransform);
+		pMainCam->AddComponent(new CCamera);
+		pMainCam->AddComponent(new CCameraMoveScript);
+
+		pMainCam->Camera()->SetFarZ(1000000.f);
+		pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
+		pMainCam->Camera()->SetCameraIndex(0);
+		pMainCam->Camera()->SetLayerMaskAll(true);
+		pMainCam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, false);
+		pMainCam->Camera()->SetLayerMask((int)LAYER_TYPE::Camera, false);
+
+		PreloadGameObject(pMainCam, Vec3(0.f,0.f,-1100.f), LAYER_TYPE::Camera);
+	}
+	{
+		CGameObject* pUICam = new CGameObject;
+		pUICam->SetName(L"UICamera");
+		pUICam->AddComponent(new CTransform);
+		pUICam->AddComponent(new CCamera);
+		pUICam->Camera()->SetFarZ(1000000.f);
+		pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
+		pUICam->Camera()->SetCameraIndex(3);
+		pUICam->Camera()->SetLayerMaskAll(false);
+		pUICam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, true);
+		PreloadGameObject(pUICam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
+	}
+	{
+		CGameObject* pSunLight = new CGameObject;
+		pSunLight->SetName(L"Sun Light");
+		pSunLight->AddComponent(new CTransform);
+		pSunLight->AddComponent(new CLight3D);
+		pSunLight->AddComponent(new CGizmo);
+
+		pSunLight->Transform()->SetRelativeRot(Vec3(150.f * DegToRad(), 90.f * DegToRad(), 0.f));
+		pSunLight->Light3D()->SetRadius(500.f);
+		pSunLight->Light3D()->SetShadow(true);
+		pSunLight->Light3D()->SetLightDepthCoeff(0.003f);
+		pSunLight->Light3D()->SetFloatConstant(0, 1000.f);
+		pSunLight->Light3D()->SetFloatConstant(1, 8.0f);
+		pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
+		pSunLight->Light3D()->SetLightColor(Vec3(0.5f, 0.5f, 1.f));
+		pSunLight->Light3D()->SetLightAmbient(Vec3(0.1f, 0.1f, 0.15f));
+
+		PreloadGameObject(pSunLight, Vec3(-2000.f, 60000.f, -2000.f), LAYER_TYPE::Default);
+	}
+
+	{
+		CUI* pGameStart = new CUI();
+		pGameStart->SetName(L"UI Loading");
+		pGameStart->AddComponent(new CTransform);
+		pGameStart->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
+		pGameStart->SetText(L"Loading");
+		PreloadGameObject(pGameStart, Vec3(0.f, 250.f, 0.f), LAYER_TYPE::ViewPortUI);
+	}
+	{
+		Ptr<CMaterial> pMtrl = new CMaterial(true);
+		pMtrl->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3D_DeferredShader").Get());
+		CResMgr::GetInst()->AddRes(L"UILoadingBack", pMtrl);
+
+		CGameObject* LoadingBack = new CGameObject();
+		LoadingBack->SetName(L"UI Loading Back");
+		LoadingBack->AddComponent(new CTransform);
+		LoadingBack->AddComponent(new CMeshRender);
+		LoadingBack->Transform()->SetRelativeScale(Vec3(vResol.x, vResol.y, 1.f));
+
+		LoadingBack->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh"));
+		LoadingBack->MeshRender()->SetMaterial(pMtrl, 0);
+		LoadingBack->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\loading_opp.png"));
+		PreloadGameObject(LoadingBack, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
+	}
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\smg_dahl.fbx");
+		pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
+		pObj->SetName(L"smg_loading");
+		pObj->AddComponent(new CWeaponScript);
+		pObj->AddComponent(new CMoveScript);
+		pObj->AddComponent(new CGizmo);
+		pObj->GetScript<CWeaponScript>()->SetStopFollow(true);
+
+		pObj->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		PreloadGameObject(pObj, Vec3(150.f, -50.f, -730.f), LAYER_TYPE::Default);
+	}
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\sniper_dahl.fbx");
+		pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
+		pObj->SetName(L"sniper_loading");
+		pObj->AddComponent(new CWeaponScript);
+		pObj->AddComponent(new CMoveScript);
+		pObj->AddComponent(new CGizmo);
+		pObj->GetScript<CWeaponScript>()->SetStopFollow(true);
+
+		pObj->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+		PreloadGameObject(pObj, Vec3(150.f, -50.f, -730.f), LAYER_TYPE::Default);
+
+	}
+}
 void CreatePlayer(float fDefaultScale)
 {
 	{
@@ -779,6 +889,8 @@ void CreateLevels()
 
 		PreloadGameObject(pObj, Vec3(316.719, 818.832, 4260.014), LAYER_TYPE::Default);
 	}
+
+	CreateLoading();
 
 	/*****************************************************************
 	 ************************ MAIN MENU LEVEL ************************

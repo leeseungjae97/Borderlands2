@@ -10,7 +10,9 @@
 #include "CTimeMgr.h"
 #include "CTransform.h"
 #include "CUI.h"
+#include "LoadingMgr.h"
 #include "WeaponMgr.h"
+#include "ThreadMgr.h"
 
 CLevelMgr::CLevelMgr()
 	: m_pCurLevel(nullptr)
@@ -29,13 +31,13 @@ void CLevelMgr::init()
 {
 	//m_pCurLevel = new CLevel;
 	//m_pCurLevel->ChangeState(LEVEL_STATE::STOP);
-	
+
 }
 
 void CLevelMgr::tick()
 {
 	static bool initMainLevel = true;
-	if(initMainLevel)
+	if (initMainLevel)
 	{
 		//if(m_mapLevels.size() < 2)
 		//	LevelRecognize();
@@ -45,7 +47,7 @@ void CLevelMgr::tick()
 		//}
 
 		ChangeCurLevel(GetLevel(L"main menu level"));
-		GetLevel(L"main menu level")->ChangeState(LEVEL_STATE::PLAY);
+		//GetLevel(L"main menu level")->ChangeState(LEVEL_STATE::PLAY);
 
 		initMainLevel = false;
 	}
@@ -58,7 +60,29 @@ void CLevelMgr::tick()
 	if (LEVEL_STATE::PLAY == m_pCurLevel->GetState())
 	{
 		CheckLevelClear();
-		m_pCurLevel->tick();		
+		m_pCurLevel->tick();
+
+		if (ThreadMgr::GetInst()->IsThreadRun())
+		{
+			if (m_pCurLevel->GetName() != L"loading")
+			{
+				LoadingLevel(L"loading");
+				//ChangeCurLevel(GetLevel(L"loading"));
+				//GetLevel(L"loading")->ChangeState(LEVEL_STATE::PLAY);
+			}
+			else
+			{
+				if(m_pCurLevel->GetState() == LEVEL_STATE::STOP)
+					m_pCurLevel->ChangeState(LEVEL_STATE::PLAY);
+
+				if (m_pCurLevel->GetState() == LEVEL_STATE::PLAY
+					&& m_pCurLevel->GetTickCnt() > 0 && m_pCurLevel->GetTickCnt() < 10)
+				{
+					if (CRenderMgr::GetInst()->GetMainCam())
+						CRenderMgr::GetInst()->GetMainCam()->SetFadeTime(2.f, true);
+				}
+			}
+		}
 	}
 
 	m_pCurLevel->finaltick();
@@ -66,7 +90,7 @@ void CLevelMgr::tick()
 
 void CLevelMgr::begin()
 {
-	for(auto pair:  m_mapLevels)
+	for (auto pair : m_mapLevels)
 	{
 		m_pCurLevel = pair.second;
 		pair.second->begin();
@@ -76,7 +100,7 @@ void CLevelMgr::begin()
 
 CGameObject* CLevelMgr::FindObjectByName(const wstring& _strName)
 {
-	return m_pCurLevel->FindObjectByName(_strName);	
+	return m_pCurLevel->FindObjectByName(_strName);
 }
 
 void CLevelMgr::FindObjectByName(const wstring& _strName, vector<CGameObject*>& _vec)
@@ -106,9 +130,9 @@ CLevel* CLevelMgr::GetLevel(const wstring& name)
 	if (m_mapLevels.empty())
 		return nullptr;
 
-	for(const auto& iter : m_mapLevels)
+	for (const auto& iter : m_mapLevels)
 	{
-		if(iter.second)
+		if (iter.second)
 		{
 			if (iter.first == name)
 				return iter.second;
@@ -126,7 +150,7 @@ void CLevelMgr::ChangeLevel(CLevel* _NextLevel)
 		prevState = m_pCurLevel->GetState();
 		//m_pCurLevel->ChangeState(LEVEL_STATE::NO_UPDATE_RENDER);
 	}
-	
+
 	m_pCurLevel = _NextLevel;
 	m_pCurLevel->ChangeState(prevState);
 }
@@ -156,8 +180,8 @@ void CLevelMgr::DeleteLevel(CLevel* _DeleteLevel)
 	if (m_pCurLevel == _DeleteLevel)
 		m_pCurLevel = nullptr;
 
-	map<wstring, CLevel*>::iterator iter= m_mapLevels.begin();
-	while(iter != m_mapLevels.end())
+	map<wstring, CLevel*>::iterator iter = m_mapLevels.begin();
+	while (iter != m_mapLevels.end())
 	{
 		if (iter->second != _DeleteLevel)
 			++iter;
@@ -173,7 +197,7 @@ void CLevelMgr::DeleteLevel(CLevel* _DeleteLevel)
 
 void CLevelMgr::ResetLevel(CLevel* _ResetData)
 {
-	wstring levelName= m_pCurLevel->GetName();
+	wstring levelName = m_pCurLevel->GetName();
 
 	DeleteLevel(m_pCurLevel);
 	InsertLevel(levelName, _ResetData);
@@ -197,16 +221,33 @@ void CLevelMgr::LoadLevel(CLevel* _Level)
 
 void CLevelMgr::CheckLevelClear()
 {
+	static bool levelLoading = false;
+
+	if (!ThreadMgr::GetInst()->IsThreadRun())
+	{
+		levelLoading = false;
+	}
+
 	if (m_pCurLevel->GetName() == L"main menu level")
 	{
-		if (m_pCurLevel->GetLevelEnd())
+		if (m_pCurLevel->GetLevelEnd() && !levelLoading)
 		{
 			static float mL2 = 0.0f;
 			mL2 += DT;
 			CRenderMgr::GetInst()->GetMainCam()->SetFadeTime(2.f, false);
 
 			if (mL2 > 2.f)
-				LoadingLevel(L"main level 1");
+			{
+				LoadingMgr::GetInst()->SetStage(0);
+				levelLoading = true;
+				ThreadMgr::GetInst()->AddThread(
+					[this]()
+					{
+						LoadingLevel(L"main level 1");
+						ThreadMgr::GetInst()->AddThreadEnd();
+					}
+				);
+			}
 		}
 	}
 
@@ -223,15 +264,24 @@ void CLevelMgr::CheckLevelClear()
 		{
 
 		}
-		if (m_pCurLevel->GetLevelEnd())
+		if (m_pCurLevel->GetLevelEnd() && !levelLoading)
 		{
 			static float mL = 0.0f;
 			mL += DT;
 			CRenderMgr::GetInst()->GetMainCam()->SetFadeTime(2.f, false);
 
-			if(mL > 2.f) 
-				LoadingLevel(L"main level 2");
-
+			if (mL > 2.f)
+			{
+				LoadingMgr::GetInst()->SetStage(1);
+				levelLoading = true;
+				ThreadMgr::GetInst()->AddThread(
+					[this]()
+					{
+						LoadingLevel(L"main level 2");
+						ThreadMgr::GetInst()->AddThreadEnd();
+					}
+				);
+			}
 		}
 	}
 	if (m_pCurLevel->GetName() == L"main level 2")

@@ -81,16 +81,16 @@ void CPlayerScript::begin()
 			= std::make_shared<std::function<void()>>([=]()
 				{
 					tState = PlayerMgr::PLAYER_STATE::IDLE;
-					if (iAmmoRemain < iAmmoCapa)
-					{
-						iAmmo = iAmmoRemain;
-						iAmmoRemain = 0;
-					}
-					else
-					{
-						iAmmoRemain -= (iAmmoCapa - iAmmo);
-						iAmmo = iAmmoCapa;
-					}
+		if (iAmmoRemain < iAmmoCapa)
+		{
+			iAmmo = iAmmoRemain;
+			iAmmoRemain = 0;
+		}
+		else
+		{
+			iAmmoRemain -= (iAmmoCapa - iAmmo);
+			iAmmo = iAmmoCapa;
+		}
 				});
 		pPlayer->Animator3D()->StartEvent((UINT)PLAYER_ANIMATION_TYPE::DRAW + i)
 			= std::make_shared<std::function<void()>>([=]()
@@ -195,7 +195,7 @@ void CPlayerScript::tick()
 	Burn();
 
 
-	
+
 	if (iAmmoCapa / 2 > iAmmo)
 	{
 		fReloadGlitter += DT;
@@ -203,17 +203,19 @@ void CPlayerScript::tick()
 		{
 			CGameObject::OBJECT_STATE state = m_pUI_ReloadIcon->GetObjectState();
 			m_pReloadText->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
-			if(state == CGameObject::OBJECT_STATE::INVISIBLE)
+			if (state == CGameObject::OBJECT_STATE::INVISIBLE)
 			{
 				m_pUI_ReloadIcon->SetObjectState(CGameObject::OBJECT_STATE::VISIBLE);
-			}else
+			}
+			else
 			{
 				m_pUI_ReloadIcon->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
 			}
 			fReloadGlitter = 0.f;
 		}
-		
-	}else
+
+	}
+	else
 	{
 		fReloadGlitter = 0.f;
 		m_pUI_ReloadIcon->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
@@ -1068,7 +1070,7 @@ void CPlayerScript::Movement()
 	Vec3 vPlayerScopePos = WeaponMgr::GetInst()->GetCurWeaponScopePos(pPlayer);
 	Vec3 vLerpPos = XMVectorLerp(vPlayerCamPos, vPlayerScopePos, facc);
 
-	if(WeaponMgr::GetInst()->GetCurWeaponIdx() == SNIPER_IDX)
+	if (WeaponMgr::GetInst()->GetCurWeaponIdx() == SNIPER_IDX)
 	{
 		if (KEY_PRESSED(KEY::RBTN))
 		{
@@ -1132,7 +1134,7 @@ void CPlayerScript::Movement()
 
 	}
 
-	
+
 
 	float _fSpeed = fSpeed;
 	Vec3 final_velocity = Vec3(0.00f, 0.00f, 0.00f);
@@ -1264,10 +1266,6 @@ void CPlayerScript::Movement()
 		{
 			pPlayer->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_FORWARD), true);
 		}
-		//else if (flag & uiBack)
-		//{
-		//	pPlayerObj->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_BACK), true);
-		//}
 		else if (flag & uiRight)
 		{
 			pPlayer->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::WALK_RIGHT), true);
@@ -1280,7 +1278,6 @@ void CPlayerScript::Movement()
 		{
 			pPlayer->Animator3D()->Play(WeaponMgr::GetInst()->GetCurWeaponPlayerAnim(PLAYER_ANIMATION_TYPE::IDLE), true);
 		}
-
 		if (bMove)
 		{
 			fWalkSoundAcc += DT;

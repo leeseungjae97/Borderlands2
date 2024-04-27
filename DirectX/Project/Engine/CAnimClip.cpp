@@ -59,7 +59,14 @@ void CAnimClip::finaltick()
 
 	double dCurtime = m_Clip.dStartTime + m_fTime;
 	double dFrameIdx = dCurtime * (double)m_iFramePerSecond;
-	m_iCurIdx = (int)dFrameIdx;
+	if (m_Clip.iFrameLength <= (int)dFrameIdx)
+	{
+		m_iCurIdx = m_Clip.iFrameLength - 1;
+	}
+	else
+	{
+		m_iCurIdx = (int)dFrameIdx;
+	}
 	m_fRatio = (float)(dFrameIdx - (double)m_iCurIdx);
 }
 

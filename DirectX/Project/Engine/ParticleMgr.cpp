@@ -2,12 +2,14 @@
 #include "ParticleMgr.h"
 
 #include "CGizmo.h"
+#include "CEventMgr.h"
 #include "CParticleSystem.h"
 #include "CResMgr.h"
 #include "CStructuredBuffer.h"
 #include "CTransform.h"
 
 ParticleMgr::ParticleMgr()
+	: m_pSparkParticle(nullptr)
 {
 
 }
@@ -67,29 +69,26 @@ void ParticleMgr::init()
 
 void ParticleMgr::begin()
 {
-	{
-		m_pSparkParticle = new CGameObject;
-		m_pSparkParticle->AddComponent(new CTransform);
-		m_pSparkParticle->AddComponent(new CParticleSystem);
-		m_pSparkParticle->SetName(L"Bullet Particle");
-		m_pSparkParticle->AddComponent(new CGizmo);
-
-
-		m_pSparkParticle->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
-		SpawnGameObject(m_pSparkParticle, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Light);
-	}
+	//if(CEventMgr::GetInst()->IsLevelLoad())
+	//{
+	//	m_pSparkParticle = nullptr;
+	//}
 
 	//{
-	//	m_pFireParticle = new CGameObject;
-	//	m_pFireParticle->AddComponent(new CTransform);
-	//	m_pFireParticle->AddComponent(new CParticleSystem);
-	//	m_pFireParticle->SetName(L"Particle");
-	//	m_pFireParticle->AddComponent(new CGizmo);
+	//	if(nullptr == m_pSparkParticle)
+	//	{
 
-
-	//	m_pFireParticle->Transform()->SetRelativeScale(Vec3(1.f, 1.f, 1.f));
-	//	SpawnGameObject(m_pFireParticle, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
+	//	}
 	//}
+	m_pSparkParticle = new CGameObject;
+	m_pSparkParticle->AddComponent(new CTransform);
+	m_pSparkParticle->AddComponent(new CParticleSystem);
+	m_pSparkParticle->SetName(L"Bullet Particle");
+	m_pSparkParticle->AddComponent(new CGizmo);
+
+
+	m_pSparkParticle->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100.f));
+	SpawnGameObject(m_pSparkParticle, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Light);
 }
 
 void ParticleMgr::DoParticle(PARTICLE_SETTING_TYPE _Type, Vec3 _vPos)

@@ -74,7 +74,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     CEditorObjMgr::GetInst()->init();
        
-    //ImGuiMgr::GetInst()->init(g_hWnd);
+    ImGuiMgr::GetInst()->init(g_hWnd);
 
     PhysXMgr::GetInst()->init();
 
@@ -102,7 +102,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         {
             CEngine::GetInst()->progress();
             CEditorObjMgr::GetInst()->progress();         
-            //ImGuiMgr::GetInst()->progress();            
+            ImGuiMgr::GetInst()->progress();            
             CDevice::GetInst()->Present();
         }       
     }

@@ -5,6 +5,7 @@
 #include "CGameObject.h"
 
 #include "CRenderMgr.h"
+#include "LoadingMgr.h"
 #include "MapMgr.h"
 #include "NavigationMgr.h"
 #include "ParticleMgr.h"
@@ -157,6 +158,7 @@ void CLevel::ChangeState(LEVEL_STATE _State)
 		NavigationMgr::GetInst()->begin();
 		ParticleMgr::GetInst()->begin();
 		MapMgr::GetInst()->begin();
+		LoadingMgr::GetInst()->begin();
 	}
 	else
 	{

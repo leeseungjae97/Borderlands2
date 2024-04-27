@@ -37,7 +37,7 @@ bool WeaponMgr::ChangeWeapon(int _Idx, bool _Force)
 	iCurWeaponName = m_arrWeapons[iCurWeaponIdx]->GetName();
 	SetEquis(false);
 	SetEqui(iCurWeaponIdx, true);
-	Play(GUN_ANIMATION_TYPE::IDLE, false);
+	//Play(GUN_ANIMATION_TYPE::IDLE, false);
 	return true;
 }
 
@@ -46,7 +46,7 @@ void WeaponMgr::AddWeapon(CGameObject* _Weapon)
 	if (nullptr == _Weapon) return;
 
 	wstring weaponName = _Weapon->GetName();
-	if(weaponName == L"smg")
+	if (weaponName == L"smg")
 	{
 		m_arrWeapons[SMG_IDX] = _Weapon;
 	}
@@ -72,7 +72,7 @@ void WeaponMgr::SetEqui(int _Idx, bool _Equi)
 
 void WeaponMgr::SetEquis(bool _Equi)
 {
-	for(int i = 0 ; i < 3; ++i)
+	for (int i = 0; i < 3; ++i)
 	{
 		SetEqui(i, _Equi);
 	}
@@ -108,7 +108,7 @@ Vec3 WeaponMgr::GetOwnerWeaponRot(CGameObject* _Owner, bool bRight)
 		iWeaponHandRotIdx = _Owner->Animator3D()->GetWeaponRHandIdx();
 	else
 		iWeaponHandRotIdx = _Owner->Animator3D()->GetWeaponLHandIdx();
-	
+
 	Vec3 vRot = _Owner->MeshRender()->GetMesh()->BoneRotSkinning(iWeaponHandRotIdx, _Owner->Animator3D());
 
 	return vRot;
@@ -120,7 +120,7 @@ Vec3 WeaponMgr::GetOwnerWeaponPos(CGameObject* _Owner, bool bRight)
 		return Vec3::Zero;
 
 	int iWeaponHandIdx = 0;
-	if(bRight)
+	if (bRight)
 		iWeaponHandIdx = _Owner->Animator3D()->GetWeaponRHandIdx();
 	else
 		iWeaponHandIdx = _Owner->Animator3D()->GetWeaponLHandIdx();
@@ -142,7 +142,7 @@ Vec3 WeaponMgr::GetCurWeaponScopePos(CGameObject* _Owner)
 {
 	int iWeaponHandIdx = _Owner->Animator3D()->GetWeaponRHandIdx();
 	Vec3 vPos = _Owner->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, _Owner->Animator3D());
-	Vec3 vScopePos= m_arrWeapons[iCurWeaponIdx]->Animator3D()->GetScopePos();
+	Vec3 vScopePos = m_arrWeapons[iCurWeaponIdx]->Animator3D()->GetScopePos();
 
 	vPos += vScopePos;
 	CRigidBody* rb = _Owner->RigidBody();
@@ -187,7 +187,7 @@ void WeaponMgr::MuzzleFlash(Vec3 _vPos, Vec3 _vRot, CGameObject* _pp)
 	Light->AddComponent(new CLight3D);
 	Light->AddComponent(new CAnimator2D);
 
-	if(_pp)
+	if (_pp)
 	{
 		CScript* pScript = CScriptMgr::GetScript((UINT)MOVE_SCRIPT);
 		Light->AddComponent((CComponent*)pScript);
@@ -238,9 +238,9 @@ void WeaponMgr::ShootBullet()
 
 void WeaponMgr::tick()
 {
-	if(CEventMgr::GetInst()->IsLevelChanged())
+	if (CEventMgr::GetInst()->IsLevelChanged())
 	{
-		
+
 	}
 }
 
@@ -265,7 +265,7 @@ void WeaponMgr::begin()
 	//CLevel* curLevel = CLevelMgr::GetInst()->GetLevel(L"main level");
 
 	CLevel* curLevel = CLevelMgr::GetInst()->GetCurLevel();
-	if(curLevel->GetName() != L"main menu level")
+	if (curLevel->GetName() != L"main menu level")
 	{
 		CLayer* layer = curLevel->GetLayer((int)LAYER_TYPE::Item);
 

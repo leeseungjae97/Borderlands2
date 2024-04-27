@@ -137,9 +137,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>cd $(SolutionDir)
-call EngineCopy.bat</Command>
+      <Command>xcopy /s /y  /exclude:$(SolutionDir)Exclude.txt "$(SolutionDir)Project\Engine\*.h" "$(SolutionDir)External\Include\Engine"
+xcopy /s /y  /exclude:$(SolutionDir)Exclude.txt "$(SolutionDir)Project\Engine\*.fx" "$(SolutionDir)OutputFile\bin\content\shader"</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -167,9 +171,13 @@ call EngineCopy.bat</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>cd $(SolutionDir)
-call EngineCopy.bat</Command>
+      <Command>xcopy /s /y  /exclude:$(SolutionDir)Exclude.txt "$(SolutionDir)Project\Engine\*.h" "$(SolutionDir)External\Include\Engine"
+xcopy /s /y  /exclude:$(SolutionDir)Exclude.txt "$(SolutionDir)Project\Engine\*.fx" "$(SolutionDir)OutputFile\bin\content\shader"</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AnimationMgr.h" />
@@ -203,6 +211,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="CKeyMgr.h" />
     <ClInclude Include="CollisionMgr.h" />
     <ClInclude Include="InputGeom.h" />
+    <ClInclude Include="LoadingMgr.h" />
     <ClInclude Include="MainMenuMgr.h" />
     <ClInclude Include="MapMgr.h" />
     <ClInclude Include="MouseMgr.h" />
@@ -266,6 +275,7 @@ call EngineCopy.bat</Command>
     <ClInclude Include="struct.h" />
     <ClInclude Include="CUI.h" />
     <ClInclude Include="TextMgr.h" />
+    <ClInclude Include="ThreadMgr.h" />
     <ClInclude Include="WeaponMgr.h" />
   </ItemGroup>
   <ItemGroup>
@@ -304,6 +314,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CKeyMgr.cpp" />
     <ClCompile Include="CollisionMgr.cpp" />
     <ClCompile Include="InputGeom.cpp" />
+    <ClCompile Include="LoadingMgr.cpp" />
     <ClCompile Include="MainMenuMgr.cpp" />
     <ClCompile Include="MapMgr.cpp" />
     <ClCompile Include="MouseMgr.cpp" />
@@ -367,6 +378,7 @@ call EngineCopy.bat</Command>
     <ClCompile Include="CUI.cpp" />
     <ClCompile Include="SoundMgr.cpp" />
     <ClCompile Include="TextMgr.cpp" />
+    <ClCompile Include="ThreadMgr.cpp" />
     <ClCompile Include="WeaponMgr.cpp" />
   </ItemGroup>
   <ItemGroup>

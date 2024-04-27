@@ -286,6 +286,10 @@
     <ClInclude Include="MapMgr.h">
       <Filter>Source\_Manager\MapMgr</Filter>
     </ClInclude>
+    <ClInclude Include="ThreadMgr.h">
+      <Filter>Source\_Manager\ThreadMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadingMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -561,6 +565,10 @@
     <ClCompile Include="MapMgr.cpp">
       <Filter>Source\_Manager\MapMgr</Filter>
     </ClCompile>
+    <ClCompile Include="ThreadMgr.cpp">
+      <Filter>Source\_Manager\ThreadMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="LoadingMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -829,6 +837,12 @@
     </Filter>
     <Filter Include="Source\_Manager\MapMgr">
       <UniqueIdentifier>{a43c84ab-02b5-413e-8d74-7ef84561e4ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\ThreadMgr">
+      <UniqueIdentifier>{ddc6b30a-f22e-406d-a1f5-c7b66b19bc50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Manager\LoadingMgr">
+      <UniqueIdentifier>{a465b1df-e550-4507-afdf-be34d211dc5e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
