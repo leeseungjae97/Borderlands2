@@ -521,7 +521,8 @@ void CWarriorScript::rockMove()
 					if (!SoundMgr::GetInst()->IsPlaying(wsRockCrashSound, SoundMgr::SOUND_TYPE::SFX))
 						SoundMgr::GetInst()->Play(wsRockCrashSound, pRock->Transform()->GetRelativePos(), 1, 10.f, SoundMgr::SOUND_TYPE::SFX, 1.0f, false);
 
-					pRock->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+					//pRock->SetObjectState(CGameObject::OBJECT_STATE::INVISIBLE);
+					tState = WARRIOR_STATE::IDLE;
 					m_bRockThrow = false;
 					m_bRockFollow = true;
 				}

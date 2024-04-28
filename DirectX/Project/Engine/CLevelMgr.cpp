@@ -55,6 +55,9 @@ void CLevelMgr::tick()
 	if (nullptr == m_pCurLevel)
 		return;
 
+	if (m_pCurLevel->GetState() == LEVEL_STATE::STOP)
+		m_pCurLevel->ChangeState(LEVEL_STATE::PLAY);
+
 	m_pCurLevel->clear();
 
 	if (LEVEL_STATE::PLAY == m_pCurLevel->GetState())

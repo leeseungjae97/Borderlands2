@@ -106,7 +106,7 @@ void CEditorObjMgr::progress()
 
 	tick();
 
-	static bool rendering = true;
+	static bool rendering = false;
 	if(KEY_TAP(KEY::P))
 	{
 		rendering = !rendering;

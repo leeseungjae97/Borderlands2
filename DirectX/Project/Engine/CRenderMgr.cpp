@@ -74,7 +74,7 @@ void CRenderMgr::init()
 
 	CreateMRT();
 
-	//CResMgr::GetInst()->RoadResource();
+	CResMgr::GetInst()->RoadResource();
 }
 
 void CRenderMgr::render()
