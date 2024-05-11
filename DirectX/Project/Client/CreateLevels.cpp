@@ -79,8 +79,8 @@ void CreateLoading()
 		pSunLight->Light3D()->SetFloatConstant(0, 1000.f);
 		pSunLight->Light3D()->SetFloatConstant(1, 8.0f);
 		pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
-		pSunLight->Light3D()->SetLightColor(Vec3(0.5f, 0.5f, 1.f));
-		pSunLight->Light3D()->SetLightAmbient(Vec3(0.1f, 0.1f, 0.15f));
+		pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
+		pSunLight->Light3D()->SetLightAmbient(Vec3(1.f, 1.f, 1.f));
 
 		PreloadGameObject(pSunLight, Vec3(-2000.f, 60000.f, -2000.f), LAYER_TYPE::Default);
 	}

@@ -136,8 +136,8 @@ struct VS_SCREEN_OUT
 };
 struct PS_BLUR_OUT
 {
-    float4 vEmissive : SV_Target0;
-    //float4 vDiffuse: SV_Target1;
+    float4 vEmissiveX : SV_Target0;
+    float4 vEmissiveY : SV_Target1;
 };
 struct PS_BLOOM_OUT
 {
@@ -154,6 +154,7 @@ VS_SCREEN_OUT VS_Screen(VS_SCREEN_IN _In)
 
 #define EmissiveTargetTex g_tex_0
 
+
 float4 PS_BlurX(VS_SCREEN_OUT _In) : SV_Target
 {
     float4 vOut = (float4) 0.f;
@@ -161,16 +162,21 @@ float4 PS_BlurX(VS_SCREEN_OUT _In) : SV_Target
     float2 t = _In.vUV;
     float2 uv = 0;
     float tu = 1.f / g_Resolution.x;
+    float weightSum = 0.f;
     for (int i = -12; i < 12; ++i)
     {
         uv = t + float2(tu * i, 0);
         vOut += Weight[12 + i] * EmissiveTargetTex.Sample(g_sam_anti_0, uv);
+        weightSum += Weight[12 + i];
+
     }
-    vOut /= 6.2108f;
+    vOut /= weightSum;
 
     return vOut;
-
 }
+
+#define BlurHTargetTex g_tex_1
+
 float4 PS_BlurY(VS_SCREEN_OUT _In) : SV_Target
 {
     float4 vOut = (float4) 0.f;
@@ -178,12 +184,17 @@ float4 PS_BlurY(VS_SCREEN_OUT _In) : SV_Target
     float2 t = _In.vUV;
     float2 uv = 0;
     float tu = 1.f / (g_Resolution.y / 2.f);
+    float weightSum = 0.f;
     for (int i = -12; i < 12; ++i)
     {
         uv = t + float2(0, tu * i);
-        vOut += Weight[12 + i] * EmissiveTargetTex.Sample(g_sam_anti_0, uv);
+        vOut += Weight[12 + i] * BlurHTargetTex.Sample(g_sam_anti_0, uv);
+        weightSum += Weight[12 + i];
+
     }
-    vOut /= 6.2108f;
+    //vOut /= 6.2108f;
+    vOut /= weightSum;
+    //vOut += BlurHTargetTex.Sample(g_sam_anti_0, uv);
 
     return vOut;
 }
@@ -192,7 +203,7 @@ PS_BLUR_OUT PS_GaussianBlur(VS_SCREEN_OUT _In)
 {
     PS_BLUR_OUT vOut = (PS_BLUR_OUT) 0.f;
     
-    vOut.vEmissive = GaussianBlur(EmissiveTargetTex, _In.vUV);
+    //vOut.vEmissive = GaussianBlur(EmissiveTargetTex, _In.vUV);
 
     return vOut;
 }
@@ -211,24 +222,32 @@ float4 PS_Bloom(VS_SCREEN_OUT _In) : SV_Target
 
     float4 vBloom = pow(pow(abs(vBlurred), 2.2f) + pow(abs(vOrigin), 2.2f), 1.f / 2.2f);
 
-    vOut = pow(abs(vHDRColor), 2.2f);
+    //vOut = pow(abs(vHDRColor), 2.2f);
+    vOut = vHDRColor;
     vBloom = pow(abs(vBloom), 2.2f);
-
+    vBloom = pow(abs(vBloom), 1.f / 2.2f);
     vOut += vBloom;
-    //vOut =lerp(vOut, vBloom, 0.5f);
-
-    return pow(abs(vOut), 1.f / 2.2f);
+    
+    //return pow(abs(vOut), 1.f / 2.2f);
+    return vOut;
 }
 
 #define BloomedHDRTargetTex g_tex_0
+#define UseToneMapping g_int_0
 float4 PS_ToneMapping(VS_SCREEN_OUT _In) : SV_Target
 {
     float4 vHDRColor = BloomedHDRTargetTex.Sample(g_sam_anti_0, _In.vUV);
-    float3 vToneMappedColor = ACESToneMapping(vHDRColor.xyz);
-
-    //return vHDRColor;
-    //return float4(vToneMappedColor , 1.f);
-    return float4(pow(vToneMappedColor, 1 / 2.2f), vHDRColor.a);
+    //vHDRColor = pow(abs(vHDRColor), 1.f / 2.2f);
+    if (UseToneMapping == 1)
+    {
+        float3 vToneMappedColor = ACESToneMapping(vHDRColor.xyz);
+        //return float4(pow(vToneMappedColor, 1 / 2.2f), 1.0f);
+        return float4(vToneMappedColor, 1.f);
+    }
+    else
+    {
+        return vHDRColor;
+    }
 }
 
 #define Fade g_float_0
@@ -270,41 +289,46 @@ float4 PS_Laplacian(VS_SCREEN_OUT _In) : SV_Target
     float4 vColor = (float4) 0.f;
     float4 vRet = (float4) 0.f;
 
-    if (MapLaplacian == 1)
+    if (MapLaplacian != 1)
     {
-		//vRet = TargetTex.Sample(g_sam_anti_0, _In.vUV);
-    }
-    else 
         vRet = TargetTex.Sample(g_sam_anti_0, _In.vUV);
+    }
 
     for (int i = 0; i < 9; ++i)
     {
         if (MapLaplacian == 1)
-            vColor -= mask[i] * (NormalTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(mapCoord[i % 3] / g_Resolution.x, mapCoord[i / 3] / g_Resolution.y)));
+            vColor -= mask[i] * (NormalTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(mapCoord[i % 3] 
+            / g_Resolution.x, mapCoord[i / 3] / g_Resolution.y)));
         else
-            vColor -= mask[i] * (NormalTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(coord[i % 3] / g_Resolution.x, coord[i / 3] / g_Resolution.y)));
+            vColor -= mask[i] * (NormalTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(coord[i % 3] 
+			/ g_Resolution.x, coord[i / 3] / g_Resolution.y)));
     }
     float gray = 0.f;
-
     float threshold = 0.5f;
-    float outlineIntensity = 10.f;
     
     float4 vImpactColor = (float4) 0.f;
     
+    // 외곽선인 경우 vColor의 값이
     if (MapLaplacian == 1)
     {
+        // vColor의 RGB값과 같아짐
+        // gray는 vColor의 합
         gray = dot(vColor, float4(1.0f, 1.0f, 1.0f, 1.0f));
+        // 외곽선의 색 지정
         vImpactColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
     }
     else
     {
         gray = dot(vColor, float4(1.0f, 1.0f, 1.0f, 1.0f));
+        // 외곽선의 색 지정
         vImpactColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
     }
-
-    float4 outline = vImpactColor * saturate((gray - threshold) * outlineIntensity);
+    // 보정치 0.5
+    float4 outline = vImpactColor * saturate(gray - threshold);
     if (MapLaplacian == 1)
     {
+        // 선형 보간을 통해 색을 입혀줌
+        // 맵의 경우 외곽선을 제외한 색이 필요
         vRet.rgb = float3(43.f / 255.f, 76.f / 255.f, 93.f / 255.f);
         vRet.rgb = lerp(vRet.rgb, outline.rgb, outline.a);
         vRet.a = 1.f;

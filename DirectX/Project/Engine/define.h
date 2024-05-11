@@ -488,7 +488,9 @@ enum class MRT_TYPE
 
 	LIGHT,
 
-	LUMINANCE,
+	BLUR_V,
+
+	BLUR_H,
 
 	SCOPE_RENDER,
 

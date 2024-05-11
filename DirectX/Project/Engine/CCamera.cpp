@@ -396,19 +396,24 @@ void CCamera::render()
 			vecLight3D[i]->render(m_iCamIdx);
 		}
 
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LUMINANCE)->OMSet();
-		
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLUR_H)->OMSet();
 
 		pBlurV->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-		pBlurH->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
 
 		// X
 		pBlurV->UpdateData();
 		pScreen->render(0);
 
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLUR_V)->OMSet();
+
+		pBlurH->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+		pBlurH->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveHorizontalBlurredTargetTex"));
+
 		// Y
 		pBlurH->UpdateData();
 		pScreen->render(0);
+
+		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR)->OMSet();
 
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR)->OMSet();
 
@@ -423,25 +428,39 @@ void CCamera::render()
 		pScreen->render(0);
 
 		// Outline
-		if (m_Outline)
-		{
-			CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR_LINE)->OMSet();
-			pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
-			pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
-			int branch = 0;
-			pLaplacian->SetScalarParam(INT_0, &branch);
-			pLaplacian->UpdateData();
-			pScreen->render(0);
-		}
+		//if (m_Outline)
+		//{
+
+		//}
+
+		//if (m_Outline)
+		//{
+
+		//}
+		//else
+		//{
+		//	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLOOMED_HDR)->OMSet();
+
+		//	pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+		//}
+		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR_LINE)->OMSet();
+		pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
+		pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+		//pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"RenderTargetTex"));
+		int branch = 0;
+		pLaplacian->SetScalarParam(INT_0, &branch);
+		pLaplacian->UpdateData();
+		pScreen->render(0);
 
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLOOMED_HDR)->OMSet();
 
-		if (m_Outline)
-			pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"OutlineHDRTargetTex"));
-		else
-			pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+		pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"OutlineHDRTargetTex"));
+		//if (m_Outline)
+		//	
+		//else
+		//	pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
 
-		pEmissiveBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveBlurredTargetTex"));
+		pEmissiveBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveVerticalBlurredTargetTex"));
 		pEmissiveBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
 
 		// Bloom
@@ -456,10 +475,22 @@ void CCamera::render()
 
 		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
 		// Bloomed HDR ToneMapping -> LDR
+		//if (m_Outline)
+		//{
+
+		//}else
+		//{
+
+		//}
+
+		int m = 1;
+		pToneMapping->SetScalarParam(INT_0, &m);
+
 		pToneMapping->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"BloomedHDRTargetTex"));
 
 		pToneMapping->UpdateData();
 		pScreen->render(0);
+
 
 		render_forward();
 		render_decal();

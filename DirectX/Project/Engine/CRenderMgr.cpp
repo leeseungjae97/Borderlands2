@@ -389,11 +389,11 @@ void CRenderMgr::CreateMRT()
 	// Luminance MRT
 	// ====================
 	{
-		m_MRT[(UINT)MRT_TYPE::LUMINANCE] = new MRT;
+		m_MRT[(UINT)MRT_TYPE::BLUR_V] = new MRT;
 
 		Ptr<CTexture> arrRTTex[8] = {};
 
-		arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"EmissiveBlurredTargetTex", vResol.x, vResol.y
+		arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"EmissiveVerticalBlurredTargetTex", vResol.x, vResol.y
 			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
@@ -401,7 +401,22 @@ void CRenderMgr::CreateMRT()
 		//    , DXGI_FORMAT_R8G8B8A8_UNORM
 		//    , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
-		m_MRT[(UINT)MRT_TYPE::LUMINANCE]->Create(arrRTTex, 1, nullptr);
+		m_MRT[(UINT)MRT_TYPE::BLUR_V]->Create(arrRTTex, 1, nullptr);
+	}
+	{
+		m_MRT[(UINT)MRT_TYPE::BLUR_H] = new MRT;
+
+		Ptr<CTexture> arrRTTex[8] = {};
+
+		arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"EmissiveHorizontalBlurredTargetTex", vResol.x, vResol.y
+			, DXGI_FORMAT_R8G8B8A8_UNORM
+			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+		//arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"DiffuseBlurredTargetTex", vResol.x, vResol.y
+		//    , DXGI_FORMAT_R8G8B8A8_UNORM
+		//    , D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
+
+		m_MRT[(UINT)MRT_TYPE::BLUR_H]->Create(arrRTTex, 1, nullptr);
 	}
 	// ====================
 	// Decal MRT

@@ -88,8 +88,6 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
     else
     {
         float fDepth = vLightProj.z / vLightProj.w;
-        //float fDepth = vLightProj.z;
-        //float fDepth = ShadowMapTargetTex.Sample(g_sam_anti_0, vShadowMapUV);
         fDepth -= DepthCoeff;
         float SMAP_SIZE = FloatCoeff1;
         float SMAP_DX = 1.0f / SMAP_SIZE;
@@ -110,6 +108,9 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
             vShadowMapUV.xy + offsets[i], fDepth).r;
         }
         fShadowCoeff /= FloatCoeff2;
+
+        //fShadowCoeff = ShadowMapTargetTex.SampleCmpLevelZero(g_shadow_sampler, vShadowMapUV.xy, fDepth).r;
+
         //fShadowCoeff = PCF(ShadowMapTargetTex, vShadowMapUV, fDepth - DepthCoeff, FloatCoeff1, float2(FloatCoeff2, FloatCoeff3));
         
         //if (fShadowDepth != 0.f && (fDepth > fShadowDepth + 0.00001f))
@@ -349,7 +350,7 @@ float4 PS_MergeShader(VS_OUT _in) : SV_Target
     float3 vColorDiffuse = vColor.xyz * vDiffuse.xyz;
     vColorDiffuse *= fShadowCoeff;
     float3 vColorSpecular = vSpecular.xyz * vColor.a;
-    vColorSpecular *= fShadowCoeff;
+    //vColorSpecular *= fShadowCoeff;
 
     //float3 vColorDiffuseShadow = vColorDiffuse * fShadowCoeff;
     //vColorDiffuseShadow = (vColorDiffuseShadow + vColorDiffuse / 2.f);

@@ -41,7 +41,6 @@ void CLevelMgr::tick()
 	{
 		//if(m_mapLevels.size() < 2)
 		//	LevelRecognize();
-		//else
 		//{
 		//	
 		//}

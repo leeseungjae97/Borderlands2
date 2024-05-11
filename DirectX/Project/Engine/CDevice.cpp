@@ -440,7 +440,7 @@ int CDevice::CreateSampler()
 
     //tSamDesc.Filter = D3D11_FILTER_COMPARISON_ANISOTROPIC;
     m_iFilterIdx = 6;
-    tSamDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;;
+    tSamDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
     tSamDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
     DEVICE->CreateSamplerState(&tSamDesc, m_Sampler[3].GetAddressOf());
 

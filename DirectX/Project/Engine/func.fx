@@ -467,13 +467,11 @@ void PerlinNoiseFire(out float4 fragColor, in float2 fragCoord)
     q.y -= 0.6;
     float n = fbm(strength * q - float2(0, T3));
     float c = 1. - 16. * pow(max(0., length(q * float2(1.8 + q.y * 1.5, .75)) - n * max(0., q.y + .25)), 1.2);
-	//float c1 = n * c * (0.5 + pow(uv.y,4.));
     float c1 = n * c * (0.5 + pow(1.25 * uv.y, 4.));
     c1 = clamp(c1, 0., 1.);
 
     float3 col = float3(1.5 * c1, 1.5 * c1 * c1 * c1, c1 * c1 * c1 * c1 * c1 * c1);
-
-    //float a1 = c * (1. - pow(uv.y, 3.));
+    
     float a = c * uv.y;
     fragColor = float4(lerp((float3) 0.0f, col, a), a);
 }
@@ -580,7 +578,6 @@ float4 PaperBurn(float4 vColor, float2 vUV, Texture2D BurnTex, inout float4 vEmi
     {
         vOut = float4(1, 0, 0, 1);
         vEmissive += vOut;
-
     }
 
     if (SinPaperAcc - 0.03f <= vBurnColor.r && vBurnColor.r <= SinPaperAcc + 0.03f)
