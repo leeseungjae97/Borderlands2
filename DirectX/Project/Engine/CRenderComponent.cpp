@@ -24,8 +24,6 @@ void CRenderComponent::SetMesh(Ptr<CMesh> _Mesh)
 	if (!m_vecMtrls.empty())
 	{
 		m_vecMtrls.clear();
-		vector<tMtrlSet> vecMtrls;
-		m_vecMtrls.swap(vecMtrls);
 	}
 
 
@@ -62,20 +60,20 @@ Ptr<CMaterial> CRenderComponent::GetDynamicMaterial(UINT _Idx)
 {
 	if (m_vecMtrls.empty()) return nullptr;
 
-		// ¿øº» ÀçÁúÀÌ ¾ø´Ù -> Nullptr ¹ÝÈ¯
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ -> Nullptr ï¿½ï¿½È¯
 	if (nullptr == m_vecMtrls[_Idx].pSharedMtrl)
 	{
 		m_vecMtrls[_Idx].pCurrentMtrl = nullptr;
 		return m_vecMtrls[_Idx].pCurrentMtrl;
 	}
 
-	// µ¿Àû ÀçÁú ÃÖÃÊ ¿äÃ»½Ã Á¦ÀÛ ÇØ¼­ ÁØ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã»ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ø¼ï¿½ ï¿½Ø´ï¿½.
 	if (nullptr == m_vecMtrls[_Idx].pDynamicMtrl)
 	{		
 		m_vecMtrls[_Idx].pDynamicMtrl = m_vecMtrls[_Idx].pSharedMtrl->Clone();		
 	}
 
-	// µ¿Àû ÀçÁúÀ» ÇöÀç »ç¿ëÀçÁú·Î ÁöÁ¤ÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_vecMtrls[_Idx].pCurrentMtrl = m_vecMtrls[_Idx].pDynamicMtrl;
 
 
@@ -90,7 +88,12 @@ ULONG64 CRenderComponent::GetInstID(UINT _iMtrlIdx)
 	if (m_pMesh == NULL || m_vecMtrls[_iMtrlIdx].pCurrentMtrl == NULL)
 		return 0;
 
-	uInstID id{ (UINT)m_pMesh->GetID(), (WORD)m_vecMtrls[_iMtrlIdx].pCurrentMtrl->GetID(), (WORD)_iMtrlIdx };
+	uInstID id = {};
+    id.iMesh = (UINT)m_pMesh->GetID();
+    id.iMtrl = (WORD)m_vecMtrls[_iMtrlIdx].pCurrentMtrl->GetID();
+    id.iMtrlIdx = (unsigned char)_iMtrlIdx;
+    id.bAnim = (unsigned char)(Animator3D() != nullptr ? 1 : 0);
+
 	return id.llID;
 }
 
@@ -102,7 +105,7 @@ void CRenderComponent::render_shadowmap()
 	{
 		Animator3D()->UpdateData();
 
-		pShadowMapMtrl->SetAnim3D(true); // Animation Mesh ¾Ë¸®±â
+		pShadowMapMtrl->SetAnim3D(true); // Animation Mesh ï¿½Ë¸ï¿½ï¿½ï¿½
 		pShadowMapMtrl->SetBoneCount(Animator3D()->GetBoneCount());
 	}else
 	{
@@ -113,14 +116,11 @@ void CRenderComponent::render_shadowmap()
 
 	for (int i = 0; i < GetMesh()->GetSubsetCount(); ++i)
 	{
-		// ÀçÁú ¾÷µ¥ÀÌÆ®
-		pShadowMapMtrl->UpdateData();
-		// ·»´õ
+		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+		//pShadowMapMtrl->UpdateData();
+		// ï¿½ï¿½ï¿½ï¿½
 		GetMesh()->render(i);
 	}
-
-	if (Animator3D())
-		Animator3D()->ClearData();
 }
 
 

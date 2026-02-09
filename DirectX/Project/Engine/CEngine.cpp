@@ -11,6 +11,7 @@
 #include "CEventMgr.h"
 #include "CSimpleTextMgr.h"
 #include "CInstancingBuffer.h"
+#include "InstancingAnimatorMgr.h"
 #include "FieldUIMgr.h"
 #include "KeyUseInfoMgr.h"
 #include "MainMenuMgr.h"
@@ -26,6 +27,8 @@
 #include "TextMgr.h"
 #include "ThreadMgr.h"
 #include "WeaponMgr.h"
+
+#include "../Client/CreateLevels.h"
 
 CEngine::CEngine()
 	: m_hWnd(nullptr)
@@ -52,17 +55,17 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 
 	if (FAILED(CDevice::GetInst()->init(m_hWnd, _iWidth, _iHeight)))
 	{
-		MessageBox(nullptr, L"Device 초기화 실패", L"에러", MB_OK);
+		MessageBox(nullptr, L"Device", L"Fail", MB_OK);
 		return E_FAIL;
 	}
 
 	CPathMgr::GetInst()->init();
 
+	CResMgr::GetInst()->init();
+
 	CKeyMgr::GetInst()->init();
 
 	CTimeMgr::GetInst()->init();
-
-	CResMgr::GetInst()->init();
 
 	CRenderMgr::GetInst()->init();
 
@@ -74,6 +77,8 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 
 	CInstancingBuffer::GetInst()->init();
 
+	InstancingAnimatorMgr::GetInst()->init();
+
 	RandMgr::GetInst()->init();
 
 	NavigationMgr::GetInst()->init();
@@ -82,50 +87,75 @@ int CEngine::init(HWND _hWnd, UINT _iWidth, UINT _iHeight)
 
 	SoundMgr::GetInst()->init();
 
+	CResMgr::GetInst()->RoadResource();
 
 	return S_OK;
 }
 
 void CEngine::progress()
 {
+	//firsttick();
 	tick();
-
+	finaltick();
 	render();
 
-	CEventMgr::GetInst()->tick();
-	ObjPickerMgr::GetInst()->tick();
-	PhysXMgr::GetInst()->fixedTick();
+	CEventMgr::GetInst()->fixedtick();
+	fixedtick();
+}
+
+void CEngine::begin()
+{
+	CLevelMgr::GetInst()->begin();
+}
+void CEngine::firsttick()
+{
+	
 }
 
 void CEngine::tick()
 {
 	// Manager Tick
-	CResMgr::GetInst()->tick();
 	CTimeMgr::GetInst()->tick();
-	CKeyMgr::GetInst()->tick();	
+	CKeyMgr::GetInst()->tick();
+	CResMgr::GetInst()->tick();
+	ThreadMgr::GetInst()->tick();
 
 	CLevelMgr::GetInst()->tick();
+	RaycastMgr::GetInst()->tick();
+	NavigationMgr::GetInst()->tick();
 	
 	PlayerMgr::GetInst()->tick();
 	WeaponMgr::GetInst()->tick();
-	RaycastMgr::GetInst()->tick();
-	NavigationMgr::GetInst()->tick();
-
 	MapMgr::GetInst()->tick();
-	FieldUIMgr::GetInst()->tick();
 
 	MainMenuMgr::GetInst()->tick();
+	FieldUIMgr::GetInst()->tick();
 
 	SoundMgr::GetInst()->tick();
 
-	ThreadMgr::GetInst()->tick();
+	CRenderMgr::GetInst()->tick();
+}
+void CEngine::finaltick()
+{
+	//CResMgr::GetInst()->finaltick();
+	CLevelMgr::GetInst()->finaltick();
+	CRenderMgr::GetInst()->finaltick();
+}
+void CEngine::fixedtick()
+{
+	if (CTimeMgr::GetInst()->GetTime() <= beforeFixedUpdateTime + fixedCycleTime)
+	{
+		beforeFixedUpdateTime = CTimeMgr::GetInst()->GetTime();
+	}
+	else
+		return;
+
+	ObjPickerMgr::GetInst()->fixedtick();
+	PhysXMgr::GetInst()->fixedTick();
 }
 
 void CEngine::render()
 {	
 	CRenderMgr::GetInst()->render();
-
 	CTimeMgr::GetInst()->render();
-
-	//KeyUseInfoMgr::GetInst()->render();
 }

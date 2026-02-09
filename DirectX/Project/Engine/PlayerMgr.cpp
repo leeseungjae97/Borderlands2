@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "PlayerMgr.h"
-
+#include "AnimationMgr.h"
 #include "CameraMgr.h"
 #include "CAnimator3D.h"
 #include "CEventMgr.h"
@@ -70,7 +70,9 @@ Vec3 PlayerMgr::GetPlayerCameraPos()
 	if (nullptr == rb)
 		return Vec3::Zero;
 
-	Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iCameraIdx, m_pPlayer->Animator3D());
+	Vec3 vPos = AnimationMgr::GetInst()->BonePos(iCameraIdx, m_pPlayer);
+
+	//Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iCameraIdx, m_pPlayer->Animator3D());
 	Vec3 vOffset = Vec3::Zero;
 	if(m_pPlayer->Animator3D())
 	{
@@ -89,7 +91,8 @@ Vec3 PlayerMgr::GetPlayerWeaponRot()
 
 	int iWeaponHandRotIdx = m_pPlayer->Animator3D()->GetWeaponRHandIdx();
 
-	Vec3 vRot = m_pPlayer->MeshRender()->GetMesh()->BoneRotSkinning(iWeaponHandRotIdx, m_pPlayer->Animator3D());
+	//Vec3 vRot = m_pPlayer->MeshRender()->GetMesh()->BoneRotSkinning(iWeaponHandRotIdx, m_pPlayer->Animator3D());
+	Vec3 vRot = AnimationMgr::GetInst()->BoneRot(iWeaponHandRotIdx, m_pPlayer);
 
 	return vRot;
 }
@@ -100,7 +103,8 @@ Vec3 PlayerMgr::GetPlayerWeaponPos()
 		return Vec3::Zero;
 
 	int iWeaponHandIdx = m_pPlayer->Animator3D()->GetWeaponRHandIdx();
-	Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, m_pPlayer->Animator3D());
+	//Vec3 vPos = m_pPlayer->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, m_pPlayer->Animator3D());
+	Vec3 vPos = AnimationMgr::GetInst()->BoneRot(iWeaponHandIdx, m_pPlayer);
 
 	vPos = XMVector3TransformCoord(vPos, m_pPlayer->Transform()->GetWorldMat());
 

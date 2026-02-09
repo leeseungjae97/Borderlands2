@@ -14,9 +14,7 @@
 #include <Engine/CKeyMgr.h>
 
 #include "ImGuiMgr.h"
-
 #include "CreateLevels.h"
-
 
 
 // 전역 변수:
@@ -57,7 +55,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ int       nCmdShow)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    //_CrtSetBreakAlloc(1865);
+    //_CrtSetBreakAlloc(1442051);
    
     MyRegisterClass(hInstance);
 
@@ -71,14 +69,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         return 0;
     }
+    else
+    {
+        PhysXMgr::GetInst()->init();
+        //CEngine::GetInst()->begin();
+        CreateLevels();
 
-    CEditorObjMgr::GetInst()->init();
-       
-    //ImGuiMgr::GetInst()->init(g_hWnd);
+        CEditorObjMgr::GetInst()->init();
+        ImGuiMgr::GetInst()->init(g_hWnd);
+    }
 
-    PhysXMgr::GetInst()->init();
-
-    CreateLevels();
 
     // 메세지 루프
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
@@ -101,9 +101,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         else
         {
             CEngine::GetInst()->progress();
-            CEditorObjMgr::GetInst()->progress();         
-            //ImGuiMgr::GetInst()->progress();            
             CDevice::GetInst()->Present();
+
+            ImGuiMgr::GetInst()->progress();
+            CEditorObjMgr::GetInst()->progress();
         }       
     }
 

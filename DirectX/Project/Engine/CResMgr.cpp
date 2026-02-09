@@ -10,6 +10,7 @@
 #include "CWeightMapShader.h"
 #include "DownScaleShader.h"
 #include "IndividualBoneSkinningShader.h"
+#include "InstancingAnimation3DShader.h"
 
 extern FMOD::System* g_pFMOD = nullptr;
 
@@ -1308,7 +1309,7 @@ void CResMgr::CreateDefaultComputeShader()
 	AddRes(pCS->GetKey(), pCS);
 
 	// Animation Matrix Update ½¦ÀÌ´õ
-	pCS = new CAnimation3DShader(256, 1, 1);
+	pCS = new CAnimation3DShader(1024, 1, 1);
 	pCS->SetKey(L"Animation3DUpdateCS");
 	pCS->CreateComputeShader(L"shader\\animation3d.fx", "CS_Animation3D");
 	AddRes(pCS->GetKey(), pCS);
@@ -1337,6 +1338,11 @@ void CResMgr::CreateDefaultComputeShader()
 	pCS = new CCopyBoneShader(1024, 1, 1);
 	pCS->SetKey(L"CopyBoneCS");
 	pCS->CreateComputeShader(L"shader\\copybone.fx", "CS_CopyBoneMatrix");
+	AddRes(pCS->GetKey(), pCS);
+
+	pCS = new InstancingAnimation3DShader(32, 32, 1);
+	pCS->SetKey(L"InstacingAnimation3DCS");
+	pCS->CreateComputeShader(L"shader\\instancing_animation3d.fx", "CS_InstancingAnimation3D");
 	AddRes(pCS->GetKey(), pCS);
 
 	pCS = new IndividualBoneSkinningShader(1, 1, 1);

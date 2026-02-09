@@ -1,5 +1,6 @@
 #pragma once
 #include "CEntity.h"
+#include "pch.h"
 
 class CComponent;
 class CTransform;
@@ -163,7 +164,7 @@ private:
 public:
     CGameObject();
     CGameObject(const CGameObject& _Other);
-    ~CGameObject();
+    virtual ~CGameObject();
 
     friend class CLayer;
     friend class CEventMgr;

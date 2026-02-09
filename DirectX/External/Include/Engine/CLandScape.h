@@ -29,13 +29,13 @@ private:
     UINT                    m_iFaceX;
     UINT                    m_iFaceZ;
 
-    Vec2                    m_vBrushScale;      // ºê·¯½¬ Å©±â(ÀüÃ¼ ÁöÇü´ëºñ Å©±â ºñÀ²°ª)
-    Ptr<CTexture>           m_pBrushTex;        // ºê·¯½¬¿ë ÅØ½ºÃÄ
+    Vec2                    m_vBrushScale;      // ï¿½ê·¯ï¿½ï¿½ Å©ï¿½ï¿½(ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
+    Ptr<CTexture>           m_pBrushTex;        // ï¿½ê·¯ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½ï¿½ï¿½
 
-    Ptr<CRayCastShader>     m_pCSRaycast;       // ÇÈÅ· ½¦ÀÌ´õ
-    CStructuredBuffer*      m_pCrossBuffer;	    // ¸¶¿ì½º ÇÇÅ·µÇ´Â ÁöÁ¡ Á¤º¸ ¹Þ´Â ¹öÆÛ
+    Ptr<CRayCastShader>     m_pCSRaycast;       // ï¿½ï¿½Å· ï¿½ï¿½ï¿½Ì´ï¿½
+    CStructuredBuffer*      m_pCrossBuffer;	    // ï¿½ï¿½ï¿½ì½º ï¿½ï¿½Å·ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Þ´ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-    Ptr<CHeightMapShader>   m_pCSHeightMap;     // ³ôÀÌ¸Ê ½¦ÀÌ´õ
+    Ptr<CHeightMapShader>   m_pCSHeightMap;     // ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½
     Ptr<CColorMapShader>    m_pCSColorMap;
 
     Ptr<CTexture>           m_HeightMap;
@@ -48,15 +48,15 @@ private:
 
     CGameObject*            m_pBrushLineDecal;
 
-    Ptr<CWeightMapShader>   m_pCSWeightMap;     // °¡ÁßÄ¡ ½¦ÀÌ´õ
-    CStructuredBuffer*      m_pWeightMapBuffer; // °¡ÁßÄ¡ ÀúÀå ¹öÆÛ
-    UINT					m_iWeightWidth;		// °¡ÁßÄ¡ ¹öÆÛ °¡·Î¼¼·Î Çà·Ä ¼ö
-    UINT					m_iWeightHeight;	// °¡ÁßÄ¡ ¹öÆÛ °¡·Î¼¼·Î Çà·Ä ¼ö
-    UINT                    m_iWeightIdx;		// Áõ°¡ ½ÃÅ³ °¡ÁßÄ¡ ºÎÀ§
+    Ptr<CWeightMapShader>   m_pCSWeightMap;     // ï¿½ï¿½ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½Ì´ï¿½
+    CStructuredBuffer*      m_pWeightMapBuffer; // ï¿½ï¿½ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    UINT					m_iWeightWidth;		// ï¿½ï¿½ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½
+    UINT					m_iWeightHeight;	// ï¿½ï¿½ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½
+    UINT                    m_iWeightIdx;		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å³ ï¿½ï¿½ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
 
-    LANDSCAPE_MOD           m_eMod; 	        // ÁöÇü Åø¸ðµå¿¡¼­ »óÅÂ°ª
+    LANDSCAPE_MOD           m_eMod; 	        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½å¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½
 
-    Ptr<CTexture>           m_pTileArrTex;      // Å¸ÀÏ ¹è¿­ ÅØ½ºÃÄ
+    Ptr<CTexture>           m_pTileArrTex;      // Å¸ï¿½ï¿½ ï¿½è¿­ ï¿½Ø½ï¿½ï¿½ï¿½
     RecastNavi*             m_Recast;
     CStructuredBuffer*      m_pVertexBuffer;
     // ========================================================================
@@ -141,6 +141,6 @@ public:
 
 public:
     CLandScape();
-    ~CLandScape();
+    virtual ~CLandScape();
 };
 

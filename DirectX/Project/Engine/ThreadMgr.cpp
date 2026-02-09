@@ -11,20 +11,17 @@ ThreadMgr::~ThreadMgr()
 
 void ThreadMgr::tick()
 {
-	//if (!m_vecThreads.empty())
-	//{
-	//	auto iter = m_vecThreads.begin();
-	//	for (iter; iter != m_vecThreads.end();)
-	//	{
-	//		if (!(*iter).joinable())
-	//		{
-	//			iter = m_vecThreads.erase(iter);
-	//		}
+	if (!m_vecThreads.empty() && !IsAnyThreadRun()) 
+	{
+		for (auto& t : m_vecThreads)
+		{
+			if (t.joinable()) 
+				t.join();
+		}
 
-	//		if (!m_vecThreads.empty())
-	//			++iter;
-	//	}
-	//}
+		m_vecThreads.clear();
+		m_iFinishedCount = 0;
+	}
 }
 
 void ThreadMgr::init()
@@ -33,13 +30,12 @@ void ThreadMgr::init()
 
 void ThreadMgr::AddThread(std::function<void()> func)
 {
-	m_vecThreads.emplace_back(std::thread(func));
-	m_vecThreads[m_vecThreads.size() - 1].detach();
+	m_vecThreads.emplace_back(func);
 }
 
 void ThreadMgr::AddThreadEnd()
 {
-	vec_ends.push_back(1);
+	m_iFinishedCount++;
 }
 
 void ThreadMgr::RunThread()
@@ -47,10 +43,8 @@ void ThreadMgr::RunThread()
 
 }
 
-bool ThreadMgr::IsThreadRun()
+bool ThreadMgr::IsAnyThreadRun()
 {
-	if (vec_ends.size() == m_vecThreads.size())
-		return false;
-
-	return true;
+	return m_iFinishedCount < (int)m_vecThreads.size();
 }
+

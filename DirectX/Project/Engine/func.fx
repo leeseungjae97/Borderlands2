@@ -82,7 +82,7 @@ void CalcLight2D(float3 _vWorldPos, float3 _vWorldDir, inout tLightColor _Light)
             float3 vLightWorldPos = float3(g_Light2DBuffer[i].vWorldPos.xy, 0.f);
             float3 vWorldPos = float3(_vWorldPos.xy, 0.f);
 
-            // ±¤¿ø Áß½É¿¡¼­ ¹°Ã¼¸¦ ÇâÇÏ´Â ¹æÇâ
+            //  ß½É¿ Ã¼ Ï´ 
             float3 vLight = normalize(vWorldPos - vLightWorldPos);
             float fDiffusePow = saturate(dot(-vLight, _vWorldDir));
             
@@ -392,7 +392,6 @@ void PerlinNoiseFireWide(out float4 fragColor, in float2 fragCoord)
     
     float2 pos = fragCoord.xy;
     pos.y += g_AccTime * 0.3125;
-    //pos.x += g_AccTime * 0.3125;
     
     float4 brighterColor = float4(1.0, 0.65, 0.1, 1.f);
     float4 darkerColor = float4(1.0, 0.0, 0.15, 0.0f);
@@ -478,8 +477,8 @@ void PerlinNoiseFire(out float4 fragColor, in float2 fragCoord)
 float3 Multiply(const float3 m[3], const float3 v)
 {
     float x = m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2];
-    float y = m[1][0] * v[1] + m[1][1] * v[1] + m[1][2] * v[2];
-    float z = m[2][0] * v[1] + m[2][1] * v[1] + m[2][2] * v[2];
+    float y = m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2]; // v[1] -> v[0], v[1], v[2]  
+    float z = m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2];
     return float3(x, y, z);
 }
 
@@ -536,7 +535,6 @@ float4 PaperBurn(float4 vColor, float2 vUV, Texture2D BurnTex)
     {
         vOut = float4(1, 0, 0, 1);
         vOut += vOut;
-
     }
 
     if (SinPaperAcc - 0.03f <= vBurnColor.r && vBurnColor.r <= SinPaperAcc + 0.03f)
@@ -608,19 +606,19 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx
 
     if (0 == lightInfo.LightType)
     {
-        // ViewSpace ¿¡¼­ÀÇ ±¤¿øÀÇ ¹æÇâ
+        // ViewSpace   
         vViewLightDir = normalize(mul(float4(normalize(lightInfo.vWorldDir.xyz), 0.f), g_matView)).xyz;
         //float3 vWorldDir = normalize(lightInfo.vWorldDir.xyz);
     
-        // ViewSpace ¿¡¼­ÀÇ ³ë¸»º¤ÅÍ¿Í ±¤¿øÀÇ ¹æÇâÀ» ³»Àû (·¥¹öÆ® ÄÚ»çÀÎ ¹ýÄ¢)    
+        // ViewSpace  ë¸»Í¿    (Æ® Ú» Ä¢)    
         fLightPow = saturate(dot(_vViewNormal, -vViewLightDir));
         //fLightPow = saturate(dot(_vViewNormal, vWorldDir));
     
-        // ¹Ý»ç±¤
+        // Ý»ç±¤
         float3 vViewReflect = normalize(vViewLightDir + 2.f * (dot(-vViewLightDir, _vViewNormal)) * _vViewNormal);
         float3 vEye = normalize(vViewLightDir);
    
-        // ¹Ý»ç±¤ÀÇ ¼¼±â ±¸ÇÏ±â
+        // Ý»ç±¤  Ï±
         fSpecPow = saturate(dot(vViewReflect, -vEye));
         fSpecPow = pow(fSpecPow, 60);
 
@@ -630,26 +628,26 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx
     {
         float fDistPow = 1.f;
         
-        // ViewSpace ¿¡¼­ÀÇ ±¤¿øÀÇ À§Ä¡
+        // ViewSpace   Ä¡
         float3 vLightViewPos = mul(float4(lightInfo.vWorldPos.xyz, 1.f), g_matView).xyz;
         
-        // ±¤¿øÀ¸·ÎºÎÅÍ ¿À´Â ºûÀÇ ¹æÇâ ±¸ÇÏ±â
+        // Îº    Ï±
         vViewLightDir = normalize(_vViewPos - vLightViewPos);
         
-        // Æ÷ÀÎÆ® ¶óÀÌÆ®·ÎºÎÅÍ °Å¸®Ã¼Å©
+        // Æ® Æ®Îº Å¸Ã¼Å©
         float fDist = distance(_vViewPos, vLightViewPos);
         //float fDist = 0.4f;
         fDistPow = saturate(cos((fDist / lightInfo.Radius) * (PI / 2.f)));
         //fDistPow = saturate(1.f - (fDist / lightInfo.Radius));
                                
-        // ViewSpace ¿¡¼­ÀÇ ³ë¸»º¤ÅÍ¿Í ±¤¿øÀÇ ¹æÇâÀ» ³»Àû (·¥¹öÆ® ÄÚ»çÀÎ ¹ýÄ¢)
+        // ViewSpace  ë¸»Í¿    (Æ® Ú» Ä¢)
         fLightPow = saturate(dot(_vViewNormal, -vViewLightDir)) * fDistPow;
         
-        // ¹Ý»ç±¤
+        // Ý»ç±¤
         float3 vViewReflect = normalize(vViewLightDir + 2.f * (dot(-vViewLightDir, _vViewNormal)) * _vViewNormal);
         float3 vEye = normalize(_vViewPos);
         
-        // ¹Ý»ç±¤ÀÇ ¼¼±â ±¸ÇÏ±â
+        // Ý»ç±¤  Ï±
         fSpecPow = saturate(dot(vViewReflect, -vEye));
         fSpecPow = pow(fSpecPow, 60) * fDistPow;
         _vLightColor.vAmbient += lightInfo.Color.vAmbient * fLightPow;
@@ -659,37 +657,37 @@ void CalcLight3D(float3 _vViewPos, float3 _vViewNormal, int _idx
         //float3 vViewLightPos = mul(float4(lightInfo.vWorldPos.xyz, 1.f), g_matView).xyz;
         //float3 _vViewLightDir = normalize(mul(float4(lightInfo.vWorldDir.xyz, 0.f), g_matView));
 
-        ////¹°Ã¼ ¹æÇâ
+        ////Ã¼ 
         //float3 _vLookDir = normalize(vViewLightPos - _vViewPos);
         //vViewLightDir = dot(_vViewLightDir, _vLookDir);
 
         ////float3 _vSm = saturate(1.0f - vViewLightDir * vViewLightDir);
         //float3 _vSm = vViewLightDir;
 
-        //// °¢µµ¿¡ µû¸¥ Á¶¸í È¿°ú °è»ê
-        //// º¸Á¤Ä¡¸¦ °öÇØÁàµµµÊ.
+        ////    È¿ 
+        //// Ä¡ àµµ.
         //float _fSpotCone = cos(lightInfo.Angle);
 
-        //// Á¶¸í °¨¼è
+        ////  
         //// Atten = 1 / ( att0i + att1i * d + att2i )
         //float _fSpotAtt = saturate((_vSm - _fSpotCone) / (1.0 - _fSpotCone));
         //float fDistPow = 0.f;
         //float dist = distance(_vViewPos, vViewLightPos);
         //fDistPow = saturate(1.f - (dist / lightInfo.Radius));
         
-        //// ViewSpace ¿¡¼­ÀÇ ³ë¸»º¤ÅÍ¿Í ±¤¿øÀÇ ¹æÇâÀ» ³»Àû (·¥¹öÆ® ÄÚ»çÀÎ ¹ýÄ¢)    
+        //// ViewSpace  ë¸»Í¿    (Æ® Ú» Ä¢)    
 
-        //// sat¾È¾²°í ÀÓÀÇÀÇ ÀÓ°è°ª
-        //// sat¾²¸é ÈÎ¾À ºÎµå·¯¿öÁü.
+        //// satÈ¾  Ó°è°ª
+        //// sat Î¾ Îµå·¯.
         //fLightPow = saturate(dot(_vViewNormal, -vViewLightDir)) * fDistPow * _fSpotAtt;
         
 
-        //// ¹Ý»ç±¤
+        //// Ý»ç±¤
         //float3 vViewReflect = normalize(vViewLightDir + 2.f * (dot(-vViewLightDir, _vViewNormal)) * _vViewNormal);
         ////float3 vViewReflect = reflect(-vViewLightDir, _vViewNormal);
         //float3 vEye = normalize(_vViewPos);
 
-        //// ¹Ý»ç±¤ÀÇ ¼¼±â ±¸ÇÏ±â
+        //// Ý»ç±¤  Ï±
         //fSpecPow = saturate(dot(vViewReflect, -vEye));
         //fSpecPow = pow(fSpecPow, 20) * fDistPow;
         //_vLightColor.vDiffuse += _fSpotAtt;
@@ -793,8 +791,8 @@ void GaussianSample(in Texture2D _NoiseTex, float2 _vResolution, float _Nomalize
     
     vUV.x += g_AccTime * 0.5f;
     
-    // sin ±×·¡ÇÁ·Î ÅØ½ºÃÄÀÇ »ùÇÃ¸µ À§Ä¡ UV ¸¦ °è»ê
-    vUV.y -= (sin((_NomalizedThreadID - (g_AccTime /*±×·¡ÇÁ ¿ìÃø ÀÌµ¿ ¼Óµµ*/)) * 2.f * 3.1415926535f * 10.f /*¹Ýº¹ÁÖ±â*/) / 2.f);
+    // sin ×· Ø½ Ã¸ Ä¡ UV  
+    vUV.y -= (sin((_NomalizedThreadID - (g_AccTime /*×·  Ìµ Óµ*/)) * 2.f * 3.1415926535f * 10.f /*ÝºÖ±*/) / 2.f);
     
     if (1.f < vUV.x)
         vUV.x = frac(vUV.x);
@@ -823,7 +821,7 @@ void GaussianSample(in Texture2D _NoiseTex, float2 _vResolution, float _Nomalize
 
 matrix GetBoneMat(int _iBoneIdx, int _iRowIdx)
 {
-    return g_arrBoneMat[(g_iBoneCount * _iRowIdx) + _iBoneIdx];
+    return g_arrBoneMat[_iRowIdx + _iBoneIdx];
 }
 void Skinning(inout float3 _vPos, inout float3 _vTangent, inout float3 _vBinormal, inout float3 _vNormal
     , inout float4 _vWeight, inout float4 _vIndices
@@ -1129,14 +1127,14 @@ int IntersectsLay(float3 _vertices[3], float3 _vStart, float3 _vDir, out float3 
     float3 normal = normalize(cross(edge[0], edge[1]));
     float b = dot(normal, _vDir);
 
-    // ½ÃÀÛÁöÁ¡°ú Á¡°úÀÇ °Å¸®
+    //   Å¸
     float3 w0 = _vStart - _vertices[0].xyz;
-    // edge0°ú edge1À» ¿ÜÀûÇØ¼­ ³ª¿Â ³ë¸»°ú
-    // ½ÃÀÛÁöÁ¡°úÀÇ °Å¸® ³»Àû
-    // ³ª¿Â °ª ¹Ý´ë
+    // edge0 edge1 Ø¼  ë¸»
+    //  Å¸ 
+    //   Ý´
     float a = -dot(normal, w0);
 
-    // b´Â ³ë¸»°ú ¹æÇâÀ» ³»ÀûÇßÀ½
+    // b ë¸»  
     float t = a / b;
 
     _fResult = t;
@@ -1145,7 +1143,7 @@ int IntersectsLay(float3 _vertices[3], float3 _vStart, float3 _vDir, out float3 
 
     _vCrossPoint = p;
 
-    // Ãæµ¹Çß´ÂÁö È®ÀÎ
+    // æµ¹ß´ È®
     float uu, uv, vv, wu, wv, inverseD;
     uu = dot(edge[0], edge[0]);
     uv = dot(edge[0], edge[1]);

@@ -422,8 +422,8 @@ void CEnemyScript::Raycast(tRayInfo _RaycastInfo)
 		}
 		else
 		{
-			FieldUIMgr::GetInst()->AddDamage(_RaycastInfo.fDamage, _RaycastInfo.vStart + (_RaycastInfo.vDir * _RaycastInfo.fDist));
 			Attacked(_RaycastInfo.fDamage);
+			FieldUIMgr::GetInst()->AddDamage(_RaycastInfo.fDamage, _RaycastInfo.vStart + (_RaycastInfo.vDir * _RaycastInfo.fDist));
 		}
 	}
 }

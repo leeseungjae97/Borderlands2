@@ -23,6 +23,6 @@ private:
     void GC_Clear();
 
 public:
-    void tick();
+    void fixedtick();
 };
 

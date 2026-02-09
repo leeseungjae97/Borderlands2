@@ -166,14 +166,33 @@ void Safe_Del_Vec(vector<T*>& _vec)
 template<typename T1, typename T2>
 void Safe_Del_Map(map<T1, T2>& _map)
 {
-	for (const auto& pair : _map)
+	for (auto& pair : _map)
 	{
 		if (nullptr != pair.second)
+		{
 			delete pair.second;
+			pair.second = nullptr;
+		}
 	}
 
 	_map.clear();
 }
+
+template<typename T1, typename T2>
+void Safe_Del_Map(unordered_map<T1, T2>& _map)
+{
+	for (auto& pair : _map)
+	{
+		if (nullptr != pair.second)
+		{
+			delete pair.second;
+			pair.second = nullptr;
+		}
+	}
+
+	_map.clear();
+}
+
 
 template <typename T, UINT _Size>
 void DeleteArray(T* (&Arr)[_Size])
@@ -194,6 +213,13 @@ void Copy_Map(const map<T1, T2>& _src, map<T1, T2>& _dest)
 			_dest.insert(pair);
 		}
 	}
+}
+
+template<typename T1, typename T2>
+void Copy_Map(const unordered_map<T1, T2>& _src, unordered_map<T1, T2>& _dest)
+{
+	_dest.reserve(_src.size());
+	_dest.insert(_src.begin(), _src.end());
 }
 
 template<typename T>

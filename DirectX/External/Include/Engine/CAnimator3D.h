@@ -10,7 +10,7 @@ class CAnimator3D :
 	public CComponent {
 private:
 	vector<tMTBone>				m_pVecBones;
-	map<wstring, tMTAnimClip>	m_pMapClip;
+	unordered_map<wstring, tMTAnimClip>	m_pMapClip;
 
 	vector<Matrix>				m_vecRotMat;
 	vector<Matrix>				m_vecPosMat;
@@ -44,8 +44,8 @@ private:
 	int							m_iManualIdx;
 	float						m_iManualRatio;
 
-	std::map<wstring, CAnimClip*> mClips;
-	std::map<wstring, Events*> mEvents;
+	std::unordered_map<wstring, CAnimClip*> mClips;
+	std::unordered_map<wstring, Events*> mEvents;
 	std::map<UINT, wstring> m_mapPreDefineAnim;
 
 	int							m_iHeadIdx;
@@ -71,6 +71,12 @@ private:
 	double						m_fSpeedAdj;
 
 private:
+	class CAnimation3DShader* pUpdateShader;
+
+	vector<Matrix> vecPrevPosMat;
+	vector<Matrix> vecPrevRotMat;
+
+private:
 	void check_mesh(Ptr<CMesh> _pMesh);
 	void check_mesh(Ptr<CMesh> _pMesh, CStructuredBuffer* _buffer);
 	void create_clip();
@@ -81,11 +87,11 @@ public:
 	void UpdateData();
 
 public:
-	void SetBones(const vector<tMTBone>* _vecBones);
-	void SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip);
+	void SetBones(const vector<tMTBone>& _vecBones);
+	void SetAnimClip(const unordered_map<wstring, tMTAnimClip>& _vecAnimClip);
 
-	const std::map<wstring, CAnimClip*>& GetAnimClips() { return mClips; }
-	const std::map<wstring, Events*>& GetEvents() { return mEvents; }
+	const std::unordered_map<wstring, CAnimClip*>& GetAnimClips() { return mClips; }
+	const std::unordered_map<wstring, Events*>& GetEvents() { return mEvents; }
 	const std::map<UINT, wstring>& GetPrefDefineAnimation() { return m_mapPreDefineAnim; }
 
 	CAnimClip* GetCurAnimClip() { return m_pCurClip; }
@@ -95,7 +101,7 @@ public:
 	void SetSpeedAdjustment(double _Speed) { m_fSpeedAdj = _Speed; }
 
 	bool IsFinalBoneMatUpdate() { return m_bFinalMatUpdate; }
-	// Animation È®ÀÎ¿ë -----------------------------------------------------
+	// Animation È®ï¿½Î¿ï¿½ -----------------------------------------------------
 	void SetAnimClipIdx(int _idx);
 
 	void StopPlay();
@@ -112,12 +118,13 @@ public:
 	float GetManualRatio() { return m_iManualRatio; }
 	// -----------------------------------------------------------------------
 
-	// ºí·»µå -------------------------------------------------------------------
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ -------------------------------------------------------------------
 	void SetBlend(bool _bBlend, float _fBlendTime);
 	void SetBlendRatio(float _Ratio) { m_fBRatio = _Ratio; }
 	float GetBlendRatio() { return m_fBRatio; }
 	float GetBlendAcc() { return m_fBlendAcc; }
 	float GetBlendTime() { return m_fBlendTime; }
+	bool IsBlend() { return m_bBlend; }
 	// -----------------------------------------------------------------------
 
 	void SetAnimClipEventIdx(UINT _Type, int _iEnd, int _iStart, int _iProgress, int _iComplete);
@@ -126,8 +133,10 @@ public:
 	vector<Matrix>& GetRotMat() { return m_vecRotMat; }
 	vector<Matrix>& GetPosMat() { return m_vecPosMat; }
 
-	Matrix GetRotMat(int idx);
-	Matrix GetPosMat(int idx);
+	Matrix GetRotMatFrameLatency(int idx);
+	Matrix GetPosMatFrameLatency(int idx);
+	Matrix GetRotMatNoFrameLatency(int idx);
+	Matrix GetPosMatNoFrameLatency(int idx);
 
 	bool IsUpdate() { return m_bUpdate; }
 	UINT GetBoneCount() { return (UINT)m_pVecBones.size(); }
@@ -165,10 +174,9 @@ public:
 	Vec4 GetHeadPos();
 	Vec4 GetMuzzlePos() { return m_vMuzzlePos; }
 	Vec4 GetScopePos() { return m_vScopePos; }
-
 public:
 	void Play(const wstring& _Name, bool _Loop);
-	// Force : true °­Á¦·Î ²÷°í Àç»ý, false °°Àº Å¬¸³ Àç»ýÇÏ°í ÀÖÀ¸¸é Àç»ý¾ÈÇÔ
+	// Force : true ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½, false ï¿½ï¿½ï¿½ï¿½ Å¬ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	void Play(UINT _type, bool _Loop, bool _Force = true);
 	Events* FindEvents(const wstring& name);
 	CAnimClip* FindClip(const wstring& name);
@@ -193,6 +201,6 @@ public:
 public:
 	CAnimator3D();
 	CAnimator3D(const CAnimator3D& _origin);
-	~CAnimator3D();
+	virtual ~CAnimator3D();
 };
 

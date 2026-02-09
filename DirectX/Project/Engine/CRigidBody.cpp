@@ -286,21 +286,38 @@ void CRigidBody::createShape()
 void CRigidBody::createTriangleMesh()
 {
 	convertMeshToGeom();
+
+	// 1. 입력 데이터 유효성 검사
+	if (m_vecVerts.empty() || m_vecIndis.empty())
+	{
+		OutputDebugStringW(L"PhysX Cooking Error: Vertices or Indices are empty!\n");
+		return;
+	}
+
 	PxCookingParams params(PhysXMgr::GetInst()->GPhysics()->getTolerancesScale());
 	params.midphaseDesc.setToDefault(PxMeshMidPhase::eBVH34);
 	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
 	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
 
 	PxTriangleMeshDesc triDesc;
-	triDesc.points.count = m_vecVerts.size();
+	triDesc.points.count = (PxU32)m_vecVerts.size();
 	triDesc.points.stride = sizeof(PxVec3);
 	triDesc.points.data = m_vecVerts.data();
 
-	triDesc.triangles.count = m_vecIndis.size() / 3;
+	triDesc.triangles.count = (PxU32)(m_vecIndis.size() / 3);
 	triDesc.triangles.stride = sizeof(PxU32) * 3;
 	triDesc.triangles.data = m_vecIndis.data();
 
+	// 2. Cooking 실패 가능성 대응
 	PxTriangleMesh* triMesh = PxCreateTriangleMesh(params, triDesc);
+
+	if (nullptr == triMesh)
+	{
+		OutputDebugStringW(L"PhysX Cooking Failed: PxCreateTriangleMesh returned NULL\n");
+		return;
+	}
+
+	// 3. Shape 생성
 	m_pShape = PhysXMgr::GetInst()->GPhysics()->createShape(PxTriangleMeshGeometry(triMesh), *m_pMaterial, true);
 
 	PX_RELEASE(triMesh);

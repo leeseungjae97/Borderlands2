@@ -20,7 +20,7 @@ CEventMgr::~CEventMgr()
 
 }
 
-void CEventMgr::tick()
+void CEventMgr::fixedtick()
 {
 	m_LevelChanged = false;
 	m_LevelLoad = false;

@@ -27,44 +27,12 @@ void CMaterial::UpdateData()
 	m_pShader->UpdateData();
 
 	// Texture Update
-	for (UINT i = 0; i < TEX_END; ++i)
-	{
-		if (nullptr == m_arrTex[i])
-		{
-			m_Const.arrTex[i] = 0;
-			CTexture::Clear(i);
-			continue;
-		}
-		else
-		{
-			m_Const.arrTex[i] = 1;
-			m_arrTex[i]->UpdateData(i, PIPELINE_STAGE::PS_ALL);
-		}
-	}
+	UpdateTexture();
 
-	if (m_PaperBurnConst.paperBurn)
-	{
-		if (m_Const.arrTex[6] == 0)
-			SetTexParam(TEX_6, CResMgr::GetInst()->FindRes<CTexture>(L"texture//noise//noise_03.jpg"));
-
-		m_PaperBurnConst.paperAcc += DT / m_PaperBurnConst.paperTime;
-
-		if (m_PaperBurnConst.paperAcc >= 1.f)
-		{
-			//m_PaperBurnConst.paperAcc = 0.0f;
-			//m_PaperBurnConst.paperBurn = false;
-			m_PaperBurnConst.paperBurnEnd = true;
-		}
-	}
+	UpdatePaperBurn();
 
 	// Constant Update
-	CConstBuffer* pMtrlBuffer = CDevice::GetInst()->GetConstBuffer(CB_TYPE::MATERIAL);
-	pMtrlBuffer->SetData(&m_Const);
-	pMtrlBuffer->UpdateData();
-
-	pMtrlBuffer = CDevice::GetInst()->GetConstBuffer(CB_TYPE::PAPER_BURN);
-	pMtrlBuffer->SetData(&m_PaperBurnConst);
-	pMtrlBuffer->UpdateData();
+	UpdateConstant();
 }
 
 void CMaterial::UpdateData_Instancing()
@@ -75,22 +43,27 @@ void CMaterial::UpdateData_Instancing()
 	m_pShader->UpdateData_Instancing();
 
 	// Texture Update
-	for (UINT i = 0; i < TEX_END; ++i)
-	{
-		if (nullptr == m_arrTex[i])
-		{
-			m_Const.arrTex[i] = 0;
-			CTexture::Clear(i);
-			continue;
-		}
+	UpdateTexture();
 
-		else
-		{
-			m_Const.arrTex[i] = 1;
-			m_arrTex[i]->UpdateData(i, PIPELINE_STAGE::PS_ALL);
-		}
-	}
+	UpdatePaperBurn();
 
+	// Constant Update
+	UpdateConstant();
+}
+
+void CMaterial::UpdateConstant()
+{
+	CConstBuffer* pMtrlBuffer = CDevice::GetInst()->GetConstBuffer(CB_TYPE::MATERIAL);
+	pMtrlBuffer->SetData(&m_Const);
+	pMtrlBuffer->UpdateData();
+
+	pMtrlBuffer = CDevice::GetInst()->GetConstBuffer(CB_TYPE::PAPER_BURN);
+	pMtrlBuffer->SetData(&m_PaperBurnConst);
+	pMtrlBuffer->UpdateData();
+}
+
+void CMaterial::UpdatePaperBurn()
+{
 	if (m_PaperBurnConst.paperBurn)
 	{
 		if (m_Const.arrTex[6] == 0)
@@ -105,15 +78,24 @@ void CMaterial::UpdateData_Instancing()
 			m_PaperBurnConst.paperBurnEnd = true;
 		}
 	}
+}
 
-	// Constant Update
-	CConstBuffer* pMtrlBuffer = CDevice::GetInst()->GetConstBuffer(CB_TYPE::MATERIAL);
-	pMtrlBuffer->SetData(&m_Const);
-	pMtrlBuffer->UpdateData();
-
-	pMtrlBuffer = CDevice::GetInst()->GetConstBuffer(CB_TYPE::PAPER_BURN);
-	pMtrlBuffer->SetData(&m_PaperBurnConst);
-	pMtrlBuffer->UpdateData();
+void CMaterial::UpdateTexture()
+{
+	for (UINT i = 0; i < TEX_END; ++i)
+	{
+		if (nullptr == m_arrTex[i])
+		{
+			m_Const.arrTex[i] = 0;
+			CTexture::Clear(i);
+			continue;
+		}
+		else
+		{
+			m_Const.arrTex[i] = 1;
+			m_arrTex[i]->UpdateData(i, PIPELINE_STAGE::PS_ALL);
+		}
+	}
 }
 
 void CMaterial::SetScalarParam(SCALAR_PARAM _Param, const void* _Src)

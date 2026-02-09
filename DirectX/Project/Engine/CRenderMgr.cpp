@@ -65,7 +65,7 @@ void CRenderMgr::init()
 	CResMgr::GetInst()->FindRes<CMaterial>(L"GrayMtrl")->SetTexParam(TEX_0, m_RTCopyTex);
 	CResMgr::GetInst()->FindRes<CMaterial>(L"DistortionMtrl")->SetTexParam(TEX_0, m_RTCopyTex);
 
-	// Light2DBuffer ±∏¡∂»≠ πˆ∆€ ª˝º∫
+	// Light2DBuffer ÔøΩÔøΩÔøΩÔøΩ»≠ ÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩ
 	m_Light2DBuffer = new CStructuredBuffer;
 	m_Light2DBuffer->Create(sizeof(tLightInfo), 10, SB_TYPE::READ_ONLY, true);
 
@@ -74,13 +74,23 @@ void CRenderMgr::init()
 
 	CreateMRT();
 
-	CResMgr::GetInst()->RoadResource();
 }
+void CRenderMgr::tick()
+{
 
+}
+void CRenderMgr::finaltick()
+{
+
+}
 void CRenderMgr::render()
 {
 	if (CEventMgr::GetInst()->IsLevelLoad())
 	{
+		m_pScopeRTTex = nullptr;
+		m_pMapRTTex = nullptr;
+		m_pMainRTTex = nullptr;
+
 		CLevel* pLevel = CLevelMgr::GetInst()->GetCurLevel();
 		vector<CGameObject*> cams = pLevel->GetLayer((UINT)LAYER_TYPE::Camera)->GetObjects();
 		m_vecCam.resize(cams.size());
@@ -90,7 +100,7 @@ void CRenderMgr::render()
 			m_vecCam[i] = cams[i]->Camera();
 		}
 	}
-	// ±§ø¯ π◊ ¿¸ø™ µ•¿Ã≈Õ æ˜µ•¿Ã∆Æ π◊ πŸ¿Œµ˘
+	// ÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ∆Æ ÔøΩÔøΩ ÔøΩÔøΩÔøΩŒµÔøΩ
 	UpdateData();
 
 	// MRT Clear    
@@ -98,17 +108,17 @@ void CRenderMgr::render()
 
 	render_shadowmap();
 
-	// ∑ª¥ı «‘ºˆ »£√‚
+	// ÔøΩÔøΩÔøΩÔøΩ ÔøΩ‘ºÔøΩ »£ÔøΩÔøΩ
 	(this->*RENDER_FUNC)();
 
-	// ±§ø¯ «ÿ¡¶
+	// ÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩ
 	Clear();
 }
 
 
 void CRenderMgr::render_play()
 {
-	// ƒ´∏ﬁ∂Û ±‚¡ÿ ∑ª¥ı∏µ
+	// ƒ´ÔøΩﬁ∂ÔøΩ ÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
 
 	//if (nullptr == m_vecCam[0])
 	//    return;
@@ -119,12 +129,13 @@ void CRenderMgr::render_play()
 	//m_vecCam[1]->SortObject();
 	//m_vecCam[1]->render();
 
+	if (m_vecCam.empty())
+		return;
+
 	for (int i = 0; i < m_vecCam.size(); ++i)
 	{
 		if (nullptr == m_vecCam[i])
-		    continue;
-
-		m_vecCam[i]->SortObject();
+			continue;
 
 		m_vecCam[i]->render();
 	}
@@ -134,10 +145,8 @@ void CRenderMgr::render_play()
 
 void CRenderMgr::render_editor()
 {
-	if (nullptr == m_vecCam[0])
+	if (m_vecCam.empty())
 		return;
-
-	m_vecCam[0]->SortObject();
 
 	m_vecCam[0]->render();
 }
@@ -156,8 +165,10 @@ int CRenderMgr::RegisterCamera(CCamera* _Cam, int _idx)
 
 void CRenderMgr::SetRenderFunc(bool _IsPlay)
 {
-	RENDER_FUNC = &CRenderMgr::render_play;
-
+	if (_IsPlay)
+		RENDER_FUNC = &CRenderMgr::render_play;
+	else
+		RENDER_FUNC = &CRenderMgr::render_editor;
 	//if(_IsPlay)
 	//    
 	//else
@@ -203,14 +214,18 @@ CCamera* CRenderMgr::GetUICam()
 
 void CRenderMgr::CopyRenderTarget()
 {
-	Ptr<CTexture> pRTTex = CResMgr::GetInst()->FindRes<CTexture>(L"ScopeRenderTex");
-	CONTEXT->CopyResource(m_RTCopyTex->GetTex2D().Get(), pRTTex->GetTex2D().Get());
+	if (m_pScopeRTTex == nullptr) m_pScopeRTTex = CResMgr::GetInst()->FindRes<CTexture>(L"ScopeRenderTex");
+	if (m_pMapRTTex == nullptr)   m_pMapRTTex = CResMgr::GetInst()->FindRes<CTexture>(L"MapRenderTex");
+	if (m_pMainRTTex == nullptr)  m_pMainRTTex = CResMgr::GetInst()->FindRes<CTexture>(L"RenderTargetTex");
 
-	pRTTex = CResMgr::GetInst()->FindRes<CTexture>(L"MapRenderTex");
-	CONTEXT->CopyResource(m_RTCopyTex2->GetTex2D().Get(), pRTTex->GetTex2D().Get());
+	if (nullptr != m_RTCopyTex && nullptr != m_pScopeRTTex)
+		CONTEXT->CopyResource(m_RTCopyTex->GetTex2D().Get(), m_pScopeRTTex->GetTex2D().Get());
 
-	pRTTex = CResMgr::GetInst()->FindRes<CTexture>(L"RenderTargetTex");
-	CONTEXT->CopyResource(m_RTCopyTex3->GetTex2D().Get(), pRTTex->GetTex2D().Get());
+	if (nullptr != m_RTCopyTex2 && nullptr != m_pMapRTTex)
+		CONTEXT->CopyResource(m_RTCopyTex2->GetTex2D().Get(), m_pMapRTTex->GetTex2D().Get());
+
+	if (nullptr != m_RTCopyTex3 && nullptr != m_pMainRTTex)
+		CONTEXT->CopyResource(m_RTCopyTex3->GetTex2D().Get(), m_pMainRTTex->GetTex2D().Get());
 }
 
 MRT* CRenderMgr::GetMRT(MRT_TYPE _Type)
@@ -220,23 +235,28 @@ MRT* CRenderMgr::GetMRT(MRT_TYPE _Type)
 
 void CRenderMgr::UpdateData()
 {
-	GlobalData.Light2DCount = m_vecLight2DInfo.size();
-	GlobalData.Light3DCount = m_vecLight3DInfo.size();
+	GlobalData.Light2DCount = (UINT)m_vecLight2DInfo.size();
+	GlobalData.Light3DCount = (UINT)m_vecLight3DInfo.size();
 
-	if (m_Light2DBuffer->GetElementCount() < m_vecLight2DInfo.size())
+	if (!m_vecLight2DInfo.empty())
 	{
-		m_Light2DBuffer->Create(sizeof(tLightInfo), m_vecLight2DInfo.size(), SB_TYPE::READ_ONLY, true);
+		if (m_Light2DBuffer->GetElementCount() < (UINT)m_vecLight2DInfo.size())
+		{
+			m_Light2DBuffer->Create(sizeof(tLightInfo), (UINT)m_vecLight2DInfo.size(), SB_TYPE::READ_ONLY, true);
+		}
+		m_Light2DBuffer->SetData(m_vecLight2DInfo.data(), (UINT)(sizeof(tLightInfo) * m_vecLight2DInfo.size()));
+		m_Light2DBuffer->UpdateData(12, PIPELINE_STAGE::PS_PIXEL);
 	}
-	if (m_Light3DBuffer->GetElementCount() < m_vecLight3DInfo.size())
+
+	if (!m_vecLight3DInfo.empty())
 	{
-		m_Light3DBuffer->Create(sizeof(tLightInfo), m_vecLight3DInfo.size(), SB_TYPE::READ_ONLY, true);
+		if (m_Light3DBuffer->GetElementCount() < (UINT)m_vecLight3DInfo.size())
+		{
+			m_Light3DBuffer->Create(sizeof(tLightInfo), (UINT)m_vecLight3DInfo.size(), SB_TYPE::READ_ONLY, true);
+		}
+		m_Light3DBuffer->SetData(m_vecLight3DInfo.data(), (UINT)(sizeof(tLightInfo) * m_vecLight3DInfo.size()));
+		m_Light3DBuffer->UpdateData(13, PIPELINE_STAGE::PS_PIXEL);
 	}
-
-	m_Light2DBuffer->SetData(m_vecLight2DInfo.data(), sizeof(tLightInfo) * m_vecLight2DInfo.size());
-	m_Light3DBuffer->SetData(m_vecLight3DInfo.data(), sizeof(tLightInfo) * m_vecLight3DInfo.size());
-
-	m_Light2DBuffer->UpdateData(12, PIPELINE_STAGE::PS_PIXEL);
-	m_Light3DBuffer->UpdateData(13, PIPELINE_STAGE::PS_PIXEL);
 
 	CConstBuffer* pGlobalBuffer = CDevice::GetInst()->GetConstBuffer(CB_TYPE::GLOBAL);
 	pGlobalBuffer->SetData(&GlobalData, sizeof(tGlobal));
@@ -263,6 +283,7 @@ void CRenderMgr::Clear()
 	m_vecLight2D.clear();
 	m_vecLight3DInfo.clear();
 	m_vecLight3D.clear();
+	m_vecShapeInfo.clear();
 }
 
 void CRenderMgr::CreateMRT()
@@ -331,11 +352,11 @@ void CRenderMgr::CreateMRT()
 
 		Ptr<CTexture> arrRTTex[8] = {};
 		arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"DiffuseTargetTex", vResol.x, vResol.y
-			, DXGI_FORMAT_R8G8B8A8_UNORM
+			, DXGI_FORMAT_R32G32B32A32_FLOAT
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"SpecularTargetTex", vResol.x, vResol.y
-			, DXGI_FORMAT_R8G8B8A8_UNORM
+			, DXGI_FORMAT_R32G32B32A32_FLOAT
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 
@@ -344,7 +365,7 @@ void CRenderMgr::CreateMRT()
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[3] = CResMgr::GetInst()->CreateTexture(L"EmissiveTargetTex", vResol.x, vResol.y
-			, DXGI_FORMAT_R8G8B8A8_UNORM
+			, DXGI_FORMAT_R32G32B32A32_FLOAT
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		m_MRT[(UINT)MRT_TYPE::LIGHT]->Create(arrRTTex, 4, nullptr);
@@ -358,7 +379,7 @@ void CRenderMgr::CreateMRT()
 
 		Ptr<CTexture> arrRTTex[8] = {};
 		arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"ColorTargetTex", vResol.x, vResol.y
-			, DXGI_FORMAT_R8G8B8A8_UNORM
+			, DXGI_FORMAT_R32G32B32A32_FLOAT
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"NormalTargetTex", vResol.x, vResol.y
@@ -379,11 +400,10 @@ void CRenderMgr::CreateMRT()
 			, DXGI_FORMAT_R32G32B32A32_FLOAT
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
-		//arrRTTex[5] = CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex");
+        // Î©îÏù∏ DepthStencilÏùÑ Í≥µÏú†Ìï¥Ïïº Ìï®
+		Ptr<CTexture> pDSTex = CResMgr::GetInst()->FindRes<CTexture>(L"DepthStencilTex");
 
-		//arrRTTex[6] = CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex");
-
-		m_MRT[(UINT)MRT_TYPE::DEFERRED]->Create(arrRTTex, 6, nullptr);
+		m_MRT[(UINT)MRT_TYPE::DEFERRED]->Create(arrRTTex, 6, pDSTex);
 	}
 	// ====================
 	// Luminance MRT
@@ -394,7 +414,7 @@ void CRenderMgr::CreateMRT()
 		Ptr<CTexture> arrRTTex[8] = {};
 
 		arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"EmissiveVerticalBlurredTargetTex", vResol.x, vResol.y
-			, DXGI_FORMAT_R8G8B8A8_UNORM
+			, DXGI_FORMAT_R32G32B32A32_FLOAT
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		//arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"DiffuseBlurredTargetTex", vResol.x, vResol.y
@@ -409,7 +429,7 @@ void CRenderMgr::CreateMRT()
 		Ptr<CTexture> arrRTTex[8] = {};
 
 		arrRTTex[0] = CResMgr::GetInst()->CreateTexture(L"EmissiveHorizontalBlurredTargetTex", vResol.x, vResol.y
-			, DXGI_FORMAT_R8G8B8A8_UNORM
+			, DXGI_FORMAT_R32G32B32A32_FLOAT
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		//arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"DiffuseBlurredTargetTex", vResol.x, vResol.y
@@ -477,15 +497,15 @@ void CRenderMgr::CreateMRT()
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"ScopeNormalTargetTex", vScopeResol.x, vScopeResol.y
-			, DXGI_FORMAT_R32G32B32A32_FLOAT
+			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[2] = CResMgr::GetInst()->CreateTexture(L"ScopeTangentTargetTex", vScopeResol.x, vScopeResol.y
-			, DXGI_FORMAT_R32G32B32A32_FLOAT
+			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[3] = CResMgr::GetInst()->CreateTexture(L"ScopePositionTargetTex", vScopeResol.x, vScopeResol.y
-			, DXGI_FORMAT_R32G32B32A32_FLOAT
+			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[4] = CResMgr::GetInst()->CreateTexture(L"ScopeEmissiveTargetTex", vScopeResol.x, vScopeResol.y
@@ -493,7 +513,7 @@ void CRenderMgr::CreateMRT()
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[5] = CResMgr::GetInst()->CreateTexture(L"ScopeDataTargetTex", vScopeResol.x, vScopeResol.y
-			, DXGI_FORMAT_R32G32B32A32_FLOAT
+			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		m_MRT[(UINT)MRT_TYPE::SCOPE_DEFERRED_RENDER]->Create(arrRTTex, 6, nullptr);
@@ -547,15 +567,15 @@ void CRenderMgr::CreateMRT()
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[1] = CResMgr::GetInst()->CreateTexture(L"MapNormalTargetTex", vMapResol.x, vMapResol.y
-			, DXGI_FORMAT_R32G32B32A32_FLOAT
+			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[2] = CResMgr::GetInst()->CreateTexture(L"MapTangentTargetTex", vMapResol.x, vMapResol.y
-			, DXGI_FORMAT_R32G32B32A32_FLOAT
+			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[3] = CResMgr::GetInst()->CreateTexture(L"MapPositionTargetTex", vMapResol.x, vMapResol.y
-			, DXGI_FORMAT_R32G32B32A32_FLOAT
+			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[4] = CResMgr::GetInst()->CreateTexture(L"MapEmissiveTargetTex", vMapResol.x, vMapResol.y
@@ -563,7 +583,7 @@ void CRenderMgr::CreateMRT()
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		arrRTTex[5] = CResMgr::GetInst()->CreateTexture(L"MapDataTargetTex", vMapResol.x, vMapResol.y
-			, DXGI_FORMAT_R32G32B32A32_FLOAT
+			, DXGI_FORMAT_R8G8B8A8_UNORM
 			, D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET);
 
 		m_MRT[(UINT)MRT_TYPE::MAP_DEFERRED_RENDER]->Create(arrRTTex, 6, nullptr);

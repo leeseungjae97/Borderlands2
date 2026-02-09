@@ -3,6 +3,8 @@
 
 #include "CEngine.h"
 #include "CSimpleTextMgr.h"
+#include "CInstancingBuffer.h"
+#include "InstancingAnimatorMgr.h"
 
 
 CTimeMgr::CTimeMgr()
@@ -41,6 +43,7 @@ void CTimeMgr::tick()
 
 	// 누적 시간
 	m_fTime += m_fDeltaTime;
+	m_dTotalAccTime += m_fDeltaTime;
 
 	// 함수 호출 횟수
 	++m_iCallCount;
@@ -56,16 +59,27 @@ void CTimeMgr::tick()
 void CTimeMgr::render()
 {
 	// 1초에 한번
-	static wchar_t szBuff[256] = {};
+	static wchar_t szBuff[500] = {};
 
 	if (1.f <= m_fTime)
 	{
-		//swprintf_s(szBuff, L"FPS : %d, DT : %f", m_iCallCount, m_fDeltaTime);
-		//SetWindowText(CEngine::GetInst()->GetMainWnd(), szBuff);	
+		InstancingAnimatorMgr * iamg = InstancingAnimatorMgr::GetInst();
+		CInstancingBuffer* ib = CInstancingBuffer::GetInst();
+		swprintf_s(szBuff, L"FPS : %d, DT : %f\n instance count : %d instance max count %d\n, anim instance count : %d\n,total bone % d, global frame cache % d\n global blend frame cache % d, global offset cache % d"
+			, m_iCallCount
+			, m_fDeltaTime
+			, ib->GetInstanceCount()
+			, ib->GetMaxCount()
+			, ib->GetAnimInstancingCount()
+			, iamg->m_iTotalOutBones
+			, iamg->m_globalFrameCache.size()
+			, iamg->m_globalBlendFrameCache.size()
+			, iamg->m_globalOffsetCache.size()
+		);
+		SetWindowText(CEngine::GetInst()->GetMainWnd(), szBuff);
 
 		m_fTime = 0.f;
 		m_iCallCount = 0;
 	}
-
-	//CSimpleTextMgr::GetInst()->DrawFont(szBuff, 10, 20, 16, FONT_RGBA(255, 0, 0, 255));
+	CSimpleTextMgr::GetInst()->DrawFont(szBuff, 10, 20, 16, FONT_RGBA(255, 0, 0, 255));
 }

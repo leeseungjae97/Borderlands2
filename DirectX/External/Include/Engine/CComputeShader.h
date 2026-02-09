@@ -9,15 +9,15 @@ private:
     ComPtr<ID3DBlob>                m_CSBlob;   
 
 protected:
-    // ½¦ÀÌ´õ¿¡ Àü´ÞÇÒ »ó¼ö µ¥ÀÌÅÍ
+    // ï¿½ï¿½ï¿½Ì´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     tMtrlConst                      m_Const;
 
-    // ±×·ì °³¼ö
+    // ï¿½×·ï¿½ ï¿½ï¿½ï¿½ï¿½
     UINT                            m_iGroupX; 
     UINT                            m_iGroupY;
     UINT                            m_iGroupZ;
 
-    // ±×·ì 1°³´ç ½º·¹µå °³¼ö
+    // ï¿½×·ï¿½ 1ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     UINT                            m_iGroupPerThreadX;
     UINT                            m_iGroupPerThreadY;
     UINT                            m_iGroupPerThreadZ;
@@ -25,6 +25,8 @@ protected:
 public:
     void CreateComputeShader(const wstring& _strFileName, const string& _strFuncName);
     void Execute();
+
+    void SetScalarParam(SCALAR_PARAM _Param, const void* _pSrc);
 
 private:
     virtual void UpdateData() = 0;
@@ -34,6 +36,6 @@ private:
     CLONE_DISABLE(CComputeShader);
 public:
     CComputeShader();
-    ~CComputeShader();
+    virtual ~CComputeShader();
 };
 

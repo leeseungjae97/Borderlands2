@@ -8,6 +8,8 @@ private:
 	HCURSOR m_DefaultCursor;
 	// 윈도우 해상도
 	Vec2	m_vResolution;
+	float fixedCycleTime = 60;
+	double beforeFixedUpdateTime = 0;
 
 public:
 	Vec2 GetWindowResolution() { return m_vResolution; }
@@ -16,9 +18,13 @@ public:
 public:
 	int init(HWND _hWnd, UINT _iWidth, UINT _iHeight);
 	void progress();
+	void begin();
 
 private:
+	void firsttick();
 	void tick();
+	void finaltick();
+	void fixedtick();
 	void render();
 
 

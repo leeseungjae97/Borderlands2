@@ -15,6 +15,7 @@
 Animator3DUI::Animator3DUI()
 	: ComponentUI("##Animator3D", COMPONENT_TYPE::ANIMATOR3D)
 	, m_pAnimOwner(nullptr)
+	, clips(nullptr)
 {
 	SetName("Animator3D");
 }
@@ -31,12 +32,11 @@ int Animator3DUI::render_update()
 	if (CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
 		return FALSE;
 
+	if (!GetTarget()->Animator3D())
+		return FALSE;
+
 	char str[50] = {};
-	const map<wstring, CAnimClip*> clips = GetTarget()->Animator3D()->GetAnimClips();
-	CAnimClip* curAnimClip = GetTarget()->Animator3D()->GetCurAnimClip();
-
-	vector<tMTBone> bones = GetTarget()->Animator3D()->GetBone();
-
+	
 	if(ImGui::BeginMenu("Bone Names##ttt"))
 	{
 		for (int i = 0; i < bones.size(); ++i)
@@ -48,7 +48,7 @@ int Animator3DUI::render_update()
 		ImGui::EndMenu();
 	}
 
-	float ratio = GetTarget()->Animator3D()->GetBlendRatio();
+	
 	ImGui::Text("Blend Ratio");
 	ImGui::SameLine();
 	ImGui::InputFloat("##BlendRatio", &ratio, 0.1f);
@@ -164,7 +164,7 @@ int Animator3DUI::render_update()
 		strMaxLen = strMaxLen < strSize.x ? strSize.x : strMaxLen;
 	}
 
-	for (const auto& pair : clips)
+	for (const auto& pair : *clips)
 	{
 		wstring wanimName = pair.first;
 		string animName = string(wanimName.begin(), wanimName.end());
@@ -219,4 +219,19 @@ int Animator3DUI::render_update()
 	
 
 	return TRUE;
+}
+
+void Animator3DUI::SetTarget(CGameObject* _Target)
+{
+	ComponentUI::SetTarget(_Target);
+
+	if (nullptr == _Target)
+		return;
+	if (GetTarget()->Animator3D())
+	{
+		clips = &(GetTarget()->Animator3D()->GetAnimClips());
+		curAnimClip = GetTarget()->Animator3D()->GetCurAnimClip();
+		bones = GetTarget()->Animator3D()->GetBone();
+		ratio = GetTarget()->Animator3D()->GetBlendRatio();
+	}
 }

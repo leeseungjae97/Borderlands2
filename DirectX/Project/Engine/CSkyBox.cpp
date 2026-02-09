@@ -9,26 +9,19 @@ CSkyBox::CSkyBox()
 	, m_Type(SKYBOX_TYPE::SPHERE)
 	, m_bFbxSkyBox(false)
 {
-	SetSkyBoxType(m_Type);
+	//SetSkyBoxType(m_Type);
 
-	SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"SkyBoxMtrl"), 0);
-	SetFrustumCheck(false);
+	//SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"SkyBoxMtrl"), 0);
+	//SetFrustumCheck(false);
 }
 CSkyBox::CSkyBox(bool _FromMeshData)
 	: CRenderComponent(COMPONENT_TYPE::SKYBOX)
 	, m_bFbxSkyBox(_FromMeshData)
 {
-	//SetSkyBoxType(m_Type);
-
-	//SetMaterial(, 0);
-	Ptr<CGraphicsShader> skyBoxShader = CResMgr::GetInst()->FindRes<CGraphicsShader>(L"SkyBoxShader");
-	m_SkyBoxMtrl = new CMaterial(true);
-	m_SkyBoxMtrl->SetShader(skyBoxShader);
-	CResMgr::GetInst()->AddRes(L"FbxSkyBox", m_SkyBoxMtrl);
-	SetFrustumCheck(false);
-
-	//m_SkyBoxMtrl = CResMgr::GetInst()->FindRes<CMaterial>(L"SkyBoxMtrl");
-
+	//Ptr<CGraphicsShader> skyBoxShader = CResMgr::GetInst()->FindRes<CGraphicsShader>(L"SkyBoxShader");
+	//m_SkyBoxMtrl = new CMaterial(true);
+	//m_SkyBoxMtrl->SetShader(skyBoxShader);
+	//CResMgr::GetInst()->AddRes(L"FbxSkyBox", m_SkyBoxMtrl);
 	//SetFrustumCheck(false);
 }
 

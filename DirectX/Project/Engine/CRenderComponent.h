@@ -8,9 +8,9 @@
 
 struct tMtrlSet
 {
-    Ptr<CMaterial>  pSharedMtrl;    // 공유 메터리얼
-    Ptr<CMaterial>  pDynamicMtrl;   // 공유 메터리얼 복사본
-    Ptr<CMaterial>  pCurrentMtrl;       // 현재 사용 할 메터리얼
+    Ptr<CMaterial>  pSharedMtrl; 
+    Ptr<CMaterial>  pDynamicMtrl;
+    Ptr<CMaterial>  pCurrentMtrl;
 };
 
 class CRenderComponent :
@@ -55,6 +55,6 @@ public:
     bool IsFrustumCheck() { return m_bFrustumCheck; }
 public:
     CRenderComponent(COMPONENT_TYPE _type);
-    ~CRenderComponent();
+    virtual ~CRenderComponent();
 };
 

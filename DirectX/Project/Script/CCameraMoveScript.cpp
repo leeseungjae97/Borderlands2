@@ -53,13 +53,13 @@ void CCameraMoveScript::scopeCameraMove()
 	CGameObject* pCamera = GetOwner();
 	CCamera* cam = CRenderMgr::GetInst()->GetMainCam();
 
-	if (pCamera->GetName() != L"ScopeCamera")
+	if (nullptr == pCamera || pCamera->GetName() != L"ScopeCamera")
 		return;
 
-	if (nullptr == WeaponMgr::GetInst()->GetCurWeapon())
+	if (nullptr == WeaponMgr::GetInst() || nullptr == WeaponMgr::GetInst()->GetCurWeapon())
 		return;
 
-	if (nullptr == cam)
+	if (nullptr == cam || nullptr == cam->GetOwner())
 		return;
 
 	Vec3 vPos = WeaponMgr::GetInst()->GetCurWeaponMuzzlePos();

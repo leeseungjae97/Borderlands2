@@ -36,6 +36,6 @@ private:
 public:
     CSkyBox();
     CSkyBox(bool _FromMeshData);
-    ~CSkyBox();
+    virtual ~CSkyBox();
 };
 

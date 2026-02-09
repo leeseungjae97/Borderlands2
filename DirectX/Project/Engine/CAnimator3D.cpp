@@ -62,8 +62,8 @@ CAnimator3D::CAnimator3D(const CAnimator3D& _origin)
 	, m_bFinalMatUpdate(false)
 	, m_bLoop(_origin.m_bLoop)
 	, m_bMultipleClip(_origin.m_bMultipleClip)
-	, m_pCurClip(_origin.m_pCurClip)
-	, m_pNextClip(_origin.m_pNextClip)
+	, m_pCurClip(nullptr)
+	, m_pNextClip(nullptr)
 	, m_bBlendMode(_origin.m_bBlendMode)
 	, m_bBlend(_origin.m_bBlend)
 	, m_fBlendTime(_origin.m_fBlendTime)
@@ -81,8 +81,17 @@ CAnimator3D::CAnimator3D(const CAnimator3D& _origin)
 	, m_bUpdate(_origin.m_bUpdate)
 	, CComponent(COMPONENT_TYPE::ANIMATOR3D)
 {
-	Copy_Map(_origin.mClips, mClips);
-	Copy_Map(_origin.mEvents, mEvents);
+	create_clip();
+
+	if (_origin.m_pCurClip)
+	{
+		m_pCurClip = FindClip(_origin.m_pCurClip->GetName());
+	}
+
+	if (_origin.m_pNextClip)
+	{
+		m_pNextClip = FindClip(_origin.m_pNextClip->GetName());
+	}
 
 	m_pBoneFinalMatBuffer = new CStructuredBuffer;
 	m_pBoneFinalMatPosBuffer = new CStructuredBuffer;
@@ -132,12 +141,16 @@ void CAnimator3D::finaltick()
 			m_pNextClip->SetSpeedAdj(m_fSpeedAdj);
 
 			CustomEvent(m_pCurClip);
-			m_vHeadPos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
-			if (m_iScopeIdx != 0)
-				m_vScopePos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iScopeIdx].vTranslate;
 
-			//if (m_iWeaponMuzzleIdx != 0)
-			//	m_vMuzzlePos = m_pNextClip->GetCurClip().vecTransKeyFrame[m_iWeaponMuzzleIdx].vTranslate;
+			const vector<tFrameTrans>& vecFrame = m_pNextClip->GetCurClip().vecTransKeyFrame;
+			if (!vecFrame.empty())
+			{
+				if (m_iHeadIdx >= 0 && m_iHeadIdx < (int)vecFrame.size())
+					m_vHeadPos = vecFrame[m_iHeadIdx].vTranslate;
+
+				if (m_iScopeIdx != 0 && m_iScopeIdx < (int)vecFrame.size())
+					m_vScopePos = vecFrame[m_iScopeIdx].vTranslate;
+			}
 		}
 
 		m_fBlendAcc += DT;
@@ -155,41 +168,43 @@ void CAnimator3D::finaltick()
 	{
 		if (m_pCurClip)
 		{
-			if(m_iScopeIdx != 0)
-				m_vScopePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iScopeIdx].vTranslate;
-
-			//if (m_iWeaponMuzzleIdx != 0)
-			//	m_vMuzzlePos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iWeaponMuzzleIdx].vTranslate;
-				
-
 			m_pCurClip->SetSpeedAdj(m_fSpeedAdj);
 			m_pCurClip->finaltick();
 
 			CustomEvent(m_pCurClip);
-			
-			m_vHeadPos = m_pCurClip->GetCurClip().vecTransKeyFrame[m_iHeadIdx].vTranslate;
 
-			if (m_pCurClip->IsFinish() && m_bLoop)
+			const vector<tFrameTrans>& vecFrame = m_pCurClip->GetCurClip().vecTransKeyFrame;
+			if (!vecFrame.empty())
 			{
-				m_pNextClip = m_pCurClip;
-				m_pNextClip->Reset();
+				if (m_iHeadIdx >= 0 && m_iHeadIdx < (int)vecFrame.size())
+					m_vHeadPos = vecFrame[m_iHeadIdx].vTranslate;
 
-				SetBlend(true, 0.1f);
-
-				events = FindEvents(m_pNextClip->GetName());
-				if (events)
-					events->endEvent();
-
-				events = FindEvents(m_pNextClip->GetName());
-				if (events)
-					events->startEvent();
+				if (m_iScopeIdx != 0 && m_iScopeIdx < (int)vecFrame.size())
+					m_vScopePos = vecFrame[m_iScopeIdx].vTranslate;
 			}
 
-			if(m_pCurClip->IsFinish() && !m_bLoop)
+			if (m_pCurClip->IsFinish())
 			{
-				events = FindEvents(m_pCurClip->GetName());
-				if (events)
-					events->endEvent();
+				if (m_bLoop)
+				{
+					m_pNextClip = m_pCurClip;
+					m_pNextClip->Reset();
+
+					SetBlend(true, 0.1f);
+
+					events = FindEvents(m_pNextClip->GetName());
+					if (events)
+					{
+						events->endEvent();
+						events->startEvent();
+					}
+				}
+				else
+				{
+					events = FindEvents(m_pCurClip->GetName());
+					if (events)
+						events->endEvent();
+				}
 			}
 		}
 	}
@@ -199,13 +214,23 @@ void CAnimator3D::finaltick()
 
 void CAnimator3D::UpdateData()
 {
+	m_pBoneFinalMatRotBuffer->GetMatrixData(vecPrevRotMat);
+	m_pBoneFinalMatPosBuffer->GetMatrixData(vecPrevPosMat);
+
 	if (!m_bFinalMatUpdate && m_pCurClip)
 	{
 		m_bUpdate = true;
-		// Animation3D Update Compute Shader
-		CAnimation3DShader* pUpdateShader = (CAnimation3DShader*)CResMgr::GetInst()->FindRes<CComputeShader>(L"Animation3DUpdateCS").Get();
+		if (nullptr == pUpdateShader)
+		{
+			Ptr<CComputeShader> computeShader = CResMgr::GetInst()->FindRes<CComputeShader>(L"Animation3DUpdateCS");
+			if(nullptr != computeShader)
+				pUpdateShader = static_cast<CAnimation3DShader*>(computeShader.Get());
+		}
 
-		// Bone Data
+		if (nullptr == pUpdateShader)
+			return;
+
+		UINT iBoneCount = (UINT)m_pVecBones.size();
 		Ptr<CMesh> pMesh = MeshRender()->GetMesh();
 		check_mesh(pMesh);
 
@@ -226,7 +251,6 @@ void CAnimator3D::UpdateData()
 			pUpdateShader->SetBlendRatio(m_fBRatio);
 		}
 
-		UINT iBoneCount = (UINT)m_pVecBones.size();
 		pUpdateShader->SetBoneCount(iBoneCount);
 		if (m_bStop)
 		{
@@ -247,14 +271,16 @@ void CAnimator3D::UpdateData()
 	}
 
 	m_pBoneFinalMatBuffer->UpdateData(30, PIPELINE_STAGE::PS_VERTEX);
+	m_pBoneFinalMatPosBuffer->CopyData();
+	m_pBoneFinalMatRotBuffer->CopyData();
 }
 
-void CAnimator3D::SetBones(const vector<tMTBone>* _vecBones)
+void CAnimator3D::SetBones(const vector<tMTBone>& _vecBones)
 {
-	m_pVecBones = *_vecBones;
+	m_pVecBones = _vecBones;
 }
 
-void CAnimator3D::SetAnimClip(const map<wstring, tMTAnimClip>& _vecAnimClip)
+void CAnimator3D::SetAnimClip(const unordered_map<wstring, tMTAnimClip>& _vecAnimClip)
 {
 	m_pMapClip = _vecAnimClip;
 	m_vecClipUpdateTime.resize(m_pMapClip.size());
@@ -365,8 +391,8 @@ void CAnimator3D::StopPlay()
 void CAnimator3D::ClearData()
 {
 	m_pBoneFinalMatBuffer->Clear();
-	//m_pBoneFinalMatPosBuffer->Clear();
-	//m_pBoneFinalMatRotBuffer->Clear();
+	m_pBoneFinalMatPosBuffer->Clear();
+	m_pBoneFinalMatRotBuffer->Clear();
 
 	UINT iMtrlCount = MeshRender()->GetMtrlCount();
 	Ptr<CMaterial> pMtrl = nullptr;
@@ -376,7 +402,7 @@ void CAnimator3D::ClearData()
 		if (nullptr == pMtrl)
 			continue;
 
-		pMtrl->SetAnim3D(false); // Animation Mesh æÀ∏Æ±‚
+		pMtrl->SetAnim3D(false); // Animation Mesh ÔøΩÀ∏ÔøΩÔøΩÔøΩ
 		pMtrl->SetBoneCount(0);
 	}
 }
@@ -386,6 +412,7 @@ void CAnimator3D::SetBlend(bool _bBlend, float _fBlendTime)
 	m_bBlend = _bBlend;
 	m_fBlendAcc = 0.0f;
 	m_fBlendTime = _fBlendTime;
+	//m_fBlendTime = 2.f;
 }
 
 void CAnimator3D::SetAnimClipEventIdx(UINT _Type, int _iEnd, int _iStart, int _iProgress, int _iComplete)
@@ -412,23 +439,40 @@ void CAnimator3D::SetAnimClipEventIdx(UINT _Type, int _iEnd, int _iStart, int _i
 	{
 		assert(NULL);
 	}
-		
 }
 
-Matrix CAnimator3D::GetRotMat(int idx)
+Matrix CAnimator3D::GetRotMatFrameLatency(int idx)
+{
+	if (vecPrevRotMat.size() < idx || 0 > idx)
+		return Matrix::Identity;
+
+	return (vecPrevRotMat.empty() ? Matrix::Identity : vecPrevRotMat[idx]);
+}
+
+Matrix CAnimator3D::GetPosMatFrameLatency(int idx)
+{
+	if (vecPrevPosMat.size() < idx || 0 > idx)
+		return Matrix::Identity;
+
+	return (vecPrevPosMat.empty() ? Matrix::Identity : vecPrevPosMat[idx]);
+}
+
+Matrix CAnimator3D::GetRotMatNoFrameLatency(int idx)
 {
 	Matrix mat = Matrix::Identity;
-	m_pBoneFinalMatRotBuffer->GetMatrixData(&mat, idx);
+	if(m_pBoneFinalMatRotBuffer->GetElementCount() != 0)
+		m_pBoneFinalMatRotBuffer->GetMatrixData(&mat, idx);
+
 	return mat;
 }
 
-Matrix CAnimator3D::GetPosMat(int idx)
+Matrix CAnimator3D::GetPosMatNoFrameLatency(int idx)
 {
 	Matrix mat = Matrix::Identity;
-	m_pBoneFinalMatPosBuffer->GetMatrixData(&mat, idx);
+	if (m_pBoneFinalMatRotBuffer->GetElementCount() != 0)
+		m_pBoneFinalMatPosBuffer->GetMatrixData(&mat, idx);
 	return mat;
 }
-
 
 void CAnimator3D::SetDefineAnimation(wstring animName, UINT _Type)
 {
@@ -514,7 +558,7 @@ Vec4 CAnimator3D::GetHeadPos()
 	return m_vHeadPos;
 }
 
-// Animator3DUIø°º≠ ∞≠¡¶ «√∑π¿ÃøÎµµ∑Œ ªÁøÎµ«∞Ì ¿÷¿Ω
+// Animator3DUIÏóêÏÑú Í∞ïÏ†ú ÌîåÎ†àÏù¥ÌïòÎäî Ïö©ÎèÑ
 void CAnimator3D::Play(const wstring& _Name, bool _Loop)
 {
 	CAnimClip* pCheckClip = FindClip(_Name);
@@ -778,7 +822,7 @@ std::shared_ptr<std::function<void()>>& CAnimator3D::ProgressEvent(const UINT ke
 
 Events* CAnimator3D::FindEvents(const wstring& name)
 {
-	std::map<wstring, Events*>::iterator iter
+	std::unordered_map<wstring, Events*>::iterator iter
 		= mEvents.find(name);
 
 	if (iter == mEvents.end())
@@ -789,7 +833,7 @@ Events* CAnimator3D::FindEvents(const wstring& name)
 
 CAnimClip* CAnimator3D::FindClip(const wstring& name)
 {
-	std::map<wstring, CAnimClip*>::iterator iter
+	std::unordered_map<wstring, CAnimClip*>::iterator iter
 		= mClips.find(name);
 
 	if (iter == mClips.end())
@@ -987,22 +1031,28 @@ void CAnimator3D::check_mesh(Ptr<CMesh> _pMesh)
 {
 	UINT iBoneCount = _pMesh->GetBoneCount();
 	
-	m_pBoneFinalMatBuffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, true);
-	m_pBoneFinalMatPosBuffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, true);
-	m_pBoneFinalMatRotBuffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, true);
+	if (m_pBoneFinalMatBuffer->GetElementCount() < iBoneCount)
+		m_pBoneFinalMatBuffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, true);
+
+	if (m_pBoneFinalMatPosBuffer->GetElementCount() < iBoneCount)
+		m_pBoneFinalMatPosBuffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, true);
+
+	if (m_pBoneFinalMatRotBuffer->GetElementCount() < iBoneCount)
+		m_pBoneFinalMatRotBuffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, true);
 }
 
 void CAnimator3D::check_mesh(Ptr<CMesh> _pMesh, CStructuredBuffer* _buffer)
 {
 	UINT iBoneCount = _pMesh->GetBoneCount();
 
-	_buffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, true);
+	if (_buffer->GetElementCount() < iBoneCount)
+		_buffer->Create(sizeof(Matrix), iBoneCount, SB_TYPE::READ_WRITE, true);
 }
 
 void CAnimator3D::create_clip()
 {
-	mEvents.clear();
-	mClips.clear();
+	Safe_Del_Map(mEvents);
+	Safe_Del_Map(mClips);
 
 	wstring tempClipName = L"";
 	for (auto& pair : m_pMapClip)
@@ -1026,14 +1076,28 @@ void CAnimator3D::create_clip()
 		mEvents.insert(make_pair(clip.strAnimName, events));
 	}
 
-	m_pCurClip = mClips.at(tempClipName);
-}
+	if (tempClipName == L"")
+	{
+		m_pCurClip = nullptr;
+		m_pNextClip = nullptr;
+		m_bBlend = false;
+		m_bStop = false;
+		return;
+	}
 
+	m_pCurClip = mClips.at(tempClipName);
+	m_pCurClip->Reset();
+	m_pNextClip = nullptr;
+	m_bBlend = false;
+	m_bStop = false;
+}
 void CAnimator3D::CustomEvent(CAnimClip* _AnimClip)
 {
 	Events* events = nullptr;
 	events = FindEvents(_AnimClip->GetName());
 	int idx =  _AnimClip->GetClipIdx();
+	if (nullptr == events)
+		return;
 
 	if(_AnimClip->GetEventEndIdx() == idx)
 	{
@@ -1055,5 +1119,11 @@ void CAnimator3D::CustomEvent(CAnimClip* _AnimClip)
 		if (events)
 			events->completeEvent();
 	}
-
 }
+
+
+
+
+
+
+

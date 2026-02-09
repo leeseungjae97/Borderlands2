@@ -14,6 +14,7 @@
 #include "CRigidBody.h"
 #include "CTransform.h"
 #include "RandMgr.h"
+#include "AnimationMgr.h"
 
 #include <Script/CScriptMgr.h>
 //#include <Script/CWeaponScript.h>
@@ -109,7 +110,8 @@ Vec3 WeaponMgr::GetOwnerWeaponRot(CGameObject* _Owner, bool bRight)
 	else
 		iWeaponHandRotIdx = _Owner->Animator3D()->GetWeaponLHandIdx();
 
-	Vec3 vRot = _Owner->MeshRender()->GetMesh()->BoneRotSkinning(iWeaponHandRotIdx, _Owner->Animator3D());
+	//Vec3 vRot = _Owner->MeshRender()->GetMesh()->BoneRotSkinning(iWeaponHandRotIdx, _Owner->Animator3D());
+	Vec3 vRot = AnimationMgr::GetInst()->BoneRot(iWeaponHandRotIdx, _Owner);
 
 	return vRot;
 }
@@ -125,7 +127,7 @@ Vec3 WeaponMgr::GetOwnerWeaponPos(CGameObject* _Owner, bool bRight)
 	else
 		iWeaponHandIdx = _Owner->Animator3D()->GetWeaponLHandIdx();
 
-	Vec3 vPos = _Owner->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, _Owner->Animator3D());
+	Vec3 vPos = AnimationMgr::GetInst()->BoneRot(iWeaponHandIdx, _Owner);
 
 	CRigidBody* rb = _Owner->RigidBody();
 	Vec3 vOffset = Vec3::Zero;
@@ -141,7 +143,8 @@ Vec3 WeaponMgr::GetOwnerWeaponPos(CGameObject* _Owner, bool bRight)
 Vec3 WeaponMgr::GetCurWeaponScopePos(CGameObject* _Owner)
 {
 	int iWeaponHandIdx = _Owner->Animator3D()->GetWeaponRHandIdx();
-	Vec3 vPos = _Owner->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, _Owner->Animator3D());
+	//Vec3 vPos = _Owner->MeshRender()->GetMesh()->BonePosSkinning(iWeaponHandIdx, _Owner->Animator3D());
+	Vec3 vPos = AnimationMgr::GetInst()->BoneRot(iWeaponHandIdx, _Owner);
 	Vec3 vScopePos = m_arrWeapons[iCurWeaponIdx]->Animator3D()->GetScopePos();
 
 	vPos += vScopePos;

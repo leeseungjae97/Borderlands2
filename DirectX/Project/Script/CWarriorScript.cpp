@@ -226,20 +226,11 @@ void CWarriorScript::makeCollider()
 void CWarriorScript::initAnim()
 {
 	CGameObject* pWarrior = GetOwner();
-	pWarrior->Animator3D()->SetAnimClipEventIdx(
-		(UINT)WARRIOR_ANIMATION_TYPE::FAR_BREATH, -1, -1, 103, 130);
-
-	pWarrior->Animator3D()->SetAnimClipEventIdx(
-		(UINT)WARRIOR_ANIMATION_TYPE::NEAR_BREATH, -1, -1, 57, 114);
-
-	pWarrior->Animator3D()->SetAnimClipEventIdx(
-		(UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH, -1, -1, 87, 140);
-
-	pWarrior->Animator3D()->SetAnimClipEventIdx(
-		(UINT)WARRIOR_ANIMATION_TYPE::ROCK_THROW, -1, -1, 93, -1);
-
-	pWarrior->Animator3D()->SetAnimClipEventIdx(
-		(UINT)WARRIOR_ANIMATION_TYPE::TAIL_ATTACK, -1, -1, 166, -1);
+	pWarrior->Animator3D()->SetAnimClipEventIdx((UINT)WARRIOR_ANIMATION_TYPE::FAR_BREATH, -1, -1, 103, 130);
+	pWarrior->Animator3D()->SetAnimClipEventIdx((UINT)WARRIOR_ANIMATION_TYPE::NEAR_BREATH, -1, -1, 57, 114);
+	pWarrior->Animator3D()->SetAnimClipEventIdx((UINT)WARRIOR_ANIMATION_TYPE::MID_BREATH, -1, -1, 87, 140);
+	pWarrior->Animator3D()->SetAnimClipEventIdx((UINT)WARRIOR_ANIMATION_TYPE::ROCK_THROW, -1, -1, 93, -1);
+	pWarrior->Animator3D()->SetAnimClipEventIdx((UINT)WARRIOR_ANIMATION_TYPE::TAIL_ATTACK, -1, -1, 166, -1);
 
 	pWarrior->Animator3D()->EndEvent((UINT)WARRIOR_ANIMATION_TYPE::FAR_BREATH)
 		= std::make_shared<std::function<void()>>([=]()
@@ -745,6 +736,7 @@ void CWarriorScript::colliderMove()
 		if (pHeadCollider)
 		{
 			int headIdx = pAnimator->GetHeadIdx();
+			
 			Vec3 vPos = AnimationMgr::GetInst()->BonePos(headIdx, pWarrior);
 			Vec3 vRot = AnimationMgr::GetInst()->BoneRot(headIdx, pWarrior);
 
@@ -1234,7 +1226,7 @@ void CWarriorScript::finaltick()
 	//breathMove();
 	//rockMove();
 	//tailMove();
-	colliderMove();
+	//colliderMove();
 
 	//if (iWarriorHp == 0)
 	//{

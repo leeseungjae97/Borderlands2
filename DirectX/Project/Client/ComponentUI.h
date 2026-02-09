@@ -14,7 +14,7 @@ private:
     const COMPONENT_TYPE    m_Type;
 
 public:
-    void SetTarget(CGameObject* _Target);
+    virtual void SetTarget(CGameObject* _Target);
     
     CGameObject* GetTarget() { return m_Target; }
 

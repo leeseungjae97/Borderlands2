@@ -9,8 +9,35 @@ CAnimator2D::CAnimator2D()
 	, m_iMtrlIdx(0)
 	, m_iLoopCount(0)
 	, m_bLoop(false)
-
+	, m_pActiveSprite(nullptr)
 {
+}
+
+CAnimator2D::CAnimator2D(const CAnimator2D& _Other)
+	: CComponent(_Other)
+	, m_pSpriteSheet(_Other.m_pSpriteSheet)
+	, m_iLoopCount(_Other.m_iLoopCount)
+	, m_bLoop(_Other.m_bLoop)
+	, m_iMtrlIdx(_Other.m_iMtrlIdx)
+	, m_pActiveSprite(nullptr)
+{
+	for (auto const& pair : _Other.mAnimations)
+	{
+		CAnimSprite* pCloneAnim = pair.second->Clone();
+		pCloneAnim->SetAnimator(this);
+		mAnimations.insert(make_pair(pair.first, pCloneAnim));
+	}
+
+	for (auto const& pair : _Other.mEvents)
+	{
+		Events* pCloneEvents = new Events(*pair.second);
+		mEvents.insert(make_pair(pair.first, pCloneEvents));
+	}
+
+	if (_Other.m_pActiveSprite)
+	{
+		m_pActiveSprite = FindAnimSprite(_Other.m_pActiveSprite->GetName());
+	}
 }
 
 CAnimator2D::~CAnimator2D()
@@ -303,6 +330,9 @@ std::shared_ptr<std::function<void()>>& CAnimator2D::ProgressEvent(const std::ws
 
 void CAnimator2D::LoadFromLevelFile(FILE* _FILE)
 {
+	Safe_Del_Map(mAnimations);
+	Safe_Del_Map(mEvents);
+
 	UINT mapSize = mAnimations.size();
 	fread(&mapSize, sizeof(UINT), 1, _FILE);
 	for (int i = 0; i < mapSize; ++i)

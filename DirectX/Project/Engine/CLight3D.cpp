@@ -102,10 +102,12 @@ void CLight3D::SetLightType(LIGHT_TYPE _type)
 			m_pCamObj->Camera()->SetLayerMask((int)LAYER_TYPE::Camera, false);
 			m_pCamObj->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, false);
 			
-			m_pCamObj->Camera()->SetFarZ(100000.f);
+			m_pCamObj->Camera()->SetFarZ(10000.f);
 			m_pCamObj->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
-			m_pCamObj->Camera()->SetOrthoWidth(800000.f);
-			m_pCamObj->Camera()->SetOrthoHeight(800000.f);
+			//m_pCamObj->Camera()->SetOrthoWidth(8000.f);
+			//m_pCamObj->Camera()->SetOrthoHeight(8000.f);
+			m_pCamObj->Camera()->SetOrthoWidth(80000.f);
+			m_pCamObj->Camera()->SetOrthoHeight(80000.f);
 		}
 
 		m_Mesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");

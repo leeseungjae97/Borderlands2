@@ -42,47 +42,7 @@ CMesh::~CMesh()
 		delete m_pBlendFrameData;
 }
 
-Vec3 CMesh::BoneRotSkinning(int idx, CAnimator3D* animator)
-{
-	//return Vec3::Zero;
-	if (!animator->IsUpdate())
-		return Vec3::Zero;
 
-	Matrix matBone = Matrix::Identity;
-	Vec3 vRot = Vec3::Zero;
-
-	matBone = animator->GetRotMat(idx);
-
-	Quat quat;
-	Vec3 vS, vT;
-	
-	matBone.Decompose(vS, quat, vT);
-
-	vRot = physx::Util::QuaternionToVector3(quat);
-	vRot.x *= -1.f;
-	vRot.y *= -1.f;
-	vRot.z *= -1.f;
-	vRot.y += XM_PI / 2.f;
-	return vRot;
-}
-
-Vec3 CMesh::BonePosSkinning(int idx, CAnimator3D* animator)
-{
-	//return Vec3::Zero;
-	if (!animator->IsUpdate())
-		return Vec3::Zero;
-
-	Matrix matBone = Matrix::Identity;
-
-	matBone = animator->GetPosMat(idx);
-
-	Quat quat;
-	Vec3 vS, vT;
-
-	matBone.Decompose(vS, quat, vT);
-
-	return Vec3(matBone._14, matBone._24, matBone._34);
-}
 CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 {
 	const tContainer* container = &_loader.GetContainer(0);
@@ -126,13 +86,13 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 	pMesh->m_pVtxSys = pSys;
 	pMesh->m_VtxCount = iVtxCount;
 
-	// ÀÎµ¦½º Á¤º¸
+	// ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UINT iIdxBufferCount = (UINT)container->vecIdx.size();
 	D3D11_BUFFER_DESC tIdxDesc = {};
 
 	for (UINT i = 0; i < iIdxBufferCount; ++i)
 	{
-		tIdxDesc.ByteWidth = (UINT)container->vecIdx[i].size() * sizeof(UINT); // Index Format ÀÌ R32_UINT ÀÌ±â ¶§¹®
+		tIdxDesc.ByteWidth = (UINT)container->vecIdx[i].size() * sizeof(UINT); // Index Format ï¿½ï¿½ R32_UINT ï¿½Ì±ï¿½ ï¿½ï¿½ï¿½ï¿½
 		tIdxDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		tIdxDesc.Usage = D3D11_USAGE_DEFAULT;
 		if (D3D11_USAGE_DYNAMIC == tIdxDesc.Usage)
@@ -237,16 +197,16 @@ CMesh* CMesh::CreateFromContainer(FBXLoader& _loader)
 		}
 		pMesh->m_vecBones.push_back(bone);
 	}
-	// Animation ÀÌ ÀÖ´Â Mesh °æ¿ì structuredbuffer ¸¸µé¾îµÎ±â
+	// Animation ï¿½ï¿½ ï¿½Ö´ï¿½ Mesh ï¿½ï¿½ï¿½ structuredbuffer ï¿½ï¿½ï¿½ï¿½ï¿½Î±ï¿½
 	if (pMesh->IsAnimMesh())
 	{
 		TransKeyFrame(pMesh);
 
-		pMesh->m_pBoneOffset = new CStructuredBuffer;
+		if (nullptr == pMesh->m_pBoneOffset) pMesh->m_pBoneOffset = new CStructuredBuffer;
 		pMesh->m_pBoneOffset->Create(sizeof(Matrix), (UINT)pMesh->m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false, pMesh->m_vecBoneOffset.data());
 
-		pMesh->m_pBoneFrameData = new CStructuredBuffer;
-		pMesh->m_pBlendFrameData = new CStructuredBuffer;
+		if (nullptr == pMesh->m_pBoneFrameData) pMesh->m_pBoneFrameData = new CStructuredBuffer;
+		if (nullptr == pMesh->m_pBlendFrameData) pMesh->m_pBlendFrameData = new CStructuredBuffer;
 	}
 
 	return pMesh;
@@ -255,8 +215,15 @@ CStructuredBuffer* CMesh::GetBoneFrameDataBuffer(const wstring& _AnimName)
 {
 	//tMTAnimClip clip = m_mapAnimClip[_Idx];
 	tMTAnimClip clip = m_mapAnimClip.at(_AnimName);
-	m_pBoneFrameData->Create(sizeof(tFrameTrans), (UINT)m_vecBoneOffset.size() * clip.iFrameCount
-		, SB_TYPE::READ_ONLY, false, clip.vecTransKeyFrame.data());
+	UINT iElementCount = (UINT)m_vecBoneOffset.size() * clip.iFrameCount;
+
+	if (nullptr == m_pBoneFrameData) m_pBoneFrameData = new CStructuredBuffer;
+
+	if (m_pBoneFrameData->GetElementCount() < iElementCount)
+	{
+		m_pBoneFrameData->Create(sizeof(tFrameTrans), iElementCount, SB_TYPE::READ_ONLY, true);
+	}
+	m_pBoneFrameData->SetData((void*)clip.vecTransKeyFrame.data());
 	return m_pBoneFrameData;
 }
 
@@ -264,8 +231,15 @@ CStructuredBuffer* CMesh::GetBlendFrameDataBuffer(const wstring& _AnimName)
 {
 	//tMTAnimClip clip = m_mapAnimClip[_Idx];
 	tMTAnimClip clip = m_mapAnimClip.at(_AnimName);
-	m_pBlendFrameData->Create(sizeof(tFrameTrans), (UINT)m_vecBoneOffset.size() * clip.iFrameCount
-		, SB_TYPE::READ_ONLY, false, clip.vecTransKeyFrame.data());
+	UINT iElementCount = (UINT)m_vecBoneOffset.size() * clip.iFrameCount;
+
+	if (nullptr == m_pBlendFrameData) m_pBlendFrameData = new CStructuredBuffer;
+
+	if (m_pBlendFrameData->GetElementCount() < iElementCount)
+	{
+		m_pBlendFrameData->Create(sizeof(tFrameTrans), iElementCount, SB_TYPE::READ_ONLY, true);
+	}
+	m_pBlendFrameData->SetData((void*)clip.vecTransKeyFrame.data());
 	return m_pBlendFrameData;
 }
 
@@ -277,13 +251,13 @@ void CMesh::Create(void* _VtxSysMem, UINT _iVtxCount, void* _IdxSysMem, UINT _Id
 	tIndexInfo indexInfo = {};
 	indexInfo.iIdxCount = _IdxCount;
 
-	// Á¤Á¡ µ¥ÀÌÅÍ¸¦ ÀúÀåÇÒ ¹öÅØ½º ¹öÆÛ¸¦ »ý¼ºÇÑ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ø½ï¿½ ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	m_tVBDesc.ByteWidth = sizeof(Vtx) * m_VtxCount;
 
 	m_tVBDesc.CPUAccessFlags = 0;
 	m_tVBDesc.Usage = D3D11_USAGE_DEFAULT;
 
-	// Vertex ¹öÆÛ »ý¼º
+	// Vertex ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	m_tVBDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_VERTEX_BUFFER;
 	m_tVBDesc.MiscFlags = 0;
 	m_tVBDesc.StructureByteStride = 0;
@@ -295,7 +269,7 @@ void CMesh::Create(void* _VtxSysMem, UINT _iVtxCount, void* _IdxSysMem, UINT _Id
 		assert(nullptr);
 	}
 
-	// Index ¹öÆÛ »ý¼º
+	// Index ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	indexInfo.tIBDesc.ByteWidth = sizeof(UINT) * indexInfo.iIdxCount;
 	indexInfo.tIBDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_INDEX_BUFFER;
 	indexInfo.tIBDesc.CPUAccessFlags = 0;
@@ -309,7 +283,7 @@ void CMesh::Create(void* _VtxSysMem, UINT _iVtxCount, void* _IdxSysMem, UINT _Id
 	}
 
 
-	// SystemMem µ¥ÀÌÅÍ º¹»ç
+	// SystemMem ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	m_pVtxSys = new Vtx[m_VtxCount];
 	memcpy(m_pVtxSys, _VtxSysMem, sizeof(Vtx) * m_VtxCount);
 
@@ -352,13 +326,58 @@ void CMesh::TransKeyFrame(CMesh* mesh)
 	}
 }
 
+void CMesh::UpdateData(UINT _iSubset)
+{
+	UINT iStride = sizeof(Vtx);
+	UINT iOffset = 0;
+
+	CONTEXT->IASetVertexBuffers(0, 1, m_VB.GetAddressOf(), &iStride, &iOffset);
+	CONTEXT->IASetIndexBuffer(m_vecIdxInfo[_iSubset].pIB.Get(), DXGI_FORMAT_R32_UINT, 0);
+}
+
+// Subset ï¿½ï¿½ï¿½ï¿½
+void CMesh::UpdateData_Instancing(UINT _iSubSet)
+{
+	if (_iSubSet >= m_vecIdxInfo.size())
+		assert(nullptr);
+
+	ID3D11Buffer* arrBuffer[2] = { m_VB.Get(), CInstancingBuffer::GetInst()->GetBuffer().Get() };
+	UINT		  iStride[2] = { sizeof(Vtx), sizeof(tInstancingData) };
+	UINT		  iOffset[2] = { 0, 0 };
+
+	CONTEXT->IASetVertexBuffers(0, 2, arrBuffer, iStride, iOffset);
+	CONTEXT->IASetIndexBuffer(m_vecIdxInfo[_iSubSet].pIB.Get(), DXGI_FORMAT_R32_UINT, 0);
+}
+
+void CMesh::render(UINT _iSubset)
+{
+	UpdateData(_iSubset);
+
+	CONTEXT->DrawIndexed(m_vecIdxInfo[_iSubset].iIdxCount, 0, 0);
+}
+
+void CMesh::render_instancing(UINT _iSubSet)
+{
+	UpdateData_Instancing(_iSubSet);
+	
+	CONTEXT->DrawIndexedInstanced(m_vecIdxInfo[_iSubSet].iIdxCount
+		, CInstancingBuffer::GetInst()->GetInstanceCount(), 0, 0, 0);
+}
+
+void CMesh::render_particle(UINT _iParticleCount)
+{
+	UpdateData(0);
+
+	CONTEXT->DrawIndexedInstanced(m_vecIdxInfo[0].iIdxCount, _iParticleCount, 0, 0, 0);
+}
+
 int CMesh::Load(const wstring& _strFilePath)
 {
-	// ÀÐ±â¸ðµå·Î ÆÄÀÏ¿­±â
+	// ï¿½Ð±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½
 	FILE* pFile = nullptr;
 	_wfopen_s(&pFile, _strFilePath.c_str(), L"rb");
 
-	// Å°°ª, »ó´ë°æ·Î
+	// Å°ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½
 	wstring strName, strKey, strRelativePath;
 	LoadWString(strName, pFile);
 	LoadWString(strKey, pFile);
@@ -368,7 +387,7 @@ int CMesh::Load(const wstring& _strFilePath)
 	SetKey(strKey);
 	SetRelativePath(strRelativePath);
 
-	// Á¤Á¡µ¥ÀÌÅÍ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	UINT iByteSize = 0;
 	fread(&m_VtxCount, sizeof(UINT), 1, pFile);
 	fread(&iByteSize, sizeof(int), 1, pFile);
@@ -390,7 +409,7 @@ int CMesh::Load(const wstring& _strFilePath)
 		assert(nullptr);
 	}
 
-	// ÀÎµ¦½º Á¤º¸
+	// ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UINT iMtrlCount = 0;
 	fread(&iMtrlCount, sizeof(int), 1, pFile);
 
@@ -415,7 +434,7 @@ int CMesh::Load(const wstring& _strFilePath)
 		m_vecIdxInfo.push_back(info);
 	}
 
-	// Animation3D Á¤º¸ ÀÐ±â
+	// Animation3D ï¿½ï¿½ï¿½ï¿½ ï¿½Ð±ï¿½
 	int iCount = 0;
 	fread(&iCount, sizeof(int), 1, pFile);
 	for (int i = 0; i < iCount; ++i)
@@ -473,11 +492,11 @@ int CMesh::Load(const wstring& _strFilePath)
 	{
 		TransKeyFrame(this);
 
-		m_pBoneOffset = new CStructuredBuffer;
+		if (nullptr == m_pBoneOffset) m_pBoneOffset = new CStructuredBuffer;
 		m_pBoneOffset->Create(sizeof(Matrix), (UINT)m_vecBoneOffset.size(), SB_TYPE::READ_ONLY, false, m_vecBoneOffset.data());
 
-		m_pBoneFrameData = new CStructuredBuffer;
-		m_pBlendFrameData = new CStructuredBuffer;
+		if (nullptr == m_pBoneFrameData) m_pBoneFrameData = new CStructuredBuffer;
+		if (nullptr == m_pBlendFrameData) m_pBlendFrameData = new CStructuredBuffer;
 	}
 
 	fclose(pFile);
@@ -487,29 +506,29 @@ int CMesh::Load(const wstring& _strFilePath)
 
 int CMesh::Save(const wstring& _strRelativePath)
 {
-	// »ó´ë°æ·Î ÀúÀå
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	SetRelativePath(_strRelativePath);
 
-	// ÆÄÀÏ °æ·Î ¸¸µé±â
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
 	wstring strFilePath = CPathMgr::GetInst()->GetContentPath() + _strRelativePath;
 
-	// ÆÄÀÏ ¾²±â¸ðµå·Î ¿­±â
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	FILE* pFile = nullptr;
 	errno_t err = _wfopen_s(&pFile, strFilePath.c_str(), L"wb");
 	assert(pFile);
 
-	// Å°°ª, »ó´ë °æ·Î	
+	// Å°ï¿½ï¿½, ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½	
 	SaveWString(GetName(), pFile);
 	SaveWString(GetKey(), pFile);
 	SaveWString(GetRelativePath(), pFile);
 
-	// Á¤Á¡ µ¥ÀÌÅÍ ÀúÀå
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	fwrite(&m_VtxCount, sizeof(UINT), 1, pFile);
 	int iByteSize = m_tVBDesc.ByteWidth;
 	fwrite(&iByteSize, sizeof(int), 1, pFile);
 	fwrite(m_pVtxSys, iByteSize, 1, pFile);
 
-	// ÀÎµ¦½º Á¤º¸
+	// ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UINT iMtrlCount = (UINT)m_vecIdxInfo.size();
 	fwrite(&iMtrlCount, sizeof(int), 1, pFile);
 
@@ -522,7 +541,7 @@ int CMesh::Save(const wstring& _strRelativePath)
 			, 1, pFile);
 	}
 
-	// Animation3D Á¤º¸ 
+	// Animation3D ï¿½ï¿½ï¿½ï¿½ 
 	UINT iCount = (UINT)m_mapAnimClip.size();
 	fwrite(&iCount, sizeof(int), 1, pFile);
 	//for (UINT i = 0; i < iCount; ++i)
@@ -581,49 +600,4 @@ int CMesh::Save(const wstring& _strRelativePath)
 
 
 	return S_OK;
-}
-
-void CMesh::UpdateData(UINT _iSubset)
-{
-	UINT iStride = sizeof(Vtx);
-	UINT iOffset = 0;
-
-	CONTEXT->IASetVertexBuffers(0, 1, m_VB.GetAddressOf(), &iStride, &iOffset);
-	CONTEXT->IASetIndexBuffer(m_vecIdxInfo[_iSubset].pIB.Get(), DXGI_FORMAT_R32_UINT, 0);
-}
-
-void CMesh::UpdateData_Instancing(UINT _iSubSet)
-{
-	if (_iSubSet >= m_vecIdxInfo.size())
-		assert(nullptr);
-
-	ID3D11Buffer* arrBuffer[2] = { m_VB.Get(), CInstancingBuffer::GetInst()->GetBuffer().Get() };
-	UINT		  iStride[2] = { sizeof(Vtx), sizeof(tInstancingData) };
-	UINT		  iOffset[2] = { 0, 0 };
-
-	CONTEXT->IASetVertexBuffers(0, 2, arrBuffer, iStride, iOffset);
-	CONTEXT->IASetIndexBuffer(m_vecIdxInfo[_iSubSet].pIB.Get(), DXGI_FORMAT_R32_UINT, 0);
-}
-
-void CMesh::render(UINT _iSubset)
-{
-	UpdateData(_iSubset);
-
-	CONTEXT->DrawIndexed(m_vecIdxInfo[_iSubset].iIdxCount, 0, 0);
-}
-
-void CMesh::render_instancing(UINT _iSubSet)
-{
-	UpdateData_Instancing(_iSubSet);
-
-	CONTEXT->DrawIndexedInstanced(m_vecIdxInfo[_iSubSet].iIdxCount
-		, CInstancingBuffer::GetInst()->GetInstanceCount(), 0, 0, 0);
-}
-
-void CMesh::render_particle(UINT _iParticleCount)
-{
-	UpdateData(0);
-
-	// ÀÎ½ºÅÏ½Ì
-	CONTEXT->DrawIndexedInstanced(m_vecIdxInfo[0].iIdxCount, _iParticleCount, 0, 0, 0);
 }

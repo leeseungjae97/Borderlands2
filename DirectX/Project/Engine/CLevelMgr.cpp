@@ -21,16 +21,11 @@ CLevelMgr::CLevelMgr()
 
 CLevelMgr::~CLevelMgr()
 {
-	//if (nullptr != m_pCurLevel)
-	//	delete m_pCurLevel;
-
 	Safe_Del_Map(m_mapLevels);
 }
 
 void CLevelMgr::init()
 {
-	//m_pCurLevel = new CLevel;
-	//m_pCurLevel->ChangeState(LEVEL_STATE::STOP);
 
 }
 
@@ -45,7 +40,9 @@ void CLevelMgr::tick()
 		//	
 		//}
 
-		ChangeCurLevel(GetLevel(L"main menu level"));
+		ChangeCurLevel(GetLevel(L"Temp"));
+		//ChangeCurLevel(GetLevel(L"main level 1"));
+		//ChangeCurLevel(GetLevel(L"Temp"));
 		//GetLevel(L"main menu level")->ChangeState(LEVEL_STATE::PLAY);
 
 		initMainLevel = false;
@@ -54,29 +51,22 @@ void CLevelMgr::tick()
 	if (nullptr == m_pCurLevel)
 		return;
 
-	if (m_pCurLevel->GetState() == LEVEL_STATE::STOP)
-		m_pCurLevel->ChangeState(LEVEL_STATE::PLAY);
-
-	m_pCurLevel->clear();
+	//if (m_pCurLevel->GetState() == LEVEL_STATE::STOP)
+	//	m_pCurLevel->ChangeState(LEVEL_STATE::PLAY);
 
 	if (LEVEL_STATE::PLAY == m_pCurLevel->GetState())
 	{
 		CheckLevelClear();
 		m_pCurLevel->tick();
 
-		if (ThreadMgr::GetInst()->IsThreadRun())
+		if (ThreadMgr::GetInst()->IsAnyThreadRun())
 		{
 			if (m_pCurLevel->GetName() != L"loading")
 			{
 				LoadingLevel(L"loading");
-				//ChangeCurLevel(GetLevel(L"loading"));
-				//GetLevel(L"loading")->ChangeState(LEVEL_STATE::PLAY);
 			}
 			else
 			{
-				if(m_pCurLevel->GetState() == LEVEL_STATE::STOP)
-					m_pCurLevel->ChangeState(LEVEL_STATE::PLAY);
-
 				if (m_pCurLevel->GetState() == LEVEL_STATE::PLAY
 					&& m_pCurLevel->GetTickCnt() > 0 && m_pCurLevel->GetTickCnt() < 10)
 				{
@@ -86,7 +76,10 @@ void CLevelMgr::tick()
 			}
 		}
 	}
+}
 
+void CLevelMgr::finaltick()
+{
 	m_pCurLevel->finaltick();
 }
 
@@ -150,6 +143,7 @@ void CLevelMgr::ChangeLevel(CLevel* _NextLevel)
 	if (nullptr != m_pCurLevel)
 	{
 		prevState = m_pCurLevel->GetState();
+		m_pCurLevel->clear();
 		//m_pCurLevel->ChangeState(LEVEL_STATE::NO_UPDATE_RENDER);
 	}
 
@@ -225,7 +219,7 @@ void CLevelMgr::CheckLevelClear()
 {
 	static bool levelLoading = false;
 
-	if (!ThreadMgr::GetInst()->IsThreadRun())
+	if (!ThreadMgr::GetInst()->IsAnyThreadRun())
 	{
 		levelLoading = false;
 	}
@@ -236,7 +230,7 @@ void CLevelMgr::CheckLevelClear()
 		{
 			static float mL2 = 0.0f;
 			mL2 += DT;
-			CRenderMgr::GetInst()->GetMainCam()->SetFadeTime(2.f, false);
+			//CRenderMgr::GetInst()->GetMainCam()->SetFadeTime(2.f, false);
 
 			if (mL2 > 2.f)
 			{

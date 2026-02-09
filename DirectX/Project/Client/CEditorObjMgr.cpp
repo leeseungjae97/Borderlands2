@@ -105,6 +105,7 @@ void CEditorObjMgr::progress()
 	vecInfo.clear();
 
 	tick();
+	finaltick();
 
 	static bool rendering = false;
 	if(KEY_TAP(KEY::P))
@@ -125,7 +126,9 @@ void CEditorObjMgr::tick()
 	{
 		m_vecEditorObj[i]->tick();
 	}
-
+}
+void CEditorObjMgr::finaltick()
+{
 	for (size_t i = 0; i < m_vecEditorObj.size(); ++i)
 	{
 		m_vecEditorObj[i]->finaltick();
@@ -228,7 +231,8 @@ void CEditorObjMgr::render()
 			pShapeObj->MeshRender()->GetMaterial(0)->GetShader()->SetDSType(DS_TYPE::NO_TEST_NO_WRITE);
 		}
 
-
+		//if (iter->eShape == SHAPE_TYPE::CUBE)
+		//	pShapeObj->render();
 		pShapeObj->render();
 
      		iter->fCurTime += DT;

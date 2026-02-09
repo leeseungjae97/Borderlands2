@@ -59,7 +59,7 @@ private:
     CLONE(CLevel);
 public:
     CLevel();
-    ~CLevel();
+    virtual ~CLevel();
 
     friend class CLevelMgr;
 };

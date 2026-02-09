@@ -20,7 +20,7 @@ CComputeShader::~CComputeShader()
 
 void CComputeShader::CreateComputeShader(const wstring& _strFileName, const string& _strFuncName)
 {
-	// Shader ÆÄÀÏ °æ·Î
+	// Shader ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	wstring strShaderFile = CPathMgr::GetInst()->GetContentPath();
 	strShaderFile += _strFileName;
 
@@ -32,7 +32,7 @@ void CComputeShader::CreateComputeShader(const wstring& _strFileName, const stri
 			, "Compute Shader Compile Failed!!", MB_OK);
 	}
 
-	// ÄÄÆÄÀÏµÈ °´Ã¼·Î Shader ¸¦ ¸¸µç´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ Shader ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.
 		DEVICE->CreateComputeShader(m_CSBlob->GetBufferPointer(), m_CSBlob->GetBufferSize()
 		, nullptr, m_CS.GetAddressOf());
 }
@@ -49,4 +49,52 @@ void CComputeShader::Execute()
 	CONTEXT->Dispatch(m_iGroupX, m_iGroupY, m_iGroupZ);
 
 	Clear();
+}
+
+void CComputeShader::SetScalarParam(SCALAR_PARAM _Param, const void* _pSrc)
+{
+	switch (_Param)
+	{
+	case INT_0:
+	case INT_1:
+	case INT_2:
+	case INT_3:
+	case INT_4:
+	case INT_5:
+	case INT_6:
+	case INT_7:
+		m_Const.arrInt[_Param] = *((int*)_pSrc);
+		break;
+	case FLOAT_0:
+	case FLOAT_1:
+	case FLOAT_2:
+	case FLOAT_3:
+	case FLOAT_4:
+	case FLOAT_5:
+	case FLOAT_6:
+	case FLOAT_7:
+		m_Const.arrFloat[_Param - FLOAT_0] = *((float*)_pSrc);
+		break;
+
+	case VEC2_0:
+	case VEC2_1:
+	case VEC2_2:
+	case VEC2_3:
+		m_Const.arrV2[_Param - VEC2_0] = *((Vec2*)_pSrc);
+		break;
+
+	case VEC4_0:
+	case VEC4_1:
+	case VEC4_2:
+	case VEC4_3:
+		m_Const.arrV4[_Param - VEC4_0] = *((Vec4*)_pSrc);
+		break;
+
+	case MAT_0:
+	case MAT_1:
+	case MAT_2:
+	case MAT_3:
+		m_Const.arrMat[_Param - MAT_0] = *((Matrix*)_pSrc);
+		break;
+	}
 }

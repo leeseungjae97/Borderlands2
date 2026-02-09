@@ -15,8 +15,8 @@ class CRenderMgr :
 {
 	SINGLE(CRenderMgr);
 private:
-	vector<CCamera*>            m_vecCam;           // ÇöÀç ·¹º§ ³»¿¡ Á¸ÀçÇÏ´Â Ä«¸Þ¶ó¸¦ µî·Ï ¹Þ¾ÆµÒ
-	//CCamera* m_pEditorCam;       // ¿ÜºÎ ¿¡µðÅÍÂÊ¿¡¼­ °ü¸®ÇÏ´Â Ä«¸Þ¶ó¸¦ µî·Ï ¹Þ¾ÆµÒ
+	vector<CCamera*>            m_vecCam;           // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ ï¿½Þ¾Æµï¿½
+	//CCamera* m_pEditorCam;       // ï¿½Üºï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ ï¿½Þ¾Æµï¿½
 
 	vector<tDebugShapeInfo>     m_vecShapeInfo;
 
@@ -36,12 +36,18 @@ private:
 	Ptr<CTexture>               m_RTCopyTex3;
 	Ptr<CTexture>               m_RTCopyDownScaleTex;
 
+	Ptr<CTexture>               m_pScopeRTTex;
+	Ptr<CTexture>               m_pMapRTTex;
+	Ptr<CTexture>               m_pMainRTTex;
+
 	MRT*						m_MRT[(UINT)MRT_TYPE::END];
 
 
 public:
 	void init();
 	void render();
+	void tick();
+	void finaltick();
 
 public:
 	int RegisterCamera(CCamera* _Cam, int _idx);
@@ -87,5 +93,6 @@ private:
 
 	void CreateMRT();
 	void ClearMRT();
+
 };
 

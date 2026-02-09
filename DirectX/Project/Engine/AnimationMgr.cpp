@@ -119,9 +119,33 @@ Vec3 AnimationMgr::BonePos(int _BoneIdx, CGameObject* _BoneOwner)
 	if (nullptr == _BoneOwner)
 		return Vec3::Zero;
 
-	Vec3 vPos = _BoneOwner->MeshRender()->GetMesh()->BonePosSkinning(_BoneIdx, _BoneOwner->Animator3D());
+	CTransform* OwnerTransform = _BoneOwner->Transform();
+	if (nullptr == OwnerTransform)
+		return Vec3::Zero;
 
-	vPos = XMVector3TransformCoord(vPos, _BoneOwner->Transform()->GetWorldMat());
+	CAnimator3D* OwnerAnimator = _BoneOwner->Animator3D();
+	if (nullptr == OwnerAnimator)
+		return Vec3::Zero;
+
+	Vec3 vPos = Vec3::Zero;
+	if (CMeshRender* MeshRender = _BoneOwner->MeshRender())
+	{
+		if (!OwnerAnimator->IsUpdate())
+			return Vec3::Zero;
+
+		Matrix matBone = Matrix::Identity;
+
+		matBone = OwnerAnimator->GetPosMatFrameLatency(_BoneIdx);
+		//matBone = OwnerAnimator->GetPosMatNoFrameLatency(_BoneIdx);
+
+		Quat quat; Vec3 vS, vT;
+
+		matBone.Decompose(vS, quat, vT);
+		vPos = Vec3(matBone._14, matBone._24, matBone._34);
+	}
+
+	if(vPos != Vec3::Zero)
+		vPos = XMVector3TransformCoord(vPos, OwnerTransform->GetWorldMat());
 
 	return vPos;
 }
@@ -131,7 +155,31 @@ Vec3 AnimationMgr::BoneRot(int _BoneIdx, CGameObject* _BoneOwner)
 	if (nullptr == _BoneOwner)
 		return Vec3::Zero;
 
-	Vec3 vPos = _BoneOwner->MeshRender()->GetMesh()->BoneRotSkinning(_BoneIdx, _BoneOwner->Animator3D());
+	CAnimator3D* OwnerAnimator = _BoneOwner->Animator3D();
+	if (nullptr == OwnerAnimator)
+		return Vec3::Zero;
 
-	return vPos;
+
+	//return Vec3::Zero;
+	if (OwnerAnimator->IsUpdate())
+		return Vec3::Zero;
+
+	Matrix matBone = Matrix::Identity;
+	Vec3 vRot = Vec3::Zero;
+
+	matBone = OwnerAnimator->GetRotMatFrameLatency(_BoneIdx);
+	//matBone = OwnerAnimator->GetRotMatNoFrameLatency(_BoneIdx);
+
+	Quat quat;
+	Vec3 vS, vT;
+
+	matBone.Decompose(vS, quat, vT);
+
+	vRot = physx::Util::QuaternionToVector3(quat);
+	vRot.x *= -1.f;
+	vRot.y *= -1.f;
+	vRot.z *= -1.f;
+	vRot.y += XM_PI / 2.f;
+
+	return vRot;
 }

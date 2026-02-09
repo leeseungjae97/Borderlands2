@@ -61,6 +61,6 @@ protected:
 
 public:
     CScript(UINT _iScriptType);
-    ~CScript();
+    virtual ~CScript();
 };
 

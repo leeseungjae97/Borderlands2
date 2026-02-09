@@ -211,6 +211,8 @@ xcopy /s /y  /exclude:$(SolutionDir)Exclude.txt "$(SolutionDir)Project\Engine\*.
     <ClInclude Include="CKeyMgr.h" />
     <ClInclude Include="CollisionMgr.h" />
     <ClInclude Include="InputGeom.h" />
+    <ClInclude Include="InstancingAnimation3DShader.h" />
+    <ClInclude Include="InstancingAnimatorMgr.h" />
     <ClInclude Include="LoadingMgr.h" />
     <ClInclude Include="MainMenuMgr.h" />
     <ClInclude Include="MapMgr.h" />
@@ -314,6 +316,8 @@ xcopy /s /y  /exclude:$(SolutionDir)Exclude.txt "$(SolutionDir)Project\Engine\*.
     <ClCompile Include="CKeyMgr.cpp" />
     <ClCompile Include="CollisionMgr.cpp" />
     <ClCompile Include="InputGeom.cpp" />
+    <ClCompile Include="InstancingAnimation3DShader.cpp" />
+    <ClCompile Include="InstancingAnimatorMgr.cpp" />
     <ClCompile Include="LoadingMgr.cpp" />
     <ClCompile Include="MainMenuMgr.cpp" />
     <ClCompile Include="MapMgr.cpp" />
@@ -458,6 +462,26 @@ xcopy /s /y  /exclude:$(SolutionDir)Exclude.txt "$(SolutionDir)Project\Engine\*.
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
+    <FxCompile Include="instancing_animation3d.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    
+    <EntryPoint Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CS_InstancingAnimation3D</EntryPoint>
+    <EntryPoint Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CS_InstancingAnimation3D</EntryPoint>
+    <EntryPoint Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CS_InstancingAnimation3D</EntryPoint>
+    <EntryPoint Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CS_InstancingAnimation3D</EntryPoint>
+  
+    <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CS_InstancingAnimation3D</EntryPointName>
+    <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CS_InstancingAnimation3D</EntryPointName>
+    <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CS_InstancingAnimation3D</EntryPointName>
+    <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CS_InstancingAnimation3D</EntryPointName>
+  </FxCompile>
     <FxCompile Include="landscape.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>

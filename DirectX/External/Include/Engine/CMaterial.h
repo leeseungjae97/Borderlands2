@@ -56,7 +56,12 @@ public:
 	tMtrlConst GetConst() { return m_Const; }
 
 	virtual void UpdateData() override;
+	void UpdateTexture();
 	void UpdateData_Instancing();
+
+	void UpdateConstant();
+
+	void UpdatePaperBurn();
 
 private:
 	virtual int Load(const wstring& _strFilePath);

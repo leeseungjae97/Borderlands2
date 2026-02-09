@@ -290,6 +290,8 @@
       <Filter>Source\_Manager\ThreadMgr</Filter>
     </ClInclude>
     <ClInclude Include="LoadingMgr.h" />
+    <ClInclude Include="InstancingAnimatorMgr.h" />
+    <ClInclude Include="InstancingAnimation3DShader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -569,6 +571,8 @@
       <Filter>Source\_Manager\ThreadMgr</Filter>
     </ClCompile>
     <ClCompile Include="LoadingMgr.cpp" />
+    <ClCompile Include="InstancingAnimatorMgr.cpp" />
+    <ClCompile Include="InstancingAnimation3DShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Default">
@@ -844,6 +848,12 @@
     <Filter Include="Source\_Manager\LoadingMgr">
       <UniqueIdentifier>{a465b1df-e550-4507-afdf-be34d211dc5e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\_Manager\InstancingAnimatorMgr">
+      <UniqueIdentifier>{6b7b055f-4755-453a-b5e6-43f38b0da117}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\_Resource\Shader\ComputeShader\InstancingAnimation3DShader">
+      <UniqueIdentifier>{f364cd6f-1973-45bc-8b03-377edfa9b686}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -932,6 +942,9 @@
     </FxCompile>
     <FxCompile Include="downscale.fx">
       <Filter>Source\_ShaderCode</Filter>
+    </FxCompile>
+    <FxCompile Include="instancing_animation3d.fx">
+      <Filter>Source\_ShaderCode\Animation</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

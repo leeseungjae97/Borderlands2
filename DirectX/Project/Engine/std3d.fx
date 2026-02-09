@@ -32,7 +32,7 @@ struct VTX_IN_INST
     row_major matrix matWorld : WORLD;
     row_major matrix matWV : WV;
     row_major matrix matWVP : WVP;
-    uint iRowIndex : ROWINDEX;
+    int iRowIndex : ROWINDEX;
 };
 
 struct VS_OUT
@@ -46,7 +46,7 @@ struct VS_OUT
     float3 vViewBinormal : BINORMAL;
 };
 
-#define SPEC_COEFF      saturate(g_float_0) // ¹Ý»ç °è¼ö
+#define SPEC_COEFF      saturate(g_float_0) // ï¿½Ý»ï¿½ ï¿½ï¿½ï¿½
 #define IS_SKYBOX_ENV   g_btexcube_0
 #define SKYBOX_ENV_TEX  g_cube_0
 
@@ -86,7 +86,7 @@ VS_OUT VS_Std3D_Inst(VTX_IN_INST _in)
 {
     VS_OUT output = (VS_OUT) 0.f;
 
-    if (g_iAnim)
+    if (g_iAnim && _in.iRowIndex >= 0)
     {
         Skinning(_in.vPos, _in.vTangent, _in.vBinormal, _in.vNormal, _in.vWeights, _in.vIndices, _in.iRowIndex);
     }
@@ -220,7 +220,7 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
             vNormal = g_tex_1.Sample(g_sam_anti_0, moveUV).xyz;
         }
 
-        // 0 ~ 1 ¹üÀ§ÀÇ °ªÀ» -1 ~ 1 ·Î È®Àå
+        // 0 ~ 1 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ -1 ~ 1 ï¿½ï¿½ È®ï¿½ï¿½
         vNormal = vNormal * 2.f - 1.f;
         
         float3x3 vRotateMat =
@@ -380,3 +380,4 @@ float4 PS_Std3D(VS_OUT _in) : SV_Target
 }
 
 #endif
+

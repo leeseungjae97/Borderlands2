@@ -25,9 +25,13 @@ void CMeshRender::render()
 {
 	if (nullptr == GetMesh() || nullptr == GetMaterial(0))
 		return;
-	
+
 	vector<Ptr<CMaterial>> mats;
 	vector<int> renderSubsets;
+
+	mats.reserve(GetMtrlCount());
+	renderSubsets.reserve(GetMtrlCount());
+
 	for (int i = 0; i < GetMtrlCount(); ++i)
 	{
 		if (nullptr == GetMaterial(i)) continue;
@@ -59,8 +63,9 @@ void CMeshRender::render()
 			if (nullptr == GetMaterial(i))
 				continue;
 
-			GetMaterial(i)->SetAnim3D(true);
-			GetMaterial(i)->SetBoneCount(Animator3D()->GetBoneCount());
+			const bool bValidAnim = (Animator3D()->GetCurAnimClip() != nullptr) && (Animator3D()->GetBoneCount() > 0);
+			GetMaterial(i)->SetAnim3D(bValidAnim);
+			GetMaterial(i)->SetBoneCount(bValidAnim ? Animator3D()->GetBoneCount() : 0);
 		}
 	}
 
@@ -70,9 +75,6 @@ void CMeshRender::render()
 
 		GetMesh()->render(renderSubsets[i]);
 	}
-
-	if (Animator3D())
-		Animator3D()->ClearData();
 }
 
 void CMeshRender::render(UINT _iSubset, bool _Deferred)
@@ -103,8 +105,9 @@ void CMeshRender::render(UINT _iSubset, bool _Deferred)
 	if (Animator3D())
 	{
 		Animator3D()->UpdateData();
-		GetMaterial(_iSubset)->SetAnim3D(true);
-		GetMaterial(_iSubset)->SetBoneCount(Animator3D()->GetBoneCount());
+		const bool bValidAnim = (Animator3D()->GetCurAnimClip() != nullptr) && (Animator3D()->GetBoneCount() > 0);
+		GetMaterial(_iSubset)->SetAnim3D(bValidAnim);
+		GetMaterial(_iSubset)->SetBoneCount(bValidAnim ? Animator3D()->GetBoneCount() : 0);
 	}
 
 	GetMaterial(_iSubset)->UpdateData();
@@ -116,3 +119,6 @@ void CMeshRender::render(UINT _iSubset, bool _Deferred)
 	if (Animator3D())
 		Animator3D()->ClearData();
 }
+
+
+

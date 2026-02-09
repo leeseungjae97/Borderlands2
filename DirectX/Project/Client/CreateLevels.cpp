@@ -44,7 +44,7 @@ void CreateLoading()
 		pMainCam->AddComponent(new CCamera);
 		pMainCam->AddComponent(new CCameraMoveScript);
 
-		pMainCam->Camera()->SetFarZ(1000000.f);
+		pMainCam->Camera()->SetFarZ(100000.f);
 		pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
 		pMainCam->Camera()->SetCameraIndex(0);
 		pMainCam->Camera()->SetLayerMaskAll(true);
@@ -58,7 +58,7 @@ void CreateLoading()
 		pUICam->SetName(L"UICamera");
 		pUICam->AddComponent(new CTransform);
 		pUICam->AddComponent(new CCamera);
-		pUICam->Camera()->SetFarZ(1000000.f);
+		pUICam->Camera()->SetFarZ(100000.f);
 		pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
 		pUICam->Camera()->SetCameraIndex(3);
 		pUICam->Camera()->SetLayerMaskAll(false);
@@ -72,7 +72,7 @@ void CreateLoading()
 		pSunLight->AddComponent(new CLight3D);
 		pSunLight->AddComponent(new CGizmo);
 
-		pSunLight->Transform()->SetRelativeRot(Vec3(150.f * DegToRad(), 90.f * DegToRad(), 0.f));
+		pSunLight->Transform()->SetRelativeRot(Vec3(150.f * DegToRad(), -90.f * DegToRad(), 0.f));
 		pSunLight->Light3D()->SetRadius(500.f);
 		pSunLight->Light3D()->SetShadow(true);
 		pSunLight->Light3D()->SetLightDepthCoeff(0.003f);
@@ -82,7 +82,7 @@ void CreateLoading()
 		pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
 		pSunLight->Light3D()->SetLightAmbient(Vec3(1.f, 1.f, 1.f));
 
-		PreloadGameObject(pSunLight, Vec3(-2000.f, 60000.f, -2000.f), LAYER_TYPE::Default);
+		PreloadGameObject(pSunLight, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 	}
 
 	{
@@ -211,19 +211,142 @@ void CreatePlayer(float fDefaultScale)
 		WeaponMgr::GetInst()->ChangeWeapon(SMG_IDX);
 	}
 }
-
-void CreateLevels()
+void CollisionSettings()
 {
-	float fDefaultScale = 100.f;
+	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Enemy, LAYER_TYPE::Player, true);
+	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Enemy, LAYER_TYPE::PlayerBullet, true);
 
-	/*****************************************************************
-	 **************************** LEVEL 2 ****************************
-	 *****************************************************************/
+	//CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::EnemyBullet, LAYER_TYPE::Environment, true);
+	//CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::EnemyBullet, LAYER_TYPE::Terrain, true);
+	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::PlayerBullet, LAYER_TYPE::Environment, true);
 
-	CLevel* pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"main level 2");
+	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Player, LAYER_TYPE::EnemyBullet, true);
+	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Player, LAYER_TYPE::NoRaycastingCollider, true);
+	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Player, LAYER_TYPE::Environment, true);
+	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Player, LAYER_TYPE::Terrain, true);
+}
+
+void CreateMainMenu(CLevel*& pCurLevel, float fDefaultScale)
+{
+	pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"main menu level");
 	CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
 	pCurLevel->ChangeState(LEVEL_STATE::STOP);
 
+	{
+		CGameObject* pMainCam = new CGameObject;
+		pMainCam->SetName(L"MainMenuCamera");
+
+		pMainCam->AddComponent(new CTransform);
+		pMainCam->AddComponent(new CCamera);
+		pMainCam->AddComponent(new CCameraMoveScript);
+
+		pMainCam->Camera()->SetFarZ(100000.f);
+		pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
+		pMainCam->Camera()->SetCameraIndex(0);
+		pMainCam->Camera()->SetLayerMaskAll(true);
+		pMainCam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, false);
+		pMainCam->Camera()->SetLayerMask((int)LAYER_TYPE::Camera, false);
+
+		pMainCam->Transform()->SetRelativeRot(Vec3(3.95 * DegToRad(), -42.38f * DegToRad(), 0.f));
+		PreloadGameObject(pMainCam, Vec3(346.f, 1135.944f, -96.944f), LAYER_TYPE::Camera);
+	}
+
+	{
+		CGameObject* pUICam = new CGameObject;
+		pUICam->SetName(L"UICamera");
+		pUICam->AddComponent(new CTransform);
+		pUICam->AddComponent(new CCamera);
+		pUICam->Camera()->SetFarZ(100000.f);
+		pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
+		pUICam->Camera()->SetCameraIndex(3);
+		pUICam->Camera()->SetLayerMaskAll(false);
+		pUICam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, true);
+		PreloadGameObject(pUICam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
+	}
+
+	{
+		CGameObject* pSkyBox = new CGameObject;
+		pSkyBox->SetName(L"SkyBox");
+
+		pSkyBox->AddComponent(new CTransform);
+		pSkyBox->AddComponent(new CSkyBox);
+
+		pSkyBox->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100));
+		pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
+		pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\Sky.png"));
+
+		PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
+	}
+
+	{
+		CGameObject* pSunLight = new CGameObject;
+		pSunLight->SetName(L"Sun Light");
+		pSunLight->AddComponent(new CTransform);
+		pSunLight->AddComponent(new CLight3D);
+		pSunLight->AddComponent(new CGizmo);
+
+		pSunLight->Transform()->SetRelativeRot(Vec3(-231 * DegToRad(), 45.f * DegToRad(), 0.f));
+		pSunLight->Light3D()->SetRadius(500.f);
+		pSunLight->Light3D()->SetShadow(true);
+		pSunLight->Light3D()->SetLightDepthCoeff(0.003f);
+		pSunLight->Light3D()->SetFloatConstant(0, 1000.f);
+		pSunLight->Light3D()->SetFloatConstant(1, 8.0f);
+		pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
+		pSunLight->Light3D()->SetLightColor(Vec3(0.5f, 0.5f, 1.f));
+		pSunLight->Light3D()->SetLightAmbient(Vec3(0.1f, 0.1f, 0.15f));
+
+		PreloadGameObject(pSunLight, Vec3(-2000.f, 60000.f, -2000.f), LAYER_TYPE::Default);
+	}
+	{
+		Ptr<CMeshData> pMeshData = nullptr;
+		CGameObject* pObj = nullptr;
+
+		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\main_menu_level_map.fbx");
+		pObj = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
+
+		pObj->SetName(L"fbx main menu map");
+		PreloadGameObject(pObj, Vec3(200.f, 1185.f, 200.f), LAYER_TYPE::Environment);
+	}
+
+	{
+		CUI* pGameStart = new CUI();
+		pGameStart->SetName(L"UI Game Start");
+		pGameStart->AddComponent(new CTransform);
+		pGameStart->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
+		pGameStart->SetUseHover(true);
+		pGameStart->SetOutline(true);
+		pGameStart->SetText(L"Game Start");
+		pGameStart->SetClickFunc() = std::make_shared<std::function<void()>>([=]()
+			{
+				//LoadingLevel(L"main level 1");
+				CLevelMgr::GetInst()->GetCurLevel()->SetLevelEnd(true);
+			});
+		pGameStart->SetTextHoverColor(Vec4(255.f / 255.f, 208.f / 255.f, 19.f / 255.f, 1.f));
+		PreloadGameObject(pGameStart, Vec3(-440.f, 250.f, 0.f), LAYER_TYPE::ViewPortUI);
+	}
+	{
+		CUI* pGameEnd = new CUI();
+		pGameEnd->SetName(L"UI Game End");
+		pGameEnd->AddComponent(new CTransform);
+		pGameEnd->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
+		pGameEnd->SetUseHover(true);
+		pGameEnd->SetOutline(true);
+		pGameEnd->SetText(L"Exit");
+		pGameEnd->SetTextHoverColor(Vec4(255.f / 255.f, 208.f / 255.f, 19.f / 255.f, 1.f));
+		pGameEnd->SetClickFunc() = std::make_shared<std::function<void()>>([=]()
+			{
+				PostQuitMessage(0);
+			});
+		PreloadGameObject(pGameEnd, Vec3(-495.f, 190.f, 0.f), LAYER_TYPE::ViewPortUI);
+	}
+	CreateFire2();
+	CreateFire1();
+}
+
+void CreateLevel2(CLevel* pCurLevel, float fDefaultScale)
+{
+	CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
+	pCurLevel->ChangeState(LEVEL_STATE::STOP);
 	{
 		CGameObject* pMainCam = new CGameObject;
 		pMainCam->SetName(L"MainCamera");
@@ -231,7 +354,7 @@ void CreateLevels()
 		pMainCam->AddComponent(new CCamera);
 		pMainCam->AddComponent(new CCameraMoveScript);
 
-		pMainCam->Camera()->SetFarZ(1000000.f);
+		pMainCam->Camera()->SetFarZ(100000.f);
 		pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
 		pMainCam->Camera()->SetCameraIndex(0);
 		pMainCam->Camera()->SetLayerMaskAll(true);
@@ -247,7 +370,7 @@ void CreateLevels()
 		pMapCam->AddComponent(new CCamera);
 		pMapCam->AddComponent(new CCameraMoveScript);
 
-		pMapCam->Camera()->SetFarZ(1000000.f);
+		pMapCam->Camera()->SetFarZ(100000.f);
 		pMapCam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
 		pMapCam->Camera()->SetOrthoWidth(1000.f);
 		pMapCam->Camera()->SetOrthoHeight(1000.f);
@@ -270,7 +393,7 @@ void CreateLevels()
 		pScopeCam->AddComponent(new CCamera);
 		pScopeCam->AddComponent(new CCameraMoveScript);
 
-		pScopeCam->Camera()->SetFarZ(1000000.f);
+		pScopeCam->Camera()->SetFarZ(100000.f);
 		pScopeCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
 		pScopeCam->Camera()->SetCameraIndex(2);
 		pScopeCam->Camera()->SetLayerMaskAll(true);
@@ -286,7 +409,7 @@ void CreateLevels()
 		pUICam->AddComponent(new CTransform);
 		pUICam->AddComponent(new CCamera);
 
-		pUICam->Camera()->SetFarZ(1000000.f);
+		pUICam->Camera()->SetFarZ(100000.f);
 		pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
 		pUICam->Camera()->SetCameraIndex(3);
 		pUICam->Camera()->SetLayerMaskAll(false);
@@ -310,7 +433,7 @@ void CreateLevels()
 	pSunLight->Light3D()->SetLightColor(Vec3(1.f, 1.f, 1.f));
 	pSunLight->Light3D()->SetLightAmbient(Vec3(0.15f, 0.15f, 0.15f));
 
-	PreloadGameObject(pSunLight, Vec3(-2000.f, 60000.f, -2000.f), LAYER_TYPE::Default);
+	PreloadGameObject(pSunLight, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 
 	//{
 	//	CGameObject* Light = new CGameObject;
@@ -396,7 +519,7 @@ void CreateLevels()
 		pSkyBox->AddComponent(new CSkyBox);
 
 		pSkyBox->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100));
-		pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::HEMI_SPHERE);
+		pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
 		pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\Zone3BossSky_Dif.png"));
 
 		PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
@@ -473,7 +596,6 @@ void CreateLevels()
 		pObj->SetName(L"fbx level2 map");
 		PreloadGameObject(pObj, Vec3(200.f, 10.f, 200.f), LAYER_TYPE::Terrain);
 	}
-
 	{
 		CGameObject* pObj = new CGameObject;
 		pObj->SetName(L"Fire1");
@@ -529,7 +651,6 @@ void CreateLevels()
 
 		PreloadGameObject(pObj, Vec3(-2982.f, 1703.f, 16917.000), LAYER_TYPE::Default);
 	}
-
 	{
 		CGameObject* pObj = new CGameObject;
 		pObj->SetName(L"Fire3");
@@ -633,7 +754,7 @@ void CreateLevels()
 	}
 
 	{
-		
+
 		Ptr<CMeshData> pMeshData = nullptr;
 		CGameObject* pAxe = nullptr;
 		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\buzz_axe.fbx");
@@ -649,10 +770,10 @@ void CreateLevels()
 		pAxe->GetScript<CAttackNormalScript>()->SetManual(true);
 		pAxe->AddComponent(new CGizmo);
 		pAxe->SetIsItem(true);
-		
+
 
 		PreloadGameObject(pAxe, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::NoRaycastingCollider);
-		
+
 		CGameObject* pObj = nullptr;
 
 		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\psycho.fbx");
@@ -667,11 +788,10 @@ void CreateLevels()
 
 		PreloadGameObject(pObj, Vec3(400.f, 100.f, 500.f), LAYER_TYPE::Enemy);
 	}
+}
 
-
-	/*****************************************************************
-	 **************************** LEVEL 1 ****************************
-	 *****************************************************************/
+void CreateLevel1(CLevel*& pCurLevel, float fDefaultScale)
+{
 	pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"main level 1");
 	CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
 	pCurLevel->ChangeState(LEVEL_STATE::STOP);
@@ -683,7 +803,7 @@ void CreateLevels()
 		pMainCam->AddComponent(new CCamera);
 		pMainCam->AddComponent(new CCameraMoveScript);
 
-		pMainCam->Camera()->SetFarZ(1000000.f);
+		pMainCam->Camera()->SetFarZ(100000.f);
 		pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
 		pMainCam->Camera()->SetCameraIndex(0);
 		pMainCam->Camera()->SetLayerMaskAll(true);
@@ -699,7 +819,7 @@ void CreateLevels()
 		pMapCam->AddComponent(new CCamera);
 		pMapCam->AddComponent(new CCameraMoveScript);
 
-		pMapCam->Camera()->SetFarZ(1000000.f);
+		pMapCam->Camera()->SetFarZ(100000.f);
 		pMapCam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
 		pMapCam->Camera()->SetOrthoWidth(1000.f);
 		pMapCam->Camera()->SetOrthoHeight(1000.f);
@@ -718,7 +838,7 @@ void CreateLevels()
 		pScopeCam->AddComponent(new CCamera);
 		pScopeCam->AddComponent(new CCameraMoveScript);
 
-		pScopeCam->Camera()->SetFarZ(1000000.f);
+		pScopeCam->Camera()->SetFarZ(100000.f);
 		pScopeCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
 		pScopeCam->Camera()->SetCameraIndex(2);
 		pScopeCam->Camera()->SetLayerMaskAll(true);
@@ -756,10 +876,10 @@ void CreateLevels()
 		pSunLight->Light3D()->SetFloatConstant(0, 1000.f);
 		pSunLight->Light3D()->SetFloatConstant(1, 8.0f);
 		pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
-		pSunLight->Light3D()->SetLightColor(Vec3(0.5f, 0.5f, 1.f));
-		pSunLight->Light3D()->SetLightAmbient(Vec3(0.1f, 0.1f, 0.15f));
+		pSunLight->Light3D()->SetLightColor(Vec3(0.0f, 0.0f, 0.0f));
+		pSunLight->Light3D()->SetLightAmbient(Vec3(0.05f, 0.05f, 0.05f));
 
-		PreloadGameObject(pSunLight, Vec3(-2000.f, 60000.f, -2000.f), LAYER_TYPE::Default);
+		PreloadGameObject(pSunLight, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 	}
 
 	{
@@ -797,36 +917,9 @@ void CreateLevels()
 		CreatePlayer(fDefaultScale);
 	}
 
-	for(int i = 0; i < 5; ++i)
+	for (int i = 0; i < 50; ++i)
 	{
-		{
-			Ptr<CMeshData> pMeshData = nullptr;
-			CGameObject* pObj = nullptr;
-
-			pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\robot.fbx");
-			pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
-			pObj->SetName(L"robot");
-			pObj->AddComponent(new CEnemyScript(CEnemyScript::ENEMY_TYPE::GUN_LOADER));
-			pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
-			pObj->AddComponent(new CCollider3D);
-			pObj->AddComponent(new CGizmo);
-
-			PreloadGameObject(pObj, Vec3(100.f, 100.f, 500.f), LAYER_TYPE::Enemy);
-			{
-				Ptr<CMeshData> pMeshData = nullptr;
-				CGameObject* pGun = nullptr;
-				pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\dahl.fbx");
-				pGun = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
-				pGun->SetName(L"enemy_gun");
-
-				pGun->AddComponent(new CWeaponScript);
-				pGun->AddComponent(new CGizmo);
-				pGun->SetIsItem(true);
-				pObj->AddWeapon(pGun);
-
-				PreloadGameObject(pGun, Vec3(500.f, 100.f, 50.f), LAYER_TYPE::Item);
-			}
-		}
+		CreateRobot(fDefaultScale);
 	}
 
 	{
@@ -841,7 +934,7 @@ void CreateLevels()
 		pObj->AddComponent(new CCollider3D);
 		pObj->AddComponent(new CGizmo);
 		pObj->Transform()->SetRelativeRot(Vec3(0.f, -90.f * DegToRad(), 0.f));
-		
+
 		PreloadGameObject(pObj, Vec3(10300.885, -950.f, 4230.077), LAYER_TYPE::Enemy);
 	}
 
@@ -889,60 +982,78 @@ void CreateLevels()
 
 		PreloadGameObject(pObj, Vec3(316.719, 818.832, 4260.014), LAYER_TYPE::Default);
 	}
+}
 
-	CreateLoading();
-
-	/*****************************************************************
-	 ************************ MAIN MENU LEVEL ************************
-	 *****************************************************************/
-	pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"main menu level");
+void CreateCustomLevel(float fDefaultScale)
+{
+	CLevel* pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"Temp");
 	CLevelMgr::GetInst()->ChangeLevel(pCurLevel);
 	pCurLevel->ChangeState(LEVEL_STATE::STOP);
 
 	{
 		CGameObject* pMainCam = new CGameObject;
-		pMainCam->SetName(L"MainMenuCamera");
-
+		pMainCam->SetName(L"MainCamera");
 		pMainCam->AddComponent(new CTransform);
 		pMainCam->AddComponent(new CCamera);
 		pMainCam->AddComponent(new CCameraMoveScript);
 
-		pMainCam->Camera()->SetFarZ(1000000.f);
+		pMainCam->Camera()->SetFarZ(100000.f);
 		pMainCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
 		pMainCam->Camera()->SetCameraIndex(0);
 		pMainCam->Camera()->SetLayerMaskAll(true);
 		pMainCam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, false);
 		pMainCam->Camera()->SetLayerMask((int)LAYER_TYPE::Camera, false);
+		PreloadGameObject(pMainCam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
+	}
+	{
+		CGameObject* pMapCam = new CGameObject;
+		pMapCam->SetName(L"MapCamera");
 
-		pMainCam->Transform()->SetRelativeRot(Vec3(3.95 * DegToRad(), -42.38f * DegToRad(), 0.f));
-		PreloadGameObject(pMainCam, Vec3(346.f, 1135.944f, -96.944f), LAYER_TYPE::Camera);
+		pMapCam->AddComponent(new CTransform);
+		pMapCam->AddComponent(new CCamera);
+		pMapCam->AddComponent(new CCameraMoveScript);
+
+		pMapCam->Camera()->SetFarZ(100000.f);
+		pMapCam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
+		pMapCam->Camera()->SetOrthoWidth(1000.f);
+		pMapCam->Camera()->SetOrthoHeight(1000.f);
+		pMapCam->Camera()->SetScale(0.15f);
+		pMapCam->Camera()->SetCameraIndex(1);
+		pMapCam->Camera()->SetLayerMaskAll(false);
+		pMapCam->Camera()->SetLayerMask((int)LAYER_TYPE::Terrain, true);
+
+		PreloadGameObject(pMapCam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
+	}
+	{
+		CGameObject* pScopeCam = new CGameObject;
+		pScopeCam->SetName(L"ScopeCamera");
+
+		pScopeCam->AddComponent(new CTransform);
+		pScopeCam->AddComponent(new CCamera);
+		pScopeCam->AddComponent(new CCameraMoveScript);
+
+		pScopeCam->Camera()->SetFarZ(100000.f);
+		pScopeCam->Camera()->SetProjType(PROJ_TYPE::PERSPECTIVE);
+		pScopeCam->Camera()->SetCameraIndex(2);
+		pScopeCam->Camera()->SetLayerMaskAll(true);
+		pScopeCam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, false);
+		pScopeCam->Camera()->SetLayerMask((int)LAYER_TYPE::Camera, false);
+		PreloadGameObject(pScopeCam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
 	}
 
 	{
 		CGameObject* pUICam = new CGameObject;
 		pUICam->SetName(L"UICamera");
+
 		pUICam->AddComponent(new CTransform);
 		pUICam->AddComponent(new CCamera);
+
 		pUICam->Camera()->SetFarZ(1000000.f);
 		pUICam->Camera()->SetProjType(PROJ_TYPE::ORTHOGRAPHIC);
 		pUICam->Camera()->SetCameraIndex(3);
 		pUICam->Camera()->SetLayerMaskAll(false);
 		pUICam->Camera()->SetLayerMask((int)LAYER_TYPE::ViewPortUI, true);
 		PreloadGameObject(pUICam, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Camera);
-	}
-
-	{
-		CGameObject* pSkyBox = new CGameObject;
-		pSkyBox->SetName(L"SkyBox");
-
-		pSkyBox->AddComponent(new CTransform);
-		pSkyBox->AddComponent(new CSkyBox);
-
-		pSkyBox->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100));
-		pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
-		pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\Sky.png"));
-
-		PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 	}
 
 	{
@@ -959,53 +1070,58 @@ void CreateLevels()
 		pSunLight->Light3D()->SetFloatConstant(0, 1000.f);
 		pSunLight->Light3D()->SetFloatConstant(1, 8.0f);
 		pSunLight->Light3D()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
-		pSunLight->Light3D()->SetLightColor(Vec3(0.5f, 0.5f, 1.f));
-		pSunLight->Light3D()->SetLightAmbient(Vec3(0.1f, 0.1f, 0.15f));
+		pSunLight->Light3D()->SetLightColor(Vec3(0.0f, 0.0f, 0.0f));
+		pSunLight->Light3D()->SetLightAmbient(Vec3(0.05f, 0.05f, 0.05f));
 
-		PreloadGameObject(pSunLight, Vec3(-2000.f, 60000.f, -2000.f), LAYER_TYPE::Default);
-	}
-	{
-		Ptr<CMeshData> pMeshData = nullptr;
-		CGameObject* pObj = nullptr;
-
-		pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\main_menu_level_map.fbx");
-		pObj = pMeshData->Instantiate(Vec3(fDefaultScale, fDefaultScale, fDefaultScale));
-
-		pObj->SetName(L"fbx main menu map");
-		PreloadGameObject(pObj, Vec3(200.f, 1185.f, 200.f), LAYER_TYPE::Environment);
+		PreloadGameObject(pSunLight, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 	}
 
 	{
-		CUI* pGameStart = new CUI();
-		pGameStart->SetName(L"UI Game Start");
-		pGameStart->AddComponent(new CTransform);
-		pGameStart->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
-		pGameStart->SetUseHover(true);
-		pGameStart->SetOutline(true);
-		pGameStart->SetText(L"Game Start");
-		pGameStart->SetClickFunc() = std::make_shared<std::function<void()>>([=]()
-			{
-				//LoadingLevel(L"main level 1");
-				CLevelMgr::GetInst()->GetCurLevel()->SetLevelEnd(true);
-			});
-		pGameStart->SetTextHoverColor(Vec4(255.f / 255.f, 208.f / 255.f, 19.f / 255.f, 1.f));
-		PreloadGameObject(pGameStart, Vec3(-440.f, 250.f, 0.f), LAYER_TYPE::ViewPortUI);
+		CGameObject* pPlane = new CGameObject;
+		pPlane->SetName(L"Plane");
+		pPlane->AddComponent(new CTransform);
+		pPlane->AddComponent(new CMeshRender);
+		pPlane->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX));
+		pPlane->AddComponent(new CCollider3D);
+
+		pPlane->Transform()->SetRelativeScale(Vec3(1000.f, 1000.f, 10.f));
+		pPlane->Transform()->SetRelativeRot(Vec3(XM_PI / 2.f, 0.f, 0.f));
+
+		pPlane->MeshRender()->SetMesh(CResMgr::GetInst()->FindRes<CMesh>(L"CubeMesh"));
+		pPlane->MeshRender()->SetMaterial(CResMgr::GetInst()->FindRes<CMaterial>(L"Std3D_DeferredMtrl"), 0);
+
+		pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01.tga"));
+		pPlane->MeshRender()->GetMaterial(0)->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\tile\\TILE_01_N.tga"));
+		PreloadGameObject(pPlane, Vec3(0.f, -10.f, 0.f), LAYER_TYPE::Environment);
 	}
 	{
-		CUI* pGameEnd = new CUI();
-		pGameEnd->SetName(L"UI Game End");
-		pGameEnd->AddComponent(new CTransform);
-		pGameEnd->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 1.f));
-		pGameEnd->SetUseHover(true);
-		pGameEnd->SetOutline(true);
-		pGameEnd->SetText(L"Exit");
-		pGameEnd->SetTextHoverColor(Vec4(255.f / 255.f, 208.f / 255.f, 19.f / 255.f, 1.f));
-		pGameEnd->SetClickFunc() = std::make_shared<std::function<void()>>([=]()
-			{
-				PostQuitMessage(0);
-			});
-		PreloadGameObject(pGameEnd, Vec3(-495.f, 190.f, 0.f), LAYER_TYPE::ViewPortUI);
+		CGameObject* pSkyBox = new CGameObject;
+		pSkyBox->SetName(L"SkyBox");
+
+		pSkyBox->AddComponent(new CTransform);
+		pSkyBox->AddComponent(new CSkyBox);
+
+		pSkyBox->Transform()->SetRelativeScale(Vec3(100.f, 100.f, 100));
+		//pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::HEMI_SPHERE);
+		pSkyBox->SkyBox()->SetSkyBoxType(SKYBOX_TYPE::SPHERE);
+		pSkyBox->SkyBox()->SetSkyBoxTexture(CResMgr::GetInst()->FindRes<CTexture>(L"texture\\skybox\\Zone3BossSky_Dif.png"));
+
+		PreloadGameObject(pSkyBox, Vec3(0.f, 0.f, 0.f), LAYER_TYPE::Default);
 	}
+	{
+		//CreatePlayer(fDefaultScale);
+	}
+	for (int i = 0; i < 20; ++i)
+	{
+		for (int j = 0; j < 5; ++j)
+			CreateRobot(fDefaultScale, i + 1, j + 1);
+	}
+
+	//CLevelSaveLoad::SaveLevel(L"Level\\Temp.lv", pCurLevel);
+}
+
+void CreateFire2()
+{
 	{
 		CGameObject* pObj = new CGameObject;
 		pObj->SetName(L"Fire1");
@@ -1034,6 +1150,10 @@ void CreateLevels()
 
 		PreloadGameObject(pObj, Vec3(-2496.f, 1067.f, 941.f), LAYER_TYPE::Default);
 	}
+}
+
+void CreateFire1()
+{
 	{
 		Ptr<CMaterial> pMtrl = new CMaterial(true);
 		pMtrl->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"Std3DShader"));
@@ -1061,16 +1181,56 @@ void CreateLevels()
 
 		PreloadGameObject(Fire, Vec3(-69.f, 1090.f, 217.f), LAYER_TYPE::Default);
 	}
-
-	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Enemy, LAYER_TYPE::Player, true);
-	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Enemy, LAYER_TYPE::PlayerBullet, true);
-
-	//CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::EnemyBullet, LAYER_TYPE::Environment, true);
-	//CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::EnemyBullet, LAYER_TYPE::Terrain, true);
-	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::PlayerBullet, LAYER_TYPE::Environment, true);
-
-	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Player, LAYER_TYPE::EnemyBullet, true);
-	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Player, LAYER_TYPE::NoRaycastingCollider, true);
-	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Player, LAYER_TYPE::Environment, true);
-	CollisionMgr::GetInst()->SetLayerIntersect(LAYER_TYPE::Player, LAYER_TYPE::Terrain, true);
 }
+
+void CreateRobot(float fDefaultScale, int i, int j)
+{
+	Ptr<CMeshData> pMeshData = nullptr;
+	CGameObject* pObj = nullptr;
+
+	pMeshData = CResMgr::GetInst()->LoadFBX(L"fbx\\robot.fbx");
+	pObj = pMeshData->Instantiate(Vec3(100.f, 100.f, 100.f));
+	pObj->SetName(L"robot");
+	pObj->AddComponent(new CEnemyScript(CEnemyScript::ENEMY_TYPE::GUN_LOADER));
+	pObj->AddComponent(new CRigidBody(RIGID_BODY_SHAPE_TYPE::BOX, RIGID_BODY_TYPE::DYNAMIC));
+	pObj->AddComponent(new CCollider3D);
+	pObj->AddComponent(new CGizmo);
+
+	PreloadGameObject(pObj, Vec3(130.f * i + j, 130.f * j + i, 500.f), LAYER_TYPE::Enemy);
+}
+
+void CreateLevels()
+{
+	float fDefaultScale = 100.f;
+	CreateCustomLevel(fDefaultScale);
+	//return;
+
+	/*****************************************************************
+	 **************************** LEVEL 2 ****************************
+	 *****************************************************************/
+	CollisionSettings();
+
+	return;
+
+	CLevel* pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"Temp");
+	//CLevel* pCurLevel = CLevelMgr::GetInst()->CreateLevel(L"main level 2");
+	//CreateLevel2(pCurLevel, fDefaultScale);
+	//CLevelSaveLoad::SaveLevel(L"Level\\main level 2.lv", pCurLevel);
+
+	/*****************************************************************
+	 **************************** LEVEL 1 ****************************
+	 *****************************************************************/
+	//CreateLevel1(pCurLevel, fDefaultScale);
+	
+
+	CreateLoading();
+
+	/*****************************************************************
+	 ************************ MAIN MENU LEVEL ************************
+	 *****************************************************************/
+	CreateMainMenu(pCurLevel, fDefaultScale);
+
+	
+}
+
+

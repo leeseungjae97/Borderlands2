@@ -26,7 +26,7 @@ inline T* CSingleton<T>::GetInst()
 	if (nullptr == m_Inst)
 	{
 		m_Inst = new T;
-		atexit( (EXIT) &CSingleton<T>::Destroy);
+		atexit((EXIT)&CSingleton<T>::Destroy);
 	}
 
 	return m_Inst;

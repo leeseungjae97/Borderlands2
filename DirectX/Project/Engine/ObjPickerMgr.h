@@ -11,7 +11,7 @@ private:
 	CGameObject* m_pPickObj;
 	wstring		m_wsPickObjName;
 public:
-	void tick();
+	void fixedtick();
 
 public:
 	CGameObject* GetPickObj() { return m_pPickObj; }

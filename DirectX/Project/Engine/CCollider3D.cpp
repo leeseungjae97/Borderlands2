@@ -286,7 +286,7 @@ void CCollider3D::colliderDebugDraw()
 		Matrix worldMat = physx::Util::WorldMatFromGlobalPose(pos
 			, Vec3((m_vScale.x / 2.f) + 5.f, (m_vScale.y / 2.f) + 5.f, (m_vScale.z / 2.f) + 5.f)
 		);
-		DrawDebugCube(worldMat, Vec4(0.f, 0.f, 1.f, 1.f), 0.f, true);
+		DrawDebugCube(worldMat, Vec4(0.f, 1.f, 0.f, 1.f), 0.f, true);
 		
 	}
 	if (m_tColliderShapeType == COLLIDER_SHAPE_TYPE::MESH)

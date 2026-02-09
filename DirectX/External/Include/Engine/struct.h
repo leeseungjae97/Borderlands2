@@ -35,7 +35,8 @@ union uInstID
 	{
 		UINT iMesh;
 		WORD iMtrl;
-		WORD iMtrlIdx;
+		unsigned char iMtrlIdx;
+        unsigned char bAnim;
 	};
 	ULONG64 llID;
 };
@@ -45,6 +46,7 @@ struct tInstObj
 {
 	CGameObject* pObj;
 	UINT		 iMtrlIdx;
+	int			 iAnimInstIdx;
 };
 
 struct tInstancingData
@@ -131,21 +133,21 @@ struct tDebugShapeInfo
 
 struct tLightColor
 {
-	Vec4 vDiffuse;	// ºûÀÇ »ö»ó
-	Vec4 vAmbient;	// ÁÖº¯ ±¤(È¯°æ ±¤)
+	Vec4 vDiffuse;	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	Vec4 vAmbient;	// ï¿½Öºï¿½ ï¿½ï¿½(È¯ï¿½ï¿½ ï¿½ï¿½)
 };
 
 // LightInfo
 struct tLightInfo
 {
-	tLightColor Color;		 // ºûÀÇ »ö»ó
+	tLightColor Color;		 // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	Vec4		vWorldPos;   // ±¤¿øÀÇ ¿ùµå ½ºÆäÀÌ½º À§Ä¡
-	Vec4		vWorldDir;	 // ºûÀ» º¸³»´Â ¹æÇâ
+	Vec4		vWorldPos;   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½ ï¿½ï¿½Ä¡
+	Vec4		vWorldDir;	 // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	UINT		LightType;   // ºûÀÇ Å¸ÀÔ(¹æÇâ¼º, Á¡, ½ºÆ÷Æ®)
-	float		Radius;		 // ºûÀÇ ¹Ý°æ(»ç°Å¸®)
-	float		Angle;		 // ºûÀÇ °¢µµ
+	UINT		LightType;   // ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½(ï¿½ï¿½ï¿½â¼º, ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½Æ®)
+	float		Radius;		 // ï¿½ï¿½ï¿½ï¿½ ï¿½Ý°ï¿½(ï¿½ï¿½Å¸ï¿½)
+	float		Angle;		 // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	int			padding;
 };
 
@@ -162,38 +164,38 @@ struct tAnim2DFrm
 // Particle
 struct tParticle
 {
-	Vec4	vLocalPos;		// ¿ÀºêÁ§Æ®·ÎºÎÅÍ ¶³¾îÁø °Å¸®
-	Vec4	vWorldPos;		// ÆÄÆ¼Å¬ ÃÖÁ¾ ¿ùµåÀ§Ä¡
-	Vec4	vWorldScale;	// ÆÄÆ¼Å¬ Å©±â	
-	Vec4	vColor;			// ÆÄÆ¼Å¬ »ö»ó
-	Vec4	vVelocity;		// ÆÄÆ¼Å¬ ÇöÀç ¼Óµµ
-	Vec4	vForce;			// ÆÄÆ¼Å¬¿¡ ÁÖ¾îÁø Èû
-	Vec4	vRandomForce;	// ÆÄÆ¼Å¬¿¡ Àû¿ëµÇ´Â ·£´ý¹æÇâ Èû
+	Vec4	vLocalPos;		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½Îºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½
+	Vec4	vWorldPos;		// ï¿½ï¿½Æ¼Å¬ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡
+	Vec4	vWorldScale;	// ï¿½ï¿½Æ¼Å¬ Å©ï¿½ï¿½	
+	Vec4	vColor;			// ï¿½ï¿½Æ¼Å¬ ï¿½ï¿½ï¿½ï¿½
+	Vec4	vVelocity;		// ï¿½ï¿½Æ¼Å¬ ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½
+	Vec4	vForce;			// ï¿½ï¿½Æ¼Å¬ï¿½ï¿½ ï¿½Ö¾ï¿½ï¿½ï¿½ ï¿½ï¿½
+	Vec4	vRandomForce;	// ï¿½ï¿½Æ¼Å¬ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 	Vec4	vObjPos;
 
-	float   Age;			// »ýÁ¸ ½Ã°£
-	float   PrevAge;		// ÀÌÀü ÇÁ·¹ÀÓ »ýÁ¸ ½Ã°£
+	float   Age;			// ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
+	float   PrevAge;		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
 
-	float   NomalizedAge;	// ¼ö¸í´ëºñ »ýÁ¸½Ã°£À» 0~1·Î Á¤±ÔÈ­ ÇÑ °ª
-	float	LifeTime;		// ¼ö¸í
+	float   NomalizedAge;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ã°ï¿½ï¿½ï¿½ 0~1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½ ï¿½ï¿½
+	float	LifeTime;		// ï¿½ï¿½ï¿½ï¿½
 
-	float	Mass;			// Áú·®
-	float   ScaleFactor;	// Ãß°¡ Å©±â ¹èÀ²
+	float	Mass;			// ï¿½ï¿½ï¿½ï¿½
+	float   ScaleFactor;	// ï¿½ß°ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	int     Active;			// ÆÄÆ¼Å¬ È°¼ºÈ­ ¿©ºÎ
+	int     Active;			// ï¿½ï¿½Æ¼Å¬ È°ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½
 	int     pad;
 };
 
 struct tRWParticleBuffer
 {	
-	int		SpawnCount;			// ½ºÆù ½ÃÅ³ ÆÄÆ¼Å¬ °³¼ö
+	int		SpawnCount;			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å³ ï¿½ï¿½Æ¼Å¬ ï¿½ï¿½ï¿½ï¿½
 	int		padding[3];
 };
 
 
 struct tParticleModule
 {
-	// ½ºÆù ¸ðµâ
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	Vec4    vSpawnColor;
 	Vec4	vSpawnScaleMin;
 	Vec4	vSpawnScaleMax;
@@ -201,26 +203,26 @@ struct tParticleModule
 	float	fSphereShapeRadius;
 
 	int		SpawnShapeType;		// 0 : BOX, 1 : Sphere
-	int		SpawnRate;			// ÃÊ´ç »ý¼º °³¼ö
-	int		Space;				// ÆÄÆ¼Å¬ ¾÷µ¥ÀÌÆ® ÁÂÇ¥°è ( 0 : World,  1 : Local)
-	float   MinLifeTime;		// ÃÖ¼Ò ¼ö¸í
+	int		SpawnRate;			// ï¿½Ê´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	int		Space;				// ï¿½ï¿½Æ¼Å¬ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½Ç¥ï¿½ï¿½ ( 0 : World,  1 : Local)
+	float   MinLifeTime;		// ï¿½Ö¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	float   MaxLifeTime;		// ÃÖ´ë ¼ö¸í
+	float   MaxLifeTime;		// ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½
 	int     spawnpad[3];
 
-	// Color Change ¸ðµâ
-	Vec4	vStartColor;		// ÃÊ±â »ö»ó
-	Vec4	vEndColor;			// ÃÖÁ¾ »ö»ó
+	// Color Change ï¿½ï¿½ï¿½
+	Vec4	vStartColor;		// ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½
+	Vec4	vEndColor;			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-	// Scale Change ¸ðµâ
-	float	StartScale;			// ÃÊ±â ¹èÀ²
-	float	EndScale;			// ÃÖÁ¾ ¹èÀ²	
+	// Scale Change ï¿½ï¿½ï¿½
+	float	StartScale;			// ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½
+	float	EndScale;			// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½	
 
-	// ¹öÆÛ ÃÖ´ëÅ©±â
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½Å©ï¿½ï¿½
 	int		iMaxParticleCount;
 	int		iPerParticleCount;
 
-	// Add Velocity ¸ðµâ
+	// Add Velocity ï¿½ï¿½ï¿½
 	Vec4	vVelocityDir;
 
 	int     AddVelocityType;	// 0 : From Center, 1: To Center, 2 : Fixed Direction	
@@ -228,19 +230,19 @@ struct tParticleModule
 	float	Speed;
 	int     addvpad;
 
-	// Drag ¸ðµâ - ¼Óµµ Á¦ÇÑ
+	// Drag ï¿½ï¿½ï¿½ - ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½
 	float	StartDrag;
 	float	EndDrag;
 
-	// NoiseForce ¸ðµâ - ·£´ý Èû Àû¿ë	
-	float	fNoiseTerm;		// ·£´ý Èû º¯°æ °£°Ý
-	float	fNoiseForce;	// ·£´ý Èû Å©±â
+	// NoiseForce ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½	
+	float	fNoiseTerm;		// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	float	fNoiseForce;	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Å©ï¿½ï¿½
 
-	// Render ¸ðµâ
-	int		VelocityAlignment;	// 1 : ¼ÓµµÁ¤·Ä »ç¿ë(ÀÌµ¿ ¹æÇâÀ¸·Î È¸Àü) 0 : »ç¿ë ¾ÈÇÔ
-	int		VelocityScale;		// 1 : ¼Óµµ¿¡ µû¸¥ Å©±â º¯È­ »ç¿ë, 0 : »ç¿ë ¾ÈÇÔ	
-	float   vMaxSpeed;			// ÃÖ´ë Å©±â¿¡ µµ´ÞÇÏ´Â ¼Ó·Â
-	Vec4	vMaxVelocityScale;	// ¼Ó·Â¿¡ µû¸¥ Å©±â º¯È­·® ÃÖ´ëÄ¡
+	// Render ï¿½ï¿½ï¿½
+	int		VelocityAlignment;	// 1 : ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½(ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½) 0 : ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	int		VelocityScale;		// 1 : ï¿½Óµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½È­ ï¿½ï¿½ï¿½, 0 : ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½	
+	float   vMaxSpeed;			// ï¿½Ö´ï¿½ Å©ï¿½â¿¡ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ó·ï¿½
+	Vec4	vMaxVelocityScale;	// ï¿½Ó·Â¿ï¿½ ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½È­ï¿½ï¿½ ï¿½Ö´ï¿½Ä¡
 	int		renderpad;
 
 	// Module Check
@@ -297,7 +299,7 @@ struct tMTAnimClip
 };
 
 // ===================
-// »ó¼ö¹öÆÛ ´ëÀÀ ±¸Á¶Ã¼
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼
 // ===================
 struct tTransform
 {
@@ -370,15 +372,15 @@ struct tGlobal
 
 extern tGlobal GlobalData;
 
-// ±¤¼± ±¸Á¶Ã¼
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼
 struct tRay
 {
-	// ÁÖÀÇ : °°Àº Relative PositionÀÎÁö È®ÀÎÇÏ°í ½á¾ßÇÔ.
+	// ï¿½ï¿½ï¿½ï¿½ : ï¿½ï¿½ï¿½ï¿½ Relative Positionï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.
 	Vec3 vStart;
 	Vec3 vDir;
 };
 
-// Raycast °á°ú¸¦ ¹ÞÀ» ±¸Á¶Ã¼
+// Raycast ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼
 struct tRaycastOut
 {
 	Vec2	vUV;

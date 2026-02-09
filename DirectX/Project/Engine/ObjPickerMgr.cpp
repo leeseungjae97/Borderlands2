@@ -16,7 +16,7 @@ ObjPickerMgr::~ObjPickerMgr()
 {
 }
 
-void ObjPickerMgr::tick()
+void ObjPickerMgr::fixedtick()
 {
 	
 	if(CEventMgr::GetInst()->IsLevelChanged())

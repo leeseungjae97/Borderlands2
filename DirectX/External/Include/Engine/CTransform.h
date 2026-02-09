@@ -40,7 +40,7 @@ public:
     void SetRelativeScale(float _x, float _y, float _z) { m_vRelativeScale = Vec3(_x, _y, _z); }
     void SetRelativeRot(float _x, float _y, float _z) { m_vRelativeRot = Vec3(_x, _y, _z);  }
 
-    // »ó´ë ÀÌµ¿, Å©±â¸¦ Àý´ë°ªÀ¸·Î ÁöÁ¤  
+    // ï¿½ï¿½ï¿½ ï¿½Ìµï¿½, Å©ï¿½â¸¦ ï¿½ï¿½ï¿½ë°ªï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½  
     void SetAbsolute(bool _Set) { m_bAbsolute = _Set; }    
 
     Vec3 GetRelativePos() const { return m_vRelativePos; }
@@ -95,6 +95,6 @@ public:
     CLONE(CTransform);
 public:
     CTransform();
-    ~CTransform();
+    virtual ~CTransform();
 };
 

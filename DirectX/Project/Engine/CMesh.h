@@ -23,7 +23,7 @@ private:
 
 private:
 	// Animation3D Á¤º¸
-	map<wstring ,tMTAnimClip>	m_mapAnimClip;
+	unordered_map<wstring ,tMTAnimClip>	m_mapAnimClip;
 	vector<tMTBone>			m_vecBones;
 	vector<Matrix>			m_vecBoneOffset;
 
@@ -46,7 +46,7 @@ public:
 	const vector<tMTBone>* GetBones() { return &m_vecBones; }
 	UINT GetBoneCount() { return (UINT)m_vecBones.size(); }
 	//const vector<tMTAnimClip>* GetAnimClip() { return &m_mapAnimClip; }
-	const map<wstring, tMTAnimClip>& GetAnimClip() { return m_mapAnimClip; }
+	const unordered_map<wstring, tMTAnimClip>& GetAnimClip() { return m_mapAnimClip; }
 	bool IsAnimMesh() { return !m_mapAnimClip.empty(); }
 
 	UINT GetVtxCount() { return m_VtxCount; }
@@ -57,9 +57,6 @@ public:
 	CStructuredBuffer* GetBoneOffsetBuffer() { return  m_pBoneOffset; }
 
 	vector<Matrix> GetBoneOffset() { return m_vecBoneOffset; }
-
-	Vec3 BonePosSkinning(int idx, class CAnimator3D* animator);
-	Vec3 BoneRotSkinning(int idx, class CAnimator3D* animator);
 
 	void SetFbxMesh(FbxMesh* mesh) { m_pFbxMesh = mesh; }
 

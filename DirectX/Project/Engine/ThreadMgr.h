@@ -1,11 +1,13 @@
 #pragma once
 #include "CSingleton.h"
+#include "atomic"
 class ThreadMgr
 	: public CSingleton<ThreadMgr>
 {
 private:
 	vector<std::thread> m_vecThreads;
-	vector<int>	vec_ends;
+	std::atomic<int> m_iFinishedCount{ 0 };
+	
 public:
 	void tick();
 	void init();
@@ -15,7 +17,7 @@ public:
 	void AddThreadEnd();
 	void RunThread();
 
-	bool IsThreadRun();
+	bool IsAnyThreadRun();
 
 	void test() { ; }
 public:

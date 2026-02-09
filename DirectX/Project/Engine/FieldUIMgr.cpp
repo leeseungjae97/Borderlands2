@@ -24,6 +24,10 @@ FieldUIMgr::FieldUIMgr()
 
 FieldUIMgr::~FieldUIMgr()
 {
+	if (pLevelName)
+	{
+		delete pLevelName;
+	}
 }
 
 void FieldUIMgr::init()

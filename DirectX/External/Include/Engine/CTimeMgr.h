@@ -13,7 +13,7 @@ private:
 	UINT			m_iCallCount;
 	float			m_fDeltaTime;
 	float			m_fTime;
-
+	double			m_dTotalAccTime;
 public:
 	void init();
 	void tick();
@@ -23,5 +23,6 @@ public:
 
 public:
 	float GetDeltaTime() { return m_fDeltaTime; }
+	double GetTime() { return m_dTotalAccTime; }
 };
 

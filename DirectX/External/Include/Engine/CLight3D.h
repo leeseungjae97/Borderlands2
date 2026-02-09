@@ -69,7 +69,7 @@ public:
 public:
     CLight3D();
     CLight3D(const CLight3D& _Origin);
-    ~CLight3D();
+    virtual ~CLight3D();
 
 };
 

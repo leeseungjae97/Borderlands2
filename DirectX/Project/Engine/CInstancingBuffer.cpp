@@ -8,6 +8,7 @@
 CInstancingBuffer::CInstancingBuffer()
 	: m_iMaxCount(10)
 	, m_iAnimInstCount(0)
+	, m_iInstanceCount(0)
 	, m_pBoneBuffer(nullptr)
 {
 	m_pBoneBuffer = new CStructuredBuffer;
@@ -36,7 +37,13 @@ void CInstancingBuffer::init()
 
 void CInstancingBuffer::SetData()
 {
-	if (m_vecData.size() > m_iMaxCount)
+    if (m_vecData.empty())
+    {
+        m_iInstanceCount = 0;
+        return;
+    }
+
+	if (m_vecData.size() != m_iMaxCount)
 	{
 		Resize((UINT)m_vecData.size());
 	}
@@ -47,25 +54,28 @@ void CInstancingBuffer::SetData()
 	memcpy(tMap.pData, &m_vecData[0], sizeof(tInstancingData) * m_vecData.size());
 	CONTEXT->Unmap(m_pInstancingBuffer.Get(), 0);
 
+	m_iInstanceCount = (UINT)m_vecData.size();
+	m_vecData.clear();
+
 	// 본 행렬정보 메모리 복사
-	if (m_vecBoneMat.empty())
+	if (m_vecAnimationBlendBoneMatSB.empty())
 		return;
 
-	UINT iBufferSize = (UINT)m_vecBoneMat.size() * m_vecBoneMat[0]->GetBufferSize();
+	UINT iBufferSize = (UINT)m_vecAnimationBlendBoneMatSB.size() * m_vecAnimationBlendBoneMatSB[0]->GetBufferSize();
 	if (m_pBoneBuffer->GetBufferSize() < iBufferSize)
 	{
-		m_pBoneBuffer->Create(m_vecBoneMat[0]->GetElementSize()
-			, m_vecBoneMat[0]->GetElementCount() * (UINT)m_vecBoneMat.size(), SB_TYPE::READ_WRITE, false, nullptr);
+		m_pBoneBuffer->Create(m_vecAnimationBlendBoneMatSB[0]->GetElementSize()
+			, m_vecAnimationBlendBoneMatSB[0]->GetElementCount() * (UINT)m_vecAnimationBlendBoneMatSB.size(), SB_TYPE::READ_WRITE, false, nullptr);
 	}
 
 	// 복사용 컴퓨트 쉐이더 실행
-	UINT iBoneCount = m_vecBoneMat[0]->GetElementCount();
+	UINT iBoneCount = m_vecAnimationBlendBoneMatSB[0]->GetElementCount();
 	m_pCopyShader->SetBoneCount(iBoneCount);
 
-	for (UINT i = 0; i < (UINT)m_vecBoneMat.size(); ++i)
+	for (UINT i = 0; i < (UINT)m_vecAnimationBlendBoneMatSB.size(); ++i)
 	{
 		m_pCopyShader->SetRowIndex(i);
-		m_pCopyShader->SetSourceBuffer(m_vecBoneMat[i]);
+		m_pCopyShader->SetSourceBuffer(m_vecAnimationBlendBoneMatSB[i]);
 		m_pCopyShader->SetDestBuffer(m_pBoneBuffer);
 		m_pCopyShader->Execute();
 	}
@@ -78,7 +88,7 @@ void CInstancingBuffer::SetData()
 void CInstancingBuffer::AddInstancingBoneMat(CStructuredBuffer* _pBuffer)
 {
 	++m_iAnimInstCount;
-	m_vecBoneMat.push_back(_pBuffer);
+	m_vecAnimationBlendBoneMatSB.push_back(_pBuffer);
 }
 
 void CInstancingBuffer::Resize(UINT _iCount)

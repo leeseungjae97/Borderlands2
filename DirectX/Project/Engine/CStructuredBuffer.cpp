@@ -6,6 +6,7 @@
 CStructuredBuffer::CStructuredBuffer()
 	: m_iElementSize(0)
 	, m_iElementCount(0)
+	, m_iRecentRegisterNum(0)
 {
 }
 
@@ -16,12 +17,14 @@ CStructuredBuffer::~CStructuredBuffer()
 void CStructuredBuffer::Create(UINT _iElementSize, UINT _iElementCount
 	, SB_TYPE _Type, bool _bSysAccess, void* _pSysMem)
 {
-	m_SB = nullptr;
-	m_SRV = nullptr;
-	m_UAV = nullptr;
+	Clear();
 
-	m_SB_CPU_Read = nullptr;
-	m_SB_CPU_Write = nullptr;
+	m_SB.Reset();
+	m_SRV.Reset();
+	m_UAV.Reset();
+
+	m_SB_CPU_Read.Reset();
+	m_SB_CPU_Write.Reset();
 
 	m_Type = _Type;
 	m_bSysAccess = _bSysAccess;
@@ -31,29 +34,29 @@ void CStructuredBuffer::Create(UINT _iElementSize, UINT _iElementCount
 
 	UINT iBufferSize = m_iElementSize * _iElementCount;
 
-	// 16¹ÙÀÌÆ® ´ÜÀ§ ¸Þ¸ð¸® Á¤·Ä
+	// 16ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 	assert(!(iBufferSize % 16));
 
-	// »ó¼ö¹öÆÛ »ý¼º
-	m_tDesc.ByteWidth = iBufferSize;				// ¹öÆÛ Å©±â
-	m_tDesc.StructureByteStride = m_iElementSize;	// µ¥ÀÌÅÍ °£°Ý
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	m_tDesc.ByteWidth = iBufferSize;				// ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½
+	m_tDesc.StructureByteStride = m_iElementSize;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	if (SB_TYPE::READ_ONLY == m_Type)
 	{
-		m_tDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;	// Texture ·¹Áö½ºÅÍ¿¡ ¹ÙÀÌµùÇÏ±â À§ÇÑ ÇÃ·¡±×
+		m_tDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;	// Texture ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ ï¿½ï¿½ï¿½Ìµï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½
 	}
 	else if(SB_TYPE::READ_WRITE == m_Type)
 	{
 		m_tDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
 	}
 	
-	m_tDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;	// ±¸Á¶È­ ¹öÆÛ Ã¼Å©
+	m_tDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;	// ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ Ã¼Å©
 	m_tDesc.Usage = D3D11_USAGE_DEFAULT;
 	m_tDesc.CPUAccessFlags = 0;	
 
 	if (nullptr == _pSysMem)
 	{
-		if (FAILED(DEVICE->CreateBuffer(&m_tDesc, nullptr, m_SB.GetAddressOf())))
+		if (FAILED(DEVICE->CreateBuffer(&m_tDesc, nullptr, m_SB.ReleaseAndGetAddressOf())))
 		{
 			assert(nullptr);
 		}
@@ -63,7 +66,7 @@ void CStructuredBuffer::Create(UINT _iElementSize, UINT _iElementCount
 		D3D11_SUBRESOURCE_DATA tSubData = {};
 		tSubData.pSysMem = _pSysMem;
 
-		HRESULT hr = DEVICE->CreateBuffer(&m_tDesc, &tSubData, m_SB.GetAddressOf());
+		HRESULT hr = DEVICE->CreateBuffer(&m_tDesc, &tSubData, m_SB.ReleaseAndGetAddressOf());
 		if (hr)
 		{
 			assert(nullptr);
@@ -71,13 +74,13 @@ void CStructuredBuffer::Create(UINT _iElementSize, UINT _iElementCount
 	}
 
 
-	// ShaderResourceView »ý¼º
+	// ShaderResourceView ï¿½ï¿½ï¿½ï¿½
 	D3D11_SHADER_RESOURCE_VIEW_DESC	m_SRVDesc = {};
 
 	m_SRVDesc.ViewDimension = D3D_SRV_DIMENSION_BUFFEREX;
 	m_SRVDesc.BufferEx.NumElements = m_iElementCount;
 
-	if (FAILED(DEVICE->CreateShaderResourceView(m_SB.Get(), &m_SRVDesc, m_SRV.GetAddressOf())))
+	if (FAILED(DEVICE->CreateShaderResourceView(m_SB.Get(), &m_SRVDesc, m_SRV.ReleaseAndGetAddressOf())))
 	{
 		assert(nullptr);
 	}
@@ -89,29 +92,32 @@ void CStructuredBuffer::Create(UINT _iElementSize, UINT _iElementCount
 		m_UABDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 		m_UABDesc.Buffer.NumElements = m_iElementCount;
 
-		if (FAILED(DEVICE->CreateUnorderedAccessView(m_SB.Get(), &m_UABDesc, m_UAV.GetAddressOf())))
+		if (FAILED(DEVICE->CreateUnorderedAccessView(m_SB.Get(), &m_UABDesc, m_UAV.ReleaseAndGetAddressOf())))
 		{
 			assert(nullptr);
 		}
 	}
 
-	// CPU Access º¸Á¶ ¹öÆÛ
+	// CPU Access ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	// CPU Access  
 	if (m_bSysAccess)
 	{
-		m_tDesc.BindFlags = D3D11_BIND_FLAG::D3D11_BIND_SHADER_RESOURCE;
+		D3D11_BUFFER_DESC tCPUDessc = m_tDesc;
 
-		// GPU -> CPU Read
-		m_tDesc.Usage = D3D11_USAGE_DEFAULT;
-		m_tDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-		if (FAILED(DEVICE->CreateBuffer(&m_tDesc, nullptr, m_SB_CPU_Read.GetAddressOf())))
+		// GPU -> CPU Read (Staging Buffer)
+		tCPUDessc.BindFlags = 0;
+		tCPUDessc.Usage = D3D11_USAGE_STAGING;
+		tCPUDessc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+		if (FAILED(DEVICE->CreateBuffer(&tCPUDessc, nullptr, m_SB_CPU_Read.ReleaseAndGetAddressOf())))
 		{
 			assert(nullptr);
 		}
 
-		// CPU -> GPU Write
-		m_tDesc.Usage = D3D11_USAGE_DYNAMIC;
-		m_tDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		if (FAILED(DEVICE->CreateBuffer(&m_tDesc, nullptr, m_SB_CPU_Write.GetAddressOf())))
+		// CPU -> GPU Write (Dynamic Buffer for SetData)
+		tCPUDessc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		tCPUDessc.Usage = D3D11_USAGE_DYNAMIC;
+		tCPUDessc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		if (FAILED(DEVICE->CreateBuffer(&tCPUDessc, nullptr, m_SB_CPU_Write.ReleaseAndGetAddressOf())))
 		{
 			assert(nullptr);
 		}
@@ -122,7 +128,7 @@ void CStructuredBuffer::Create(UINT _iElementSize, UINT _iElementCount
 
 void CStructuredBuffer::SetData(void* _pSrc, UINT _iSize)
 {
-	if (nullptr == _pSrc)	
+	if (nullptr == _pSrc || nullptr == m_SB_CPU_Write)	
 		return;	
 
 	UINT iSize = _iSize;
@@ -153,6 +159,11 @@ void CStructuredBuffer::GetData(void* _pDst)
 	CONTEXT->Unmap(m_SB_CPU_Read.Get(), 0);
 }
 
+void CStructuredBuffer::CopyData()
+{
+	CONTEXT->CopyResource(m_SB_CPU_Read.Get(), m_SB.Get());
+}
+
 template <typename T>
 void CStructuredBuffer::GetArrData(T* _pDst)
 {
@@ -162,7 +173,7 @@ void CStructuredBuffer::GetArrData(T* _pDst)
 	// CPU ReadBuffer -> CPU
 	D3D11_MAPPED_SUBRESOURCE tSub = {};
 	CONTEXT->Map(m_SB_CPU_Read.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, &tSub);
-	T* data = static_cast<T*>(tSub.pData);
+	T* data = reinterpret_cast<T*>(tSub.pData);
 	for(int i = 0; i < m_iElementCount; ++i)
 	{
 		T t = data[i];
@@ -174,29 +185,38 @@ void CStructuredBuffer::GetArrData(T* _pDst)
 
 void CStructuredBuffer::GetMatrixData(vector<Matrix>& _pDst)
 {
+	if (nullptr == m_SB_CPU_Read)
+		return;
+
 	CONTEXT->CopyResource(m_SB_CPU_Read.Get(), m_SB.Get());
 
-	// CPU ReadBuffer -> CPU
-	D3D11_MAPPED_SUBRESOURCE tSub = {};
-	CONTEXT->Map(m_SB_CPU_Read.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, &tSub);
-	Matrix* data = static_cast<Matrix*>(tSub.pData);
-	for (int i = 0; i < m_iElementCount; ++i)
+	if (_pDst.size() < m_iElementCount)
 	{
-		Matrix mat = data[i];
-		_pDst.push_back(mat);
+		_pDst.clear();
+		_pDst.reserve(m_iElementCount);
 	}
-	CONTEXT->Unmap(m_SB_CPU_Read.Get(), 0);
+
+	D3D11_MAPPED_SUBRESOURCE tSub = {};
+	if (SUCCEEDED(CONTEXT->Map(m_SB_CPU_Read.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, &tSub)))
+	{
+		if (Matrix* data = reinterpret_cast<Matrix*>(tSub.pData))
+		{
+			_pDst.assign(data, data + m_iElementCount);
+		}
+
+		CONTEXT->Unmap(m_SB_CPU_Read.Get(), 0);
+	}
 }
 
-void CStructuredBuffer::GetMatrixData(Matrix* mat, int _Idx)
+void CStructuredBuffer::GetMatrixData(Matrix* _pDst, int _Idx)
 {
 	CONTEXT->CopyResource(m_SB_CPU_Read.Get(), m_SB.Get());
 
-	// CPU ReadBuffer -> CPU
 	D3D11_MAPPED_SUBRESOURCE tSub = {};
 	CONTEXT->Map(m_SB_CPU_Read.Get(), 0, D3D11_MAP::D3D11_MAP_READ, 0, &tSub);
-	Matrix* data = static_cast<Matrix*>(tSub.pData);
-	*mat = data[_Idx];
+	Matrix* data = reinterpret_cast<Matrix*>(tSub.pData);
+	*_pDst = data[_Idx];
+
 	CONTEXT->Unmap(m_SB_CPU_Read.Get(), 0);
 }
 

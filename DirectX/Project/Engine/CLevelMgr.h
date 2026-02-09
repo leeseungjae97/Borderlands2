@@ -34,6 +34,7 @@ public:
 public:
     void init();
     void tick();
+    void finaltick();
     void begin();
 };
 

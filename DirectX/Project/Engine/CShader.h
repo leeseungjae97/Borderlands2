@@ -15,6 +15,6 @@ private:
 
 public:
     CShader(RES_TYPE _eType);
-    ~CShader();
+    virtual ~CShader();
 };
 

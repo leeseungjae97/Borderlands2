@@ -80,6 +80,6 @@ public:
     CLONE(CParticleSystem);
 public:
     CParticleSystem();
-    ~CParticleSystem();
+    virtual ~CParticleSystem();
 };
 

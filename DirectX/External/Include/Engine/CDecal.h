@@ -26,6 +26,6 @@ public:
     CLONE(CDecal);
 public:
     CDecal();
-    ~CDecal();
+    virtual ~CDecal();
 };
 

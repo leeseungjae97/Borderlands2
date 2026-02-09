@@ -18,6 +18,7 @@ public:
 
 private:
 	void tick();
+	void finaltick();
 	void render();
 };
 

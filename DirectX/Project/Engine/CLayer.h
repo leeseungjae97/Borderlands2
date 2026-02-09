@@ -34,7 +34,7 @@ private:
     CLONE(CLayer)
 public:
     CLayer();
-    ~CLayer();
+    virtual ~CLayer();
 
     friend class CLevel;
     friend class CGameObject;

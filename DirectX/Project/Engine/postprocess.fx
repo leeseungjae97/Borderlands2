@@ -6,14 +6,14 @@
 
 struct VS_IN
 {
-	float3 vLocalPos : POSITION;
-	float2 vUV : TEXCOORD;	
+    float3 vLocalPos : POSITION;
+    float2 vUV : TEXCOORD;
 };
 
 struct VS_OUT
 {
-	float4 vPosition : SV_Position; // System Value
-	float2 vUV : TEXCOORD;
+    float4 vPosition : SV_Position; // System Value
+    float2 vUV : TEXCOORD;
 };
 
 
@@ -25,13 +25,13 @@ struct VS_OUT
 // ============================
 VS_OUT VS_GrayShader(VS_IN _in)
 {
-	VS_OUT output = (VS_OUT)0.f;
+    VS_OUT output = (VS_OUT) 0.f;
 
 	//output.vPosition = float4(_in.vLocalPos * 2.f, 1.f);	
-    output.vPosition = mul(float4(_in.vLocalPos, 1.f), g_matWVP);	
-	output.vUV = _in.vUV;
+    output.vPosition = mul(float4(_in.vLocalPos, 1.f), g_matWVP);
+    output.vUV = _in.vUV;
 
-	return output;
+    return output;
 }
 
 float4 PS_GrayShader(VS_OUT _in) : SV_Target
@@ -47,7 +47,7 @@ float4 PS_GrayShader(VS_OUT _in) : SV_Target
 
     vColor = float4(vAver, vAver, vAver, 1.f);
   
-	return vColor;
+    return vColor;
 }
 
 
@@ -60,12 +60,12 @@ float4 PS_GrayShader(VS_OUT _in) : SV_Target
 // ============================
 VS_OUT VS_Distortion(VS_IN _in)
 {
-	VS_OUT output = (VS_OUT)0.f;
+    VS_OUT output = (VS_OUT) 0.f;
 
-	output.vPosition = mul(float4(_in.vLocalPos, 1.f), g_matWVP);	
-	output.vUV = _in.vUV;
+    output.vPosition = mul(float4(_in.vLocalPos, 1.f), g_matWVP);
+    output.vUV = _in.vUV;
 
-	return output;
+    return output;
 }
 
 //float4 PS_Distortion(VS_OUT _in) : SV_Target
@@ -92,7 +92,7 @@ float4 PS_Distortion(VS_OUT _in) : SV_Target
     {
 
         float2 vNoiseUV = _in.vUV;
-        if(g_vTexFlowDir.x != 0.0f)
+        if (g_vTexFlowDir.x != 0.0f)
         {
             vNoiseUV.x = _in.vUV.x + (g_AccTime * g_vTexFlowDir.x);
         }
@@ -122,6 +122,14 @@ static const float Weight[24] =
     0.2663, 0.3074, 0.3381, 0.3544, 0.3544, 0.3381,
     0.3074, 0.2663, 0.2188, 0.1693, 0.1216, 0.0797,
     0.0469, 0.0243, 0.0120, 0.0061, 0.0031, 0.0016
+};
+static const float Weight2[24] =
+{
+    0.0033, 0.0074, 0.0152, 0.0273, 0.0447, 0.0668,
+    0.0917, 0.1159, 0.1345, 0.1432, 0.1391, 0.1230, 
+    0.0993, 0.0735, 0.0509, 0.0335, 0.0206, 0.0120,
+    0.0067, 0.0034, 0.0016, 0.0007, 0.0003, 0.0001
+
 };
 struct VS_SCREEN_IN
 {
@@ -161,7 +169,8 @@ float4 PS_BlurX(VS_SCREEN_OUT _In) : SV_Target
 
     float2 t = _In.vUV;
     float2 uv = 0;
-    float tu = 1.f / g_Resolution.x;
+    //float tu = 1.f / (g_Resolution.x / 5.f);
+    float tu = 1.f / (g_Resolution.x / 2.f);
     float weightSum = 0.f;
     for (int i = -12; i < 12; ++i)
     {
@@ -170,7 +179,10 @@ float4 PS_BlurX(VS_SCREEN_OUT _In) : SV_Target
         weightSum += Weight[12 + i];
 
     }
-    vOut /= weightSum;
+    //vOut /= weightSum;
+    //vOut /= 4;
+    vOut /= 6.2108f;
+    //vOut /= 2;
 
     return vOut;
 }
@@ -184,16 +196,17 @@ float4 PS_BlurY(VS_SCREEN_OUT _In) : SV_Target
     float2 t = _In.vUV;
     float2 uv = 0;
     float tu = 1.f / (g_Resolution.y / 2.f);
+    //float tu = 1.f / (g_Resolution.y / 5.f);
     float weightSum = 0.f;
     for (int i = -12; i < 12; ++i)
     {
         uv = t + float2(0, tu * i);
         vOut += Weight[12 + i] * BlurHTargetTex.Sample(g_sam_anti_0, uv);
         weightSum += Weight[12 + i];
-
     }
-    //vOut /= 6.2108f;
-    vOut /= weightSum;
+    vOut /= 6.2108f;
+    //vOut /= weightSum;
+    //vOut /= 4;
     //vOut += BlurHTargetTex.Sample(g_sam_anti_0, uv);
 
     return vOut;
@@ -214,21 +227,33 @@ PS_BLUR_OUT PS_GaussianBlur(VS_SCREEN_OUT _In)
 
 float4 PS_Bloom(VS_SCREEN_OUT _In) : SV_Target
 {
-    float4 vOut = (float4)0.0f;
+    float4 vOut = (float4) 0.0f;
 
+    // Linear
     float4 vHDRColor = TargetTex.Sample(g_sam_anti_0, _In.vUV);
+    // Linear
     float4 vBlurred = BlurredTargetTex.Sample(g_sam_anti_0, _In.vUV);
+    // Linear
     float4 vOrigin = OriginTargetTex.Sample(g_sam_anti_0, _In.vUV);
-
-    float4 vBloom = pow(pow(abs(vBlurred), 2.2f) + pow(abs(vOrigin), 2.2f), 1.f / 2.2f);
-
-    //vOut = pow(abs(vHDRColor), 2.2f);
-    vOut = vHDRColor;
-    vBloom = pow(abs(vBloom), 2.2f);
-    vBloom = pow(abs(vBloom), 1.f / 2.2f);
-    vOut += vBloom;
     
-    //return pow(abs(vOut), 1.f / 2.2f);
+    float fGamma = 2.2f;
+    float fRGamma = 2.2f;
+    
+    //float4 vBloom = pow(pow(abs(vBlurred), 2.2f) + pow(abs(vOrigin), 2.2f), 1.f / 2.2f);
+    
+    //float4 vBloom = pow(abs(vBlurred), fGamma) + vOrigin;
+    //float4 vBloom = pow(pow(abs(vBlurred), fGamma) + vOrigin, 1.f / fRGamma);
+    
+    float4 vBloom = pow(pow(abs(vBlurred), 2.2f) + pow(abs(vOrigin), 2.2f), 1.f / 2.2f);
+    // Linear
+    //float4 vBloom = vBlurred + vOrigin;
+    //float4 vBloom = pow(abs(vBlurred), 1 / 2.2f) + pow(abs(vOrigin), 1 / 2.2f);
+    //float4 vBloom = pow(vBloom, fGamma);
+    //vBloom = pow(vBloom, 1 / fRGamma);
+    
+    vOut = vHDRColor;
+    // Linear에 
+    vOut += vBloom;
     return vOut;
 }
 
@@ -237,17 +262,14 @@ float4 PS_Bloom(VS_SCREEN_OUT _In) : SV_Target
 float4 PS_ToneMapping(VS_SCREEN_OUT _In) : SV_Target
 {
     float4 vHDRColor = BloomedHDRTargetTex.Sample(g_sam_anti_0, _In.vUV);
-    //vHDRColor = pow(abs(vHDRColor), 1.f / 2.2f);
-    if (UseToneMapping == 1)
-    {
-        float3 vToneMappedColor = ACESToneMapping(vHDRColor.xyz);
-        //return float4(pow(vToneMappedColor, 1 / 2.2f), 1.0f);
-        return float4(vToneMappedColor, 1.f);
-    }
-    else
-    {
-        return vHDRColor;
-    }
+    // 1. Exposure 조절 (너무 어둡다면 이 값을 올리세요)
+    float3 vColor = vHDRColor.xyz * 1.0f;
+    // 2. ACESToneMapping
+    float3 vToneMappedColor = ACESToneMapping(vColor);
+    
+    // 3. Gamma Correction (필수: 모니터 출력 규격에 맞춤)
+    vToneMappedColor = pow(vToneMappedColor, 1.0f / 2.2f);
+    return float4(vToneMappedColor, vHDRColor.a);
 }
 
 #define Fade g_float_0
@@ -297,10 +319,10 @@ float4 PS_Laplacian(VS_SCREEN_OUT _In) : SV_Target
     for (int i = 0; i < 9; ++i)
     {
         if (MapLaplacian == 1)
-            vColor -= mask[i] * (NormalTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(mapCoord[i % 3] 
+            vColor -= mask[i] * (NormalTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(mapCoord[i % 3]
             / g_Resolution.x, mapCoord[i / 3] / g_Resolution.y)));
         else
-            vColor -= mask[i] * (NormalTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(coord[i % 3] 
+            vColor -= mask[i] * (NormalTargetTex.Sample(g_sam_anti_0, _In.vUV + float2(coord[i % 3]
 			/ g_Resolution.x, coord[i / 3] / g_Resolution.y)));
     }
     float gray = 0.f;

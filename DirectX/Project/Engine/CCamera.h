@@ -2,6 +2,7 @@
 #include "CComponent.h"
 
 #include "CFrustum.h"
+#include "pch.h"
 
 class CTexture;
 
@@ -12,7 +13,7 @@ private:
     CFrustum    m_Frustum;
 
     float       m_fAspectRatio;
-    float       m_fScale;           // Orthograpic 에서 사용하는 카메라 배율
+    float       m_fScale;
 
     PROJ_TYPE   m_ProjType;
 
@@ -24,15 +25,15 @@ private:
 
     UINT        m_iLayerMask;
 
-    int         m_iCamIdx;          // 카메라 우선순위
+    int         m_iCamIdx;
 
     float       m_NearZ;
     float       m_FarZ;
 
     float       m_FOV;
 
-    float       m_OrthoWidth;       // Orthgraphic 에서의 가로 투영 범위
-    float       m_OrthoHeight;      // OrthGraphic 에서의 세로 투영 범위
+    float       m_OrthoWidth;
+    float       m_OrthoHeight;
 
     //bool        m_bESM;
 
@@ -131,9 +132,25 @@ protected:
 
 public:
     void SortObject();
+    bool IsValidToRender(CGameObject* _pObj);
+    void ClassifyByDomain(CGameObject* _pObj, CRenderComponent* _pRC, Ptr<class CMaterial> _pMtrl, UINT _iMtrlIdx, int _iAnimIdx);
     void SortObject_Shadow();
 
     void render();
+
+    void RenderScope(Ptr<CMaterial>& pMerge);
+    void RenderMinimap(Ptr<CMaterial>& pLaplacian);
+    void RenderUI();
+    void RenderMain(Ptr<CMaterial>& pMerge, Ptr<CMaterial>& pFade, Ptr<CMaterial>& pLaplacian);
+
+    void post_process_fade(Ptr<CMaterial>& pFade);
+    void post_process_bloom_hdr();
+    void post_process_emissive();
+    void post_process_hdr(Ptr<CMaterial>& pLaplacian);
+    void post_process_bloom();
+
+    void render_screen_quad(Ptr<CMaterial>& pMtrl);
+    void render_merge(Ptr<CMaterial>& pMerge);
     void render_shadowmap();
 
     void FixedTransform();
@@ -142,8 +159,13 @@ public:
     virtual void begin() override;
     virtual void finaltick() override;
 
-
 private:
+    void ClearThisFrameRenderInfo(std::pair<const ULONG64, std::vector<tInstObj>>& pair);
+    void RenderInstancedBatch(std::pair<const ULONG64, std::vector<tInstObj>>& pair);
+    void InsertInstancingData(std::pair<const ULONG64, std::vector<tInstObj>>& pair, tInstancingData& tInstData);
+    void RenderInstancingData(std::pair<const ULONG64, std::vector<tInstObj>>& pair);
+    void InsertSingleData(std::pair<const ULONG64, std::vector<tInstObj>>& pair);
+
     void clear();
     void clear_shadow();
 

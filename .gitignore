@@ -453,6 +453,12 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
+# DX11, VisualStudio
+unity_*.cpp
+*.cso
+*.lib
+*.ini
+
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 

@@ -24,8 +24,7 @@ CMeshData* CMeshData::LoadFromFBX(const wstring& _strFilePath)
 	wstring strFullPath = CPathMgr::GetInst()->GetContentPath();
 	strFullPath += _strFilePath;
 
-	std::thread loadFbx(
-		);
+	std::thread loadFbx();
 	FBXLoader loader;
 	loader.init();
 	loader.LoadFbx(strFullPath);
@@ -180,7 +179,7 @@ CGameObject* CMeshData::Instantiate(Vec3 scale, bool _Sky)
 	CAnimator3D* pAnimator = new CAnimator3D;
 	pNewObj->AddComponent(pAnimator);
 
-	pAnimator->SetBones(m_pMesh->GetBones());
+	pAnimator->SetBones(*m_pMesh->GetBones());
 	pAnimator->SetAnimClip(m_pMesh->GetAnimClip());
 
 	return pNewObj;
@@ -201,7 +200,7 @@ void CMeshData::Instantiate(CGameObject* _Obj)
 	CAnimator3D* pAnimator = new CAnimator3D;
 	_Obj->AddComponent(pAnimator);
 
-	pAnimator->SetBones(m_pMesh->GetBones());
+	pAnimator->SetBones(*m_pMesh->GetBones());
 	pAnimator->SetAnimClip(m_pMesh->GetAnimClip());
 
 }

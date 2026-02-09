@@ -43,14 +43,17 @@ void PhysXMgr::init()
 void PhysXMgr::fixedTick()
 {
 	GCurScene();
-	if(CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY
-		&& CLevelMgr::GetInst()->GetCurLevel()->GetTickCnt() > 10)
+	float fixedStep = 1.0f / 60.0f; // 60Hz °íÁ¤
+	static float accumulator = 0.0f;
+	accumulator += DT;
+
+	if (CLevelMgr::GetInst()->GetCurLevel()->GetState() == LEVEL_STATE::PLAY)
 	{
-		if (gCurScene)
+		while (accumulator >= fixedStep)
 		{
-			//gCurScene->simulate(1.0f / 60.0f);
-			gCurScene->simulate(DT);
+			gCurScene->simulate(fixedStep);
 			gCurScene->fetchResults(true);
+			accumulator -= fixedStep;
 		}
 	}
 

@@ -95,6 +95,7 @@ public:
 
 public:
     CAnimator2D();
+    CAnimator2D(const CAnimator2D& _Other);
     virtual ~CAnimator2D();
 };
 

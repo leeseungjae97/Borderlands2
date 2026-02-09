@@ -14,6 +14,6 @@ public:
     CLONE(CMeshRender)
 public:
     CMeshRender();
-    ~CMeshRender();
+    virtual ~CMeshRender();
 };
 

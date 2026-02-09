@@ -15,7 +15,12 @@ extern int iInst2;
 extern int iInst3;
 
 MeshRenderUI::MeshRenderUI()
-	: ComponentUI("##MeshRender", COMPONENT_TYPE::MESHRENDER)	
+	: ComponentUI("##MeshRender", COMPONENT_TYPE::MESHRENDER),
+	mapMesh(nullptr),
+	pTexture(nullptr),
+	mapShader(nullptr),
+	mapMtrl(nullptr)
+
 {
 	SetName("MeshRender");
 }
@@ -31,9 +36,6 @@ int MeshRenderUI::render_update()
 		return FALSE;
 
 	char szBuff[500] = {};
-
-	Ptr<CMesh> pMesh = GetTarget()->MeshRender()->GetMesh();
-	CMeshRender* pMeshRender =GetTarget()->MeshRender();
 
 	ImGui::Text("Mesh    ");
 	ImGui::SameLine();
@@ -61,11 +63,11 @@ int MeshRenderUI::render_update()
 	ImGui::SameLine();
 	if (ImGui::Button("##MeshSelectBtn", ImVec2(18, 18)))
 	{
-		const map<wstring, Ptr<CRes>>& mapMesh = CResMgr::GetInst()->GetResources(RES_TYPE::MESH);
+		
 
 		ListUI* pListUI = (ListUI*)ImGuiMgr::GetInst()->FindUI("##List");
 		pListUI->Reset("Mesh List", ImVec2(300.f, 500.f));
-		for (const auto& pair : mapMesh)
+		for (const auto& pair : *mapMesh)
 		{
 			pListUI->AddItem(string(pair.first.begin(), pair.first.end()));
 		}
@@ -105,11 +107,9 @@ int MeshRenderUI::render_update()
 
 			if (ImGui::Button("##MtrlSelectBtn", ImVec2(18, 18)))
 			{
-				const map<wstring, Ptr<CRes>>& mapMtrl = CResMgr::GetInst()->GetResources(RES_TYPE::MATERIAL);
-
 				ListUI* pListUI = (ListUI*)ImGuiMgr::GetInst()->FindUI("##List");
 				pListUI->Reset("Material", ImVec2(300.f, 500.f));
-				for (const auto& pair : mapMtrl)
+				for (const auto& pair : *mapMtrl)
 				{
 					pListUI->AddItem(string(pair.first.begin(), pair.first.end()));
 				}
@@ -123,12 +123,7 @@ int MeshRenderUI::render_update()
 
 	if(ImGui::Button("Paper Burn##paperbutn"))
 	{
-		for (int i = 0; i < pMeshRender->GetMtrlCount(); ++i)
-		{
-			Ptr<CMaterial> mtrl = pMeshRender->GetDynamicMaterial(i);
-			mtrl->SetPaperBurn(true);
-			mtrl->SetPaperBurnTime(3.0f);
-		}
+		GetPaperburn();
 	}
 
 	ImGui::Text("RenderComponent Material");
@@ -210,11 +205,11 @@ int MeshRenderUI::render_update()
 		str = "##ShaderSelectBtn" + std::to_string(i);
 		if (ImGui::Button(str.c_str(), ImVec2(18, 18)))
 		{
-			const map<wstring, Ptr<CRes>>& mapShader = CResMgr::GetInst()->GetResources(RES_TYPE::GRAPHICS_SHADER);
+			
 
 			ListUI* pListUI = (ListUI*)ImGuiMgr::GetInst()->FindUI("##List");
 			pListUI->Reset("GraphicsShader List", ImVec2(300.f, 500.f));
-			for (const auto& pair : mapShader)
+			for (const auto& pair : *mapShader)
 			{
 				pListUI->AddItem(string(pair.first.begin(), pair.first.end()));
 			}
@@ -234,11 +229,11 @@ int MeshRenderUI::render_update()
 				str = "SET##" + std::to_string(i) + "mtrl" + std::to_string(j) + "texSet";
 				if(ImGui::Button(str.c_str()))
 				{
-					const map<wstring, Ptr<CRes>>& pTexture = CResMgr::GetInst()->GetResources(RES_TYPE::TEXTURE);
+					
 
 					ListUI* pListUI = (ListUI*)ImGuiMgr::GetInst()->FindUI("##List");
 					pListUI->Reset("Texture List", ImVec2(300.f, 500.f));
-					for (const auto& pair : pTexture)
+					for (const auto& pair : *pTexture)
 					{
 						pListUI->AddItem(string(pair.first.begin(), pair.first.end()));
 					}
@@ -302,11 +297,11 @@ int MeshRenderUI::render_update()
 				string str = "SET##" + std::to_string(i) + "mtrl" + std::to_string(j) + "texSet_nullptr";
 				if (ImGui::Button(str.c_str()))
 				{
-					const map<wstring, Ptr<CRes>>& pTexture = CResMgr::GetInst()->GetResources(RES_TYPE::TEXTURE);
+					
 
 					ListUI* pListUI = (ListUI*)ImGuiMgr::GetInst()->FindUI("##List");
 					pListUI->Reset("Texture List", ImVec2(300.f, 500.f));
-					for (const auto& pair : pTexture)
+					for (const auto& pair : *pTexture)
 					{
 						pListUI->AddItem(string(pair.first.begin(), pair.first.end()));
 					}
@@ -321,6 +316,30 @@ int MeshRenderUI::render_update()
 	}
 
 	return TRUE;
+}
+void MeshRenderUI::GetPaperburn()
+{
+	for (int i = 0; i < pMeshRender->GetMtrlCount(); ++i)
+	{
+		Ptr<CMaterial> mtrl = pMeshRender->GetDynamicMaterial(i);
+		mtrl->SetPaperBurn(true);
+		mtrl->SetPaperBurnTime(3.0f);
+	}
+}
+void MeshRenderUI::SetTarget(CGameObject* targetObject)
+{
+	if (nullptr == targetObject)
+		return;
+
+	if (!targetObject->MeshRender())
+		return;
+
+	pMesh = targetObject->MeshRender()->GetMesh();
+	pMeshRender = targetObject->MeshRender();
+	mapMesh = &(CResMgr::GetInst()->GetResources(RES_TYPE::MESH));
+	pTexture = &(CResMgr::GetInst()->GetResources(RES_TYPE::TEXTURE));
+	mapShader = &(CResMgr::GetInst()->GetResources(RES_TYPE::GRAPHICS_SHADER));
+	mapMtrl = &(CResMgr::GetInst()->GetResources(RES_TYPE::MATERIAL));
 }
 void MeshRenderUI::SelectMesh(DWORD_PTR _Key)
 {

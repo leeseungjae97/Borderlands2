@@ -69,7 +69,7 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
 
     CalcLight3D(vViewPos, vViewNormal, LightIdx, LightColor, fSpecPow, fLightPow);
     
-    float fShadowCoeff = 0.f;
+    float fShadowCoeff = 0.0f;
     float3 vWorldPos = mul(float4(vViewPos, 1.f), g_matViewInv).xyz;
     float4 vLightProj = mul(float4(vWorldPos, 1.f), LightVP);
     float2 vShadowMapUV = vLightProj.xy / vLightProj.w;
@@ -79,7 +79,6 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
     //output.vDiffuse = LightColor.vDiffuse + LightColor.vAmbient;
     //output.vSpecular = g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
     //output.vShadow = fShadowCoeff;
-
     if (vShadowMapUV.x < 0.f || 1.f < vShadowMapUV.x ||
         vShadowMapUV.y < 0.f || 1.f < vShadowMapUV.y)
     {
@@ -89,6 +88,8 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
     {
         float fDepth = vLightProj.z / vLightProj.w;
         fDepth -= DepthCoeff;
+        float fLightDepth = ShadowMapTargetTex.Sample(g_sam_anti_0, vShadowMapUV);
+        
         float SMAP_SIZE = FloatCoeff1;
         float SMAP_DX = 1.0f / SMAP_SIZE;
 
@@ -97,18 +98,18 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
         const float2 offsets[9] =
         {
             float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
-	        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
-	        float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
+	            float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+	            float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
         };
 
-        [unroll]
+            [unroll]
         for (int i = 0; i < 9; ++i)
         {
             fShadowCoeff += ShadowMapTargetTex.SampleCmpLevelZero(g_shadow_sampler,
-            vShadowMapUV.xy + offsets[i], fDepth).r;
+                            vShadowMapUV.xy + offsets[i], fDepth).r;
         }
         fShadowCoeff /= FloatCoeff2;
-
+        
         //fShadowCoeff = ShadowMapTargetTex.SampleCmpLevelZero(g_shadow_sampler, vShadowMapUV.xy, fDepth).r;
 
         //fShadowCoeff = PCF(ShadowMapTargetTex, vShadowMapUV, fDepth - DepthCoeff, FloatCoeff1, float2(FloatCoeff2, FloatCoeff3));
@@ -118,6 +119,15 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
         //    output.vDiffuse *= 0.3f;
         //    output.vSpecular = 0.f;
         //    fShadowCoeff = 0.9f;
+        //}
+        
+        //float fDepth = vLightProj.z / vLightProj.w;
+        //float fLightDepth = ShadowMapTargetTex.Sample(g_sam_anti_0, vShadowMapUV);
+    
+        //if (fLightDepth + 0.002f <= fDepth)
+        //{
+        //    // 그림자
+        //    fShadowCoeff = FloatCoeff2;
         //}
     }
     output.vDiffuse += LightColor.vDiffuse + LightColor.vAmbient;
@@ -130,84 +140,95 @@ PS_OUT PS_DirLightShader(VS_OUT _in)
     return output;
 }
 
-PS_OUT PS_ObjectDirLightShader(VS_OUT _in)
-{
-    PS_OUT output = (PS_OUT) 0.f;
+//PS_OUT PS_ObjectDirLightShader(VS_OUT _in)
+//{
+//    PS_OUT output = (PS_OUT) 0.f;
     
-    float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
-    float3 vViewPos = PositionTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
-    float3 vViewNormal = NormalTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
+//    float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
+//    float3 vViewPos = PositionTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
+//    float3 vViewNormal = NormalTargetTex.Sample(g_sam_anti_0, vScreenUV).xyz;
     
-    if (vViewPos.x == 0.f && vViewPos.y == 0.f && vViewPos.z == 0.f)
-    {
-        discard;
-    }
+//    if (vViewPos.x == 0.f && vViewPos.y == 0.f && vViewPos.z == 0.f)
+//    {
+//        discard;
+//    }
     
-    tLightColor LightColor = (tLightColor) 0.f;
-    float fSpecPow = 0.f;
-    float fLightPow = 0.f;
+//    tLightColor LightColor = (tLightColor) 0.f;
+//    float fSpecPow = 0.f;
+//    float fLightPow = 0.f;
 
-    CalcLight3D(vViewPos, vViewNormal, LightIdx, LightColor, fSpecPow, fLightPow);
+//    CalcLight3D(vViewPos, vViewNormal, LightIdx, LightColor, fSpecPow, fLightPow);
     
-    float fShadowCoeff = 0.f;
-    float3 vWorldPos = mul(float4(vViewPos, 1.f), g_matViewInv).xyz;
-    float4 vLightProj = mul(float4(vWorldPos, 1.f), LightVP);
-    float2 vShadowMapUV = vLightProj.xy / vLightProj.w;
-    vShadowMapUV.x = vShadowMapUV.x / 2.f + 0.5f;
-    vShadowMapUV.y = (1.f - vShadowMapUV.y / 2.f) - 0.5f;
+//    float fShadowCoeff = 0.f;
+//    float3 vWorldPos = mul(float4(vViewPos, 1.f), g_matViewInv).xyz;
+//    float4 vLightProj = mul(float4(vWorldPos, 1.f), LightVP);
+//    float2 vShadowMapUV = vLightProj.xy / vLightProj.w;
+//    vShadowMapUV.x = vShadowMapUV.x / 2.f + 0.5f;
+//    vShadowMapUV.y = (1.f - vShadowMapUV.y / 2.f) - 0.5f;
 
-    //output.vDiffuse = LightColor.vDiffuse + LightColor.vAmbient;
-    //output.vSpecular = g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
-    //output.vShadow = fShadowCoeff;
+//    //output.vDiffuse = LightColor.vDiffuse + LightColor.vAmbient;
+//    //output.vSpecular = g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
+//    //output.vShadow = fShadowCoeff;
 
-    if (vShadowMapUV.x < 0.f || 1.f < vShadowMapUV.x ||
-        vShadowMapUV.y < 0.f || 1.f < vShadowMapUV.y)
-    {
-        fShadowCoeff = 0.f;
-    }
-    else
-    {
-        float fDepth = vLightProj.z / vLightProj.w;
-        //float fDepth = vLightProj.z;
-        //float fDepth = ShadowMapTargetTex.Sample(g_sam_anti_0, vShadowMapUV);
-        fDepth -= DepthCoeff;
-        float SMAP_SIZE = FloatCoeff1;
-        float SMAP_DX = 1.0f / SMAP_SIZE;
+//    if (vShadowMapUV.x < 0.f || 1.f < vShadowMapUV.x ||
+//        vShadowMapUV.y < 0.f || 1.f < vShadowMapUV.y)
+//    {
+//        fShadowCoeff = 0.f;
+//    }
+//    else
+//    {
+//        fShadowCoeff = 0.9f;
 
-        const float dx = SMAP_DX;
+//    }
+    
+//    //if (vShadowMapUV.x < 0.f || 1.f < vShadowMapUV.x ||
+//    //    vShadowMapUV.y < 0.f || 1.f < vShadowMapUV.y)
+//    //{
+//    //    fShadowCoeff = 0.f;
+//    //}
+//    //else
+//    //{
+//    //    float fDepth = vLightProj.z / vLightProj.w;
+//    //    //float fDepth = vLightProj.z;
+//    //    //float fDepth = ShadowMapTargetTex.Sample(g_sam_anti_0, vShadowMapUV);
+//    //    fDepth -= DepthCoeff;
+//    //    float SMAP_SIZE = FloatCoeff1;
+//    //    float SMAP_DX = 1.0f / SMAP_SIZE;
 
-        const float2 offsets[9] =
-        {
-            float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
-	        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
-	        float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
-        };
+//    //    const float dx = SMAP_DX;
 
-        [unroll]
-        for (int i = 0; i < 9; ++i)
-        {
-            fShadowCoeff += ShadowMapTargetTex.SampleCmpLevelZero(g_shadow_sampler,
-            vShadowMapUV.xy + offsets[i], fDepth).r;
-        }
-        fShadowCoeff /= FloatCoeff2;
-        //fShadowCoeff = PCF(ShadowMapTargetTex, vShadowMapUV, fDepth - DepthCoeff, FloatCoeff1, float2(FloatCoeff2, FloatCoeff3));
+//    //    const float2 offsets[9] =
+//    //    {
+//    //        float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
+//	   //     float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+//	   //     float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
+//    //    };
+
+//    //    [unroll]
+//    //    for (int i = 0; i < 9; ++i)
+//    //    {
+//    //        fShadowCoeff += ShadowMapTargetTex.SampleCmpLevelZero(g_shadow_sampler,
+//    //        vShadowMapUV.xy + offsets[i], fDepth).r;
+//    //    }
+//    //    fShadowCoeff /= FloatCoeff2;
+//    //    //fShadowCoeff = PCF(ShadowMapTargetTex, vShadowMapUV, fDepth - DepthCoeff, FloatCoeff1, float2(FloatCoeff2, FloatCoeff3));
         
-        //if (fShadowDepth != 0.f && (fDepth > fShadowDepth + 0.00001f))
-        //{
-        //    output.vDiffuse *= 0.3f;
-        //    output.vSpecular = 0.f;
-        //    fShadowCoeff = 0.9f;
-        //}
-    }
-    output.vDiffuse += LightColor.vDiffuse + LightColor.vAmbient;
-    output.vSpecular += g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
-    output.vShadow = fShadowCoeff;
+//    //    //if (fShadowDepth != 0.f && (fDepth > fShadowDepth + 0.00001f))
+//    //    //{
+//    //    //    output.vDiffuse *= 0.3f;
+//    //    //    output.vSpecular = 0.f;
+//    //    //    fShadowCoeff = 0.9f;
+//    //    //}
+//    //}
+//    output.vDiffuse += LightColor.vDiffuse + LightColor.vAmbient;
+//    output.vSpecular += g_Light3DBuffer[LightIdx].Color.vDiffuse * fSpecPow;
+//    output.vShadow = fShadowCoeff;
 
-    output.vDiffuse.a = 1.f;
-    output.vSpecular.a = 1.f;
+//    output.vDiffuse.a = 1.f;
+//    output.vSpecular.a = 1.f;
     
-    return output;
-}
+//    return output;
+//}
 
 VS_OUT VS_PointLightShader(VS_IN _in)
 {
@@ -337,28 +358,29 @@ VS_OUT VS_MergeShader(VS_IN _in)
 
 float4 PS_MergeShader(VS_OUT _in) : SV_Target
 {
-    float4 vOutColor = float4(0.f, 0.f, 0.f, 1.f);
-    
     float2 vScreenUV = _in.vPosition.xy / g_Resolution.xy;
 
-	float4 vColor = ColorTargetTex.Sample(g_sam_anti_0, vScreenUV);
+    float4 vColor = ColorTargetTex.Sample(g_sam_anti_0, vScreenUV);
     float4 vDiffuse = NormalTargetTex.Sample(g_sam_anti_0, vScreenUV);
     float4 vEmissive = EmissiveTargetTex.Sample(g_sam_anti_0, vScreenUV);
     float4 vSpecular = SpecularTargetTex.Sample(g_sam_anti_0, vScreenUV);
-    float fShadowCoeff = ShadowTargetTex.Sample(g_sam_anti_0, vScreenUV).x;
+    float fShadow = ShadowTargetTex.Sample(g_sam_anti_0, vScreenUV).x;
 
-    float3 vColorDiffuse = vColor.xyz * vDiffuse.xyz;
-    vColorDiffuse *= fShadowCoeff;
-    float3 vColorSpecular = vSpecular.xyz * vColor.a;
-    //vColorSpecular *= fShadowCoeff;
+    // 1. 그림자 계수 보정 (그림자가 100% 검은색이 되지 않도록)
+    // fShadow가 1이면 빛이 있는 곳, 0이면 그림자 지는 곳
+    float shadowFactor = lerp(0.15f, 1.0f, fShadow);
 
-    //float3 vColorDiffuseShadow = vColorDiffuse * fShadowCoeff;
-    //vColorDiffuseShadow = (vColorDiffuseShadow + vColorDiffuse / 2.f);
+    // 2. 라이팅 연산 결과 결합
+    // Diffuse: 물체 고유색 * 라이트의 확산광 * 그림자
+    float3 combinedDiffuse = vColor.rgb * vDiffuse.rgb * shadowFactor;
+    
+    // Specular: 라이트의 반사광 * 물체의 반사 강도 * 그림자
+    float3 combinedSpecular = vSpecular.rgb * vColor.a * shadowFactor;
 
-    vOutColor.xyz = vColorDiffuse + vColorSpecular + vEmissive.xyz;
-    vOutColor.a = 1.f;
+    // 3. 최종 출력 (Ambient는 Diffuse나 Emissive에 이미 포함되어 있을 수 있음)
+    float3 finalColor = combinedDiffuse + combinedSpecular + vEmissive.rgb;
 
-    return vOutColor;
+    return float4(finalColor, 1.0f);
 }
 
 VS_OUT VS_MapShader(VS_IN _in)
@@ -418,10 +440,10 @@ VS_SHADOW_OUT VS_ShadowMap(VS_IN _in)
 {
     VS_SHADOW_OUT output = (VS_SHADOW_OUT) 0.f;
 
-    if (g_iAnim)
-    {
-        ShadowSkinning(_in.vPos, _in.vWeights, _in.vIndices, 0);
-    }
+    //if (g_iAnim)
+    //{
+    //    ShadowSkinning(_in.vPos, _in.vWeights, _in.vIndices, 0);
+    //}
 
     output.vPosition = mul(float4(_in.vPos, 1.f), g_matWVP);
     

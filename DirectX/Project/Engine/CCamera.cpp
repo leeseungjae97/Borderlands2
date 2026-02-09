@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "CCamera.h"
 
 #include "CameraMgr.h"
@@ -18,6 +17,7 @@
 #include "CMaterial.h"
 #include "CGraphicsShader.h"
 #include "CInstancingBuffer.h"
+#include "InstancingAnimatorMgr.h"
 #include "CKeyMgr.h"
 #include "CLight3D.h"
 #include "CMeshRender.h"
@@ -25,6 +25,7 @@
 #include "CTimeMgr.h"
 #include "FieldUIMgr.h"
 #include "mMRT.h"
+#include <unordered_set>
 
 
 CCamera::CCamera()
@@ -40,7 +41,6 @@ CCamera::CCamera()
 	, m_iCamIdx(-1)
 	, m_NearZ(1.f)
 	, m_FarZ(1000000.f)
-	//, m_bESM(false)
 	, m_fT{}
 	, m_Outline(true)
 	, m_fFadeAcc(0.0f)
@@ -67,7 +67,6 @@ CCamera::CCamera(const CCamera& _Other)
 	, m_OrthoHeight(_Other.m_OrthoHeight)
 	, m_ProjType(_Other.m_ProjType)
 	, m_iLayerMask(_Other.m_iLayerMask)
-	//, m_bESM(_Other.m_bESM)
 	, m_fFadeAcc(0.0f)
 	, m_fFadeTime(0.0f)
 	, m_iCamIdx(-1)
@@ -83,33 +82,24 @@ void CCamera::begin()
 	if (-1 != m_iCamIdx)
 	{
 		CameraMgr::GetInst()->AddCamObj(GetOwner()->GetName(), GetOwner());
-		//CRenderMgr::GetInst()->RegisterCamera(this, m_iCamIdx);
 	}
 }
 
 void CCamera::finaltick()
 {
 	CalcViewMat();
-
 	CalcProjMat();
-
 	m_Frustum.finaltick();
-
 	CalRay();
 }
 
 void CCamera::CalcViewMat()
 {
-	// ==============
-	// View «‡∑ƒ ∞ËªÍ
-	// ==============
 	m_matView = XMMatrixIdentity();
 
-	// ƒ´∏ﬁ∂Û ¡¬«•∏¶ ø¯¡°¿∏∑Œ ¿Ãµø
 	Vec3 vCamPos = Transform()->GetRelativePos();
 	Matrix matViewTrans = XMMatrixTranslation(-vCamPos.x, -vCamPos.y, -vCamPos.z);
 
-	// ƒ´∏ﬁ∂Û∞° πŸ∂Û∫∏¥¬ πÊ«‚¿ª Z √‡∞˙ ∆Ú«‡«œ∞‘ ∏∏µÂ¥¬ »∏¿¸ «‡∑ƒ¿ª ¿˚øÎ
 	Matrix matViewRot = XMMatrixIdentity();
 
 	Vec3 vR = Transform()->GetWorldDir(DIR_TYPE::RIGHT);
@@ -121,25 +111,19 @@ void CCamera::CalcViewMat()
 	matViewRot._31 = vR.z;	matViewRot._32 = vU.z;	matViewRot._33 = vF.z;
 
 	m_matView = matViewTrans * matViewRot;
-
 	m_matViewInv = XMMatrixInverse(nullptr, m_matView);
 }
 
 void CCamera::CalcProjMat()
 {
-	// =============
-	// ≈ıøµ «‡∑ƒ ∞ËªÍ
-	// =============
 	m_matProj = XMMatrixIdentity();
 
 	if (PROJ_TYPE::ORTHOGRAPHIC == m_ProjType)
 	{
-		// ¡˜±≥ ≈ıøµ
 		m_matProj = XMMatrixOrthographicLH(m_OrthoWidth * (1.f / m_fScale), m_OrthoHeight * (1.f / m_fScale), m_NearZ, m_FarZ);
 	}
 	else
 	{
-		// ø¯±Ÿ ≈ıøµ
 		m_matProj = XMMatrixPerspectiveFovLH(m_FOV, m_fAspectRatio, m_NearZ, m_FarZ);
 	}
 	m_matProjInv = XMMatrixInverse(nullptr, m_matProj);
@@ -147,10 +131,8 @@ void CCamera::CalcProjMat()
 
 void CCamera::UpdateMatrix()
 {
-	// «‡∑ƒ æ˜µ•¿Ã∆Æ
 	g_transform.matView = m_matView;
 	g_transform.matViewInv = m_matViewInv;
-
 	g_transform.matProj = m_matProj;
 	g_transform.matProjInv = m_matProjInv;
 }
@@ -184,15 +166,11 @@ void CCamera::SetCameraIndex(int _idx)
 
 void CCamera::CalRay()
 {
-	// ∏∂øÏΩ∫ πÊ«‚¿ª «‚«œ¥¬ Ray ±∏«œ±‚
-	// SwapChain ≈∏∞Ÿ¿« ViewPort ¡§∫∏
 	MRT* pMRT = CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN);
 	D3D11_VIEWPORT tVP = pMRT->GetViewPort();
 
-	//  «ˆ¿Á ∏∂øÏΩ∫ ¡¬«•
 	Vec2 vMousePos = CKeyMgr::GetInst()->GetMousePos();
 
-	// ¡˜º±¿∫ ƒ´∏ﬁ∂Û¿« ¡¬«•∏¶ π›µÂΩ√ ¡ˆ≥≠¥Ÿ.
 	m_ray.vStart = Transform()->GetWorldPos();
 
 	m_ray.vDir.x = ((((vMousePos.x - tVP.TopLeftX) * 2.f / tVP.Width) - 1.f) - m_matProj._31) / m_matProj._11;
@@ -205,135 +183,127 @@ void CCamera::CalRay()
 
 void CCamera::SortObject()
 {
-	// ¿Ã¿¸ «¡∑π¿” ∫–∑˘¡§∫∏ ¡¶∞≈
 	clear();
-
-	// «ˆ¿Á ∑π∫ß ∞°¡ÆøÕº≠ ∫–∑˘
 	CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
+	if (!pCurLevel) return;
+	const bool bEditorMode = (pCurLevel->GetState() != LEVEL_STATE::PLAY);
+
+    // ÌîÑÎ†àÏûÑÎ≥Ñ Ï§ëÎ≥µ Îì±Î°ù Î∞©ÏßÄÎ•º ÏúÑÌïú Îßµ (Animator -> InstIdx)
+    static std::unordered_map<CAnimator3D*, int> mapAnimIdx;
+	static std::unordered_set<CAnimator3D*> s_editorRandomPlayed;
+    mapAnimIdx.clear();
+	if (!bEditorMode)
+	{
+		s_editorRandomPlayed.clear();
+	}
 
 	for (UINT i = 0; i < MAX_LAYER; ++i)
 	{
-		// ∑π¿ÃæÓ ∏∂Ω∫≈© »Æ¿Œ
-		if (m_iLayerMask & (1 << i))
+		if (!(m_iLayerMask & (1 << i))) continue;
+
+		CLayer* pLayer = pCurLevel->GetLayer(i);
+		const vector<CGameObject*>& vecObject = pLayer->GetObjects();
+
+		for (CGameObject* pObj : vecObject)
 		{
-			CLayer* pLayer = pCurLevel->GetLayer(i);
-			const vector<CGameObject*>& vecObject = pLayer->GetObjects();
+			if (!IsValidToRender(pObj)) continue;
 
-			for (size_t j = 0; j < vecObject.size(); ++j)
+			CRenderComponent* pRenderCom = pObj->GetRenderComponent();
+
+			UINT iMtrlCount = pRenderCom->GetMtrlCount();
+			for (UINT iMtrl = 0; iMtrl < iMtrlCount; ++iMtrl)
 			{
-				CRenderComponent* pRenderCom = vecObject[j]->GetRenderComponent();
+				Ptr<CMaterial> pMtrl = pRenderCom->GetMaterial(iMtrl);
+				if (nullptr == pMtrl || nullptr == pMtrl->GetShader()) continue;
+				const SHADER_DOMAIN eDomain = pMtrl->GetShader()->GetDomain();
 
-				if (nullptr == pRenderCom)
-				{
-					CUI* cui = static_cast<CUI*>(vecObject[j]);
-					if(cui)
-						m_vecText.push_back(vecObject[j]);
-					continue;
-				}
-					
-				if (vecObject[j]->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
-					continue;
+                // Ïù¥ÎØ∏ Îì±Î°ùÎêú Ïï†ÎãàÎ©îÏù¥ÌÑ∞Ïù∏ÏßÄ ÌôïÏù∏
+                int iAnimIdx = -1;
+                if (pObj->Animator3D())
+                {
+                    auto it = mapAnimIdx.find(pObj->Animator3D());
+                    if (it == mapAnimIdx.end())
+                    {
+                        iAnimIdx = InstancingAnimatorMgr::GetInst()->AddAnimator3D(pObj->Animator3D());
+                        mapAnimIdx[pObj->Animator3D()] = iAnimIdx;
+                    }
+                    else
+                    {
+                        iAnimIdx = it->second;
+                    }
 
-				//if (pRenderCom->IsFrustumCheck() 
-				//	&& false == m_Frustum.FrustumCheck(vecObject[j]->Transform()->GetWorldPos(), vecObject[j]->Transform()->GetRelativeScale().x / 5.f))
-				//	continue;
-
-					// ∏ﬁ≈◊∏ÆæÛ ∞≥ºˆ∏∏≈≠ π›∫π
-				UINT iMtrlCount = pRenderCom->GetMtrlCount();
-
-				for (UINT iMtrl = 0; iMtrl < iMtrlCount; ++iMtrl)
-				{
-					// ¿Á¡˙¿Ã æ¯∞≈≥™, ¿Á¡˙¿« Ω¶¿Ã¥ı∞° º≥¡§¿Ã æ»µ» ∞ÊøÏ
-					if (nullptr == pRenderCom->GetMaterial(iMtrl)
-						|| nullptr == pRenderCom->GetMaterial(iMtrl)->GetShader())
+					if (bEditorMode
+						&& (eDomain == SHADER_DOMAIN::DOMAIN_DEFERRED
+							|| eDomain == SHADER_DOMAIN::DOMAIN_OPAQUE
+							|| eDomain == SHADER_DOMAIN::DOMAIN_MASK)
+						&& s_editorRandomPlayed.find(pObj->Animator3D()) == s_editorRandomPlayed.end())
 					{
-						continue;
-					}
-
-					// Ω¶¿Ã¥ı µµ∏ﬁ¿Œø° µ˚∏• ∫–∑˘
-					SHADER_DOMAIN eDomain = pRenderCom->GetMaterial(iMtrl)->GetShader()->GetDomain();
-					Ptr<CGraphicsShader> pShader = pRenderCom->GetMaterial(iMtrl)->GetShader();
-
-					switch (eDomain)
-					{
-					case SHADER_DOMAIN::DOMAIN_DEFERRED:
-					case SHADER_DOMAIN::DOMAIN_OPAQUE:
-					case SHADER_DOMAIN::DOMAIN_MASK:
-					{
-						// Shader ¿« POV ø° µ˚∂Ûº≠ ¿ŒΩ∫≈œΩÃ ±◊∑Ï¿ª ∫–∑˘«—¥Ÿ.
-						map<ULONG64, vector<tInstObj>>* pMap = NULL;
-						Ptr<CMaterial> pMtrl = pRenderCom->GetMaterial(iMtrl);
-
-						if (pShader->GetDomain() == SHADER_DOMAIN::DOMAIN_DEFERRED)
+						const auto& clips = pObj->Animator3D()->GetAnimClips();
+						if (!clips.empty())
 						{
-							pMap = &m_mapInstGroup_D;
-						}
-						else if (pShader->GetDomain() == SHADER_DOMAIN::DOMAIN_OPAQUE
-							|| pShader->GetDomain() == SHADER_DOMAIN::DOMAIN_MASK)
-						{
-							pMap = &m_mapInstGroup_F;
-						}
-						//else if(pShader->GetDomain() == SHADER_DOMAIN::DOMAIN_DEFERRED_DECAL)
-						//{
-						//	pMap = &m_mapInstGroup_D;
-						//}
-						else
-						{
-							assert(nullptr);
-							continue;
-						}
-
-						uInstID uID = {};
-						uID.llID = pRenderCom->GetInstID(iMtrl);
-
-						// ID ∞° 0 ¥Ÿ ==> Mesh ≥™ Material ¿Ã º¬∆√µ«¡ˆ æ æ“¥Ÿ.
-						if (0 == uID.llID)
-							continue;
-
-						map<ULONG64, vector<tInstObj>>::iterator iter = pMap->find(uID.llID);
-						if (iter == pMap->end())
-						{
-							pMap->insert(make_pair(uID.llID, vector<tInstObj>{tInstObj{ vecObject[j], iMtrl }}));
-						}
-						else
-						{
-							iter->second.push_back(tInstObj{ vecObject[j], iMtrl });
+							const int randomIndex = rand() % (int)clips.size();
+							auto clipIter = clips.begin();
+							std::advance(clipIter, randomIndex);
+							pObj->Animator3D()->Play(clipIter->first, true);
+							s_editorRandomPlayed.insert(pObj->Animator3D());
 						}
 					}
-					break;
-					case SHADER_DOMAIN::DOMAIN_DEFERRED_DECAL:
-						m_vecDeferredDecal.push_back(vecObject[j]);
-						break;
-					case SHADER_DOMAIN::DOMAIN_DECAL:
-						m_vecDecal.push_back(vecObject[j]);
-						break;
-					case SHADER_DOMAIN::DOMAIN_TRANSPARENT:
-						m_vecTransparent.push_back(vecObject[j]);
-						break;
-					case SHADER_DOMAIN::DOMAIN_POSTPROCESS:
-						m_vecPost.push_back(vecObject[j]);
-						break;
-					case SHADER_DOMAIN::DOMAIN_UI:
-						m_vecUI.push_back(vecObject[j]);
-						break;
-					}
-				}
+                }
+
+				ClassifyByDomain(pObj, pRenderCom, pMtrl, iMtrl, iAnimIdx);
 			}
 		}
 	}
 }
 
+bool CCamera::IsValidToRender(CGameObject* _pObj)
+{
+	if (!_pObj || _pObj->GetObjectState() == CGameObject::OBJECT_STATE::INVISIBLE)
+		return false;
+
+	if (nullptr == _pObj->GetRenderComponent())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void CCamera::ClassifyByDomain(CGameObject* _pObj, CRenderComponent* _pRC, Ptr<CMaterial> _pMtrl, UINT _iMtrlIdx, int _iAnimIdx)
+{
+	SHADER_DOMAIN eDomain = _pMtrl->GetShader()->GetDomain();
+
+	switch (eDomain)
+	{
+	case SHADER_DOMAIN::DOMAIN_DEFERRED:
+	case SHADER_DOMAIN::DOMAIN_OPAQUE:
+	case SHADER_DOMAIN::DOMAIN_MASK:
+	{
+		auto& targetMap = (eDomain == SHADER_DOMAIN::DOMAIN_DEFERRED) ? m_mapInstGroup_D : m_mapInstGroup_F;
+
+		ULONG64 llID = _pRC->GetInstID(_iMtrlIdx);
+		if (0 == llID) return;
+
+		targetMap[llID].push_back(tInstObj{ _pObj, _iMtrlIdx, _iAnimIdx });
+	}
+	break;
+
+	case SHADER_DOMAIN::DOMAIN_DEFERRED_DECAL: m_vecDeferredDecal.push_back(_pObj); break;
+	case SHADER_DOMAIN::DOMAIN_DECAL:          m_vecDecal.push_back(_pObj);          break;
+	case SHADER_DOMAIN::DOMAIN_TRANSPARENT:    m_vecTransparent.push_back(_pObj);    break;
+	case SHADER_DOMAIN::DOMAIN_POSTPROCESS:    m_vecPost.push_back(_pObj);           break;
+	case SHADER_DOMAIN::DOMAIN_UI:             m_vecUI.push_back(_pObj);             break;
+	}
+}
+
 void CCamera::SortObject_Shadow()
 {
-	// ¿Ã¿¸ «¡∑π¿” ∫–∑˘¡§∫∏ ¡¶∞≈
 	clear_shadow();
 
-	// «ˆ¿Á ∑π∫ß ∞°¡ÆøÕº≠ ∫–∑˘
 	CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
 
 	for (UINT i = 0; i < MAX_LAYER; ++i)
 	{
-		// ∑π¿ÃæÓ ∏∂Ω∫≈© »Æ¿Œ
 		if (i == (int)LAYER_TYPE::Camera) continue;
 		if (i == (int)LAYER_TYPE::Default) continue; 
 		if (i == (int)LAYER_TYPE::ViewPortUI) continue;
@@ -353,7 +323,6 @@ void CCamera::SortObject_Shadow()
 				if (vecObject[j]->Camera())
 					continue;
 
-				// ∑ª¥ı∏µ ±‚¥…¿Ã æ¯¥¬ ø¿∫Í¡ß∆Æ¥¬ ¡¶ø‹
 				if (nullptr == pRenderCom
 					|| nullptr == pRenderCom->GetMaterial(0)
 					|| nullptr == pRenderCom->GetMaterial(0)->GetShader())
@@ -367,256 +336,415 @@ void CCamera::SortObject_Shadow()
 
 void CCamera::render()
 {
+	CInstancingBuffer::GetInst()->Clear();
+	InstancingAnimatorMgr::GetInst()->BeginFrame();
+
+	UpdateMatrix();
+
 	CLevel* pCurLevel = CLevelMgr::GetInst()->GetCurLevel();
-	if (pCurLevel->GetState() == LEVEL_STATE::NO_UPDATE_RENDER) return;
+	if (pCurLevel->GetState() == LEVEL_STATE::NO_UPDATE_RENDER)
+		return;
 
-	static Ptr<CMesh> pScreen = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
-	static Ptr<CMaterial> pMerge = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
-	static Ptr<CMaterial> pBlurV = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurVMtrl");
-	static Ptr<CMaterial> pBlurH = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurHMtrl");
-	static Ptr<CMaterial> pGaussianBlur = CResMgr::GetInst()->FindRes<CMaterial>(L"GaussianBlurMtrl");
-	static Ptr<CMaterial> pEmissiveBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
-	static Ptr<CMaterial> pSpecularBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
-	static Ptr<CMaterial> pToneMapping = CResMgr::GetInst()->FindRes<CMaterial>(L"ToneMappingMtrl");
-	static Ptr<CMaterial> pLaplacian = CResMgr::GetInst()->FindRes<CMaterial>(L"LaplacianMtrl");
-	static Ptr<CMaterial> pFade = CResMgr::GetInst()->FindRes<CMaterial>(L"FadeMtrl");
+	static Ptr<CMaterial>	pMerge = CResMgr::GetInst()->FindRes<CMaterial>(L"MergeMtrl");
+	static Ptr<CMaterial>	pLaplacian = CResMgr::GetInst()->FindRes<CMaterial>(L"LaplacianMtrl");
+	static Ptr<CMaterial>	pFade = CResMgr::GetInst()->FindRes<CMaterial>(L"FadeMtrl");
 
-	if (m_iCamIdx == 0)
+	SortObject();
+
+	InstancingAnimatorMgr::GetInst()->SetData();
+
+	switch (m_iCamIdx)
 	{
-		//UpdateMatrix();
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+	case 0:
+		RenderMain(pMerge, pFade, pLaplacian);
+		break;
+	case 1:
+		RenderMinimap(pLaplacian);
+		break;
+	case 2:
+		RenderScope(pMerge);
+		break;
+	case 3:
+		RenderUI();
+		break;
 
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED)->OMSet(true);
-		render_deferred();
-
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LIGHT)->OMSet(false);
-		const vector<CLight3D*>& vecLight3D = CRenderMgr::GetInst()->GetLight3D();
-		for (size_t i = 0; i < vecLight3D.size(); ++i)
-		{
-			vecLight3D[i]->render(m_iCamIdx);
-		}
-
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLUR_H)->OMSet();
-
-		pBlurV->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-
-		// X
-		pBlurV->UpdateData();
-		pScreen->render(0);
-
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLUR_V)->OMSet();
-
-		pBlurH->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-		pBlurH->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveHorizontalBlurredTargetTex"));
-
-		// Y
-		pBlurH->UpdateData();
-		pScreen->render(0);
-
-		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR)->OMSet();
-
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR)->OMSet();
-
-		pMerge->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ColorTargetTex"));
-		pMerge->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex"));
-		pMerge->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-		pMerge->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
-		pMerge->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex"));
-
-		// Merge
-		pMerge->UpdateData();
-		pScreen->render(0);
-
-		// Outline
-		//if (m_Outline)
-		//{
-
-		//}
-
-		//if (m_Outline)
-		//{
-
-		//}
-		//else
-		//{
-		//	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLOOMED_HDR)->OMSet();
-
-		//	pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
-		//}
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR_LINE)->OMSet();
-		pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
-		pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
-		//pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"RenderTargetTex"));
-		int branch = 0;
-		pLaplacian->SetScalarParam(INT_0, &branch);
-		pLaplacian->UpdateData();
-		pScreen->render(0);
-
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLOOMED_HDR)->OMSet();
-
-		pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"OutlineHDRTargetTex"));
-		//if (m_Outline)
-		//	
-		//else
-		//	pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
-
-		pEmissiveBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveVerticalBlurredTargetTex"));
-		pEmissiveBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
-
-		// Bloom
-		pEmissiveBloom->UpdateData();
-		pScreen->render(0);
-
-		//pSpecularBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
-		//pSpecularBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularBlurredTargetTex"));
-		//pSpecularBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex"));
-		//pSpecularBloom->UpdateData();
-		//pScreen->render(0);
-
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
-		// Bloomed HDR ToneMapping -> LDR
-		//if (m_Outline)
-		//{
-
-		//}else
-		//{
-
-		//}
-
-		int m = 1;
-		pToneMapping->SetScalarParam(INT_0, &m);
-
-		pToneMapping->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"BloomedHDRTargetTex"));
-
-		pToneMapping->UpdateData();
-		pScreen->render(0);
-
-
-		render_forward();
-		render_decal();
-		render_transparent();
-
-		render_postprocess();
-
-		CRenderMgr::GetInst()->CopyRenderTarget();
-
-		if (m_bFade)
-		{
-			pFade->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"RTCopyTex3"));
-
-			float fadeRatio = (m_fFadeAcc / m_fFadeTime);
-
-			m_fFadeAcc += DT;
-
-			if (m_bFadeIn)
-				fadeRatio = 1.f - fadeRatio;
-
-			//	
-
-			pFade->SetScalarParam(FLOAT_0, &fadeRatio);
-			pFade->UpdateData();
-			pScreen->render(0);
-
-			
-			if (m_fFadeTime < m_fFadeAcc)
-			{
-				m_fFadeAcc = m_fFadeTime;
-				m_fFadeAcc = 0.f;
-				m_bFade = false;
-			}
-		}
-	}
-	if (m_iCamIdx == 3)
-	{
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
-
-		render_ui();
-		render_text();
-
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
 	}
 
-	if (m_iCamIdx == 2)
+	for (auto& pair : m_mapInstGroup_F)
 	{
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_RENDER)->OMSet();
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_DEFERRED_RENDER)->OMSet(true);
-		render_deferred();
+		ClearThisFrameRenderInfo(pair);
+	}
+	for (auto& pair : m_mapInstGroup_D)
+	{
+		ClearThisFrameRenderInfo(pair);
+	}
+}
 
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_LIGHT_RENDER)->OMSet(false);
-		const vector<CLight3D*>& vecLight3D = CRenderMgr::GetInst()->GetLight3D();
-		for (size_t i = 0; i < vecLight3D.size(); ++i)
+void CCamera::RenderScope(Ptr<CMaterial>& pMerge)
+{
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_RENDER)->OMSet();
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_DEFERRED_RENDER)->OMSet(true);
+
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_LIGHT_RENDER)->OMSet(false);
+	const vector<CLight3D*>& vecLight3D = CRenderMgr::GetInst()->GetLight3D();
+	for (size_t i = 0; i < vecLight3D.size(); ++i)
+	{
+		vecLight3D[i]->render(m_iCamIdx);
+	}
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_RENDER)->OMSet();
+
+	pMerge->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeColorTargetTex"));
+	pMerge->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeDiffuseTargetTex"));
+	pMerge->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeEmissiveTargetTex"));
+	pMerge->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeSpecularTargetTex"));
+	pMerge->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeShadowTargetTex"));
+
+	render_screen_quad(pMerge);
+
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_RENDER)->OMSet();
+
+	render_forward();
+	render_decal();
+	render_transparent();
+	render_postprocess();
+
+	CRenderMgr::GetInst()->CopyRenderTarget();
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+}
+
+void CCamera::RenderMinimap(Ptr<CMaterial>& pLaplacian)
+{
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::MAP_RENDER)->OMSet();
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::MAP_DEFERRED_RENDER)->OMSet(true);
+
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::MAP_RENDER)->OMSet();
+	pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"MapNormalTargetTex"));
+	pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"MapColorTargetTex"));
+
+	int branch = 1;
+	pLaplacian->SetScalarParam(INT_0, &branch);
+	render_screen_quad(pLaplacian);
+
+	render_map_marker();
+
+	CRenderMgr::GetInst()->CopyRenderTarget();
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+}
+
+void CCamera::RenderUI()
+{
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+
+	render_ui();
+	render_text();
+
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+}
+
+void CCamera::RenderMain(Ptr<CMaterial>& pMerge, Ptr<CMaterial>& pFade, Ptr<CMaterial>& pLaplacian)
+{
+    // MRT ÏÑ§Ï†ï Ï†Ñ ÌÖçÏä§Ï≤ò Ïä¨Î°Ø ÎπÑÏö∞Í∏∞ (Slot 0-7)
+    for (UINT i = 0; i < 8; ++i) {
+        ID3D11ShaderResourceView* pNullSRV = nullptr;
+        CONTEXT->PSSetShaderResources(i, 1, &pNullSRV);
+    }
+
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED)->OMSet();
+
+	render_deferred();
+
+    // 2. ÎùºÏù¥Ìä∏ Ìå®Ïä§ Ï†Ñ G-BufferÎ•º SRVÎ°ú Î∞îÏù∏Îî©ÌïòÍ∏∞ ÏúÑÌï¥ MRT Ìï¥Ï†ú
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::LIGHT)->OMSet(false);
+	const vector<CLight3D*>& vecLight3D = CRenderMgr::GetInst()->GetLight3D();
+	for (size_t i = 0; i < vecLight3D.size(); ++i)
+	{
+		vecLight3D[i]->render(m_iCamIdx);
+	}
+	post_process_bloom();
+
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR)->OMSet();
+	render_merge(pMerge);
+
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::HDR_LINE)->OMSet();
+	post_process_hdr(pLaplacian);
+
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLOOMED_HDR)->OMSet();
+	post_process_emissive();
+
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+	post_process_bloom_hdr();
+
+	render_forward();
+	render_decal();
+	render_transparent();
+	render_postprocess();
+
+	CRenderMgr::GetInst()->CopyRenderTarget();
+
+	if (m_bFade)
+	{
+		post_process_fade(pFade);
+	}
+}
+
+void CCamera::post_process_fade(Ptr<CMaterial>& pFade)
+{
+	pFade->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"RTCopyTex3"));
+
+	float fadeRatio = (m_fFadeAcc / m_fFadeTime);
+
+	m_fFadeAcc += DT;
+
+	if (m_bFadeIn)
+		fadeRatio = 1.f - fadeRatio;
+
+	pFade->SetScalarParam(FLOAT_0, &fadeRatio);
+	render_screen_quad(pFade);
+
+
+	if (m_fFadeTime < m_fFadeAcc)
+	{
+		m_fFadeAcc = m_fFadeTime;
+		m_fFadeAcc = 0.f;
+		m_bFade = false;
+	}
+}
+
+void CCamera::post_process_bloom_hdr()
+{
+	static Ptr<CMaterial>	pToneMapping = CResMgr::GetInst()->FindRes<CMaterial>(L"ToneMappingMtrl");
+
+	int m = 1;
+	pToneMapping->SetScalarParam(INT_0, &m);
+	pToneMapping->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"BloomedHDRTargetTex"));
+	render_screen_quad(pToneMapping);
+}
+
+void CCamera::post_process_emissive()
+{
+	static Ptr<CMaterial>	pEmissiveBloom = CResMgr::GetInst()->FindRes<CMaterial>(L"BloomMtrl");
+
+	pEmissiveBloom->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"OutlineHDRTargetTex"));
+	pEmissiveBloom->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveVerticalBlurredTargetTex"));
+	pEmissiveBloom->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+	render_screen_quad(pEmissiveBloom);
+}
+
+void CCamera::post_process_hdr(Ptr<CMaterial>& pLaplacian)
+{
+	pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"NormalTargetTex"));
+	pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"HDRTargetTex"));
+	int branch = 0;
+	pLaplacian->SetScalarParam(INT_0, &branch);
+	render_screen_quad(pLaplacian);
+}
+
+void CCamera::render_merge(Ptr<CMaterial>& pMerge)
+{
+	if (nullptr == pMerge) return;
+
+	Ptr<CTexture> pTex0 = CResMgr::GetInst()->FindRes<CTexture>(L"ColorTargetTex");
+	Ptr<CTexture> pTex1 = CResMgr::GetInst()->FindRes<CTexture>(L"DiffuseTargetTex");
+	Ptr<CTexture> pTex2 = CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex");
+	Ptr<CTexture> pTex3 = CResMgr::GetInst()->FindRes<CTexture>(L"SpecularTargetTex");
+	Ptr<CTexture> pTex4 = CResMgr::GetInst()->FindRes<CTexture>(L"ShadowTargetTex");
+
+	pMerge->SetTexParam(TEX_0, pTex0);
+	pMerge->SetTexParam(TEX_1, pTex1);
+	pMerge->SetTexParam(TEX_2, pTex2);
+	pMerge->SetTexParam(TEX_3, pTex3);
+	pMerge->SetTexParam(TEX_4, pTex4);
+
+	render_screen_quad(pMerge);
+}
+
+void CCamera::post_process_bloom()
+{
+	static Ptr<CMaterial>	pBlurV = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurVMtrl");
+	static Ptr<CMaterial>	pBlurH = CResMgr::GetInst()->FindRes<CMaterial>(L"BlurHMtrl");
+
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLUR_H)->OMSet();
+	pBlurV->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+	render_screen_quad(pBlurV);
+
+	CRenderMgr::GetInst()->GetMRT(MRT_TYPE::BLUR_V)->OMSet();
+	pBlurH->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveTargetTex"));
+	pBlurH->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"EmissiveHorizontalBlurredTargetTex"));
+	render_screen_quad(pBlurH);
+}
+
+void CCamera::render_screen_quad(Ptr<CMaterial>& pMtrl)
+{
+	static Ptr<CMesh> pScreenMesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
+
+	pMtrl->UpdateData();
+	pScreenMesh->render(0);
+}
+
+void CCamera::ClearThisFrameRenderInfo(std::pair<const ULONG64, std::vector<tInstObj>>& pair)
+{
+	auto& vecInstObjs = pair.second;
+	if (vecInstObjs.empty()) return;
+
+	CGameObject* pFirstObj = vecInstObjs[0].pObj;
+	if (!pFirstObj || !pFirstObj->GetRenderComponent()) return;
+
+	Ptr<CMesh> pMesh = pFirstObj->GetRenderComponent()->GetMesh();
+	Ptr<CMaterial> pMtrl = pFirstObj->GetRenderComponent()->GetMaterial(vecInstObjs[0].iMtrlIdx);
+
+	if (nullptr == pMesh || nullptr == pMtrl) return;
+
+	bool bHasAnim3D = false;
+
+	for (const auto& instObj : vecInstObjs)
+	{
+		CGameObject* pObj = instObj.pObj;
+		if (!pObj) continue;
+
+		if (pObj->Animator3D())
 		{
-			vecLight3D[i]->render(m_iCamIdx);
+			bHasAnim3D = true;
+			break;
 		}
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_RENDER)->OMSet();
-
-		pMerge->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeColorTargetTex"));
-		pMerge->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeDiffuseTargetTex"));
-		pMerge->SetTexParam(TEX_2, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeEmissiveTargetTex"));
-		pMerge->SetTexParam(TEX_3, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeSpecularTargetTex"));
-		pMerge->SetTexParam(TEX_4, CResMgr::GetInst()->FindRes<CTexture>(L"ScopeShadowTargetTex"));
-
-		// Merge
-		pMerge->UpdateData();
-		pScreen->render(0);
-
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SCOPE_RENDER)->OMSet();
-
-		render_forward();
-		render_decal();
-		render_transparent();
-		render_postprocess();
-
-		CRenderMgr::GetInst()->CopyRenderTarget();
-
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
 	}
 
-	if (m_iCamIdx == 1)
+	if (bHasAnim3D)
 	{
-		//static Ptr<CMaterial> pMap = CResMgr::GetInst()->FindRes<CMaterial>(L"MapMtrl");
-
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::MAP_RENDER)->OMSet();
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::MAP_DEFERRED_RENDER)->OMSet(true);
-		render_deferred();
-
-		//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::MAP_RENDER)->OMSet();
-		//pMap->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"MapColorTargetTex"));
-		//pMap->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"MapEmissiveTargetTex"));
-		//pMap->UpdateData();
-		//pScreen->render(0);
-		 
-		//render_forward();
-		//render_transparent();
-		//render_decal();
-		//render_postprocess();
-
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::MAP_RENDER)->OMSet();
-		pLaplacian->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"MapNormalTargetTex"));
-		pLaplacian->SetTexParam(TEX_1, CResMgr::GetInst()->FindRes<CTexture>(L"MapColorTargetTex"));
-
-		int branch = 1;
-		pLaplacian->SetScalarParam(INT_0, &branch);
-		pLaplacian->UpdateData();
-		pScreen->render(0);
-
-		render_map_marker();
-
-		CRenderMgr::GetInst()->CopyRenderTarget();
-
-		CRenderMgr::GetInst()->GetMRT(MRT_TYPE::SWAPCHAIN)->OMSet();
+		pMtrl->SetAnim3D(false);
+		pMtrl->SetBoneCount(0);
 	}
 }
 
 
+void CCamera::InsertInstancingData(std::pair<const ULONG64, std::vector<tInstObj>>& pair, tInstancingData& tInstData)
+{
+	auto& vecInstObjs = pair.second;
+	if (vecInstObjs.empty()) return;
+
+	CGameObject* pFirstObj = vecInstObjs[0].pObj;
+	if (!pFirstObj || !pFirstObj->GetRenderComponent()) return;
+
+	Ptr<CMesh> pMesh = pFirstObj->GetRenderComponent()->GetMesh();
+	Ptr<CMaterial> pMtrl = pFirstObj->GetRenderComponent()->GetMaterial(vecInstObjs[0].iMtrlIdx);
+
+	if (nullptr == pMesh || nullptr == pMtrl) return;
+
+	CInstancingBuffer* pInstBuffer = CInstancingBuffer::GetInst();
+
+	bool bHasAnim3D = false;
+
+	for (const auto& instObj : vecInstObjs)
+	{
+		CGameObject* pObj = instObj.pObj;
+		if (!pObj) continue;
+
+		tInstData.matWorld = pObj->Transform()->GetWorldMat();
+		tInstData.matWV = tInstData.matWorld * m_matView;
+		tInstData.matWVP = tInstData.matWV * m_matProj;
+
+		if (pObj->Animator3D() && pObj->Animator3D()->GetCurAnimClip() != nullptr && instObj.iAnimInstIdx >= 0)
+		{
+			tInstData.iRowIdx = instObj.iAnimInstIdx;
+			bHasAnim3D = true;
+		}
+		else
+		{
+			tInstData.iRowIdx = -1;
+		}
+
+		pInstBuffer->AddInstancingData(tInstData);
+	}
+
+	if (bHasAnim3D)
+	{
+		pMtrl->SetAnim3D(true);
+		pMtrl->SetBoneCount(pMesh->GetBoneCount());
+	}
+	else
+	{
+		pMtrl->SetAnim3D(false);
+		pMtrl->SetBoneCount(0);
+	}
+}
+
+void CCamera::RenderInstancingData(std::pair<const ULONG64, std::vector<tInstObj>>& pair)
+{
+	auto& vecInstObjs = pair.second;
+	if (vecInstObjs.empty()) return;
+
+	CGameObject* pFirstObj = vecInstObjs[0].pObj;
+	if (!pFirstObj || !pFirstObj->GetRenderComponent()) return;
+
+	Ptr<CMesh> pMesh = pFirstObj->GetRenderComponent()->GetMesh();
+	Ptr<CMaterial> pMtrl = pFirstObj->GetRenderComponent()->GetMaterial(vecInstObjs[0].iMtrlIdx);
+
+	if (nullptr == pMesh || nullptr == pMtrl) return;
+
+    // Ï†ÑÏó≠ Î≥∏ Î≤ÑÌçº Î∞îÏù∏Îî© (Í∞úÎ≥Ñ Í∞ùÏ≤¥ Î†åÎçîÎßÅÏóê ÏùòÌï¥ ÎçÆÏñ¥ÏîåÏõåÏ°åÏùÑ Í∞ÄÎä•ÏÑ± Ï∞®Îã®)
+    if (auto* pBone = InstancingAnimatorMgr::GetInst()->GetFinalMatBuffer())
+    {
+        pBone->UpdateData(30, PIPELINE_STAGE::PS_VERTEX);
+    }
+
+	pMtrl->UpdateData_Instancing();
+	pMesh->render_instancing(vecInstObjs[0].iMtrlIdx);
+}
+
+void CCamera::InsertSingleData(std::pair<const ULONG64, std::vector<tInstObj>>& _pair)
+{
+	auto& vecInstObjs = _pair.second;
+	if (vecInstObjs.empty()) return;
+
+	CGameObject* pObj = vecInstObjs[0].pObj;
+	if (!pObj || !pObj->GetRenderComponent()) return;
+
+	bool bNeedSingleDraw = false;
+
+	if (pObj->Animator3D())
+	{
+		bNeedSingleDraw = false;
+	}
+	else if (vecInstObjs.size() <= 2 || pObj->Animator2D())
+	{
+		bNeedSingleDraw = true;
+	}
+	else
+	{
+		Ptr<CMaterial> pMtrl = pObj->GetRenderComponent()->GetMaterial(vecInstObjs[0].iMtrlIdx);
+		if (pMtrl == nullptr || pMtrl->GetShader()->GetVSInst() == nullptr)
+		{
+			bNeedSingleDraw = true;
+		}
+	}
+	if (bNeedSingleDraw)
+	{
+		for (const auto& instObj : vecInstObjs)
+		{
+			m_mapSingleObj[(INT_PTR)instObj.pObj].push_back(instObj);
+		}
+	}
+}
+
+void CCamera::clear_shadow()
+{
+	m_vecShadow.clear();
+}
 void CCamera::clear()
 {
 	for (auto& pair : m_mapInstGroup_D)
-		pair.second.clear();
+	{
+		if(!pair.second.empty())
+			pair.second.clear();
+	}
 	for (auto& pair : m_mapInstGroup_F)
-		pair.second.clear();
+	{
+		if (!pair.second.empty())
+			pair.second.clear();
+	}
+	m_mapInstGroup_D.clear();
+	m_mapInstGroup_F.clear();
+	m_mapSingleObj.clear();
 
-	//m_vecDeferred.clear();
 	m_vecDeferredDecal.clear();
 
 	m_vecOpaque.clear();
@@ -628,125 +756,6 @@ void CCamera::clear()
 	m_vecText.clear();
 }
 
-void CCamera::clear_shadow()
-{
-	m_vecShadow.clear();
-}
-
-void CCamera::render_deferred()
-{
-	UpdateMatrix();
-
-	for (auto& pair : m_mapSingleObj)
-	{
-		pair.second.clear();
-	}
-
-	// Deferred object render
-	tInstancingData tInstData = {};
-
-	for (auto& pair : m_mapInstGroup_D)
-	{
-		if (pair.second.empty())
-			continue;
-
-		if (pair.second.size() <= 2
-			|| pair.second[0].pObj->Animator2D()
-			|| pair.second[0].pObj->GetRenderComponent()->GetMaterial(pair.second[0].iMtrlIdx)->GetShader()->GetVSInst() == nullptr)
-		{
-			for (UINT i = 0; i < pair.second.size(); ++i)
-			{
-				map<INT_PTR, vector<tInstObj>>::iterator iter
-					= m_mapSingleObj.find((INT_PTR)pair.second[i].pObj);
-
-				if (iter != m_mapSingleObj.end())
-					iter->second.push_back(pair.second[i]);
-				else
-				{
-					m_mapSingleObj.insert(make_pair((INT_PTR)pair.second[i].pObj, vector<tInstObj>{pair.second[i]}));
-				}
-			}
-			continue;
-		}
-
-		CGameObject* pObj = pair.second[0].pObj;
-		Ptr<CMesh> pMesh = pObj->GetRenderComponent()->GetMesh();
-		Ptr<CMaterial> pMtrl = pObj->GetRenderComponent()->GetMaterial(pair.second[0].iMtrlIdx);
-
-		// Instancing πˆ∆€ ≈¨∏ÆæÓ
-		CInstancingBuffer::GetInst()->Clear();
-
-		int iRowIdx = 0;
-		bool bHasAnim3D = false;
-		for (UINT i = 0; i < pair.second.size(); ++i)
-		{
-			tInstData.matWorld = pair.second[i].pObj->Transform()->GetWorldMat();
-			tInstData.matWV = tInstData.matWorld * m_matView;
-			tInstData.matWVP = tInstData.matWV * m_matProj;
-
-			if (pair.second[i].pObj->Animator3D())
-			{
-				pair.second[i].pObj->Animator3D()->UpdateData();
-				tInstData.iRowIdx = iRowIdx++;
-				CInstancingBuffer::GetInst()->AddInstancingBoneMat(pair.second[i].pObj->Animator3D()->GetFinalBoneMat());
-				bHasAnim3D = true;
-			}
-			else
-				tInstData.iRowIdx = -1;
-
-			CInstancingBuffer::GetInst()->AddInstancingData(tInstData);
-		}
-
-		CInstancingBuffer::GetInst()->SetData();
-
-		if (bHasAnim3D)
-		{
-			pMtrl->SetAnim3D(true); // Animation Mesh æÀ∏Æ±‚
-			pMtrl->SetBoneCount(pMesh->GetBoneCount());
-		}
-
-		pMtrl->UpdateData_Instancing();
-		pMesh->render_instancing(pair.second[0].iMtrlIdx);
-
-		// ¡§∏Æ
-		if (bHasAnim3D)
-		{
-			pMtrl->SetAnim3D(false); // Animation Mesh æÀ∏Æ±‚
-			pMtrl->SetBoneCount(0);
-		}
-	}
-
-	// ∞≥∫∞ ∑£¥ı∏µ
-	for (auto& pair : m_mapSingleObj)
-	{
-		if (pair.second.empty())
-			continue;
-
-		//pair.second[0].pObj->Transform()->UpdateData();
-
-		for (auto& instObj : pair.second)
-		{
-			instObj.pObj->GetRenderComponent()->render(instObj.iMtrlIdx, true);
-		}
-		//if (pair.second[0].pObj->Animator2D())
-		//{
-		//	pair.second[0].pObj->Animator2D()->ClearData();
-		//}
-
-		//if (pair.second[0].pObj->Animator3D())
-		//{
-		//	pair.second[0].pObj->Animator3D()->ClearData();
-		//}
-	}
-
-	//CRenderMgr::GetInst()->GetMRT(MRT_TYPE::DEFERRED_DECAL)->OMSet();
-
-	//for (size_t i = 0; i < m_vecDeferredDecal.size(); ++i)
-	//{
-	//	m_vecDeferredDecal[i]->render();
-	//}
-}
-
 void CCamera::render_map_marker()
 {
 	UpdateMatrix();
@@ -755,168 +764,140 @@ void CCamera::render_map_marker()
 	CLayer* pEnemyLayer = pCurLevel->GetLayer((UINT)LAYER_TYPE::Enemy);
 
 	vector<CGameObject*> enemies = pEnemyLayer->GetParentObject();
+
+	static Ptr<CMaterial> pMarkerMaterial = new CMaterial;
+	pMarkerMaterial->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"UI2DShader").Get());
+	pMarkerMaterial->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\enemy_marker.png"));
+
+	Ptr<CMesh> pMarkerMesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
+
+	CConstBuffer* pTransformBuffer = CDevice::GetInst()->GetConstBuffer(CB_TYPE::TRANSFORM);
 	
+
+	Vec3 vPos = Vec3::Zero;
+	CTransform* pTrans = nullptr;
+
+	Vec3 vCamPos = Transform()->GetRelativePos();
+	Vec3 vCamUp = Transform()->GetRelativeDir(DIR_TYPE::UP);
+
 	for(int i =0 ; i < enemies.size(); ++i)
 	{
-		CTransform* pTrans = enemies[i]->Transform();
+		pTrans = enemies[i]->Transform();
 		if (nullptr == pTrans)
 			continue;
 
-		Vec3 vPos = enemies[i]->Transform()->GetRelativePos();
+		vPos = enemies[i]->Transform()->GetRelativePos();
 		vPos.y += 10000.f;
-		
-		CConstBuffer* pTransformBuffer = CDevice::GetInst()->GetConstBuffer(CB_TYPE::TRANSFORM);
-		//Matrix matTr = XMMatrixTranslation(vPos.x, vPos.y, vPos.z);
-		Matrix matSc = XMMatrixScaling(500.f, 500.f, 500.f);
 
-		Vec3 vCamPos = Transform()->GetRelativePos();
-		Vec3 vCamUp = Transform()->GetRelativeDir(DIR_TYPE::UP);
+		Matrix matSc = XMMatrixScaling(500.f, 500.f, 500.f);
 		Matrix matWorld = matSc;
 		matWorld *= Matrix::CreateConstrainedBillboard(vPos, vCamPos, vCamUp);
 
 		g_transform.matWorld = matWorld;
-		Matrix matWorldInv = XMMatrixInverse(nullptr, g_transform.matWorld);
 
-		g_transform.matWorldInv = matWorldInv;
+		g_transform.matWorldInv = XMMatrixInverse(nullptr, g_transform.matWorld);
 		g_transform.matWV = g_transform.matWorld * g_transform.matView;
 		g_transform.matWVP = g_transform.matWV * g_transform.matProj;
 
 		pTransformBuffer->SetData(&g_transform);
 		pTransformBuffer->UpdateData();
 
-		Ptr<CMesh> pMarkerMesh = CResMgr::GetInst()->FindRes<CMesh>(L"RectMesh");
-		Ptr<CMaterial> pMarkerMaterial = new CMaterial;
-		pMarkerMaterial->SetShader(CResMgr::GetInst()->FindRes<CGraphicsShader>(L"UI2DShader").Get());
-		pMarkerMaterial->SetTexParam(TEX_0, CResMgr::GetInst()->FindRes<CTexture>(L"texture\\UI\\enemy_marker.png"));
 		pMarkerMaterial->UpdateData();
-
 		pMarkerMesh->render(0);
+
+		pTrans = nullptr;
 	}
 }
+void CCamera::RenderInstancedBatch(std::pair<const ULONG64, std::vector<tInstObj>>& pair)
+{
+	auto& vecInstObjs = pair.second;
+	if (vecInstObjs.empty()) return;
 
+	CInstancingBuffer* pInstBuffer = CInstancingBuffer::GetInst();
+	pInstBuffer->Clear();
+
+	tInstancingData tInstData = {};
+	InsertInstancingData(pair, tInstData);
+
+	if (pInstBuffer->GetInstanceCount() == 0)
+		return;
+
+	pInstBuffer->SetData();
+
+	RenderInstancingData(pair);
+
+	// Prevent stale instance count from carrying to later passes/cameras.
+	pInstBuffer->Clear();
+}
+
+void CCamera::render_deferred()
+{
+	UpdateMatrix();
+
+	m_mapSingleObj.clear();
+
+	for (auto& pair : m_mapInstGroup_D)
+	{
+		if (pair.second.empty())
+			continue;
+
+		if (pair.second.size() <= 2)
+		{
+			InsertSingleData(pair);
+			continue;
+		}
+
+		RenderInstancedBatch(pair);
+	}
+	
+	for (auto& pair : m_mapSingleObj)
+	{
+		if (pair.second.empty())
+			continue;
+
+
+		for (auto& instObj : pair.second)
+		{
+			instObj.pObj->GetRenderComponent()->render(instObj.iMtrlIdx, true);
+		}
+	}
+}
 void CCamera::render_forward()
 {
 	UpdateMatrix();
 
-	for (auto& pair : m_mapSingleObj)
-	{
-		pair.second.clear();
-	}
-
-	// Deferred object render
-	tInstancingData tInstData = {};
+	m_mapSingleObj.clear();
 
 	for (auto& pair : m_mapInstGroup_F)
 	{
-		// ±◊∑Ï ø¿∫Í¡ß∆Æ∞° æ¯∞≈≥™, Ω¶¿Ã¥ı∞° æ¯¥¬ ∞ÊøÏ
 		if (pair.second.empty())
 			continue;
 
-		// instancing ∞≥ºˆ ¡∂∞« πÃ∏∏¿Ã∞≈≥™
-		// Animation2D ø¿∫Í¡ß∆Æ∞≈≥™(Ω∫«¡∂Û¿Ã∆Æ æ÷¥œ∏ﬁ¿Ãº« ø¿∫Í¡ß∆Æ)
-		// Shader ∞° Instancing ¿ª ¡ˆø¯«œ¡ˆ æ ¥¬∞ÊøÏ
-		if (pair.second.size() <= 2
-			|| pair.second[0].pObj->Animator2D()
-			|| pair.second[0].pObj->GetRenderComponent()->GetMaterial(pair.second[0].iMtrlIdx)->GetShader()->GetVSInst() == nullptr)
+		if (pair.second.size() <= 2)
 		{
-			// «ÿ¥Á π∞√ºµÈ¿∫ ¥‹¿œ ∑£¥ı∏µ¿∏∑Œ ¿¸»Ø
-			for (UINT i = 0; i < pair.second.size(); ++i)
-			{
-				map<INT_PTR, vector<tInstObj>>::iterator iter
-					= m_mapSingleObj.find((INT_PTR)pair.second[i].pObj);
-
-				if (iter != m_mapSingleObj.end())
-					iter->second.push_back(pair.second[i]);
-				else
-				{
-					m_mapSingleObj.insert(make_pair((INT_PTR)pair.second[i].pObj, vector<tInstObj>{pair.second[i]}));
-				}
-			}
+			InsertSingleData(pair);
 			continue;
 		}
 
-		CGameObject* pObj = pair.second[0].pObj;
-		Ptr<CMesh> pMesh = pObj->GetRenderComponent()->GetMesh();
-		Ptr<CMaterial> pMtrl = pObj->GetRenderComponent()->GetMaterial(pair.second[0].iMtrlIdx);
-
-		// Instancing πˆ∆€ ≈¨∏ÆæÓ
-		CInstancingBuffer::GetInst()->Clear();
-
-		int iRowIdx = 0;
-		bool bHasAnim3D = false;
-		for (UINT i = 0; i < pair.second.size(); ++i)
-		{
-			tInstData.matWorld = pair.second[i].pObj->Transform()->GetWorldMat();
-			tInstData.matWV = tInstData.matWorld * m_matView;
-			tInstData.matWVP = tInstData.matWV * m_matProj;
-
-			if (pair.second[i].pObj->Animator3D())
-			{
-				pair.second[i].pObj->Animator3D()->UpdateData();
-				tInstData.iRowIdx = iRowIdx++;
-				CInstancingBuffer::GetInst()->AddInstancingBoneMat(pair.second[i].pObj->Animator3D()->GetFinalBoneMat());
-				bHasAnim3D = true;
-			}
-			else
-				tInstData.iRowIdx = -1;
-
-			CInstancingBuffer::GetInst()->AddInstancingData(tInstData);
-		}
-
-		// ¿ŒΩ∫≈œΩÃø° « ø‰«— µ•¿Ã≈Õ∏¶ ºº∆√(SysMem -> GPU Mem)
-		CInstancingBuffer::GetInst()->SetData();
-
-		if (bHasAnim3D)
-		{
-			pMtrl->SetAnim3D(true); // Animation Mesh æÀ∏Æ±‚
-			pMtrl->SetBoneCount(pMesh->GetBoneCount());
-		}
-
-		pMtrl->UpdateData_Instancing();
-		pMesh->render_instancing(pair.second[0].iMtrlIdx);
-
-		// ¡§∏Æ
-		if (bHasAnim3D)
-		{
-			pMtrl->SetAnim3D(false); // Animation Mesh æÀ∏Æ±‚
-			pMtrl->SetBoneCount(0);
-		}
+		RenderInstancedBatch(pair);
 	}
-
-	// ∞≥∫∞ ∑£¥ı∏µ
+	
 	for (auto& pair : m_mapSingleObj)
 	{
 		if (pair.second.empty())
 			continue;
 
-		//pair.second[0].pObj->Transform()->UpdateData();
 
 		for (auto& instObj : pair.second)
 		{
 			instObj.pObj->GetRenderComponent()->render(instObj.iMtrlIdx, false);
 		}
-		//if (pair.second[0].pObj->Animator2D())
-		//{
-		//	pair.second[0].pObj->Animator2D()->ClearData();
-		//}
-
-		//if (pair.second[0].pObj->Animator3D())
-		//{
-		//	pair.second[0].pObj->Animator3D()->ClearData();
-		//}
 	}
 }
 
 void CCamera::render_shadowmap()
 {
 	UpdateMatrix();
-	//g_transform.matView = m_matView;
-	//g_transform.matProj = m_matProj;
-
-	for (size_t i = 0; i < m_vecShadow.size(); ++i)
-	{
-		m_vecShadow[i]->render_shadowmap();
-	}
 }
 
 void CCamera::render_decal()
@@ -994,3 +975,4 @@ void CCamera::LoadFromLevelFile(FILE* _File)
 	fread(&m_iLayerMask, sizeof(UINT), 1, _File);
 	fread(&m_iCamIdx, sizeof(int), 1, _File);
 }
+
