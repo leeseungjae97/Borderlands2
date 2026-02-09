@@ -59,8 +59,7 @@ VS_OUT VS_Std3D_Deferred(VS_IN _in)
     {
         Skinning(_in.vPos, _in.vTangent, _in.vBinormal, _in.vNormal, _in.vWeights, _in.vIndices, 0);
     }
-
-    // ���ÿ����� Normal ������ ����� �̵�
+    
     output.vPosition = mul(float4(_in.vPos, 1.f), g_matWVP);
     output.vUV = _in.vUV;
 
@@ -76,30 +75,18 @@ VS_OUT VS_Std3D_Deferred_Inst(VTX_IN_INST _in)
 {
     VS_OUT output = (VS_OUT) 0.f;
 
-        if (g_iAnim && _in.iRowIndex >= 0)
+    if (g_iAnim && _in.iRowIndex >= 0)
     {
         Skinning(_in.vPos, _in.vTangent, _in.vBinormal, _in.vNormal, _in.vWeights, _in.vIndices, _in.iRowIndex);
-        //Skinning(_in.vPos, _in.vTangent, _in.vBinormal, _in.vNormal, _in.vWeights, _in.vIndices, _in.iInstID);
     }
-    
-    float4 vWorldPos = mul(float4(_in.vPos, 1.f), _in.matWorld);
-    float4 vViewPos = mul(vWorldPos, g_matView);
-    
-    output.vPosition = mul(vViewPos, g_matProj);
+
+    output.vPosition = mul(float4(_in.vPos, 1.f), _in.matWVP);
     output.vUV = _in.vUV;
 
-    output.vViewPos = vViewPos.xyz;
-    output.vViewNormal = normalize(mul(float4(_in.vNormal, 0.f), _in.matWorld * g_matView).xyz);
-    output.vViewTangent = normalize(mul(float4(_in.vTangent, 0.f), _in.matWorld * g_matView).xyz);
-    output.vViewBinormal = normalize(mul(float4(_in.vBinormal, 0.f), _in.matWorld * g_matView).xyz);
-    
-    output.vPosition = mul(float4(_in.vPos, 1.f), _in.matWVP);
-    //output.vUV = _in.vUV;
-
-    //output.vViewPos = mul(float4(_in.vPos, 1.f), _in.matWV);
-    //output.vViewNormal = normalize(mul(float4(_in.vNormal, 0.f), _in.matWV)).xyz;
-    //output.vViewTangent = normalize(mul(float4(_in.vTangent, 0.f), _in.matWV)).xyz;
-    //output.vViewBinormal = normalize(mul(float4(_in.vBinormal, 0.f), _in.matWV)).xyz;
+    output.vViewPos = mul(float4(_in.vPos, 1.f), _in.matWV);
+    output.vViewNormal = normalize(mul(float4(_in.vNormal, 0.f), _in.matWV)).xyz;
+    output.vViewTangent = normalize(mul(float4(_in.vTangent, 0.f), _in.matWV)).xyz;
+    output.vViewBinormal = normalize(mul(float4(_in.vBinormal, 0.f), _in.matWV)).xyz;
         
     return output;
 }
