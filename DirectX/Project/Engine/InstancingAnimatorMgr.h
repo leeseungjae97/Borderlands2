@@ -62,8 +62,10 @@ public:
     int AddAnimator3D(CAnimator3D* anim3d);
 
     void BeginFrame();
+    void ResetCache();
     void SetData();
     CStructuredBuffer* GetFinalMatBuffer() { return m_pGlobalFinalMatBuffer; }
+    int GetAnimInstancingCount() const { return (int)m_vecAnimators.size(); }
 
 private:
     void Resize(UINT _iCount);

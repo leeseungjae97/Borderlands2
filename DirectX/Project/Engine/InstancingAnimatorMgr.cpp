@@ -72,6 +72,17 @@ void InstancingAnimatorMgr::BeginFrame()
     m_pAnimationCopyShader->Clear();
 }
 
+void InstancingAnimatorMgr::ResetCache()
+{
+    m_frameBaseMap.clear();
+    m_blendBaseMap.clear();
+    m_offsetBaseMap.clear();
+
+    m_globalFrameCache.clear();
+    m_globalBlendFrameCache.clear();
+    m_globalOffsetCache.clear();
+}
+
 void InstancingAnimatorMgr::tick()
 {
 
@@ -181,10 +192,16 @@ bool InstancingAnimatorMgr::BuildInstancingInfo(vector<tAnimInstInfo>& outInstIn
         auto itFrame = m_frameBaseMap.find(key);
         if (itFrame == m_frameBaseMap.end())
         {
+            const auto& animClipMap = mesh->GetAnimClip();
+            auto clipIt = animClipMap.find(curClip->GetAnimName());
+            if (clipIt == animClipMap.end())
+            {
+                continue;
+            }
+
             int base = (int)m_globalFrameCache.size();
             m_frameBaseMap.insert({ key, base });
-
-            const auto& clip = mesh->GetAnimClip().at(curClip->GetAnimName());
+            const auto& clip = clipIt->second;
             m_globalFrameCache.insert(m_globalFrameCache.end(), clip.vecTransKeyFrame.begin(), clip.vecTransKeyFrame.end());
             outFrameDirty = true;
         }
@@ -196,14 +213,23 @@ bool InstancingAnimatorMgr::BuildInstancingInfo(vector<tAnimInstInfo>& outInstIn
             auto itBlend = m_blendBaseMap.find(keyB);
             if (itBlend == m_blendBaseMap.end())
             {
-                int base = (int)m_globalBlendFrameCache.size();
-                m_blendBaseMap.insert({ keyB, base });
-
-                const auto& bclip = mesh->GetAnimClip().at(anim->GetNextAnimClip()->GetAnimName());
-                m_globalBlendFrameCache.insert(m_globalBlendFrameCache.end(), bclip.vecTransKeyFrame.begin(), bclip.vecTransKeyFrame.end());
-                outBlendDirty = true;
+                const auto& animClipMap = mesh->GetAnimClip();
+                auto blendIt = animClipMap.find(anim->GetNextAnimClip()->GetAnimName());
+                if (blendIt == animClipMap.end())
+                {
+                    info.iIsBlend = 0;
+                    info.iBlendFrameBase = 0;
+                }
+                else
+                {
+                    int base = (int)m_globalBlendFrameCache.size();
+                    m_blendBaseMap.insert({ keyB, base });
+                    const auto& bclip = blendIt->second;
+                    m_globalBlendFrameCache.insert(m_globalBlendFrameCache.end(), bclip.vecTransKeyFrame.begin(), bclip.vecTransKeyFrame.end());
+                    outBlendDirty = true;
+                }
             }
-            info.iBlendFrameBase = m_blendBaseMap[keyB];
+            info.iBlendFrameBase = info.iIsBlend ? m_blendBaseMap[keyB] : 0;
         }
         else
         {

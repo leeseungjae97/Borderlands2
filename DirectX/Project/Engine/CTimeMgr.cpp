@@ -27,7 +27,7 @@ CTimeMgr::~CTimeMgr()
 
 void CTimeMgr::init()
 {
-	// 1ÃÊ´ç Ä«¿îÆÃ Áõ°¡·®
+	// 1ï¿½Ê´ï¿½ Ä«ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	QueryPerformanceFrequency(&m_llFrequency);
 		
 	QueryPerformanceCounter(&m_llCurCount);
@@ -38,27 +38,27 @@ void CTimeMgr::tick()
 {	
 	QueryPerformanceCounter(&m_llCurCount);
 
-	// tick °£°Ý ½Ã°£
+	// tick ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
 	m_fDeltaTime = (float)(m_llCurCount.QuadPart - m_llPrevCount.QuadPart) / (float)m_llFrequency.QuadPart;
 
-	// ´©Àû ½Ã°£
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
 	m_fTime += m_fDeltaTime;
 	m_dTotalAccTime += m_fDeltaTime;
 
-	// ÇÔ¼ö È£Ãâ È½¼ö
+	// ï¿½Ô¼ï¿½ È£ï¿½ï¿½ È½ï¿½ï¿½
 	++m_iCallCount;
 		
-	// ÀÌÀü Ä«¿îÆ® °ªÀ» ÇöÀç Ä«¿îÆ®·Î °»½Å
+	// ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	m_llPrevCount = m_llCurCount;		
 
-	// GlobalData °»½Å
+	// GlobalData ï¿½ï¿½ï¿½ï¿½
 	GlobalData.tDT = m_fDeltaTime;
 	GlobalData.tAccTime += m_fDeltaTime;
 }
 
 void CTimeMgr::render()
 {
-	// 1ÃÊ¿¡ ÇÑ¹ø
+	// 1ï¿½Ê¿ï¿½ ï¿½Ñ¹ï¿½
 	static wchar_t szBuff[500] = {};
 
 	if (1.f <= m_fTime)
@@ -70,7 +70,7 @@ void CTimeMgr::render()
 			, m_fDeltaTime
 			, ib->GetInstanceCount()
 			, ib->GetMaxCount()
-			, ib->GetAnimInstancingCount()
+			, iamg->GetAnimInstancingCount()
 			, iamg->m_iTotalOutBones
 			, iamg->m_globalFrameCache.size()
 			, iamg->m_globalBlendFrameCache.size()

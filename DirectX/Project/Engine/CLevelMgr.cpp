@@ -11,6 +11,7 @@
 #include "CTransform.h"
 #include "CUI.h"
 #include "LoadingMgr.h"
+#include "InstancingAnimatorMgr.h"
 #include "WeaponMgr.h"
 #include "ThreadMgr.h"
 
@@ -139,6 +140,8 @@ CLevel* CLevelMgr::GetLevel(const wstring& name)
 
 void CLevelMgr::ChangeLevel(CLevel* _NextLevel)
 {
+	InstancingAnimatorMgr::GetInst()->ResetCache();
+
 	LEVEL_STATE prevState = LEVEL_STATE::STOP;
 	if (nullptr != m_pCurLevel)
 	{
