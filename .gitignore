@@ -458,6 +458,14 @@ unity_*.cpp
 *.cso
 *.lib
 *.ini
+*.exe
+*.dll
+*.pdb
+*.txt
+*.idb
+*.sln
+External
+OutputFile
 
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio

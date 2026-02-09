@@ -43,7 +43,7 @@ void CInstancingBuffer::SetData()
         return;
     }
 
-	if (m_vecData.size() != m_iMaxCount)
+	if (m_vecData.size() > m_iMaxCount)
 	{
 		Resize((UINT)m_vecData.size());
 	}

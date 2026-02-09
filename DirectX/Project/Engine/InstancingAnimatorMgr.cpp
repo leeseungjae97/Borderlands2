@@ -137,6 +137,8 @@ bool InstancingAnimatorMgr::BuildInstancingInfo(vector<tAnimInstInfo>& outInstIn
     {
         CAnimator3D* anim = entry.pAnim;
         if (!anim) continue;
+        if (!anim->GetOwner()) continue;
+        if (!anim->GetOwner()->MeshRender()) continue;
 
         CAnimClip* curClip = anim->GetCurAnimClip();
         if (!curClip) continue;
@@ -281,21 +283,13 @@ void InstancingAnimatorMgr::SetData()
 {
     if (m_vecAnimators.empty()) return;
 
-    // Rebuild caches per frame to avoid unbounded growth from dynamic spawn/despawn meshes.
-    m_frameBaseMap.clear();
-    m_blendBaseMap.clear();
-    m_offsetBaseMap.clear();
-    m_globalFrameCache.clear();
-    m_globalBlendFrameCache.clear();
-    m_globalOffsetCache.clear();
-
     vector<tAnimInstInfo> vecInstInfo;
     int totalOutBones = 0;
     int maxBoneCount = 0;
     bool hasBlend = false;
-    bool frameDirty = true;
-    bool blendDirty = true;
-    bool offsetDirty = true;
+    bool frameDirty = false;
+    bool blendDirty = false;
+    bool offsetDirty = false;
 
     if (!BuildInstancingInfo(vecInstInfo, totalOutBones, maxBoneCount, hasBlend, frameDirty, blendDirty, offsetDirty))
         return;
@@ -326,7 +320,11 @@ void InstancingAnimatorMgr::SetData()
 
 void InstancingAnimatorMgr::Resize(UINT _iCount)
 {
-    m_pAnimInstBuffer = nullptr;
+    if (m_pAnimInstBuffer)
+    {
+        delete m_pAnimInstBuffer;
+        m_pAnimInstBuffer = nullptr;
+    }
 
     m_iMaxCount = _iCount;
 
